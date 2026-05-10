@@ -17,6 +17,7 @@
     // "noFallthroughCasesInSwitch": true,
     // "noPropertyAccessFromIndexSignature": true,
     "allowImportingTsExtensions": false,
+    "noEmit": false,
     // Recommended Options
     "strict": true,
     "verbatimModuleSyntax": true,
