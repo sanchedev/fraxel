@@ -1,14 +1,8 @@
 import { GameConfig } from '../core/game-config.js'
 import { Event } from '../events/event.js'
 import type { Vector2 } from '../math/vector2.js'
-import { Node, type NodeEvents, type NodeOptions } from './node.js'
+import { Node, type NodeOptions } from './node.js'
 import { Nodes } from './registry.js'
-
-export interface ColliderEvents extends NodeEvents {
-  colliderEntered: Event<[Collider], 'colliderEnter'>
-  collided: Event<[Collider], 'collide'>
-  colliderExited: Event<[Collider], 'colliderExit'>
-}
 
 export interface ColliderOptions extends NodeOptions {
   /**
@@ -43,7 +37,7 @@ export interface ColliderOptions extends NodeOptions {
 /** Default **`id`** for `Node` and it is used for jsx tags */
 export const colliderNodeName = 'collider'
 
-export class Collider extends Node implements ColliderEvents {
+export class Collider extends Node {
   size: Vector2
   layer: string[] = []
   mesh: string[] = []
@@ -64,6 +58,11 @@ export class Collider extends Node implements ColliderEvents {
   colliderEntered = new Event('colliderEnter', (collider: Collider) => {})
   collided = new Event('collide', (collider: Collider) => {})
   colliderExited = new Event('colliderExit', (collider: Collider) => {})
+
+  // Event functions
+  onColliderEnter?(collider: Collider) {}
+  onCollide?(collider: Collider) {}
+  onColliderExit?(collider: Collider) {}
 
   #reloadCollider(forced?: string[]) {
     const currentLayer = new Set(forced ?? this.layer)

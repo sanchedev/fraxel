@@ -2,13 +2,8 @@ import { GameConfig } from '../core/game-config.js'
 import { Event } from '../events/event.js'
 import { Vector2 } from '../math/vector2.js'
 import { colliders, detectCollision, type Collider } from './collider.js'
-import { Node, type NodeEvents, type NodeOptions } from './node.js'
+import { Node, type NodeOptions } from './node.js'
 import { Nodes } from './registry.js'
-
-export interface RayCastEvents extends NodeEvents {
-  colliderEntered: Event<[Collider], 'colliderEnter'>
-  colliderExited: Event<[Collider], 'colliderExit'>
-}
 
 export interface RayCastOptions extends NodeOptions {
   /**
@@ -34,7 +29,7 @@ export interface RayCastOptions extends NodeOptions {
 /** Default **`id`** for `Node` and it is used for jsx tags */
 export const rayCastNodeName = 'ray-cast'
 
-export class RayCast extends Node implements RayCastEvents {
+export class RayCast extends Node {
   length: number
   mesh: string[]
 
@@ -50,6 +45,10 @@ export class RayCast extends Node implements RayCastEvents {
   // Events
   colliderEntered = new Event('colliderEnter', (collider: Collider) => {})
   colliderExited = new Event('colliderExit', (collider: Collider) => {})
+
+  // Event functions
+  onColliderEnter?(collider: Collider) {}
+  onColliderExit?(collider: Collider) {}
 
   /**
    * The **`getCollider`** method of `RayCast` is used to retrieve the current collider that the ray is interacting with. It returns a `Collider` object if the ray is currently colliding with a collider, or `null` if there is no collision. This method is essential for determining which objects in the game world are being affected by the raycast.

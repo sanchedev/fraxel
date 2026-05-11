@@ -1,7 +1,7 @@
 import { Vector2 } from '../math/vector2.js'
 import { GameConfig } from '../core/game-config.js'
-import { Event } from '../events/event.js'
-import { type NodeInstances } from './types.js'
+import { Event, getEventName } from '../events/event.js'
+import { type NodeEvents, type NodeInstances } from './types.js'
 import { Game } from '../core/game.js'
 import { Signal } from '../reactivity/signal.js'
 import {
@@ -12,29 +12,7 @@ import {
 } from '../errors/node.js'
 import { getNodeName } from './utils.js'
 import { Nodes } from './registry.js'
-
-export interface NodeEvents {
-  /**
-   * Detects whether `zIndex` **change**
-   */
-  zIndexChanged: Event<[number], 'zIndexChange'>
-  /**
-   * Detects whether this `Node` **start**
-   */
-  started: Event<[], 'start'>
-  /**
-   * Detects whether this `Node` **is drawing**
-   */
-  drawed: Event<[number], 'draw'>
-  /**
-   * Detects whether this `Node` **is updating**
-   */
-  updated: Event<[number], 'update'>
-  /**
-   * Detects whether this `Node` is **destroyed**
-   */
-  destroyed: Event<[], 'destroy'>
-}
+import type { Fun } from '../events/types.js'
 
 export interface NodeOptions {
   /**
@@ -138,7 +116,7 @@ export const nodeName = 'node'
 
 const idRegEx = /([a-zA-Z][a-zA-Z0-9-_]*)/g
 
-export class Node implements NodeEvents {
+export class Node {
   #id: string
   /**
    * The **`position`** property of a `Node`.
@@ -495,9 +473,11 @@ export class Node implements NodeEvents {
    *
    * If you are using jsx, you can use it like this:
    * ```jsx
+   * import { renderToNodes } from 'tiny-engine/jsx'
+   *
    * class CustomNode extends Node {
    *   build() {
-   *     return (
+   *     return renderToNodes(
    *       <>
    *         <node id='child1' />
    *         <node id='child2' />
@@ -520,15 +500,35 @@ export class Node implements NodeEvents {
   updated = new Event('update', (delta: number) => {})
   destroyed = new Event('destroy', () => {})
 
+  // Event functions
+  onZIndexChange?(zIndex: number) {}
+  onStart?() {}
+  onDraw?(delta: number) {}
+  onUpdate?(delta: number) {}
+  onDestroy?() {}
+
   // Lifecycle methods
   start(): void {
     if (this.isStarted) return
 
+    // If build method is defined, build the node and add the built nodes as children
     const built = this.build?.()
     if (built instanceof Node) {
       this.addChild(built)
     } else if (Array.isArray(built)) {
       this.addChild(...built)
+    }
+
+    // Attach events
+    const events = Object.keys(this)
+      .filter((key) => this[key as keyof this] instanceof Event)
+      .map((key) => this[key as keyof this]) as Event<any, string>[]
+
+    for (const event of events) {
+      const key = getEventName(event.baseName)
+      if (this[key as keyof this] == null) continue
+      const cb = this[key as keyof this] as Fun<any[]>
+      event.on(cb.bind(this))
     }
 
     for (const child of this._children) {
@@ -582,7 +582,19 @@ export class Node implements NodeEvents {
   }
 
   /**
-   * The **`cleanEvents`** method cleans all
+   * The **`cleanEvents`** method cleans all event listeners of this node.
+   * It is called when the node is destroyed, but you can call it manually if you want to clean the events without destroying the node.
+   * @example
+   * ```ts
+   * const node = new Node()
+   * node.started.on(() => {
+   *   console.log('Node started')
+   * })
+   *
+   * node.cleanEvents() // Now the listener is removed, so it won't log 'Node started' when the node starts.
+   *
+   * node.start() // No log
+   * ```
    */
   cleanEvents() {
     this.started.clean()

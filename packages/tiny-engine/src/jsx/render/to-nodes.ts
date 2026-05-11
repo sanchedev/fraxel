@@ -1,5 +1,5 @@
 import { getNode } from '../../nodes/registry.js'
-import type { Node } from '../../nodes/node.js'
+import { Node } from '../../nodes/node.js'
 import type { Tiny } from '../types'
 import {
   applyIntrinsicAttributesToNode,
@@ -11,6 +11,7 @@ import {
 } from '../../errors/jsx.js'
 import type { NodeInstances, NodeName } from '../../nodes/types.js'
 import { finishHooks, startHooks } from '../../hooks/context.js'
+import { isClassComponent } from './types/class-component.js'
 
 /**
  * The **`renderToNodes`** function takes a JSX element and converts it into an array of nodes that can be rendered in the game. It handles intrinsic elements (like 'node') and functional components, recursively processing any children elements as well.
@@ -22,6 +23,7 @@ export function renderToNodes(jsx: Tiny.Node): Node[] {
 
   if (typeof jsx === 'string') return []
   if (typeof jsx === 'number') return []
+  if (jsx instanceof Node) return [jsx]
 
   if ('type' in jsx) {
     if (typeof jsx.type === 'string') {
@@ -33,6 +35,11 @@ export function renderToNodes(jsx: Tiny.Node): Node[] {
       return [renderIntrinsicElement(jsx.type, jsx.props)]
     }
     if (typeof jsx.type === 'function') {
+      if (isClassComponent(jsx.type)) {
+        return [new jsx.type(jsx.props)].filter(
+          (node): node is Node => node instanceof Node,
+        )
+      }
       return renderFuncComponent(jsx.type, jsx.props)
     }
     throw new InvalidJSXElementTypeError(jsx.type)

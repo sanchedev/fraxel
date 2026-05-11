@@ -1,10 +1,8 @@
 import { getTexture, type Texture } from '../assets/texture.js'
 import { Vector2 } from '../math/vector2.js'
 import { Signal } from '../reactivity/signal.js'
-import { Node, type NodeEvents, type NodeOptions } from './node.js'
+import { Node, type NodeOptions } from './node.js'
 import { Nodes } from './registry.js'
-
-export interface SpriteEvents extends NodeEvents {}
 
 export interface SpriteOptions extends NodeOptions {
   /**
@@ -97,7 +95,7 @@ export interface SpriteOptions extends NodeOptions {
 /** Default **`id`** for `Sprite` and it is used for jsx tags */
 export const spriteNodeName = 'sprite'
 
-export class Sprite extends Node implements SpriteEvents {
+export class Sprite extends Node {
   #textureId?: string | undefined
   #texture?: Texture | undefined
   margin?: Vector2 | undefined

@@ -8,7 +8,10 @@ import type {
 } from '../nodes/types.js'
 
 export namespace Tiny {
-  export type Type = keyof JSX.IntrinsicElements | ((props: any) => Node)
+  export type Type =
+    | keyof JSX.IntrinsicElements
+    | ((props: any) => any)
+    | (new (props: any) => any)
 
   export interface Element<T extends Type = any> {
     type: T
@@ -23,6 +26,7 @@ export namespace Tiny {
     | null
     | undefined
     | Iterable<Node>
+    | NodeInstances['node']
 
   export type IntrinsicElements = {
     [P in NodeName]: IntrinsicElement<P>
@@ -64,7 +68,5 @@ declare global {
     type Element = Tiny.Element
 
     interface IntrinsicElements extends Tiny.IntrinsicElements {}
-
-    type Nodes = NodeInstances
   }
 }

@@ -3,19 +3,12 @@ import { Event } from '../events/event.js'
 import { Node, type NodeOptions } from './node.js'
 import { Nodes } from './registry.js'
 
-export interface AnimationPlayerEvents {
-  animationChanged: Event<[string, string | null], 'animationChange'>
-  animationStopped: Event<[string], 'animationStop'>
-  animationIndexChanged: Event<[number], 'animationIndexChange'>
-  animationEnded: Event<[string], 'animationEnd'>
-}
-
 export interface AnimationPlayerOptions extends NodeOptions {}
 
 /** Default **`id`** for `AnimationPlayer` and it is used for jsx tags */
 export const animationPlayerNodeName = 'animation-player'
 
-export class AnimationPlayer extends Node implements AnimationPlayerEvents {
+export class AnimationPlayer extends Node {
   #animations = new Map<string, Animation>()
   #currentAnim: string | null = null
   #index = 0
@@ -56,6 +49,12 @@ export class AnimationPlayer extends Node implements AnimationPlayerEvents {
    * Detects whether the current animation **end**
    */
   animationEnded = new Event('animationEnd', (anim: string) => {})
+
+  // Event functions
+  animationChange?(newAnim: string, oldAnim: string | null) {}
+  animationStop?(anim: string) {}
+  animationIndexChange?(index: number) {}
+  animationEnd?(anim: string) {}
 
   /**
    * The **`add`** method adds an animation with a key.

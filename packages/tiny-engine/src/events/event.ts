@@ -1,4 +1,4 @@
-type Fun<T extends any[]> = (...args: T) => void
+import type { EventName, Fun } from './types.js'
 
 export class Event<T extends any[], const K extends string> {
   /**
@@ -47,4 +47,13 @@ export class Event<T extends any[], const K extends string> {
     public baseName: K,
     public exampleFun: Fun<T>,
   ) {}
+}
+
+export function getEventName<const K extends string>(
+  baseName: K,
+): EventName<K> {
+  const first = baseName[0]?.toUpperCase() ?? ''
+  const rest = baseName.slice(1)
+  const eventName = `on${first}${rest}`
+  return eventName as EventName<K>
 }

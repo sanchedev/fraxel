@@ -7,6 +7,7 @@ import type {
 import type { Collider, colliderNodeName } from './collider.js'
 import type { RayCast, rayCastNodeName } from './ray-cast.js'
 import type { Event } from '../events/event.js'
+import type { EventName } from '../events/types.js'
 
 export interface NodeClasses {
   [nodeName]: typeof Node
@@ -37,9 +38,9 @@ export type NodeEvents = {
       Q
     > extends undefined
       ? never
-      : `on${Capitalize<NonNullable<NodeEvent<NodeInstances[P], Q>>['baseName']>}`]: NonNullable<
-      NodeEvent<NodeInstances[P], Q>
-    >
+      : EventName<
+          NonNullable<NodeEvent<NodeInstances[P], Q>>['baseName']
+        >]: NonNullable<NodeEvent<NodeInstances[P], Q>>
   }
 }
 
