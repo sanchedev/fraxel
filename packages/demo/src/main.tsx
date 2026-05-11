@@ -1,5 +1,3 @@
-import './nodes/index.js'
-
 import { createGame, Game, Scene } from 'tiny-engine/jsx'
 
 const game = createGame(

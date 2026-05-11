@@ -1,5 +1,5 @@
 import { Vector2 } from 'tiny-engine'
-import { Peashooter } from '../plants/peashooter.js'
+import { Peashooter } from '../../nodes/peashooter.js'
 import { RowCtx, RowSpawnersCtx } from '../../contexts/row.js'
 import { useNode, useSpawn } from 'tiny-engine/hooks'
 
