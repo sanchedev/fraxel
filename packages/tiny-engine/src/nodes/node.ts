@@ -1,7 +1,7 @@
 import { Vector2 } from '../math/vector2.js'
 import { GameConfig } from '../core/game-config.js'
 import { Event, getEventName } from '../events/event.js'
-import { type NodeEvents, type NodeInstances } from './types.js'
+import { type NodeInstances } from './types.js'
 import { Game } from '../core/game.js'
 import { Signal } from '../reactivity/signal.js'
 import {
@@ -13,130 +13,113 @@ import {
 import { getNodeName } from './utils.js'
 import { Nodes } from './registry.js'
 import type { Fun } from '../events/types.js'
+import { PrimaryNode } from './enum.js'
+import type { TinyScript } from '../scripts/script.js'
 
-export interface NodeOptions {
+export interface NodeOptions<T extends PrimaryNode> {
   /**
-   * The read-only **`id`** property of `Node` represents the node's identifier.
-   * It can be used to get this node.
-   * It can be not unique.
-   * Should match with ([a-zA-Z][a-zA-Z0-9-_]*)
+   * The **`id`** property of a node represents the node's identifier.
+   * It can be used to retrieve this node via `child()`.
+   * IDs can be non-unique and must match `([a-zA-Z][a-zA-Z0-9-_]*)`.
    *
    * @example
-   * ```jsx
-   * useStart((node) => {
-   *   const container = node.getChild('container')
-   *   // ...
-   * })
+   * ```tsx
+   * const transform = useRefNode(PrimaryNode.Transform)
+   * const container = useChild(['container'], PrimaryNode.Transform)
    *
    * return (
-   *   <node>
-   *     <node id='container' />
-   *   </node>
+   *   <transform ref={transform}>
+   *     <transform id='container' />
+   *   </transform>
    * )
    * ```
    *
-   * **`id`** can be used as path.
+   * **`id`** can be used as path to find nested nodes.
    *
    * @example
-   * ```jsx
-   * useStart((node) => {
-   *   const child2 = node.getChild('child/child2')
-   *   // ...
-   * })
+   * ```tsx
+   * const child2 = useChild(['child1', 'child2'], PrimaryNode.Transform)
    *
    * return (
-   *   <node>
-   *     <node id='child1'>
-   *       <node id='child2' />
-   *     </node>
-   *   </node>
+   *   <transform>
+   *     <transform id='child1'>
+   *       <transform id='child2' />
+   *     </transform>
+   *   </transform>
    * )
    * ```
    */
-  id?: string
+  id?: string | symbol
   /**
-   * The **`position`** property of a `Node`.
+   * The **`position`** property of a node.
    * It represents the position in the plane.
    *
    * @example
-   * ```jsx
-   * useUpdate((node, delta) => {
-   *   node.position.x += delta * 20
-   *   // ...
+   * ```tsx
+   * useEvent(transform, 'updated', (delta) => {
+   *   transform.node.position.x += delta * 20
    * })
    *
    * return (
-   *   <node>
-   *     <sprite textureId='ball'>
-   *       {
-   *        // ...
-   *       }
-   *     </sprite>
-   *   </node>
+   *   <transform ref={transform}>
+   *     <sprite textureId={BALL_TEXTURE} />
+   *   </transform>
    * )
    * ```
    */
-  position?: Vector2 | Signal<Vector2>
+  position?: Vector2
   /**
-   * The **`zIndex`** property of a `Node`.
+   * The **`zIndex`** property of a node.
    * It represents the position in Z in the plane.
    *
    * @example
-   * ```jsx
-   * <node>
-   *   <sprite textureId='ball' zIndex={0} />
-   *   <sprite textureId='ball-2' zIndex={1} />
-   * </node>
+   * ```tsx
+   * <transform>
+   *   <sprite textureId={BALL_TEXTURE} zIndex={0} />
+   *   <sprite textureId={BALL_2_TEXTURE} zIndex={1} />
+   * </transform>
    * ```
    */
-  zIndex?: number | Signal<number>
+  zIndex?: number
   /**
-   * The **`deltaIncrease`** property of a `Node` change the speed of self.
+   * The **`deltaIncrease`** property changes the speed of the node and its children.
    *
    * @example
-   * ```jsx
-   * useUpdate((node, delta) => {
-   *   node.position.x += delta * 20
-   * })
-   *
+   * ```tsx
    * // Speed x0.5
-   * return (
-   *   <node deltaIncrease={0.5}>
-   *     <Ball />
-   *   </node>
-   * )
+   * <transform deltaIncrease={0.5}>
+   *   <Ball />
+   * </transform>
    * ```
    */
-  deltaIncrease?: number | Signal<number>
+  deltaIncrease?: number
+  /** Optional script to attach to this node */
+  script?: TinyScript<T>
+  /** Child nodes to add */
   children?: Node[]
 }
 
-/** Default **`id`** for `Node` and it is used for jsx tags */
-export const nodeName = 'node'
-
 const idRegEx = /([a-zA-Z][a-zA-Z0-9-_]*)/g
 
-export class Node {
-  #id: string
+export abstract class Node<T extends PrimaryNode = PrimaryNode> {
+  type: T
+  #id: string | symbol
   /**
-   * The **`position`** property of a `Node`.
+   * The **`position`** property of a node.
    * It represents the position in the plane.
    *
    * @example
-   * ```jsx
-   * useUpdate((node, delta) => {
-   *   node.position.x += delta * 20
-   *   // ...
+   * ```tsx
+   * const transform = useRefNode(PrimaryNode.Transform)
+   *
+   * useEvent(transform, 'updated', (delta) => {
+   *   transform.node.position.x += delta * 20
    * })
    *
    * return (
-   *   <node>
-   *     <sprite textureId='ball'>
-   *       {
-   *        // ...
-   *       }
-   *     </sprite>
-   *   </node>
+   *   <transform ref={transform}>
+   *     <sprite textureId={BALL_TEXTURE} />
+   *   </transform>
    * )
    * ```
    */
@@ -145,36 +128,35 @@ export class Node {
   _parent?: Node
   _children: Node[] = []
   /**
-   * The **`deltaIncrease`** property of a `Node` change the speed of self.
+   * The **`deltaIncrease`** property changes the speed of the node and its children.
    *
    * @example
-   * ```jsx
-   * useUpdate((node, delta) => {
-   *   node.position.x += delta * 20
-   * })
-   *
+   * ```tsx
    * // Speed x0.5
-   * return (
-   *   <node deltaIncrease={0.5}>
-   *     <Ball />
-   *   </node>
-   * )
+   * <transform deltaIncrease={0.5}>
+   *   <Ball />
+   * </transform>
    * ```
    */
   deltaIncrease: number = 1
-
+  script?: TinyScript<T>
   // States
   /**
-   * The **`isStarted`** property of the `Node` indicates whether the node is started.
+   * The **`isStarted`** property of the node indicates whether the node is started.
    */
   isStarted: boolean = false
   /**
-   * The **`isDestroyed`** property of the `Node` indicates whether the node is destroyed.
+   * The **`isDestroyed`** property of the node indicates whether the node is destroyed.
    */
   isDestroyed: boolean = false
 
-  constructor({ id, position, zIndex, deltaIncrease, children }: NodeOptions) {
-    if (id) {
+  constructor(
+    type: T,
+    { id, position, zIndex, deltaIncrease, script, children }: NodeOptions<T>,
+  ) {
+    this.type = type
+
+    if (typeof id === 'string') {
       const matches = id.match(idRegEx)
       if (matches == null || matches.length !== 1 || matches[0] !== id) {
         throw new InvalidNodeIdError(
@@ -183,69 +165,48 @@ export class Node {
       }
     }
 
-    this.#id = id ?? nodeName
-    if (position != null) {
-      if (position instanceof Signal) {
-        this.position = position.value
-        position.subscribe((val) => (this.position = val))
-      } else {
-        this.position = position
-      }
+    this.#id = id ?? Symbol(type)
+
+    if (script) {
+      this.script = script
+      this.script.init(this as NodeInstances[T])
     }
-    if (zIndex != null) {
-      if (zIndex instanceof Signal) {
-        this.#zIndex = zIndex.value
-        zIndex.subscribe((val) => (this.zIndex = val))
-      } else {
-        this.#zIndex = zIndex
-      }
-    }
-    if (deltaIncrease != null) {
-      if (deltaIncrease instanceof Signal) {
-        this.deltaIncrease = deltaIncrease.value
-        deltaIncrease.subscribe((val) => (this.deltaIncrease = val))
-      } else {
-        this.deltaIncrease = deltaIncrease
-      }
-    }
-    this._children.push(...(children ?? []))
+
+    this.position = position ?? this.position
+    this.#zIndex = zIndex ?? this.#zIndex
+    this.deltaIncrease = deltaIncrease ?? this.deltaIncrease
+
+    this.addChild(...(children ?? []))
   }
 
   /**
-   * The read-only **`id`** property of `Node` represents the node's identifier.
-   * It can be used to get this node.
-   * It can be not unique.
-   * Should match with ([a-zA-Z][a-zA-Z0-9-_]*)
+   * The read-only **`id`** property of a node represents the node's identifier.
+   * It can be used to retrieve this node via `child()`.
+   * IDs can be non-unique and must match `([a-zA-Z][a-zA-Z0-9-_]*)`.
    *
    * @example
-   * ```jsx
-   * useStart((node) => {
-   *   const container = node.getChild('container')
-   *   // ...
-   * })
+   * ```tsx
+   * const container = useChild(['container'], PrimaryNode.Transform)
    *
    * return (
-   *   <node>
-   *     <node id='container' />
-   *   </node>
+   *   <transform>
+   *     <transform id='container' />
+   *   </transform>
    * )
    * ```
    *
-   * **`id`** can be used as path.
+   * **`id`** can be used as path to find nested nodes.
    *
    * @example
-   * ```jsx
-   * useStart((node) => {
-   *   const child2 = node.getChild('child/child2')
-   *   // ...
-   * })
+   * ```tsx
+   * const child2 = useChild(['child1', 'child2'], PrimaryNode.Transform)
    *
    * return (
-   *   <node>
-   *     <node id='child1'>
-   *       <node id='child2' />
-   *     </node>
-   *   </node>
+   *   <transform>
+   *     <transform id='child1'>
+   *       <transform id='child2' />
+   *     </transform>
+   *   </transform>
    * )
    * ```
    */
@@ -254,20 +215,21 @@ export class Node {
   }
 
   /**
-   * The read-only **`parent`** property returns the parent of a specified `Node`.
+   * The read-only **`parent`** property returns the parent of this node.
    *
    * @example
-   * ```jsx
-   * useStart((node) => {
-   *   const parent = node.parent
+   * ```tsx
+   * const transform = useRefNode(PrimaryNode.Transform)
+   *
+   * useMount(() => {
+   *   const parent = transform.node.parent
    *   parent?.destroy()
-   *   // ...
    * })
    *
    * return (
-   *   <node>
-   *     <node id='container' />
-   *   </node>
+   *   <transform ref={transform}>
+   *     <transform id='container' />
+   *   </transform>
    * )
    * ```
    */
@@ -276,20 +238,21 @@ export class Node {
   }
 
   /**
-   * The read-only **`children`** property returns the child `Node`s.
+   * The read-only **`children`** property returns the child nodes.
    *
    * @example
-   * ```jsx
-   * useStart((node) => {
-   *   const children = node.children
+   * ```tsx
+   * const transform = useRefNode(PrimaryNode.Transform)
+   *
+   * useMount(() => {
+   *   const children = transform.node.children
    *   console.log(children) // [Node]
-   *   // ...
    * })
    *
    * return (
-   *   <node>
-   *     <node id='container' />
-   *   </node>
+   *   <transform ref={transform}>
+   *     <transform id='container' />
+   *   </transform>
    * )
    * ```
    */
@@ -298,7 +261,7 @@ export class Node {
   }
 
   /**
-   * Gets or sets the **`globalPosition`** of the `Node`.
+   * Gets or sets the **`globalPosition`** of the node.
    */
   set globalPosition(value) {
     this.position = value.toSubtracted(
@@ -312,7 +275,7 @@ export class Node {
     return this.position
   }
   /**
-   * Gets or sets the **`zIndex`** of the `Node`.
+   * Gets or sets the **`zIndex`** of the node.
    */
   set zIndex(value: number) {
     if (value === this.#zIndex) return
@@ -323,7 +286,7 @@ export class Node {
     return this.#zIndex
   }
   /**
-   * Gets or sets the **`globalZIndex`** of the `Node`.
+   * Gets or sets the **`globalZIndex`** of the node.
    */
   set globalZIndex(value) {
     if (this._parent == null) this.zIndex = value
@@ -334,7 +297,7 @@ export class Node {
     return this.zIndex + this._parent.globalZIndex
   }
   /**
-   * Gets or sets the **`globalDeltaIncrease`** of the `Node`.
+   * Gets or sets the **`globalDeltaIncrease`** of the node.
    */
   set globalDeltaIncrease(value) {
     if (this._parent == null) this.deltaIncrease = value
@@ -347,95 +310,68 @@ export class Node {
 
   // Methods
   /**
-   * Returns the first element that is a descendant of this `Node` that matches path.
-   *
-   * If `path` is undefined then the method will return the first node with type `nodeType`.
+   * Returns the first descendant node that matches the given path and type.
    *
    * @param options Options to filter nodes
-   * @returns Returns the node or throw an error.
+   * @returns The matching node, or throws if not found
    *
    * @example
-   * **Without path**
-   * ```ts
-   * const sprite = node.getChild({ nodeType: 'sprite' })
-   * ```
+   * ```tsx
+   * const transform = useRefNode(PrimaryNode.Transform)
    *
-   * @example
-   * **With relative path**
-   * ```ts
-   * const gun = node.getChild({ nodeType: 'sprite', path: 'gun' })
-   * ```
-   * ```ts
-   * const ball = node.getChild({ nodeType: 'sprite', path: '../ball' })
-   * ```
+   * useMount(() => {
+   *   const sprite = transform.node.child({
+   *     path: ['sprite'],
+   *     type: PrimaryNode.Sprite
+   *   })
+   * })
    *
-   * @example
-   * **With absolute path**
-   * ```ts
-   * const mainNode = node.getChild({ nodeType: 'sprite', path: '/' })
-   * ```
-   * ```ts
-   * const box = node.getChild({ nodeType: 'node', path: '/box' })
+   * return (
+   *   <transform ref={transform}>
+   *     <sprite id='sprite' />
+   *   </transform>
+   * )
    * ```
    */
-  getChild<T extends keyof NodeInstances>(options: {
-    nodeType: T
-    path?: string
+  child<T extends PrimaryNode>(options: {
+    path: (string | symbol)[]
+    type: T
   }): NodeInstances[T] {
-    const { nodeType, path } = options
+    const { type, path } = options
 
-    if (!(nodeType in Nodes)) {
-      throw new UnknownNodeTypeError(nodeType)
+    if (!(type in Nodes)) {
+      throw new UnknownNodeTypeError(type)
     }
 
     let node: Node | undefined
 
-    if (path != null) {
-      const pathSplitted = path.split('/')
-      if (path.startsWith('/')) {
-        node = Game.sceneManager.currentNode ?? undefined
-        pathSplitted.shift()
-      } else {
-        node = this
-      }
-
-      for (let i = 0; i < pathSplitted.length; i++) {
-        if (node == null) break
-        const n = pathSplitted[i]
-        if (n === '' && i === pathSplitted.length - 1) break
-        if (n === '.') {
-          continue
-        }
-        if (n === '..') {
-          node = node.parent
-          continue
-        }
-        node = node._children.find((node) => node.id === n)
-      }
-    } else {
-      node = this.children.find((node) => node instanceof Nodes[nodeType])
+    for (let i = 0; i < path.length; i++) {
+      if (node == null) break
+      const n = path[i]
+      if (n === '' && i === path.length - 1) break
+      node = node._children.find((node) => node.id === n)
     }
 
     if (node == null) {
-      if (path) {
-        throw new NodeChildNotFoundError(path)
-      } else {
-        throw new NodeTypeMismatchError(nodeType, 'undefined')
-      }
+      throw new NodeChildNotFoundError(path.join('/'))
     }
 
-    if (!(node instanceof Nodes[nodeType])) {
-      throw new NodeTypeMismatchError(nodeType, getNodeName(node))
+    if (!(node instanceof Nodes[type])) {
+      throw new NodeTypeMismatchError(
+        type,
+        getNodeName(node as NodeInstances[PrimaryNode]),
+      )
     }
+
     return node as NodeInstances[T]
   }
 
   /**
-   * Add child to this `Node`
-   * @param child Child to add
+   * Add child nodes to this node.
+   * @param children Nodes to add as children
    */
-  addChild(...childs: Node[]) {
-    for (const child of childs) {
+  addChild(...children: Node[]) {
+    for (const child of children) {
       this.#attachChild(child)
       this._children.push(child)
       if (this.isStarted) {
@@ -457,39 +393,38 @@ export class Node {
 
   // Tools to develop custom nodes
   /**
-   * The **`build`** method can be used to place nodes in the children when you create a custom node by extending the `Node` class. It is called before the start of the node.
+   * The **`build`** method can be used to define child nodes when creating a custom node.
+   * It is called before the node starts.
+   *
+   * @returns A node or an array of nodes to be added as children
    *
    * @example
    * ```ts
    * class CustomNode extends Node {
    *   build() {
    *     return [
-   *       new Node({ id: 'child1' }),
-   *       new Node({ id: 'child2' }),
+   *       new Transform({ id: 'child1' }),
+   *       new Transform({ id: 'child2' }),
    *     ]
    *   }
    * }
    * ```
    *
-   * If you are using jsx, you can use it like this:
-   * ```jsx
+   * With JSX:
+   * ```tsx
    * import { renderToNodes } from 'tiny-engine/jsx'
    *
    * class CustomNode extends Node {
    *   build() {
    *     return renderToNodes(
    *       <>
-   *         <node id='child1' />
-   *         <node id='child2' />
+   *         <transform id='child1' />
+   *         <transform id='child2' />
    *       </>
    *     )
    *   }
    * }
    * ```
-   *
-   * The `build` method can return a `Node` or an array of `Node`s. If it returns a `Node`, it will be added as a child of the current node. If it returns an array of `Node`s, all of them will be added as children of the current node.
-   *
-   * @returns A `Node` or an array of `Node`s to be added as children of the current node.
    */
   build?(): Node | Node[]
 
@@ -560,7 +495,7 @@ export class Node {
   }
 
   /**
-   * The **`destroy`** method destroys and cleans this node.
+   * The **`destroy`** method destroys this node and all its children.
    */
   destroy() {
     if (this.isDestroyed) return
@@ -582,18 +517,21 @@ export class Node {
   }
 
   /**
-   * The **`cleanEvents`** method cleans all event listeners of this node.
-   * It is called when the node is destroyed, but you can call it manually if you want to clean the events without destroying the node.
+   * The **`cleanEvents`** method removes all event listeners from this node.
+   * It is called automatically when the node is destroyed.
+   *
    * @example
-   * ```ts
-   * const node = new Node()
-   * node.started.on(() => {
-   *   console.log('Node started')
+   * ```tsx
+   * const transform = useRefNode(PrimaryNode.Transform)
+   *
+   * useMount(() => {
+   *   transform.node.started.on(() => {
+   *     console.log('Node started')
+   *   })
+   *
+   *   transform.node.cleanEvents()
+   *   // No listeners will fire
    * })
-   *
-   * node.cleanEvents() // Now the listener is removed, so it won't log 'Node started' when the node starts.
-   *
-   * node.start() // No log
    * ```
    */
   cleanEvents() {
@@ -603,5 +541,3 @@ export class Node {
     this.destroyed.clean()
   }
 }
-
-Nodes.node = Node

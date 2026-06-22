@@ -1,102 +1,92 @@
 import { getTexture, type Texture } from '../assets/texture.js'
 import { Vector2 } from '../math/vector2.js'
 import { Signal } from '../reactivity/signal.js'
+import type { TinyScript } from '../scripts/script.js'
+import { PrimaryNode } from './enum.js'
 import { Node, type NodeOptions } from './node.js'
 import { Nodes } from './registry.js'
 
-export interface SpriteOptions extends NodeOptions {
+export interface SpriteOptions extends NodeOptions<PrimaryNode.Sprite> {
   /**
    * The **`textureId`** property of `Sprite` represents the sprite's texture.
-   * If **`textureId`** is not in the textures loaded then thow an error.
+   * The texture must be loaded with `loadTexture()` first.
    *
    * @example
-   * ```jsx
-   *
-   * await loadTexture('ball', 'assets/ball.png')
+   * ```tsx
+   * const BALL_TEXTURE = await loadTexture('/assets/ball.png')
    *
    * function Ball() {
-   *   useStart((node) => {
-   *     const container = node.getChild('container')
-   *     // ...
-   *   })
-   *
-   *   return (
-   *     <sprite textureId='ball' />
-   *   )
+   *   return <sprite textureId={BALL_TEXTURE} />
    * }
    * ```
    */
-  textureId?: string | Signal<string>
+  textureId?: symbol
   /**
-   * The **`margin`** property of `Sprite` represents the sprite's texture offset.
+   * The **`margin`** property of `Sprite` represents the texture offset.
    *
    * @example
-   * ```jsx
-   *
-   * await loadTexture('idle', 'assets/idle.png')
+   * ```tsx
+   * const IDLE_TEXTURE = await loadTexture('/assets/idle.png')
    *
    * function Player() {
    *   return (
-   *     <sprite textureId='idle' margin={new Vector(16, 0)} />
+   *     <sprite textureId={IDLE_TEXTURE} margin={new Vector2(16, 0)} />
    *   )
    * }
    * ```
    */
-  margin?: Vector2 | Signal<Vector2>
+  margin?: Vector2
   /**
-   * The **`sourceSize`** property of `Sprite` represents the sprite source size.
+   * The **`sourceSize`** property of `Sprite` represents the source size to render.
    *
    * @default texture.size
    *
    * @example
-   * ```jsx
-   *
-   * await loadTexture('idle', 'assets/idle.png')
+   * ```tsx
+   * const IDLE_TEXTURE = await loadTexture('/assets/idle.png')
    *
    * function Player() {
    *   return (
    *     <sprite
-   *       textureId='idle'
-   *       margin={new Vector(16, 0)}
-   *       sourceSize={new Vector(16, 16)}
+   *       textureId={IDLE_TEXTURE}
+   *       margin={new Vector2(16, 0)}
+   *       sourceSize={new Vector2(16, 16)}
    *     />
    *   )
    * }
    * ```
    */
-  sourceSize?: Vector2 | Signal<Vector2>
+  sourceSize?: Vector2
   /**
-   * The **`displaySize`** property of `Sprite` represents the sprite display size.
+   * The **`displaySize`** property of `Sprite` represents the display size.
    *
    * @default this.sourceSize
    *
    * @example
-   * ```jsx
-   *
-   * await loadTexture('idle', 'assets/idle.png')
+   * ```tsx
+   * const IDLE_TEXTURE = await loadTexture('/assets/idle.png')
    *
    * function Player() {
    *   return (
    *     <sprite
-   *       textureId='idle'
-   *       margin={new Vector(16, 0)}
-   *       sourceSize={new Vector(16, 16)}
-   *       displaySize={new Vector(32, 32)}
+   *       textureId={IDLE_TEXTURE}
+   *       margin={new Vector2(16, 0)}
+   *       sourceSize={new Vector2(16, 16)}
+   *       displaySize={new Vector2(32, 32)}
    *     />
    *   )
    * }
    * ```
    */
-  displaySize?: Vector2 | Signal<Vector2>
-  flipX?: boolean | Signal<boolean>
-  flipY?: boolean | Signal<boolean>
+  displaySize?: Vector2
+  /** Whether to flip the sprite horizontally */
+  flipX?: boolean
+  /** Whether to flip the sprite vertically */
+  flipY?: boolean
 }
 
-/** Default **`id`** for `Sprite` and it is used for jsx tags */
-export const spriteNodeName = 'sprite'
-
-export class Sprite extends Node {
-  #textureId?: string | undefined
+export class Sprite extends Node<PrimaryNode.Sprite> {
+  #textureId?: symbol | undefined
   #texture?: Texture | undefined
   margin?: Vector2 | undefined
   sourceSize?: Vector2 | undefined
@@ -124,65 +114,21 @@ export class Sprite extends Node {
 
   /**
    * The **`getTexture`** method returns the current texture.
+   * @returns The current `Texture` or `undefined` if no texture is set
    */
   getTexture() {
     return this.#texture
   }
 
   constructor(options: SpriteOptions) {
-    super({ ...options, id: options.id ?? spriteNodeName })
+    super(PrimaryNode.Sprite, options)
 
-    if (options.margin != null) {
-      if (options.margin instanceof Signal) {
-        this.margin = options.margin.value
-        options.margin.subscribe((val) => (this.margin = val))
-      } else {
-        this.margin = options.margin
-      }
-    }
-    if (options.sourceSize != null) {
-      if (options.sourceSize instanceof Signal) {
-        this.sourceSize = options.sourceSize.value
-        options.sourceSize.subscribe((val) => (this.sourceSize = val))
-      } else {
-        this.sourceSize = options.sourceSize
-      }
-    }
-    if (options.displaySize != null) {
-      if (options.displaySize instanceof Signal) {
-        this.displaySize = options.displaySize.value
-        options.displaySize.subscribe((val) => (this.displaySize = val))
-      } else {
-        this.displaySize = options.displaySize
-      }
-    }
-    if (options.textureId != null) {
-      if (options.textureId instanceof Signal) {
-        this.textureId = options.textureId.value
-        options.textureId.subscribe((val) => (this.textureId = val))
-      } else {
-        this.textureId = options.textureId
-      }
-    }
-    if (options.flipX != null) {
-      console.log(options.flipX, 'options.flipX')
-      if (options.flipX instanceof Signal) {
-        this.flipX = options.flipX.value
-        console.log(this.flipX, 'flipX')
-        console.log(options.flipX.value, 'options.flipX.value')
-        options.flipX.subscribe((val) => (this.flipX = val))
-      } else {
-        this.flipX = options.flipX
-      }
-    }
-    if (options.flipY != null) {
-      if (options.flipY instanceof Signal) {
-        this.flipY = options.flipY.value
-        options.flipY.subscribe((val) => (this.flipY = val))
-      } else {
-        this.flipY = options.flipY
-      }
-    }
+    this.margin = options.margin ?? this.margin
+    this.sourceSize = options.sourceSize ?? this.sourceSize
+    this.displaySize = options.displaySize ?? this.displaySize
+    this.textureId = options.textureId ?? this.textureId
+    this.flipX = options.flipX ?? this.flipX
+    this.flipY = options.flipY ?? this.flipY
   }
 
   start(): void {

@@ -1,16 +1,15 @@
 import { KeyframeNotFoundError } from '../errors/animation.js'
 import { Event } from '../events/event.js'
+import { PrimaryNode } from './enum.js'
 import { Node, type NodeOptions } from './node.js'
 import { Nodes } from './registry.js'
 
-export interface AnimationPlayerOptions extends NodeOptions {}
+export interface AnimationPlayerOptions extends NodeOptions<PrimaryNode.AnimationPlayer> {}
 
-/** Default **`id`** for `AnimationPlayer` and it is used for jsx tags */
-export const animationPlayerNodeName = 'animation-player'
-
-export class AnimationPlayer extends Node {
+export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
   #animations = new Map<string, Animation>()
   #currentAnim: string | null = null
+  #nextAnim: string | null = null
   #index = 0
 
   /** The read-only **`currentAnim`** property returns the current animation name */
@@ -23,7 +22,7 @@ export class AnimationPlayer extends Node {
   }
 
   constructor(options: AnimationPlayerOptions) {
-    super({ ...options, id: options.id ?? animationPlayerNodeName })
+    super(PrimaryNode.AnimationPlayer, options)
   }
 
   // Events
@@ -50,40 +49,36 @@ export class AnimationPlayer extends Node {
    */
   animationEnded = new Event('animationEnd', (anim: string) => {})
 
-  // Event functions
-  animationChange?(newAnim: string, oldAnim: string | null) {}
-  animationStop?(anim: string) {}
-  animationIndexChange?(index: number) {}
-  animationEnd?(anim: string) {}
-
+  // utils
   /**
    * The **`add`** method adds an animation with a key.
    * @param animName Animation identifier
    * @param animation Animation object
+   * @returns This instance for chaining
    *
    * @example
    * ```tsx
-   * useStart<'sprite'>((sprite) => {
-   *   const animPlayer = sprite.getChild('animation-player', 'animation-player')
+   * const sprite = useRefNode(PrimaryNode.Sprite)
+   * const anim = useRefNode(PrimaryNode.AnimationPlayer)
    *
-   *   animPlayer
+   * useMount(() => {
+   *   anim.node
    *     .add('idle', {
    *       fps: 4,
-   *       keyframes: kfFromSpriteSheet(sprite, 'idle', 4),
+   *       keyframes: kfFromSpriteSheet(sprite.node, IDLE_TEXTURE, 4),
    *       loop: true,
    *     })
    *     .add('walk', {
    *       fps: 4,
-   *       keyframes: kfFromSpriteSheet(sprite, 'walk', 4),
+   *       keyframes: kfFromSpriteSheet(sprite.node, WALK_TEXTURE, 4),
    *       loop: true,
    *     })
-   *
-   *   animPlayer.play('idle')
+   *     .play('idle')
    * })
    *
    * return (
-   *   <sprite textureId='idle' size={new Vector(16, 16)}>
-   *     <animation-player id='animation-player' />
+   *   <sprite ref={sprite} textureId={IDLE_TEXTURE} sourceSize={new Vector2(16, 16)}>
+   *     <animation-player ref={anim} />
    *   </sprite>
    * )
    * ```
@@ -92,15 +87,65 @@ export class AnimationPlayer extends Node {
     this.#animations.set(animName, animation)
     return this
   }
-
   /**
-   * The **`play`** method plays an animation by id.
-   * @param animName Animation identifier
-   * @param index Index to start (default `0`)
+   * The **`define`** method adds multiple animations at once.
+   * @param animations Record of animation names to animation objects
+   * @returns This instance for chaining
    *
    * @example
-   * ```ts
-   * animPlayer.play('idle')
+   * ```tsx
+   * const sprite = useRefNode(PrimaryNode.Sprite)
+   * const anim = useRefNode(PrimaryNode.AnimationPlayer)
+   *
+   * useMount(() => {
+   *   anim.node
+   *     .define({
+   *       idle: {
+   *         fps: 4,
+   *         keyframes: kfFromSpriteSheet(sprite.node, IDLE_TEXTURE, 4),
+   *         loop: true,
+   *       },
+   *       walk: {
+   *         fps: 4,
+   *         keyframes: kfFromSpriteSheet(sprite.node, WALK_TEXTURE, 4),
+   *         loop: true,
+   *       },
+   *     })
+   *     .play('idle')
+   * })
+   *
+   * return (
+   *   <sprite ref={sprite} textureId={IDLE_TEXTURE} sourceSize={new Vector2(16, 16)}>
+   *     <animation-player ref={anim} />
+   *   </sprite>
+   * )
+   * ```
+   */
+  define(animations: Record<string, Animation>) {
+    for (const animName in animations) {
+      if (!Object.hasOwn(animations, animName)) continue
+
+      const animation = animations[animName]
+      if (animation == null) continue
+      this.add(animName, animation)
+    }
+    return this
+  }
+
+  /**
+   * The **`play`** method plays an animation by name.
+   * @param animName Animation identifier
+   * @param index Index to start from (default `0`)
+   *
+   * @example
+   * ```tsx
+   * const anim = useRefNode(PrimaryNode.AnimationPlayer)
+   *
+   * useMount(() => {
+   *   anim.node.play('idle')
+   * })
+   *
+   * return <animation-player ref={anim} />
    * ```
    */
   play(animName: string, index?: number) {
@@ -116,11 +161,28 @@ export class AnimationPlayer extends Node {
     this.animationChanged.emit(animName, oldAnim)
     this.animationIndexChanged.emit(index ?? 0)
   }
+  /**
+   * The **`setNext`** method sets the animation to play after the current one ends.
+   * @param animName Animation to play next, or `null` to stop
+   *
+   * @example
+   * ```tsx
+   * const anim = useRefNode(PrimaryNode.AnimationPlayer)
+   *
+   * useEvent(anim, 'animationEnded', () => {
+   *   anim.node.setNext('idle')
+   * })
+   * ```
+   */
+  setNext(animName: string | null) {
+    this.#nextAnim = animName
+  }
 
   /**
    * The **`stop`** method stops the current animation.
    */
   stop() {
+
     if (this.#currentAnim == null) return
     this.animationStopped.emit(this.#currentAnim)
     this.#index = 0
@@ -139,6 +201,11 @@ export class AnimationPlayer extends Node {
         const animName = this.#currentAnim
         this.stop()
         this.animationEnded.emit(animName)
+
+        if (this.#nextAnim != null) {
+          this.play(this.#nextAnim)
+          this.#nextAnim = null
+        }
 
         return
       }
