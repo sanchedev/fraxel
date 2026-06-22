@@ -1,29 +1,48 @@
 import { InvalidEventHookResultError } from '../errors/hook.js'
 import { Event } from '../events/event.js'
+import type { Fun } from '../events/types.js'
+import type { PrimaryNode } from '../nodes/enum.js'
+import type { NodeInstances } from '../nodes/types.js'
 import { pushEffect } from './context.js'
+import type { NodeReference } from './use-ref-node.js'
 
 /**
- * The **`useEvent`** hook allows you to subscribe to an event. It takes two parameters: the first is the callback function that will be called when the event is emitted, and the second is a function that returns the event instance to subscribe to.
+ * The **`useEvent`** hook subscribes to an event on a node reference.
+ *
+ * @param node A `NodeReference` to the node that emits the event
+ * @param eventName The name of the event to subscribe to
+ * @param listener The callback function to call when the event is emitted
  *
  * @example
  * ```tsx
- * const sprite = useNode<'sprite'>()
+ * const sprite = useRefNode(PrimaryNode.Sprite)
  *
- * useEvent(() => {
- *  // do something when the sprite starts
- * }, () => sprite.started)
+ * useEvent(sprite, 'started', () => {
+ *   console.log('Sprite started!')
+ * })
+ *
+ * return <sprite ref={sprite} />
  * ```
- *
- * @param fn The callback function that will be called when the event is emitted.
- * @param getEvent A function that returns the event instance to subscribe to.
  */
-export function useEvent<T extends Event<any[], string>>(
-  fn: T['exampleFun'],
-  getEvent: () => T,
+export function useEvent<N extends PrimaryNode, K extends keyof Events<N>>(
+  node: NodeReference<N>,
+  eventName: K,
+  listener: Events<N>[K],
 ) {
   pushEffect('useEvent', () => {
-    const ev = getEvent()
+    const ev = node.node[eventName]
     if (!(ev instanceof Event)) throw new InvalidEventHookResultError()
-    ev.on(fn)
+    ev.on(listener)
   })
+}
+
+type GetEvent<T> = T extends Event<infer P, string> ? Fun<P> : Fun<[]>
+
+type Events<T extends PrimaryNode> = {
+  [P in keyof NodeInstances[T] as NodeInstances[T][P] extends Event<
+    any[],
+    string
+  >
+    ? P
+    : never]: GetEvent<NodeInstances[T][P]>
 }

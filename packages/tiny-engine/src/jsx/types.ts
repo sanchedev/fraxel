@@ -1,11 +1,8 @@
 import type { Event } from '../events/event.js'
-import type { NodeRef } from '../hooks/use-node.js'
-import type {
-  NodeEvents,
-  NodeInstances,
-  NodeName,
-  NodesOptions,
-} from '../nodes/types.js'
+import type { NodeReference } from '../hooks/use-ref-node.js'
+import type { Reference } from '../hooks/use-ref.js'
+import type { PrimaryNode } from '../nodes/enum.js'
+import type { NodeEvents, NodesOptions } from '../nodes/types.js'
 
 export namespace Tiny {
   export type Type =
@@ -26,10 +23,9 @@ export namespace Tiny {
     | null
     | undefined
     | Iterable<Node>
-    | NodeInstances['node']
 
   export type IntrinsicElements = {
-    [P in NodeName]: IntrinsicElement<P>
+    [P in PrimaryNode]: IntrinsicElement<P>
   }
 
   export type WithChildren<T = {}> = Omit<T, 'children'> & {
@@ -44,16 +40,16 @@ export namespace Tiny {
 }
 
 // Intrinsic Elements
-export type IntrinsicElement<T extends NodeName = 'node'> = {
-  /** The **`use`** property can be user for `useNode` hook.
+export type IntrinsicElement<T extends PrimaryNode> = {
+  /** The **`ref`** property can be user for `useRef` hook.
    * @example
    * ```tsx
-   * const sprite = useNode()
+   * const sprite = useRef()
    *
-   * return <sprite use={sprite} />
+   * return <sprite ref={sprite} />
    * ```
    */
-  use?: NodeRef<NodeInstances[T]>
+  ref?: NodeReference<T>
 } & {
   [P in keyof NodeEvents[T]]?: NonNullable<
     NodeEvents[T][P] extends Event<infer U, infer V>

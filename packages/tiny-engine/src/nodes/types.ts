@@ -1,29 +1,33 @@
-import type { Node, nodeName } from './node.js'
-import type { Sprite, spriteNodeName } from './sprite.js'
+import type { Node } from './node.js'
+import type { Transform, TransformOptions } from './transform.js'
+import type { Sprite, SpriteOptions } from './sprite.js'
 import type {
   AnimationPlayer,
-  animationPlayerNodeName,
+  AnimationPlayerOptions,
 } from './animation-player.js'
-import type { Collider, colliderNodeName } from './collider.js'
-import type { RayCast, rayCastNodeName } from './ray-cast.js'
+import type { Collider, ColliderOptions } from './collider.js'
+import type { RayCast, RayCastOptions } from './ray-cast.js'
 import type { Event } from '../events/event.js'
 import type { EventName } from '../events/types.js'
+import type { PrimaryNode } from './enum.js'
 
 export interface NodeClasses {
-  [nodeName]: typeof Node
-  [spriteNodeName]: typeof Sprite
-  [animationPlayerNodeName]: typeof AnimationPlayer
-  [colliderNodeName]: typeof Collider
-  [rayCastNodeName]: typeof RayCast
+  [PrimaryNode.Transform]: typeof Transform
+  [PrimaryNode.Sprite]: typeof Sprite
+  [PrimaryNode.AnimationPlayer]: typeof AnimationPlayer
+  [PrimaryNode.Collider]: typeof Collider
+  [PrimaryNode.RayCast]: typeof RayCast
 }
 
-export type NodeName = keyof NodeClasses
-
-type a<T extends Node> = new (options: NodeToOptions<typeof Node>) => T
-
-export type NodesOptions = {
-  [P in NodeName]: NodeToOptions<NodeClasses[P]>
+export interface NodesOptions {
+  [PrimaryNode.Transform]: TransformOptions
+  [PrimaryNode.Sprite]: SpriteOptions
+  [PrimaryNode.AnimationPlayer]: AnimationPlayerOptions
+  [PrimaryNode.Collider]: ColliderOptions
+  [PrimaryNode.RayCast]: RayCastOptions
 }
+
+type NodeName = keyof NodeClasses
 
 export type NodeInstances = {
   [P in NodeName]: InstanceType<NodeClasses[P]>
@@ -46,3 +50,17 @@ export type NodeEvents = {
 
 type NodeEvent<T extends Node, K extends keyof T> =
   T[K] extends Event<any[], string> ? T[K] : undefined
+
+export type NodeEventListeners = {
+  [P in keyof NodeEvents]: {
+    [Q in keyof NodeEvents[P]]: NonNullable<NodeEventListener<P, Q>>
+  }
+}
+
+type NodeEventListener<
+  T extends keyof NodeEvents,
+  K extends keyof NodeEvents[T],
+> =
+  NodeEvents[T][K] extends Event<any[], string>
+    ? NodeEvents[T][K]['exampleFun']
+    : undefined

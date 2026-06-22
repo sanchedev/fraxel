@@ -26,11 +26,3 @@ export class InvalidEventHookResultError extends HookError {
     super(`useEvent expected getEvent() to return an Event`)
   }
 }
-
-export class NodeHookTypeMismatchError extends HookError {
-  constructor(expected: string, received: string) {
-    super(
-      `useNode expected a node of type "${expected}" but was applied to "${received}".`,
-    )
-  }
-}

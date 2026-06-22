@@ -1,31 +1,20 @@
-import type { Node } from './node.js'
-import type {
-  NodeClasses,
-  NodeName,
-  NodesOptions,
-  NodeToOptions,
-} from './types.js'
+import type { PrimaryNode } from './enum.js'
+import type { NodeClasses, NodeInstances, NodesOptions } from './types.js'
 
 export const Nodes: NodeClasses = {} as NodeClasses
 
 /**
  * The **`getNode`** function is used to create an instance of a node based on its name and options. It retrieves the node class from the registry and creates an instance of it using the provided options.
- * @param nodeName - The name of the node to create an instance of.
+ * @param type - The name of the node to create an instance of.
  * @param options - The options to pass to the node constructor when creating an instance of the node.
  * @returns An instance of the node corresponding to the provided node name and options.
  */
-export function getNode<T extends NodeName>(
-  nodeName: T,
+export function getNode<T extends PrimaryNode>(
+  type: T,
   options: NodesOptions[T],
 ) {
-  return getNodeFromClass(Nodes[nodeName], options)
-}
-
-export function getNodeFromClass<T extends typeof Node>(
-  nodeClass: T,
-  props: NodeToOptions<T>,
-): InstanceType<T> {
-  return new nodeClass(props) as InstanceType<T>
+  const cls = Nodes[type] as new (option: NodesOptions[T]) => NodeInstances[T]
+  return new cls(options)
 }
 
 /**
@@ -59,7 +48,7 @@ export function getNodeFromClass<T extends typeof Node>(
  *
  * ```
  */
-export function registerNode<T extends NodeName>(
+export function registerNode<T extends PrimaryNode>(
   nodeName: T,
   nodeClass: NodeClasses[T],
 ) {
