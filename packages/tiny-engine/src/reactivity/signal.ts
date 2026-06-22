@@ -14,7 +14,10 @@ export class Signal<T> {
     return this.#value
   }
 
-  subscribe(fn: (value: T) => void) {
+  sub(fn: (value: T) => void) {
     this.#listeners.add(fn)
+  }
+  unsub(fn: (value: T) => void) {
+    this.#listeners.delete(fn)
   }
 }

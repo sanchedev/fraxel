@@ -9,16 +9,17 @@ import {
   InvalidJSXElementTypeError,
   UnknownIntrinsicElementError,
 } from '../../errors/jsx.js'
-import type { NodeInstances, NodeName } from '../../nodes/types.js'
+import type { NodeInstances } from '../../nodes/types.js'
 import { finishHooks, startHooks } from '../../hooks/context.js'
 import { isClassComponent } from './types/class-component.js'
+import type { PrimaryNode } from '../../nodes/enum.js'
 
 /**
  * The **`renderToNodes`** function takes a JSX element and converts it into an array of nodes that can be rendered in the game. It handles intrinsic elements (like 'node') and functional components, recursively processing any children elements as well.
  * @param jsx The JSX element to be rendered into nodes. This can be a string, number, intrinsic element, functional component, or an array of JSX elements.
  * @returns An array of nodes that have been rendered from the provided JSX element. If the input is null or undefined, it returns an empty array. If the input is a string or number, it also returns an empty array, as these types are not directly renderable as nodes.
  */
-export function renderToNodes(jsx: Tiny.Node): Node[] {
+export function renderToNodes(jsx: Tiny.Node): NodeInstances[PrimaryNode][] {
   if (jsx == null) return []
 
   if (typeof jsx === 'string') return []
@@ -38,7 +39,7 @@ export function renderToNodes(jsx: Tiny.Node): Node[] {
       if (isClassComponent(jsx.type)) {
         return [new jsx.type(jsx.props)].filter(
           (node): node is Node => node instanceof Node,
-        )
+        ) as NodeInstances[PrimaryNode][]
       }
       return renderFuncComponent(jsx.type, jsx.props)
     }
@@ -50,14 +51,17 @@ export function renderToNodes(jsx: Tiny.Node): Node[] {
   return arr.map((jsx) => renderToNodes(jsx)).flat()
 }
 
-function renderIntrinsicElement<T extends NodeName>(
+function renderIntrinsicElement<T extends PrimaryNode>(
   nodeName: T,
   options: Tiny.IntrinsicElements[T],
 ): NodeInstances[T] {
-  const node = getNode<'node'>(nodeName as 'node', {
-    ...options,
-    children: renderToNodes(options.children),
-  }) as NodeInstances[T]
+  const node = getNode<PrimaryNode.Transform>(
+    nodeName as PrimaryNode.Transform,
+    {
+      ...(options as Tiny.IntrinsicElements[PrimaryNode.Transform]),
+      children: renderToNodes(options.children),
+    },
+  ) as NodeInstances[T]
 
   return applyIntrinsicAttributesToNode(node, options)
 }

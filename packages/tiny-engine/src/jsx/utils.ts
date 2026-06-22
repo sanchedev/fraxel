@@ -23,5 +23,6 @@ export function getTinyNodesFromTinyNode(jsx: Tiny.Node): Tiny.Node[] {
   ) {
     return [jsx]
   }
-  return Array.from(jsx)
+  if (Symbol.iterator in jsx) return Array.from(jsx)
+  return getTinyNodesFromTinyNode(jsx)
 }

@@ -2,10 +2,11 @@ import { GameConfig } from '../core/game-config.js'
 import { Event } from '../events/event.js'
 import { Vector2 } from '../math/vector2.js'
 import { colliders, detectCollision, type Collider } from './collider.js'
+import { PrimaryNode } from './enum.js'
 import { Node, type NodeOptions } from './node.js'
 import { Nodes } from './registry.js'
 
-export interface RayCastOptions extends NodeOptions {
+export interface RayCastOptions extends NodeOptions<PrimaryNode.RayCast> {
   /**
    * The **`length`** property of `RayCast` is used to define the length of the ray. It is a number that represents the distance from the starting point of the ray to its end point. The `length` property is essential for raycasting, as it determines how far the ray will extend in the game world.
    *
@@ -26,15 +27,12 @@ export interface RayCastOptions extends NodeOptions {
   mesh: string[]
 }
 
-/** Default **`id`** for `Node` and it is used for jsx tags */
-export const rayCastNodeName = 'ray-cast'
-
-export class RayCast extends Node {
+export class RayCast extends Node<PrimaryNode.RayCast> {
   length: number
   mesh: string[]
 
   constructor(options: RayCastOptions) {
-    super(options)
+    super(PrimaryNode.RayCast, options)
 
     this.length = options.length
     this.mesh = Array.from(new Set(options.mesh))
@@ -46,10 +44,7 @@ export class RayCast extends Node {
   colliderEntered = new Event('colliderEnter', (collider: Collider) => {})
   colliderExited = new Event('colliderExit', (collider: Collider) => {})
 
-  // Event functions
-  onColliderEnter?(collider: Collider) {}
-  onColliderExit?(collider: Collider) {}
-
+  // utils
   /**
    * The **`getCollider`** method of `RayCast` is used to retrieve the current collider that the ray is interacting with. It returns a `Collider` object if the ray is currently colliding with a collider, or `null` if there is no collision. This method is essential for determining which objects in the game world are being affected by the raycast.
    * @returns The current collider that the ray is interacting with, or `null` if there is no collision.

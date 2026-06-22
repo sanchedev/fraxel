@@ -25,7 +25,7 @@ import { kfFromProp } from './properties.js'
  */
 export function kfFromSpriteSheet(
   sprite: Sprite,
-  textureId: string | null,
+  textureId: symbol | null,
   spritesCountX: number = 1,
   spritesCounty: number = 1,
 ): AnimationKeyframe[] {

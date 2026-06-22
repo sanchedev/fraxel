@@ -1,19 +1,16 @@
 import { Texture, textures } from '../assets/texture.js'
-import { TextureAlreadyRegisteredError } from '../errors/assets.js'
 
 /**
  * The **`loadTexture`** function loads textures for be used.
- * @param id Id for the texture
  * @param url Image Url
  */
-export async function loadTexture(id: string, url: string): Promise<void> {
-  const texture = textures.get(id)
-  if (texture != null) {
-    if (texture.image.src === url) return
+export async function loadTexture(url: string): Promise<symbol> {
+  const entry = [...textures.entries()].find(
+    ([_, val]) => val.image.src === url,
+  )
+  if (entry != null) return entry[0]
 
-    throw new TextureAlreadyRegisteredError(id, texture.image.src, url)
-  }
-
+  const id = Symbol(url)
   const image = new Image()
 
   await new Promise<void>((resolve, reject) => {
@@ -38,4 +35,6 @@ export async function loadTexture(id: string, url: string): Promise<void> {
   })
 
   textures.set(id, new Texture(image))
+
+  return id
 }

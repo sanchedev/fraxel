@@ -62,17 +62,17 @@ interface TextureDrawOptions {
   margin?: Vector2 | undefined
 }
 
-export const textures = new Map<string, Texture>()
+export const textures = new Map<symbol, Texture>()
 
 /**
  * The **`getTexture`** function returns a texture by id.
  * @param id Texture Id
  * @returns A Texture
  */
-export function getTexture(id: string) {
+export function getTexture(id: symbol) {
   const texture = textures.get(id)
 
-  if (texture == null) throw new TextureNotFoundError(id)
+  if (texture == null) throw new TextureNotFoundError(id.toString())
 
   return texture
 }

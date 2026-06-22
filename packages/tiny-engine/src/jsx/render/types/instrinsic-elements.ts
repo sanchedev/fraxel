@@ -1,26 +1,21 @@
-import { type NodeInstances, type NodeName } from '../../../nodes/types.js'
+import { type NodeInstances } from '../../../nodes/types.js'
 import { Nodes } from '../../../nodes/registry.js'
-import { NODE_REF, type NodeSetter } from '../../../hooks/use-node.js'
-import { InvalidUseAttributeError } from '../../../errors/jsx.js'
-import { Event } from '../../../events/event.js'
+import { Event, getEventName } from '../../../events/event.js'
 import type { IntrinsicElement } from '../../types.js'
+import type { PrimaryNode } from '../../../nodes/enum.js'
 
-export function isIntrinsicElement(obj: any): obj is NodeName {
+export function isIntrinsicElement(obj: any): obj is PrimaryNode {
   if (typeof obj !== 'string') return false
   if (!(obj in Nodes)) return false
   return true
 }
 
-export function applyIntrinsicAttributesToNode<T extends NodeName>(
+export function applyIntrinsicAttributesToNode<T extends PrimaryNode>(
   node: NodeInstances[T],
   opts: IntrinsicElement<T>,
 ): NodeInstances[T] {
-  if (opts.use) {
-    const used = opts.use as T & { [NODE_REF]?: NodeSetter }
-    if (typeof used[NODE_REF] !== 'function') {
-      throw new InvalidUseAttributeError(used)
-    }
-    used[NODE_REF](node)
+  if (opts.ref) {
+    opts.ref.node = node
   }
 
   applyEvents(node, opts)
@@ -28,7 +23,7 @@ export function applyIntrinsicAttributesToNode<T extends NodeName>(
   return node
 }
 
-function applyEvents<T extends NodeName>(
+function applyEvents<T extends PrimaryNode>(
   node: NodeInstances[T],
   opts: IntrinsicElement<T>,
 ) {
@@ -40,7 +35,7 @@ function applyEvents<T extends NodeName>(
     const el = node[key]
 
     if (el instanceof Event) {
-      const k = `on${el.baseName[0].toUpperCase()}${el.baseName.slice(1)}`
+      const k = getEventName(el.baseName)
       events.set(k, el)
     }
   }

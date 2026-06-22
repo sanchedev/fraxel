@@ -1,10 +1,11 @@
 import { GameConfig } from '../core/game-config.js'
 import { Event } from '../events/event.js'
 import type { Vector2 } from '../math/vector2.js'
+import { PrimaryNode } from './enum.js'
 import { Node, type NodeOptions } from './node.js'
 import { Nodes } from './registry.js'
 
-export interface ColliderOptions extends NodeOptions {
+export interface ColliderOptions extends NodeOptions<PrimaryNode.Collider> {
   /**
    * The **`size`** property of `Collider` is used to define the width and height of the collider. It is a `Vector2` object that contains the `x` and `y` values representing the width and height, respectively. The `size` property is essential for collision detection, as it determines the area that the collider occupies in the game world.
    *
@@ -34,10 +35,7 @@ export interface ColliderOptions extends NodeOptions {
   mesh: string[]
 }
 
-/** Default **`id`** for `Node` and it is used for jsx tags */
-export const colliderNodeName = 'collider'
-
-export class Collider extends Node {
+export class Collider extends Node<PrimaryNode.Collider> {
   size: Vector2
   layer: string[] = []
   mesh: string[] = []
@@ -45,7 +43,7 @@ export class Collider extends Node {
   #lastLayer: Set<string> = new Set()
 
   constructor(options: ColliderOptions) {
-    super(options)
+    super(PrimaryNode.Collider, options)
 
     this.size = options.size
     this.layer = Array.from(new Set(options.layer))
@@ -58,11 +56,6 @@ export class Collider extends Node {
   colliderEntered = new Event('colliderEnter', (collider: Collider) => {})
   collided = new Event('collide', (collider: Collider) => {})
   colliderExited = new Event('colliderExit', (collider: Collider) => {})
-
-  // Event functions
-  onColliderEnter?(collider: Collider) {}
-  onCollide?(collider: Collider) {}
-  onColliderExit?(collider: Collider) {}
 
   #reloadCollider(forced?: string[]) {
     const currentLayer = new Set(forced ?? this.layer)

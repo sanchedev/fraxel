@@ -22,7 +22,7 @@ export class UnknownIntrinsicElementError extends JSXError {
   }
 }
 
-export class InvalidUseAttributeError extends JSXError {
+export class InvalidRefAttributeError extends JSXError {
   constructor(received: unknown) {
     const type =
       received instanceof Node
@@ -32,7 +32,7 @@ export class InvalidUseAttributeError extends JSXError {
           : typeof received
 
     super(
-      `Invalid value for "use" attribute. Expected a proxy returned by useNode(), but received ${type}.`,
+      `Invalid value for "ref" attribute. Expected a proxy returned by useRefNode(), but received ${type}.`,
     )
   }
 }
