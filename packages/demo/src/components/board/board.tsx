@@ -11,11 +11,11 @@ interface BoardProps {
 export function Board({ position, cellsCount, cellSize }: BoardProps) {
   return (
     <BoardCtx.Provider value={{ cellSize, cellsCount }}>
-      <node position={position}>
+      <transform position={position}>
         {Array.from({ length: 1 }, (_, i) => (
           <Row rowIndex={i} />
         ))}
-      </node>
+      </transform>
     </BoardCtx.Provider>
   )
 }

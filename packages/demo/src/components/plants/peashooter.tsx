@@ -1,60 +1,65 @@
-import { kfFromSpriteSheet, loadTexture, Vector2 } from 'tiny-engine'
+import {
+  kfFromSpriteSheet,
+  loadTexture,
+  PrimaryNode,
+  Vector2,
+} from 'tiny-engine'
 import type { PlantProps } from '../types.js'
-import { useEvent, useNode } from 'tiny-engine/hooks'
+import {
+  useEffect,
+  useEvent,
+  useMount,
+  useRefNode,
+  useSignal,
+} from 'tiny-engine/hooks'
+import { PeashooterScript } from '../../scripts/peashooter.js'
 
-await loadTexture(
-  'peashooter.idle',
+const PEASHOOTER_IDLE = await loadTexture(
   '/assets/sprites/plants/peashooter/idle.png',
 )
-await loadTexture(
-  'peashooter.shoot',
+const PEASHOOTER_SHOOT = await loadTexture(
   '/assets/sprites/plants/peashooter/shoot.png',
 )
 
 interface PeashooterProps extends PlantProps {}
 
 export function Peashooter({ position }: PeashooterProps) {
-  const sprite = useNode('sprite')
-  const animPlayer = useNode('animation-player')
+  const sprite = useRefNode(PrimaryNode.Sprite)
+  const anim = useRefNode(PrimaryNode.AnimationPlayer)
 
-  let isZombieDetected = false
+  const isZombieDetected = useSignal(false)
 
-  // when sprite started
-  useEvent(
-    () => {
-      animPlayer.add('idle', {
-        keyframes: kfFromSpriteSheet(sprite, 'peashooter.idle', 4),
-        fps: 8 / 3,
+  useMount(() => {
+    anim.node
+      .define({
+        idle: {
+          keyframes: kfFromSpriteSheet(sprite.node, PEASHOOTER_IDLE, 4),
+          fps: 8 / 3,
+        },
+        shoot: {
+          keyframes: kfFromSpriteSheet(sprite.node, PEASHOOTER_SHOOT, 4),
+          fps: 8 / 3,
+        },
       })
-      animPlayer.add('shoot', {
-        keyframes: kfFromSpriteSheet(sprite, 'peashooter.shoot', 4),
-        fps: 8 / 3,
-      })
+      .play('idle')
+  })
 
-      animPlayer.play('idle')
-    },
-    () => sprite.started,
-  )
-  // when animation ended
-  useEvent(
-    () => {
-      if (isZombieDetected) {
-        animPlayer.play('shoot')
-      } else {
-        animPlayer.play('idle')
-      }
-    },
-    () => animPlayer.animationEnded,
-  )
+  useEffect(() => {
+    anim.node.setNext(isZombieDetected.value ? 'shoot' : 'idle')
+  }, [isZombieDetected])
+
+  useEvent(anim, 'animationEnded', () => {
+    isZombieDetected.value = !isZombieDetected.value
+  })
 
   return (
-    <node position={position}>
+    <transform position={position} script={new PeashooterScript()}>
       <sprite
-        use={sprite}
-        textureId='peashooter.idle'
+        ref={sprite}
+        textureId={PEASHOOTER_IDLE}
         sourceSize={new Vector2(16, 16)}>
-        <animation-player use={animPlayer} />
+        <animation-player ref={anim} />
       </sprite>
-    </node>
+    </transform>
   )
 }

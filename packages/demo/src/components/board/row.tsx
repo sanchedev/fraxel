@@ -1,18 +1,19 @@
 import { Vector2 } from 'tiny-engine'
-import { Peashooter } from '../../nodes/peashooter.js'
 import { RowCtx, RowSpawnersCtx } from '../../contexts/row.js'
-import { useNode, useSpawn } from 'tiny-engine/hooks'
+import { useRefNode, useSpawn } from 'tiny-engine/hooks'
+import { PrimaryNode } from 'tiny-engine/nodes/enum.js'
+import { Peashooter } from '../plants/peashooter.js'
 
 interface RowProps {
   rowIndex: number
 }
 
 export function Row({ rowIndex }: RowProps) {
-  const plants = useNode('node')
+  const plants = useRefNode(PrimaryNode.Transform)
   const spawnPlant = useSpawn(plants)
-  const projectiles = useNode('node')
+  const projectiles = useRefNode(PrimaryNode.Transform)
   const spawnProjectile = useSpawn(projectiles)
-  const zombies = useNode('node')
+  const zombies = useRefNode(PrimaryNode.Transform)
   const spawnZombie = useSpawn(zombies)
 
   return (
@@ -28,16 +29,16 @@ export function Row({ rowIndex }: RowProps) {
           spawnProjectile,
           spawnZombie,
         }}>
-        <node>
-          <node id='plants' use={plants}>
+        <transform>
+          <transform ref={plants} id='plants'>
             <Peashooter
               position={new Vector2(0, 0)}
               cell={new Vector2(0, rowIndex)}
             />
-          </node>
-          <node id='projectiles' use={projectiles}></node>
-          <node id='zombies' use={zombies}></node>
-        </node>
+          </transform>
+          <transform ref={projectiles} id='projectiles'></transform>
+          <transform ref={zombies} id='zombies'></transform>
+        </transform>
       </RowSpawnersCtx.Provider>
     </RowCtx.Provider>
   )
