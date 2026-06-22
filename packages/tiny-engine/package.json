@@ -12,6 +12,8 @@
     "./jsx/*": "./dist/jsx/*",
     "./hooks": "./dist/hooks/index.js",
     "./hooks/*": "./dist/hooks/*",
+    "./scripts": "./dist/scripts/index.js",
+    "./scripts/*": "./dist/scripts/*",
     "./*": "./dist/*"
   },
   "scripts": {
