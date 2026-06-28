@@ -1,7 +1,5 @@
 import { getTexture, type Texture } from '../assets/texture.js'
 import { Vector2 } from '../math/vector2.js'
-import { Signal } from '../reactivity/signal.js'
-import type { TinyScript } from '../scripts/script.js'
 import { PrimaryNode } from './enum.js'
 import { Node, type NodeOptions } from './node.js'
 import { Nodes } from './registry.js'

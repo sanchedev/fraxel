@@ -117,7 +117,7 @@ export class Input {
     return this.#mouse.isPressed
   }
 
-  mouseMoved = new Event('mouseMove', (position: Vector2) => {})
+  mouseMoved = new Event('mouseMove', (_position: Vector2) => {})
   mousePressed = new Event('mousePress', () => {})
   mouseUnpressed = new Event('mouseUnpress', () => {})
 

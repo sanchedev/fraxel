@@ -10,7 +10,9 @@
     "demo:start": "pnpm --filter demo start",
     "demo:build": "pnpm --filter demo build",
     "demo:dev": "pnpm --filter demo dev",
-    "dev": "concurrently \"pnpm engine:dev\" \"pnpm demo:dev\""
+    "dev": "concurrently \"pnpm engine:dev\" \"pnpm demo:dev\"",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +20,8 @@
   "packageManager": "pnpm@10.29.3",
   "devDependencies": {
     "concurrently": "^9.2.1",
-    "typescript": "^5.9.3"
+    "eslint": "^10.6.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.62.0"
   }
 }

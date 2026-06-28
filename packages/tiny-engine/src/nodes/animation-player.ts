@@ -31,23 +31,23 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    */
   animationChanged = new Event(
     'animationChange',
-    (newAnim: string, oldAnim: string | null) => {},
+    (_newAnim: string, _oldAnim: string | null) => {},
   )
   /**
    * Detects whether `stop` is **called**
    */
-  animationStopped = new Event('animationStop', (anim: string) => {})
+  animationStopped = new Event('animationStop', (_anim: string) => {})
   /**
    * Detects whether this `index` **change**
    */
   animationIndexChanged = new Event(
     'animationIndexChange',
-    (index: number) => {},
+    (_index: number) => {},
   )
   /**
    * Detects whether the current animation **end**
    */
-  animationEnded = new Event('animationEnd', (anim: string) => {})
+  animationEnded = new Event('animationEnd', (_anim: string) => {})
 
   // utils
   /**

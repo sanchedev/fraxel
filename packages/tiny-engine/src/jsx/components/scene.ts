@@ -39,6 +39,6 @@ export type SceneOptions = {
  * @param options The options for the scene, including the `name` and the `component`.
  * @returns A `Scene` element that can be used in the `Game` component to define a scene.
  */
-export function Scene(options: SceneOptions): null {
+export function Scene(_options: SceneOptions): null {
   return null
 }

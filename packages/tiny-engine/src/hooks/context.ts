@@ -10,7 +10,7 @@ export interface HookContext {
 
 type HookEffect = (nodes: Node[], currentContext: HookContext[]) => void
 
-export let currentContext: HookContext[] = []
+export const currentContext: HookContext[] = []
 
 export function startHooks() {
   currentContext.push({

@@ -102,12 +102,12 @@ export class RayCast extends Node<PrimaryNode.RayCast> {
   /**
    * The **`colliderEntered`** event fires when a new collider is hit by this raycast.
    */
-  colliderEntered = new Event('colliderEnter', (collider: Collider) => {})
+  colliderEntered = new Event('colliderEnter', (_collider: Collider) => {})
 
   /**
    * The **`colliderExited`** event fires when the previously hit collider is no longer in range.
    */
-  colliderExited = new Event('colliderExit', (collider: Collider) => {})
+  colliderExited = new Event('colliderExit', (_collider: Collider) => {})
 
   /**
    * The **`getCollider`** method returns the currently detected collider, or `null` if none is in range.

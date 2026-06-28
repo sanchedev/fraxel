@@ -4,7 +4,7 @@ import type { RayCast } from './ray-cast.js'
 import { SpatialHash } from './broadphase/spatial-hash.js'
 import { Narrowphase } from './narrowphase/detector.js'
 import { CollisionEmitter } from './events/collision-emitter.js'
-import type { CollisionBounds, Shape } from './types.js'
+import type { CollisionBounds } from './types.js'
 
 /**
  * The **`CollisionSystem`** is a singleton that manages all collision detection in the game.

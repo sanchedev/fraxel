@@ -1,6 +1,5 @@
 import type { Event } from '../events/event.js'
 import type { NodeReference } from '../hooks/use-ref-node.js'
-import type { Reference } from '../hooks/use-ref.js'
 import type { PrimaryNode } from '../nodes/enum.js'
 import type { NodeEvents, NodesOptions } from '../nodes/types.js'
 

@@ -110,17 +110,17 @@ export class Collider extends Node<PrimaryNode.Collider> {
   /**
    * The **`colliderEntered`** event fires when this collider first overlaps with another collider.
    */
-  colliderEntered = new Event('colliderEnter', (collider: Collider) => {})
+  colliderEntered = new Event('colliderEnter', (_collider: Collider) => {})
 
   /**
    * The **`collided`** event fires every frame while this collider overlaps with another collider.
    */
-  collided = new Event('collide', (collider: Collider) => {})
+  collided = new Event('collide', (_collider: Collider) => {})
 
   /**
    * The **`colliderExited`** event fires when this collider stops overlapping with another collider.
    */
-  colliderExited = new Event('colliderExit', (collider: Collider) => {})
+  colliderExited = new Event('colliderExit', (_collider: Collider) => {})
 
   /** @internal Registers this collider with the collision system. */
   start(): void {

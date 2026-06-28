@@ -21,6 +21,6 @@ export type GameOptions = Tiny.WithChildren<
  * @param options - The options for the Game component, which include the properties of the game and its children (the scenes).
  * @returns A JSX element representing the Game component with its properties and children.
  */
-export function Game(options: GameOptions): null {
+export function Game(_options: GameOptions): null {
   return null
 }

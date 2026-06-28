@@ -2,8 +2,6 @@ import { Vector2 } from '../math/vector2.js'
 import { GameConfig } from '../core/game-config.js'
 import { Event, getEventName } from '../events/event.js'
 import { type NodeInstances } from './types.js'
-import { Game } from '../core/game.js'
-import { Signal } from '../reactivity/signal.js'
 import {
   InvalidNodeIdError,
   NodeChildNotFoundError,
@@ -395,7 +393,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   /**
    * The **`zIndexChanged`** event fires when the node's `zIndex` value changes.
    */
-  zIndexChanged = new Event('zIndexChange', (zIndex: number) => {})
+  zIndexChanged = new Event('zIndexChange', (_zIndex: number) => {})
 
   /**
    * The **`started`** event fires when the node finishes its `start()` lifecycle.
@@ -405,12 +403,12 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   /**
    * The **`drawed`** event fires each frame when the node is being drawn.
    */
-  drawed = new Event('draw', (delta: number) => {})
+  drawed = new Event('draw', (_delta: number) => {})
 
   /**
    * The **`updated`** event fires each frame during the node's update cycle.
    */
-  updated = new Event('update', (delta: number) => {})
+  updated = new Event('update', (_delta: number) => {})
 
   /**
    * The **`destroyed`** event fires when the node is destroyed.
@@ -418,10 +416,10 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   destroyed = new Event('destroy', () => {})
 
   // Event functions
-  onZIndexChange?(zIndex: number) {}
+  onZIndexChange?(_zIndex: number) {}
   onStart?() {}
-  onDraw?(delta: number) {}
-  onUpdate?(delta: number) {}
+  onDraw?(_delta: number) {}
+  onUpdate?(_delta: number) {}
   onDestroy?() {}
 
   // Lifecycle methods
