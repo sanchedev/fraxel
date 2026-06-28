@@ -19,30 +19,18 @@ import { pushEffect } from './context.js'
  * ```
  */
 export function useMount(fn: () => void | (() => void)): void {
-  pushEffect('useEffect', (nodes) => {
+  pushEffect('useMount', (nodes) => {
     if (nodes.length < 0) return
     const node = nodes[0]!
 
     let unmount: (() => void) | void
-    let started = false
 
     const refresh = () => {
       if (typeof unmount === 'function') unmount()
       unmount = fn()
     }
 
-    const onStart = () => {
-      if (!started) started = true
-      refresh()
-      node.started.off(onStart)
-    }
-    node.started.on(onStart)
-
-    const onDestroy = () => {
-      if (started) started = false
-      refresh()
-      node.destroyed.off(onDestroy)
-    }
-    node.destroyed.on(onDestroy)
+    node.started.on(refresh)
+    node.destroyed.on(refresh)
   })
 }

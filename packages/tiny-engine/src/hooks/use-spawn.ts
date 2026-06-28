@@ -27,16 +27,19 @@ import type { NodeReference } from './use-ref-node.js'
  * ```
  */
 export function useSpawn<T extends PrimaryNode>(node: NodeReference<T>) {
-  const ctx = currentContext.slice()
+  const oldCtx = currentContext.slice()
 
   const spawn = (jsx: Tiny.Node) => {
-    currentContext.push(...ctx)
-    const nodes = renderToNodes(jsx)
-    for (let i = 0; i < ctx.length; i++) {
-      currentContext.pop()
-    }
+    const currentCtx = currentContext.slice()
 
+    currentContext.length = 0
+    currentContext.push(...oldCtx)
+
+    const nodes = renderToNodes(jsx)
     node.node.addChild(...nodes)
+
+    currentContext.length = 0
+    currentContext.push(...currentCtx)
   }
 
   pushEffect('useSpawn', () => {})

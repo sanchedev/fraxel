@@ -37,18 +37,11 @@ export function useEffect(
       unmount = fn()
     }
 
-    const onStart = () => {
-      refresh()
-      node.started.off(onStart)
-    }
-    node.started.on(onStart)
-
-    const onDestroy = () => {
+    node.started.on(refresh)
+    node.destroyed.on(() => {
       refresh()
       signals.forEach((signal) => signal.unsub(refresh))
-      node.destroyed.off(onDestroy)
-    }
-    node.destroyed.on(onDestroy)
+    })
 
     signals.forEach((signal) => signal.sub(refresh))
   })

@@ -1,5 +1,7 @@
+import { GameConfig } from '../core/game-config.js'
 import { Game } from '../core/game.js'
 import type { GameControls } from '../jsx/render/game.js'
+import { Vector2 } from '../math/vector2.js'
 import { pushEffect } from './context.js'
 
 /**
@@ -13,7 +15,7 @@ import { pushEffect } from './context.js'
  *   game.pause()
  * }
  *
- * return <node onStart={handleStart} />
+ * return <transform onStart={handleStart} />
  * ```
  */
 export function useGame(): GameControls {
@@ -27,6 +29,9 @@ export function useGame(): GameControls {
     },
     preloadScene: (name) => {
       return Game.sceneManager.preloadScene(name)
+    },
+    getSize() {
+      return new Vector2(GameConfig.width, GameConfig.height)
     },
   }
 }

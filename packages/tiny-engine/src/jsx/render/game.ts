@@ -19,6 +19,8 @@ import {
   MissingGameRootError,
   MissingSceneError,
 } from '../../errors/jsx.js'
+import { Vector2 } from '../../math/vector2.js'
+import { GameConfig } from '../../core/game-config.js'
 
 /** The **`createGame`** function creates the game and returns an object with control methods that can be used to play, pause the game, change the scene, etc...
  *
@@ -81,6 +83,9 @@ export function createGame(jsx: Tiny.Node, root: HTMLElement): GameControls {
     preloadScene: (name) => {
       return GameP.sceneManager.preloadScene(name)
     },
+    getSize() {
+      return new Vector2(GameConfig.width, GameConfig.height)
+    },
   }
 }
 
@@ -101,6 +106,10 @@ export interface GameControls {
    * The **`preloadScene`** method preloads the scene while the Game is running and returns a function to set this scene when it is loaded.
    */
   preloadScene: (name: string) => Promise<() => void>
+  /**
+   * The **`getSize`** method returns the size of the game screen as Vector2.
+   */
+  getSize: () => Vector2
 }
 
 async function SceneComponentToNode(component: SceneComponent): Promise<Node> {
