@@ -85,16 +85,67 @@ export interface SpriteOptions extends NodeOptions<PrimaryNode.Sprite> {
   flipY?: boolean
 }
 
+/**
+ * The **`Sprite`** node displays a texture or sprite in the game world.
+ * It supports texture atlases with margin/sourceSize, display scaling, and flipping.
+ *
+ * @example
+ * ```tsx
+ * import { loadTexture } from 'tiny-engine'
+ * import { useRefNode } from 'tiny-engine/hooks'
+ *
+ * const PLAYER_TEXTURE = await loadTexture('/assets/player.png')
+ *
+ * function Player() {
+ *   const sprite = useRefNode(PrimaryNode.Sprite)
+ *
+ *   return (
+ *     <sprite
+ *       ref={sprite}
+ *       textureId={PLAYER_TEXTURE}
+ *       sourceSize={new Vector2(32, 32)}
+ *       displaySize={new Vector2(64, 64)}
+ *     />
+ *   )
+ * }
+ * ```
+ */
 export class Sprite extends Node<PrimaryNode.Sprite> {
   #textureId?: symbol | undefined
   #texture?: Texture | undefined
+
+  /**
+   * The **`margin`** property defines the texture offset within the source image.
+   * Useful for sprite sheets where each frame has a different position.
+   */
   margin?: Vector2 | undefined
+
+  /**
+   * The **`sourceSize`** property defines the region of the texture to render.
+   * Defaults to the full texture size if not set.
+   */
   sourceSize?: Vector2 | undefined
+
+  /**
+   * The **`displaySize`** property defines the rendered size of the sprite.
+   * Defaults to `sourceSize` if not set.
+   */
   displaySize?: Vector2 | undefined
 
+  /**
+   * The **`flipX`** property controls horizontal mirroring of the sprite.
+   */
   flipX = false
+
+  /**
+   * The **`flipY`** property controls vertical mirroring of the sprite.
+   */
   flipY = false
 
+  /**
+   * Gets or sets the `textureId` of this sprite.
+   * Setting a new texture updates the sprite's visual immediately.
+   */
   get textureId() {
     return this.#textureId
   }
@@ -131,6 +182,7 @@ export class Sprite extends Node<PrimaryNode.Sprite> {
     this.flipY = options.flipY ?? this.flipY
   }
 
+  /** @internal Loads the texture when the sprite starts. */
   start(): void {
     if (this.textureId) {
       this.#texture = getTexture(this.textureId)
@@ -150,6 +202,7 @@ export class Sprite extends Node<PrimaryNode.Sprite> {
     })
   }
 
+  /** @internal Draws the sprite texture. */
   draw(delta: number): void {
     this.#drawTexture()
     super.draw(delta)

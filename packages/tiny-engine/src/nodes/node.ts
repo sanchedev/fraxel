@@ -391,48 +391,30 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
     this._children.sort((a, b) => a.globalZIndex - b.globalZIndex)
   }
 
-  // Tools to develop custom nodes
-  /**
-   * The **`build`** method can be used to define child nodes when creating a custom node.
-   * It is called before the node starts.
-   *
-   * @returns A node or an array of nodes to be added as children
-   *
-   * @example
-   * ```ts
-   * class CustomNode extends Node {
-   *   build() {
-   *     return [
-   *       new Transform({ id: 'child1' }),
-   *       new Transform({ id: 'child2' }),
-   *     ]
-   *   }
-   * }
-   * ```
-   *
-   * With JSX:
-   * ```tsx
-   * import { renderToNodes } from 'tiny-engine/jsx'
-   *
-   * class CustomNode extends Node {
-   *   build() {
-   *     return renderToNodes(
-   *       <>
-   *         <transform id='child1' />
-   *         <transform id='child2' />
-   *       </>
-   *     )
-   *   }
-   * }
-   * ```
-   */
-  build?(): Node | Node[]
-
   // Events
+  /**
+   * The **`zIndexChanged`** event fires when the node's `zIndex` value changes.
+   */
   zIndexChanged = new Event('zIndexChange', (zIndex: number) => {})
+
+  /**
+   * The **`started`** event fires when the node finishes its `start()` lifecycle.
+   */
   started = new Event('start', () => {})
+
+  /**
+   * The **`drawed`** event fires each frame when the node is being drawn.
+   */
   drawed = new Event('draw', (delta: number) => {})
+
+  /**
+   * The **`updated`** event fires each frame during the node's update cycle.
+   */
   updated = new Event('update', (delta: number) => {})
+
+  /**
+   * The **`destroyed`** event fires when the node is destroyed.
+   */
   destroyed = new Event('destroy', () => {})
 
   // Event functions
@@ -443,16 +425,13 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   onDestroy?() {}
 
   // Lifecycle methods
+  /**
+   * The **`start`** method initializes the node and starts its lifecycle.
+   * It attaches event callbacks and starts all child nodes.
+   * Called automatically when the node is added to the scene.
+   */
   start(): void {
     if (this.isStarted) return
-
-    // If build method is defined, build the node and add the built nodes as children
-    const built = this.build?.()
-    if (built instanceof Node) {
-      this.addChild(built)
-    } else if (Array.isArray(built)) {
-      this.addChild(...built)
-    }
 
     // Attach events
     const events = Object.keys(this)
@@ -466,23 +445,28 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
       event.on(cb.bind(this))
     }
 
-    for (const child of this._children) {
-      this.#attachChild(child)
-    }
     this.isStarted = true
-    this.#sortChildren()
 
     for (const node of this._children) {
       node.start()
     }
     this.started.emit()
   }
+  /**
+   * The **`update`** method is called each frame to update the node and its children.
+   * @param delta The time elapsed since the last frame in seconds.
+   */
   update(delta: number): void {
     this.updated.emit(delta)
     for (const node of this._children) {
       node.update(delta * node.deltaIncrease)
     }
   }
+  /**
+   * The **`draw`** method is called each frame to render the node and its children.
+   * It applies position translation for proper rendering hierarchy.
+   * @param delta The time elapsed since the last frame in seconds.
+   */
   draw(delta: number): void {
     this.drawed.emit(delta)
     for (const node of this._children) {
