@@ -13,23 +13,26 @@
 ## Features
 
 - **JSX Runtime** — Write game scenes with `<transform>`, `<sprite>`, `<collider>`, and more
-- **Collision System** — Rectangle and circle shapes with broadphase (spatial hash) and narrowphase detection
+- **Collision System** — Rectangle and circle shapes with spatial hash broadphase
 - **Raycast Detection** — Project rays to detect colliders along a direction
 - **Reactive Signals** — `Signal<T>` for state management with automatic re-rendering
 - **Sprite Animation** — Frame-based animations from sprite sheets
+- **Clickable Node** — Pointer interactions (click, hover) on child elements
+- **Sprite Filters** — brightness, grayscale, modulate, contrast, saturate, hueRotate, invert, opacity
+- **Timer Node** — Countdown timer with events
 - **Scene Management** — Lazy-loaded scenes with transitions
 - **TypeScript-first** — Full type safety with `verbatimModuleSyntax`
 
 ## Quick Start
 
 ```tsx
-import { createGame, Game, Scene } from 'tiny-engine/jsx'
+import { Game, Scene, createGame } from 'tiny-engine/jsx'
 
 const game = createGame(
-  <Game width={192} height={112} defaultScene="main">
+  <Game width={320} height={240} defaultScene="main">
     <Scene name="main" component={() => import('./scenes/main.js')} />
   </Game>,
-  document.querySelector('#root')!,
+  document.getElementById('root')!,
 )
 
 game.play()
@@ -52,69 +55,74 @@ Configure your `tsconfig.json`:
 }
 ```
 
-## Core Concepts
+## Nodes
 
-### Nodes
-
-Every game object is built from **nodes** — JSX elements that map to engine classes:
-
-```tsx
-import { PrimaryNode, Vector2 } from 'tiny-engine'
-
-// Transform — positioning container
-<transform position={new Vector2(100, 50)}>
-  {/* Sprite — displays a texture */}
-  <sprite textureId={playerTexture} sourceSize={new Vector2(16, 16)}>
-    {/* AnimationPlayer — frame animations */}
-    <animation-player />
-  </sprite>
-</transform>
-```
-
-### Scenes
-
-Scenes are lazy-loaded modules that contain your game logic:
-
-```tsx
-// scenes/main.tsx
-export default function MainScene() {
-  return (
-    <transform>
-      <Player />
-      <Enemy />
-    </transform>
-  )
-}
-```
-
-### Game Setup
-
-```tsx
-import { Game, Scene, createGame } from 'tiny-engine/jsx'
-
-const game = createGame(
-  <Game width={320} height={240} defaultScene="menu">
-    <Scene name="menu" component={() => import('./scenes/menu.js')} />
-    <Scene name="game" component={() => import('./scenes/game.js')} />
-  </Game>,
-  document.getElementById('root')!,
-)
-
-// Control the game
-game.play()
-game.pause()
-game.changeScene('game')
-```
-
-## Built-in Nodes
+Every game object is built from **nodes** — JSX elements that map to engine classes.
 
 | Node | JSX Tag | Description |
 |------|---------|-------------|
 | `Transform` | `<transform>` | Positioning container for child nodes |
-| `Sprite` | `<sprite>` | Displays a texture or sprite |
+| `Sprite` | `<sprite>` | Displays a texture with optional filters |
 | `AnimationPlayer` | `<animation-player>` | Plays frame-based animations |
 | `Collider` | `<collider>` | Detects overlaps with other colliders |
 | `RayCast` | `<ray-cast>` | Projects a ray to detect colliders |
+| `Clickable` | `<clickable>` | Detects click/hover pointer events |
+| `Timer` | `<timer>` | Counts down and fires events |
+
+### Transform
+
+```tsx
+<transform position={[100, 50]}>
+  <sprite textureId={playerTexture} />
+</transform>
+```
+
+### Sprite
+
+```tsx
+<sprite
+  textureId={playerTexture}
+  sourceSize={[16, 16]}
+  displaySize={[32, 32]}
+  brightness={1.2}
+  modulate={[1, 0.5, 0]}
+/>
+```
+
+### Clickable
+
+```tsx
+<sprite ref={sprite} textureId={btnTexture}>
+  <clickable
+    size={[64, 32]}
+    onClick={() => console.log('clicked')}
+    onMouseEnter={() => console.log('hover in')}
+    onMouseExit={() => console.log('hover out')}
+  />
+</sprite>
+```
+
+- `size` is required (no default hit area)
+- Events: `clicked`, `mouseEntered`, `mouseExited`
+- Set `gameConfig.testOptions.showClickables = true` to visualize areas
+
+### Timer
+
+```tsx
+const timer = useRefNode(PrimaryNode.Timer)
+
+<timer
+  ref={timer}
+  duration={3}
+  onTimeChange={(t) => console.log(t)}
+  onTimerEnd={() => console.log('done')}
+  autoPlay
+/>
+```
+
+- `duration` is in seconds
+- `autoPlay` starts the timer immediately
+- Methods: `play()`, `pause()`, `stop()`
 
 ## Hooks
 
@@ -124,9 +132,12 @@ game.changeScene('game')
 | `useEvent(node, event, callback)` | Type-safe event subscription with auto-cleanup |
 | `useEffect(fn, signals)` | Runs effect on mount and when signals change |
 | `useSignal(initial)` | Creates reactive state that triggers re-renders |
+| `useSignalFrom(fn, deps)` | Creates a derived signal that recomputes when deps change |
 | `useMount(fn)` | Runs once on mount, cleanup on destroy |
 | `useSpawn(node)` | Returns a function to dynamically spawn children |
 | `useGame()` | Access game controls (play, pause, changeScene) |
+| `useChild(path, type)` | Gets a reference to a child node by path |
+| `useScript(ref)` | Retrieves the TinyScript attached to a node |
 | `createContext(default)` | Creates a context with `Provider` component |
 | `useContext(context)` | Retrieves the current context value |
 | `useRef(value)` | Mutable reference that persists across renders |
@@ -192,6 +203,26 @@ function HealthBar() {
 }
 ```
 
+### useSignalFrom
+
+```tsx
+import { useSignal, useSignalFrom } from 'tiny-engine/hooks'
+
+function CooldownSprite() {
+  const time = useSignal(0)
+  const progress = useSignalFrom(
+    (time) => time / 3, // 3 second cooldown
+    [time],
+  )
+
+  return (
+    <transform>
+      {/* progress.value updates when time changes */}
+    </transform>
+  )
+}
+```
+
 ### createContext / useContext
 
 ```tsx
@@ -231,6 +262,60 @@ function Spawner() {
 }
 ```
 
+## Sprite Filters
+
+Sprites support CSS-like visual filters via props:
+
+```tsx
+<sprite
+  textureId={TEX}
+  brightness={1.2}       // 0=black, 1=base, 2=white
+  grayscale={0.5}        // 0=color, 1=grayscale
+  modulate={[1, 0.5, 0]} // RGB tint [r, g, b] 0-1
+  contrast={1.5}         // 0=no contrast, 1=base
+  saturate={0.8}         // 0=desaturated, 1=base
+  hueRotate={90}         // degrees
+  invert={0.5}           // 0=normal, 1=inverted
+  opacity={0.8}          // 0=transparent, 1=opaque
+/>
+```
+
+Filters are applied via `ctx.filter` in the canvas rendering pipeline. `modulate` uses `globalCompositeOperation: 'multiply'` with a fill color.
+
+## Input System
+
+Unified pointer event system. All events use "pointer" naming:
+
+| Property | Description |
+|----------|-------------|
+| `pointer.position` | Current pointer position in game coords |
+| `pointer.isDown` | Whether the pointer is currently pressed |
+| `pointer.wasClicked` | Whether the pointer was clicked this frame |
+
+**Events:** `pointerDown`, `pointerUp`, `pointerMoved`, `clicked`
+
+All pointer events include `position` (game coords). Use `preventDefault` option to suppress default browser behavior (e.g., context menu).
+
+```ts
+const input = new Input(canvas, { preventDefault: ['contextMenu'] })
+input.on('pointerDown', (e) => {
+  console.log(e.position) // { x, y } in game coords
+})
+input.destroy() // removes all event listeners
+```
+
+**Important:** Always call `input.destroy()` when the game/scene is destroyed to prevent memory leaks.
+
+## Game.destroy
+
+Call `game.destroy()` to clean up the game loop, input listeners, and child node listeners:
+
+```ts
+const game = new Game(canvas, config)
+// ... later
+game.destroy() // stops loop, removes all listeners
+```
+
 ## Collision System
 
 ### Shapes
@@ -240,10 +325,7 @@ Define collision shapes with the `shapes` factory:
 ```tsx
 import { shapes } from 'tiny-engine'
 
-// Rectangle
 <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy']} />
-
-// Circle
 <collider shape={shapes.circle(16)} group={['projectile']} collidesWith={['zombie']} />
 ```
 
@@ -371,6 +453,7 @@ The `packages/demo` directory contains a **Plants vs Zombies**-style game built 
 - Dynamic zombie and projectile spawning
 - Collision detection and damage system
 - Sprite animations (walk, eat, shoot)
+- Clickable seed selection with cooldown timers
 
 Run the demo:
 
@@ -407,6 +490,8 @@ pnpm demo:build      # esbuild production build
 pnpm lint            # check for errors
 pnpm lint:fix        # autocorrect fixable errors
 ```
+
+**Order matters**: build `tiny-engine` before `demo` if running separately, since demo depends on `workspace:*` link to the built output.
 
 ### TypeScript
 
