@@ -197,7 +197,7 @@ function HealthBar() {
 
   return (
     <transform>
-      {/* health.value triggers re-render when set */}
+      {/* health() triggers re-render when set */}
     </transform>
   )
 }
@@ -216,7 +216,7 @@ function CooldownSprite() {
 
   return (
     <transform>
-      {/* progress.value updates when time changes */}
+      {/* progress() updates when time changes */}
     </transform>
   )
 }
