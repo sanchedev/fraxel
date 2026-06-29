@@ -1,3 +1,4 @@
+import type { Signal } from '../reactivity/signal.js'
 import { pushEffect } from './context.js'
 import { signalReg } from './use-signal.js'
 
@@ -26,22 +27,30 @@ export function useEffect(fn: () => void | (() => void)): void {
     if (nodes.length < 0) return
     const node = nodes[0]!
 
-    let unmount: (() => void) | void
-
-    const refresh = () => {
-      if (typeof unmount === 'function') unmount()
-      unmount = fn()
-    }
-
     node.started.on(() => {
-      signalReg.watch(refresh, (signals) => {
-        signals.forEach((signal) => signal.sub(refresh))
+      let unmountCurrentEffect = () => {}
 
-        node.destroyed.on(() => {
-          refresh()
-          signals.forEach((signal) => signal.unsub(refresh))
+      const refresh = () => {
+        unmountCurrentEffect()
+
+        let currentSignals: Signal<any>[] = []
+
+        const unmountWatch = signalReg.watch(fn, (signals) => {
+          currentSignals = signals
+          currentSignals.forEach((signal) => signal.sub(refresh))
         })
+
+        unmountCurrentEffect = () => {
+          unmountWatch?.()
+          currentSignals.forEach((signal) => signal.unsub(refresh))
+        }
+      }
+
+      node.destroyed.on(() => {
+        unmountCurrentEffect()
       })
+
+      refresh()
     })
   })
 }

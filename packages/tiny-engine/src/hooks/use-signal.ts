@@ -55,54 +55,9 @@ export const signalReg = {
   },
 }
 
-interface SignalGetter<T> {
+export interface SignalGetter<T> {
   (): T
 }
-interface SignalSetter<T> {
+export interface SignalSetter<T> {
   (value: T): void
-}
-
-/**
- * The **`useComputed`** hook creates a derived signal that automatically updates
- * when any of the dependent signals change. The callback function is re-evaluated
- * whenever a dependency signal's value changes.
- *
- * @param fn The computation function that derives a value from the signal values
- * @returns A getter of the current value of the Signal
- *
- * @example
- * ```tsx
- * const [x, setX] = useSignal(10)
- * const [y, setY] = useSignal(20)
- *
- * // Automatically recomputes when x or y changes
- * const sum = useComputed(() => x() + y())
- *
- * useEffect(() => {
- *   console.log('Sum:', sum()) // 30
- * })
- *
- * // Updating a dependency automatically updates the derived signal
- * setX(15)
- * // sum() is now 35
- * ```
- */
-export function useComputed<T>(fn: () => T): SignalGetter<T> {
-  pushEffect('useComputed', () => {})
-
-  const deps = (signals: Signal<any>[]) => {
-    signals.forEach((s) =>
-      s.sub(() => {
-        signal.value = fn()
-      }),
-    )
-  }
-  const signal = new Signal(signalReg.watch(fn, deps))
-
-  const getter: SignalGetter<T> = () => {
-    signalReg.register(signal)
-    return signal.value
-  }
-
-  return getter
 }
