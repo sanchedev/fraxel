@@ -29,7 +29,7 @@ export function useSignal<T>(initialValue: T) {
 }
 
 /**
- * The **`useSignalFrom`** hook creates a derived signal that automatically updates
+ * The **`useComputed`** hook creates a derived signal that automatically updates
  * when any of the dependent signals change. The callback function is re-evaluated
  * whenever a dependency signal's value changes.
  *
