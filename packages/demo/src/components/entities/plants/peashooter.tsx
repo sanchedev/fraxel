@@ -1,4 +1,5 @@
 import {
+  getGlobalPosition,
   kfFromSpriteSheet,
   loadTexture,
   PrimaryNode,
@@ -76,7 +77,7 @@ export function Peashooter({ position }: PeashooterProps) {
       <Pea
         position={sprite.node.globalPosition
           .toAdded(new Vector2(10, 8))
-          .subtract(sprite.node.parent?.parent?.globalPosition ?? Vector2.ZERO)}
+          .subtract(getGlobalPosition(sprite.node.parent?.parent))}
       />,
     )
   }
