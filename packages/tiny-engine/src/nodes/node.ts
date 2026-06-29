@@ -1,4 +1,4 @@
-import { Vector2 } from '../math/vector2.js'
+import { Vector2, vectorize, type VectorLike } from '../math/vector2.js'
 import { GameConfig } from '../core/game-config.js'
 import { Event, getEventName } from '../events/event.js'
 import { type NodeInstances } from './types.js'
@@ -13,6 +13,7 @@ import { Nodes } from './registry.js'
 import type { Fun } from '../events/types.js'
 import { PrimaryNode } from './enum.js'
 import type { TinyScript } from '../scripts/script.js'
+import { ns } from '../utils/null-ternary.js'
 
 export interface NodeOptions<T extends PrimaryNode> {
   /**
@@ -65,7 +66,7 @@ export interface NodeOptions<T extends PrimaryNode> {
    * )
    * ```
    */
-  position?: Vector2
+  position?: VectorLike
   /**
    * The **`zIndex`** property of a node.
    * It represents the position in Z in the plane.
@@ -170,7 +171,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
       this.script.init(this as NodeInstances[T])
     }
 
-    this.position = position ?? this.position
+    this.position = ns(position, vectorize, this.position)
     this.#zIndex = zIndex ?? this.#zIndex
     this.deltaIncrease = deltaIncrease ?? this.deltaIncrease
 

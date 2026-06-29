@@ -1,5 +1,6 @@
 import { getTexture, type Texture } from '../assets/texture.js'
-import { Vector2 } from '../math/vector2.js'
+import { vectorize, Vector2, type VectorLike } from '../math/vector2.js'
+import { ns } from '../utils/null-ternary.js'
 import { PrimaryNode } from './enum.js'
 import { Node, type NodeOptions } from './node.js'
 import { Nodes } from './registry.js'
@@ -33,7 +34,7 @@ export interface SpriteOptions extends NodeOptions<PrimaryNode.Sprite> {
    * }
    * ```
    */
-  margin?: Vector2
+  margin?: VectorLike
   /**
    * The **`sourceSize`** property of `Sprite` represents the source size to render.
    *
@@ -54,7 +55,7 @@ export interface SpriteOptions extends NodeOptions<PrimaryNode.Sprite> {
    * }
    * ```
    */
-  sourceSize?: Vector2
+  sourceSize?: VectorLike
   /**
    * The **`displaySize`** property of `Sprite` represents the display size.
    *
@@ -76,7 +77,7 @@ export interface SpriteOptions extends NodeOptions<PrimaryNode.Sprite> {
    * }
    * ```
    */
-  displaySize?: Vector2
+  displaySize?: VectorLike
   /** Whether to flip the sprite horizontally */
   flipX?: boolean
   /** Whether to flip the sprite vertically */
@@ -172,9 +173,9 @@ export class Sprite extends Node<PrimaryNode.Sprite> {
   constructor(options: SpriteOptions) {
     super(PrimaryNode.Sprite, options)
 
-    this.margin = options.margin ?? this.margin
-    this.sourceSize = options.sourceSize ?? this.sourceSize
-    this.displaySize = options.displaySize ?? this.displaySize
+    this.margin = ns(options.margin, vectorize, this.margin)
+    this.sourceSize = ns(options.sourceSize, vectorize, this.sourceSize)
+    this.displaySize = ns(options.displaySize, vectorize, this.displaySize)
     this.textureId = options.textureId ?? this.textureId
     this.flipX = options.flipX ?? this.flipX
     this.flipY = options.flipY ?? this.flipY

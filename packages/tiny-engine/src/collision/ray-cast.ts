@@ -1,6 +1,6 @@
 import { GameConfig } from '../core/game-config.js'
 import { Event } from '../events/event.js'
-import { Vector2 } from '../math/vector2.js'
+import { Vector2, vectorize, type VectorLike } from '../math/vector2.js'
 import { PrimaryNode } from '../nodes/enum.js'
 import { Node, type NodeOptions } from '../nodes/node.js'
 import { Nodes } from '../nodes/registry.js'
@@ -24,7 +24,7 @@ export interface RayCastOptions extends NodeOptions<PrimaryNode.RayCast> {
    * <ray-cast direction={new Vector2(3, 3)} ... />
    * ```
    */
-  direction: Vector2
+  direction: VectorLike
   /**
    * The **`collidesWith`** property defines which groups this raycast can interact with.
    *
@@ -75,7 +75,7 @@ export class RayCast extends Node<PrimaryNode.RayCast> {
   constructor(options: RayCastOptions) {
     super(PrimaryNode.RayCast, options)
 
-    this.direction = options.direction
+    this.direction = vectorize(options.direction)
     this.#collidesWith = Array.from(new Set(options.collidesWith))
   }
 

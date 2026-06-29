@@ -1,3 +1,5 @@
+import { InvalidVectorLikeError } from '../errors/math.js'
+
 /** **`Vector2`** class helps to manage points in the plane. */
 export class Vector2 {
   /** Vector in position ZERO (0, 0) */
@@ -23,6 +25,10 @@ export class Vector2 {
    */
   static fromJSON(position: Position): Vector2 {
     return new Vector2(position.x, position.y)
+  }
+
+  static vectorize(vectorlike: VectorLike) {
+    return vectorize(vectorlike)
   }
 
   constructor(
@@ -244,4 +250,27 @@ export interface Position {
   x: number
   /** The y-coordinate. */
   y: number
+}
+
+export type VectorLike = Vector2 | Position | [x: number, y: number] | number
+
+export function vectorize(vectorLike: VectorLike) {
+  if (vectorLike instanceof Vector2) return vectorLike
+  if (typeof vectorLike === 'number') return new Vector2(vectorLike, vectorLike)
+  if (
+    'x' in vectorLike &&
+    typeof vectorLike.x === 'number' &&
+    'y' in vectorLike &&
+    typeof vectorLike.y === 'number'
+  )
+    return Vector2.fromJSON(vectorLike)
+  if (
+    Array.isArray(vectorLike) &&
+    vectorLike.length === 2 &&
+    typeof vectorLike[0] === 'number' &&
+    typeof vectorLike[1] === 'number'
+  )
+    return new Vector2(...vectorLike)
+
+  throw new InvalidVectorLikeError(vectorLike)
 }
