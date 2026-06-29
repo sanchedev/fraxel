@@ -46,8 +46,8 @@ export function NormalZombie({ position }: NormalZombieProps) {
   const anim = useRefNode(PrimaryNode.AnimationPlayer)
   const raycast = useRefNode(PrimaryNode.RayCast)
 
-  const currentState = useSignal<number>(0)
-  const currentPlant = useSignal<PlantScript | null>(null)
+  const [currentState, _setCurrentState] = useSignal(0)
+  const [currentPlant, setCurrentPlant] = useSignal<PlantScript | null>(null)
 
   useMount(() => {
     anim.node
@@ -77,7 +77,7 @@ export function NormalZombie({ position }: NormalZombieProps) {
   })
 
   useEvent(zombie, 'updated', (delta) => {
-    if (currentPlant.value == null) {
+    if (currentPlant() == null) {
       zombie.node.position.x -= delta * (cellSize.x / 4.5)
       if (zombie.node.position.x <= 0) zombie.node.destroy()
     }
@@ -86,27 +86,30 @@ export function NormalZombie({ position }: NormalZombieProps) {
   useEvent(raycast, 'colliderEntered', (collider) => {
     const plant = collider.parent
     if (!(plant?.script instanceof PlantScript)) return
-    currentPlant.value = plant.script
+    setCurrentPlant(plant.script)
   })
   useEvent(raycast, 'colliderExited', (collider) => {
     const plant = collider.parent
     if (!(plant?.script instanceof PlantScript)) return
-    if (plant.script != currentPlant.value) return
-    currentPlant.value = null
+    if (plant.script != currentPlant()) return
+    setCurrentPlant(null)
   })
 
   useEvent(anim, 'animationIndexChanged', (index) => {
     if (anim.node.currentAnim === 'walk') return
     if (index % 2 === 0) return
-    currentPlant.value?.applyDamage(50)
+    currentPlant()?.applyDamage(50)
   })
 
   useEffect(() => {
-    const key = currentPlant.value == null ? 'walk' : 'eat'
-    const newAnim = states[key][currentState.value]
+    const plant = currentPlant()
+    const state = currentState()
+
+    const key = plant == null ? 'walk' : 'eat'
+    const newAnim = states[key][state]
     if (newAnim == null) return
     anim.node.play(newAnim)
-  }, [currentPlant, currentState])
+  })
 
   return (
     <transform

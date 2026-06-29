@@ -17,27 +17,31 @@ export function PlantSeed({
   const { spawnPlant } = useContext(BoardCtx)
   const sprite = useRefNode(PrimaryNode.Sprite)
   const timer = useRefNode(PrimaryNode.Timer)
-  const hover = useSignal(false)
-  const ready = useSignal(false)
 
-  const time = useSignal(0)
+  const [hover, setHover] = useSignal(false)
+  const [ready, setReady] = useSignal(false)
+  const [time, setTime] = useSignal(0)
 
   useEffect(() => {
-    if (ready.value) {
-      sprite.node.brightness = hover.value ? 1.2 : 1
+    const isReady = ready()
+    const isHover = hover()
+    const timeCount = time()
+
+    if (isReady) {
+      sprite.node.brightness = isHover ? 1.2 : 1
       sprite.node.grayscale = 0
     } else {
       sprite.node.brightness =
-        0.75 + 0.25 * (time.value / plantsInfo[plant].seedCooldown)
+        0.75 + 0.25 * (timeCount / plantsInfo[plant].seedCooldown)
       sprite.node.grayscale =
-        1 - 0.5 * (time.value / plantsInfo[plant].seedCooldown)
+        1 - 0.5 * (timeCount / plantsInfo[plant].seedCooldown)
     }
-  }, [hover, ready, time])
+  })
 
   const handleClick = () => {
-    if (!ready.value) return
+    if (!ready()) return
     spawnPlant(0, 2, PlantComponents[plant])
-    ready.value = false
+    setReady(false)
     timer.node.play()
   }
 
@@ -46,15 +50,15 @@ export function PlantSeed({
       <clickable
         size={[18, 14]}
         position={[3, 1]}
-        onMouseEnter={() => (hover.value = true)}
-        onMouseExit={() => (hover.value = false)}
+        onMouseEnter={() => setHover(true)}
+        onMouseExit={() => setHover(false)}
         onClick={handleClick}
       />
       <timer
         ref={timer}
         duration={plantsInfo[plant].seedCooldown}
-        onTimeChange={(t) => (time.value = t)}
-        onTimeout={() => (ready.value = true)}
+        onTimeChange={setTime}
+        onTimeout={() => setReady(true)}
         autoPlay
       />
     </sprite>

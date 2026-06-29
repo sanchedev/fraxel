@@ -6,26 +6,60 @@ import { pushEffect } from './context.js'
  * The signal will notify subscribers when its value changes.
  *
  * @param initialValue The initial value of the signal
- * @returns A `Signal` instance
+ * @returns A tuple to [get, set, signal] the value.
  *
  * @example
  * ```tsx
- * const count = useSignal(0)
+ * const [count, setCount] = useSignal(0)
  *
  * const handleClick = () => {
- *   count.value++
+ *   setCount(count() + 1)
  * }
  *
  * useEffect(() => {
- *   console.log('Count:', count.value)
- * }, [count])
+ *   console.log('Count:', count())
+ * })
  *
  * return <clickable onClick={handleClick} />
  * ```
  */
-export function useSignal<T>(initialValue: T) {
+export function useSignal<T>(
+  initialValue: T,
+): [SignalGetter<T>, SignalSetter<T>, Signal<T>] {
   pushEffect('useSignal', () => {})
-  return new Signal(initialValue)
+  const signal = new Signal(initialValue)
+
+  const getter: SignalGetter<T> = () => {
+    signalReg.register(signal)
+    return signal.value
+  }
+  const setter: SignalSetter<T> = (value) => {
+    signal.value = value
+  }
+
+  return [getter, setter, signal]
+}
+export const signalReg = {
+  signals: [] as Set<Signal<any>>[],
+  watch<T>(fn: () => T, deps: (signals: Signal<any>[]) => void) {
+    this.signals.push(new Set())
+    const val = fn()
+    deps(Array.from(this.signals.at(-1) ?? []))
+    this.signals.pop()
+    return val
+  },
+  register(signal: Signal<any>) {
+    const s = this.signals.at(-1)
+    if (s == null) return
+    s.add(signal)
+  },
+}
+
+interface SignalGetter<T> {
+  (): T
+}
+interface SignalSetter<T> {
+  (value: T): void
 }
 
 /**
@@ -34,43 +68,41 @@ export function useSignal<T>(initialValue: T) {
  * whenever a dependency signal's value changes.
  *
  * @param fn The computation function that derives a value from the signal values
- * @param deps An array of signal dependencies
- * @returns A `Signal` instance containing the derived value
+ * @returns A getter of the current value of the Signal
  *
  * @example
  * ```tsx
- * const x = useSignal(10)
- * const y = useSignal(20)
+ * const [x, setX] = useSignal(10)
+ * const [y, setY] = useSignal(20)
  *
  * // Automatically recomputes when x or y changes
- * const sum = useComputed((a, b) => a + b, [x, y])
+ * const sum = useComputed(() => x() + y())
  *
  * useEffect(() => {
- *   console.log('Sum:', sum.value) // 30
- * }, [sum])
+ *   console.log('Sum:', sum()) // 30
+ * })
  *
  * // Updating a dependency automatically updates the derived signal
- * x.value = 15
- * // sum.value is now 35
+ * setX(15)
+ * // sum() is now 35
  * ```
  */
-export function useComputed<const T extends Signal<any>[], K>(
-  fn: (...args: UnwrapSignals<T>) => K,
-  deps: T,
-): Signal<K> {
+export function useComputed<T>(fn: () => T): SignalGetter<T> {
   pushEffect('useComputed', () => {})
-  const signal = new Signal<K>(
-    fn(...(deps.map((d) => d.value) as UnwrapSignals<T>)),
-  )
-  for (const dep of deps) {
-    dep.sub(
-      () =>
-        (signal.value = fn(...(deps.map((d) => d.value) as UnwrapSignals<T>))),
+
+  const deps = (signals: Signal<any>[]) => {
+    signals.forEach((s) =>
+      s.sub(() => {
+        signal.value = fn()
+      }),
     )
   }
-  return signal
-}
+  const signal = new Signal(signalReg.watch(fn, deps))
 
-type UnwrapSignals<T extends readonly Signal<any>[]> = {
-  [K in keyof T]: T[K] extends Signal<infer U> ? U : never
+  const getter: SignalGetter<T> = () => {
+    signalReg.register(signal)
+    return signal.value
+  }
+
+  return getter
 }

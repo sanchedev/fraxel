@@ -189,11 +189,11 @@ function Enemy() {
 import { useSignal, useEffect } from 'tiny-engine/hooks'
 
 function HealthBar() {
-  const health = useSignal(100)
+  const [health, setHealth] = useSignal(100)
 
   useEffect(() => {
-    console.log('Health changed:', health.value)
-  }, [health])
+    console.log('Health changed:', health())
+  })
 
   return (
     <transform>
@@ -209,10 +209,9 @@ function HealthBar() {
 import { useSignal, useComputed } from 'tiny-engine/hooks'
 
 function CooldownSprite() {
-  const time = useSignal(0)
+  const [time, setTime] = useSignal(0)
   const progress = useComputed(
-    (time) => time / 3, // 3 second cooldown
-    [time],
+    () => time() / 3 // 3 second cooldown
   )
 
   return (
