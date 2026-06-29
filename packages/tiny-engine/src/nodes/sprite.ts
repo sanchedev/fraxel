@@ -1,5 +1,8 @@
 import { getTexture, type Texture } from '../assets/texture.js'
+import { GameConfig } from '../core/game-config.js'
 import { vectorize, Vector2, type VectorLike } from '../math/vector2.js'
+import type { Color } from '../math/types.js'
+
 import { ns } from '../utils/null-ternary.js'
 import { PrimaryNode } from './enum.js'
 import { Node, type NodeOptions } from './node.js'
@@ -82,11 +85,116 @@ export interface SpriteOptions extends NodeOptions<PrimaryNode.Sprite> {
   flipX?: boolean
   /** Whether to flip the sprite vertically */
   flipY?: boolean
+
+  /**
+   * The **`brightness`** filter adjusts the sprite's brightness.
+   * `0` = black, `1` = base, `2` = white.
+   *
+   * @default 1
+   *
+   * @example
+   * ```tsx
+   * // Make sprite 50% brighter
+   * <sprite textureId={TEX} brightness={1.5} />
+   * ```
+   */
+  brightness?: number
+  /**
+   * The **`grayscale`** filter converts the sprite to grayscale.
+   * `0` = full color, `1` = fully grayscale.
+   *
+   * @default 0
+   *
+   * @example
+   * ```tsx
+   * // Half grayscale
+   * <sprite textureId={TEX} grayscale={0.5} />
+   * ```
+   */
+  grayscale?: number
+  /**
+   * The **`modulate`** filter multiplies the sprite's colors by an RGB tint.
+   * Each channel ranges from `0` (no intensity) to `1` (full intensity).
+   *
+   * @default [1, 1, 1]
+   *
+   * @example
+   * ```tsx
+   * // Orange tint
+   * <sprite textureId={TEX} modulate={[1, 0.5, 0]} />
+   *
+   * // Red channel only
+   * <sprite textureId={TEX} modulate={[1, 0, 0]} />
+   * ```
+   */
+  modulate?: Color
+  /**
+   * The **`contrast`** filter adjusts the sprite's contrast.
+   * `0` = no contrast, `1` = base, `2` = double contrast.
+   *
+   * @default 1
+   *
+   * @example
+   * ```tsx
+   * <sprite textureId={TEX} contrast={1.5} />
+   * ```
+   */
+  contrast?: number
+  /**
+   * The **`saturate`** filter adjusts the sprite's color saturation.
+   * `0` = desaturated, `1` = base, `2` = double saturation.
+   *
+   * @default 1
+   *
+   * @example
+   * ```tsx
+   * <sprite textureId={TEX} saturate={0.5} />
+   * ```
+   */
+  saturate?: number
+  /**
+   * The **`hueRotate`** filter rotates the sprite's hue in degrees.
+   * `0` = no rotation, `360` = full rotation.
+   *
+   * @default 0
+   *
+   * @example
+   * ```tsx
+   * // Rotate hue 90 degrees
+   * <sprite textureId={TEX} hueRotate={90} />
+   * ```
+   */
+  hueRotate?: number
+  /**
+   * The **`invert`** filter inverts the sprite's colors.
+   * `0` = normal, `1` = fully inverted.
+   *
+   * @default 0
+   *
+   * @example
+   * ```tsx
+   * <sprite textureId={TEX} invert={1} />
+   * ```
+   */
+  invert?: number
+  /**
+   * The **`opacity`** filter adjusts the sprite's opacity.
+   * `0` = fully transparent, `1` = fully opaque.
+   *
+   * @default 1
+   *
+   * @example
+   * ```tsx
+   * // 50% transparent
+   * <sprite textureId={TEX} opacity={0.5} />
+   * ```
+   */
+  opacity?: number
 }
 
 /**
  * The **`Sprite`** node displays a texture or sprite in the game world.
- * It supports texture atlases with margin/sourceSize, display scaling, and flipping.
+ * It supports texture atlases with margin/sourceSize, display scaling, flipping, and visual filters.
  *
  * @example
  * ```tsx
@@ -104,6 +212,8 @@ export interface SpriteOptions extends NodeOptions<PrimaryNode.Sprite> {
  *       textureId={PLAYER_TEXTURE}
  *       sourceSize={new Vector2(32, 32)}
  *       displaySize={new Vector2(64, 64)}
+ *       brightness={1.2}
+ *       modulate={[1, 0.5, 0]}
  *     />
  *   )
  * }
@@ -141,6 +251,15 @@ export class Sprite extends Node<PrimaryNode.Sprite> {
    */
   flipY = false
 
+  #brightness = 1
+  #grayscale = 0
+  #modulate: Color = [1, 1, 1]
+  #contrast = 1
+  #saturate = 1
+  #hueRotate = 0
+  #invert = 0
+  #opacity = 1
+
   /**
    * Gets or sets the `textureId` of this sprite.
    * Setting a new texture updates the sprite's visual immediately.
@@ -170,6 +289,70 @@ export class Sprite extends Node<PrimaryNode.Sprite> {
     return this.#texture
   }
 
+  /** The **`brightness`** filter value. `0` = black, `1` = base, `2` = white. */
+  get brightness() {
+    return this.#brightness
+  }
+  set brightness(value) {
+    this.#brightness = value
+  }
+
+  /** The **`grayscale`** filter value. `0` = color, `1` = grayscale. */
+  get grayscale() {
+    return this.#grayscale
+  }
+  set grayscale(value) {
+    this.#grayscale = value
+  }
+
+  /** The **`modulate`** filter color `[r, g, b]` with values `0`-`1`. */
+  get modulate() {
+    return this.#modulate
+  }
+  set modulate(value) {
+    this.#modulate = value
+  }
+
+  /** The **`contrast`** filter value. `0` = no contrast, `1` = base, `2` = double. */
+  get contrast() {
+    return this.#contrast
+  }
+  set contrast(value) {
+    this.#contrast = value
+  }
+
+  /** The **`saturate`** filter value. `0` = desaturated, `1` = base, `2` = double. */
+  get saturate() {
+    return this.#saturate
+  }
+  set saturate(value) {
+    this.#saturate = value
+  }
+
+  /** The **`hueRotate`** filter value in degrees. `0` = no rotation, `360` = full. */
+  get hueRotate() {
+    return this.#hueRotate
+  }
+  set hueRotate(value) {
+    this.#hueRotate = value
+  }
+
+  /** The **`invert`** filter value. `0` = normal, `1` = fully inverted. */
+  get invert() {
+    return this.#invert
+  }
+  set invert(value) {
+    this.#invert = value
+  }
+
+  /** The **`opacity`** filter value. `0` = transparent, `1` = opaque. */
+  get opacity() {
+    return this.#opacity
+  }
+  set opacity(value) {
+    this.#opacity = value
+  }
+
   constructor(options: SpriteOptions) {
     super(PrimaryNode.Sprite, options)
 
@@ -179,6 +362,14 @@ export class Sprite extends Node<PrimaryNode.Sprite> {
     this.textureId = options.textureId ?? this.textureId
     this.flipX = options.flipX ?? this.flipX
     this.flipY = options.flipY ?? this.flipY
+    this.brightness = options.brightness ?? this.brightness
+    this.grayscale = options.grayscale ?? this.grayscale
+    this.modulate = options.modulate ?? this.modulate
+    this.contrast = options.contrast ?? this.contrast
+    this.saturate = options.saturate ?? this.saturate
+    this.hueRotate = options.hueRotate ?? this.hueRotate
+    this.invert = options.invert ?? this.invert
+    this.opacity = options.opacity ?? this.opacity
   }
 
   /** @internal Loads the texture when the sprite starts. */
@@ -189,21 +380,63 @@ export class Sprite extends Node<PrimaryNode.Sprite> {
     super.start()
   }
 
-  #drawTexture() {
-    if (this.#texture == null) return
-    this.#texture.draw({
-      position: this.position,
-      margin: this.margin,
-      sourceSize: this.sourceSize,
-      displaySize: this.displaySize?.toMultiplied(
-        new Vector2(this.flipX ? -1 : 1, this.flipY ? -1 : 1),
-      ),
-    })
-  }
-
-  /** @internal Draws the sprite texture. */
+  /** @internal Draws the sprite texture with filters. */
   draw(delta: number): void {
-    this.#drawTexture()
+    if (this.#texture != null) {
+      const ctx = GameConfig.ctx
+
+      const filters: string[] = []
+      if (this.#brightness !== 1)
+        filters.push(`brightness(${this.#brightness})`)
+      if (this.#grayscale !== 0)
+        filters.push(`grayscale(${this.#grayscale})`)
+      if (this.#contrast !== 1) filters.push(`contrast(${this.#contrast})`)
+      if (this.#saturate !== 1) filters.push(`saturate(${this.#saturate})`)
+      if (this.#hueRotate !== 0)
+        filters.push(`hue-rotate(${this.#hueRotate}deg)`)
+      if (this.#invert !== 0) filters.push(`invert(${this.#invert})`)
+      if (this.#opacity !== 1) filters.push(`opacity(${this.#opacity})`)
+
+      ctx.save()
+
+      if (filters.length > 0) {
+        ctx.filter = filters.join(' ')
+      }
+
+      const ds = this.displaySize ?? this.sourceSize
+
+      this.#texture.draw({
+        position: this.position,
+        margin: this.margin,
+        sourceSize: this.sourceSize,
+        displaySize: this.displaySize?.toMultiplied(
+          new Vector2(this.flipX ? -1 : 1, this.flipY ? -1 : 1),
+        ),
+      })
+
+      const isModulated =
+        this.#modulate[0] !== 1 ||
+        this.#modulate[1] !== 1 ||
+        this.#modulate[2] !== 1
+
+      if (isModulated) {
+        ctx.filter = 'none'
+        ctx.globalCompositeOperation = 'multiply'
+
+        ctx.fillStyle = `rgb(${this.#modulate[0] * 255}, ${this.#modulate[1] * 255}, ${this.#modulate[2] * 255})`
+        ctx.fillRect(
+          this.position.x,
+          this.position.y,
+          ds?.x ?? 0,
+          ds?.y ?? 0,
+        )
+
+        ctx.globalCompositeOperation = 'source-over'
+      }
+
+      ctx.restore()
+    }
+
     super.draw(delta)
   }
 }
