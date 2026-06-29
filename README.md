@@ -132,7 +132,7 @@ const timer = useRefNode(PrimaryNode.Timer)
 | `useEvent(node, event, callback)` | Type-safe event subscription with auto-cleanup |
 | `useEffect(fn, signals)` | Runs effect on mount and when signals change |
 | `useSignal(initial)` | Creates reactive state that triggers re-renders |
-| `useSignalFrom(fn, deps)` | Creates a derived signal that recomputes when deps change |
+| `useComputed(fn, deps)` | Creates a derived signal that recomputes when deps change |
 | `useMount(fn)` | Runs once on mount, cleanup on destroy |
 | `useSpawn(node)` | Returns a function to dynamically spawn children |
 | `useGame()` | Access game controls (play, pause, changeScene) |
@@ -203,14 +203,14 @@ function HealthBar() {
 }
 ```
 
-### useSignalFrom
+### useComputed
 
 ```tsx
-import { useSignal, useSignalFrom } from 'tiny-engine/hooks'
+import { useSignal, useComputed } from 'tiny-engine/hooks'
 
 function CooldownSprite() {
   const time = useSignal(0)
-  const progress = useSignalFrom(
+  const progress = useComputed(
     (time) => time / 3, // 3 second cooldown
     [time],
   )
@@ -256,7 +256,9 @@ function Spawner() {
 
   return (
     <transform ref={container}>
-      <button onClick={() => spawn(<Enemy />)}>Spawn Enemy</button>
+      <clickable onClick={() => spawn(<Enemy />)}>
+        <sprite textureId={BUTTON} />
+      </button>
     </transform>
   )
 }
