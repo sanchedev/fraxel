@@ -24,10 +24,12 @@ export class GameConfig {
 export interface TestOptions {
   showColliders: boolean
   showRayCasts: boolean
+  showClickables: boolean
 }
 const defaultTestOptions: TestOptions = {
   showColliders: false,
   showRayCasts: false,
+  showClickables: false,
 }
 
 interface GCO {

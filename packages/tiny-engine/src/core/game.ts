@@ -5,7 +5,7 @@ import { getDPRFromCtx } from '../utils/dpr.js'
 import { Event } from '../events/event.js'
 import { Context2DNotSupportedError } from '../errors/env.js'
 import { EngineNotSetupError } from '../errors/lifecycle.js'
-import { Input } from '../input/input.js'
+import { Input, type InputOptions } from '../input/input.js'
 import { Vector2 } from '../math/vector2.js'
 import { CollisionSystem } from '../collision/collision-system.js'
 
@@ -20,6 +20,8 @@ interface SetupOptions {
   testOptions?: Partial<TestOptions>
   /** The defualt **`Theme`**. */
   theme?: Theme
+  /** The **`inputOptions`** of the game. */
+  inputOptions?: InputOptions
 }
 
 let isPaused = false
@@ -100,7 +102,7 @@ export class Game {
 
     this.sceneManager.setScene(null)
 
-    Game.input = new Input(canvas, new Vector2(width, height))
+    Game.input = new Input(canvas, new Vector2(width, height), options.inputOptions)
   }
 
   /**
@@ -136,6 +138,23 @@ export class Game {
   static pause() {
     isPaused = true
     wakeLock?.release()
+  }
+
+  /**
+   * The **`destroy`** method stops the game loop and cleans up all resources.
+   */
+  static destroy() {
+    if (!setuped) return
+
+    window.cancelAnimationFrame(handle)
+    window.removeEventListener('blur', onBlur)
+
+    Game.input.destroy()
+    this.sceneManager.setScene(null)
+
+    wakeLock?.release()
+    setuped = false
+    isPaused = false
   }
 
   static #transition = (time: number) => {
