@@ -1,61 +1,110 @@
 import { Event } from '../events/event.js'
 import { Vector2 } from '../math/vector2.js'
 
+export interface InputOptions {
+  /**
+   * Whether to call `preventDefault()` on keyboard events.
+   * Set to `false` to allow browser shortcuts and default behavior.
+   * @default true
+   */
+  preventKeyDefaults?: boolean
+}
+
 export class Input {
   #currentKeys = new Set<string>()
   #justKeys = new Set<string>()
   #justKeysUnpressed = new Set<string>()
 
-  #mouse = {
+  #pointer = {
     position: new Vector2(0, 0),
     isPressed: false,
   }
 
-  constructor(canvas: HTMLCanvasElement, size: Vector2) {
+  #canvasPos: Vector2
+  #canvasSize: Vector2
+  #canvasResSize: Vector2
+
+  #handleKeyDown: (ev: KeyboardEvent) => void
+  #handleKeyUp: (ev: KeyboardEvent) => void
+  #handlePointerMove: (ev: PointerEvent) => void
+  #handlePointerDown: (ev: PointerEvent) => void
+  #handlePointerUp: (ev: PointerEvent) => void
+  #handleResize: () => void
+
+  constructor(
+    canvas: HTMLCanvasElement,
+    size: Vector2,
+    options?: InputOptions,
+  ) {
+    const { preventKeyDefaults = true } = options ?? {}
+
     const canvasBounding = canvas.getBoundingClientRect()
-    const canvasPos = new Vector2(canvasBounding.x, canvasBounding.y)
-    const canvasSize = new Vector2(canvasBounding.width, canvasBounding.height)
+    this.#canvasPos = new Vector2(canvasBounding.x, canvasBounding.y)
+    this.#canvasSize = new Vector2(canvasBounding.width, canvasBounding.height)
+    this.#canvasResSize = size.clone()
 
-    window.addEventListener('resize', () => {
+    this.#handleResize = () => {
       const newCanvasBounding = canvas.getBoundingClientRect()
-      canvasSize.x = newCanvasBounding.width
-      canvasSize.y = newCanvasBounding.height
-      canvasPos.x = newCanvasBounding.x
-      canvasPos.y = newCanvasBounding.y
-    })
+      this.#canvasSize.x = newCanvasBounding.width
+      this.#canvasSize.y = newCanvasBounding.height
+      this.#canvasPos.x = newCanvasBounding.x
+      this.#canvasPos.y = newCanvasBounding.y
+    }
 
-    window.addEventListener('keydown', (ev) => {
-      ev.preventDefault()
+    this.#handleKeyDown = (ev: KeyboardEvent) => {
+      if (preventKeyDefaults) ev.preventDefault()
       const keyString = this.#getKeyString(ev)
       this.#currentKeys.add(keyString)
       this.#justKeys.add(keyString)
-    })
-    window.addEventListener('keyup', (ev) => {
-      ev.preventDefault()
+    }
+
+    this.#handleKeyUp = (ev: KeyboardEvent) => {
+      if (preventKeyDefaults) ev.preventDefault()
       const keyString = this.#getKeyString(ev)
       this.#justKeysUnpressed.add(keyString)
       this.#currentKeys.delete(keyString)
-    })
+    }
 
-    window.addEventListener('pointermove', (ev) => {
-      const position = new Vector2(
-        clamp(0, canvasPos.x - ev.x, size.x),
-        clamp(0, canvasPos.y - ev.y, size.y),
-      )
+    this.#handlePointerMove = (ev: PointerEvent) => {
+      const position = this.#getPointerPosition(ev)
+      this.#pointer.position.x = position.x
+      this.#pointer.position.y = position.y
+      this.pointerMoved.emit(position)
+    }
 
-      this.#mouse.position.x = position.x
-      this.#mouse.position.y = position.y
-      this.mouseMoved.emit(position)
-    })
+    this.#handlePointerDown = (ev: PointerEvent) => {
+      const position = this.#getPointerPosition(ev)
+      this.#pointer.position.x = position.x
+      this.#pointer.position.y = position.y
+      this.#pointer.isPressed = true
+      this.pointerPressed.emit(position)
+    }
 
-    window.addEventListener('pointerdown', () => {
-      this.#mouse.isPressed = true
-      this.mousePressed.emit()
-    })
-    window.addEventListener('pointerup', () => {
-      this.#mouse.isPressed = false
-      this.mouseUnpressed.emit()
-    })
+    this.#handlePointerUp = (ev: PointerEvent) => {
+      const position = this.#getPointerPosition(ev)
+      this.#pointer.position.x = position.x
+      this.#pointer.position.y = position.y
+      this.#pointer.isPressed = false
+      this.pointerUnpressed.emit(position)
+    }
+
+    window.addEventListener('resize', this.#handleResize)
+    window.addEventListener('keydown', this.#handleKeyDown)
+    window.addEventListener('keyup', this.#handleKeyUp)
+    window.addEventListener('pointermove', this.#handlePointerMove)
+    window.addEventListener('pointerdown', this.#handlePointerDown)
+    window.addEventListener('pointerup', this.#handlePointerUp)
+  }
+
+  #getPointerPosition(ev: PointerEvent): Vector2 {
+    return new Vector2(
+      (clamp(0, ev.x - this.#canvasPos.x, this.#canvasSize.x) *
+        this.#canvasResSize.x) /
+        this.#canvasSize.x,
+      (clamp(0, ev.y - this.#canvasPos.y, this.#canvasSize.y) *
+        this.#canvasResSize.y) /
+        this.#canvasSize.y,
+    )
   }
 
   #getKeyString(ev: LikeKeyboardEvent) {
@@ -110,20 +159,52 @@ export class Input {
     return axis
   }
 
-  get mousePosition() {
-    return this.#mouse.position
-  }
-  get isMousePressed() {
-    return this.#mouse.isPressed
+  /**
+   * The read-only **`pointerPosition`** property returns the current pointer position.
+   */
+  get pointerPosition(): Readonly<Vector2> {
+    return this.#pointer.position
   }
 
-  mouseMoved = new Event('mouseMove', (_position: Vector2) => {})
-  mousePressed = new Event('mousePress', () => {})
-  mouseUnpressed = new Event('mouseUnpress', () => {})
+  /**
+   * The read-only **`isPointerPressed`** property returns whether the pointer is currently pressed.
+   */
+  get isPointerPressed() {
+    return this.#pointer.isPressed
+  }
+
+  /**
+   * The **`pointerMoved`** event fires when the pointer moves.
+   */
+  pointerMoved = new Event('pointerMove', (_position: Vector2) => {})
+
+  /**
+   * The **`pointerPressed`** event fires when the pointer is pressed.
+   * The callback receives the pointer position.
+   */
+  pointerPressed = new Event('pointerPress', (_position: Vector2) => {})
+
+  /**
+   * The **`pointerUnpressed`** event fires when the pointer is released.
+   * The callback receives the pointer position.
+   */
+  pointerUnpressed = new Event('pointerUnpress', (_position: Vector2) => {})
 
   update() {
     this.#justKeys.clear()
     this.#justKeysUnpressed.clear()
+  }
+
+  /**
+   * The **`destroy`** method removes all event listeners.
+   */
+  destroy() {
+    window.removeEventListener('resize', this.#handleResize)
+    window.removeEventListener('keydown', this.#handleKeyDown)
+    window.removeEventListener('keyup', this.#handleKeyUp)
+    window.removeEventListener('pointermove', this.#handlePointerMove)
+    window.removeEventListener('pointerdown', this.#handlePointerDown)
+    window.removeEventListener('pointerup', this.#handlePointerUp)
   }
 }
 
