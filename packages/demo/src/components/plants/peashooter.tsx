@@ -3,7 +3,6 @@ import {
   loadTexture,
   PrimaryNode,
   shapes,
-  Vector2,
 } from 'tiny-engine'
 import type { InRowProps } from '../types.js'
 import {
@@ -72,34 +71,29 @@ export function Peashooter({ position }: PeashooterProps) {
   })
 
   const shoot = () => {
-    spawnProjectile(<Pea position={new Vector2(10, 8)} />)
+    spawnProjectile(<Pea position={[10, 8]} />)
   }
 
   return (
     <transform position={position} script={new PeashooterScript()}>
-      <sprite
-        ref={sprite}
-        textureId={PEASHOOTER_IDLE}
-        sourceSize={new Vector2(16, 16)}>
+      <sprite ref={sprite} textureId={PEASHOOTER_IDLE} sourceSize={[16, 16]}>
         <animation-player ref={anim} />
       </sprite>
       <ray-cast
         ref={raycast}
-        position={new Vector2(8, 10)}
-        direction={new Vector2(100, 0)}
+        position={[8, 10]}
+        direction={[100, 0]}
         collidesWith={[zombiesLayer]}
-        onStart={() =>
-          (raycast.node.direction = new Vector2(
-            width - raycast.node.globalPosition.x,
-            0,
-          ))
-        }
+        onStart={() => {
+          raycast.node.direction.x = width - raycast.node.globalPosition.x
+          raycast.node.direction.y = 0
+        }}
       />
       <collider
         group={[plantsLayer]}
         collidesWith={[]}
         shape={shapes.rectangle(7, 9)}
-        position={new Vector2(4, 7)}
+        position={[4, 7]}
       />
     </transform>
   )

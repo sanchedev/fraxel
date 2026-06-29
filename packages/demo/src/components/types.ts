@@ -1,5 +1,5 @@
-import type { Vector2 } from 'tiny-engine'
+import type { VectorLike } from 'tiny-engine'
 
 export interface InRowProps {
-  position: Vector2
+  position: VectorLike
 }

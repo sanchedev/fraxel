@@ -1,4 +1,3 @@
-import { Vector2 } from 'tiny-engine'
 import { RowCtx, RowSpawnersCtx } from '../../contexts/row.js'
 import { useContext, useRefNode, useSpawn } from 'tiny-engine/hooks'
 import { PrimaryNode } from 'tiny-engine/nodes/enum.js'
@@ -43,11 +42,11 @@ function RowContainers() {
       }}>
       <transform>
         <transform ref={plants} id='plants'>
-          <Peashooter position={new Vector2(0, 0)} />
+          <Peashooter position={[0, 0]} />
         </transform>
         <transform ref={projectiles} id='projectiles'></transform>
         <transform ref={zombies} id='zombies'>
-          <NormalZombie position={new Vector2(3 * cellSize.x, 0)} />
+          <NormalZombie position={[3 * cellSize.x, 0]} />
         </transform>
       </transform>
     </RowSpawnersCtx.Provider>

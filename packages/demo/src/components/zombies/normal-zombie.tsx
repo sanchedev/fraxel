@@ -3,7 +3,6 @@ import {
   loadTexture,
   PrimaryNode,
   shapes,
-  Vector2,
 } from 'tiny-engine'
 import type { InRowProps } from '../types.js'
 import {
@@ -111,20 +110,20 @@ export function NormalZombie({ position }: NormalZombieProps) {
       <sprite
         ref={sprite}
         textureId={NORMAL_ZOMBIE_WALK_0}
-        sourceSize={new Vector2(16, 16)}>
+        sourceSize={[16, 16]}>
         <animation-player ref={anim} />
       </sprite>
       <ray-cast
         ref={raycast}
-        position={new Vector2(4, 14)}
-        direction={new Vector2(-2, 0)}
+        position={[4, 14]}
+        direction={[-2, 0]}
         collidesWith={[plantsLayer]}
       />
       <collider
         shape={shapes.rectangle(2, 12)}
         group={[zombiesLayer]}
         collidesWith={[]}
-        position={new Vector2(3, 4)}
+        position={[3, 4]}
       />
     </transform>
   )

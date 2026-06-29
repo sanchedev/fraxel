@@ -1,5 +1,5 @@
 import { useContext, useEvent, useGame, useRefNode } from 'tiny-engine/hooks'
-import { loadTexture, PrimaryNode, shapes, Vector2 } from 'tiny-engine'
+import { loadTexture, PrimaryNode, shapes, type VectorLike } from 'tiny-engine'
 import { RowCtx } from '../../contexts/row'
 import { ZombieScript } from '../../scripts/zombie/zombie'
 import { BoardCtx } from '../../contexts/board'
@@ -8,7 +8,7 @@ const PEA = await loadTexture('/assets/sprites/projectiles/pea.png')
 
 const PEA_DAMAGE = 20
 
-export function Pea({ position }: { position: Vector2 }) {
+export function Pea({ position }: { position: VectorLike }) {
   const { projectilesLayer, zombiesLayer } = useContext(RowCtx)
   const { cellSize } = useContext(BoardCtx)
 
@@ -37,7 +37,7 @@ export function Pea({ position }: { position: Vector2 }) {
           shape={shapes.circle(2)}
           group={[projectilesLayer]}
           collidesWith={[zombiesLayer]}
-          position={new Vector2(2, 2)}
+          position={[2, 2]}
         />
       </sprite>
     </transform>
