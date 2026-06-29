@@ -3,8 +3,9 @@ import {
   loadTexture,
   PrimaryNode,
   shapes,
+  Vector2,
 } from 'tiny-engine'
-import type { InRowProps } from '../types.js'
+import type { InRowProps } from '../../types.js'
 import {
   useContext,
   useEvent,
@@ -13,22 +14,22 @@ import {
   useRefNode,
   useSignal,
 } from 'tiny-engine/hooks'
-import { PeashooterScript } from '../../scripts/plant/peashooter.js'
-import { RowCtx, RowSpawnersCtx } from '../../contexts/row.js'
+import { PeashooterScript } from '../../../scripts/plant/peashooter.js'
+import { RowCtx, RowProjectileSpawnerCtx } from '../../../contexts/row.js'
 import { Pea } from '../projectiles/pea.js'
 
 const PEASHOOTER_IDLE = await loadTexture(
-  '/assets/sprites/plants/peashooter/idle.png',
+  '/assets/sprites/entities/plants/peashooter/idle.png',
 )
 const PEASHOOTER_SHOOT = await loadTexture(
-  '/assets/sprites/plants/peashooter/shoot.png',
+  '/assets/sprites/entities/plants/peashooter/shoot.png',
 )
 
 interface PeashooterProps extends InRowProps {}
 
 export function Peashooter({ position }: PeashooterProps) {
   const { plantsLayer, zombiesLayer } = useContext(RowCtx)
-  const { spawnProjectile } = useContext(RowSpawnersCtx)
+  const spawnProjectile = useContext(RowProjectileSpawnerCtx)
 
   const sprite = useRefNode(PrimaryNode.Sprite)
   const anim = useRefNode(PrimaryNode.AnimationPlayer)
@@ -71,7 +72,13 @@ export function Peashooter({ position }: PeashooterProps) {
   })
 
   const shoot = () => {
-    spawnProjectile(<Pea position={[10, 8]} />)
+    spawnProjectile(
+      <Pea
+        position={sprite.node.globalPosition
+          .toAdded(new Vector2(10, 8))
+          .subtract(sprite.node.parent?.parent?.globalPosition ?? Vector2.ZERO)}
+      />,
+    )
   }
 
   return (

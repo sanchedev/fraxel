@@ -4,7 +4,7 @@ import {
   PrimaryNode,
   shapes,
 } from 'tiny-engine'
-import type { InRowProps } from '../types.js'
+import type { InRowProps } from '../../types.js'
 import {
   useContext,
   useEffect,
@@ -13,22 +13,22 @@ import {
   useRefNode,
   useSignal,
 } from 'tiny-engine/hooks'
-import { RowCtx } from '../../contexts/row.js'
-import { PlantScript } from '../../scripts/plant/plant.js'
-import { NormalZombieScript } from '../../scripts/zombie/normal-zombie.js'
-import { BoardCtx } from '../../contexts/board.js'
+import { RowCtx } from '../../../contexts/row.js'
+import { PlantScript } from '../../../scripts/plant/plant.js'
+import { NormalZombieScript } from '../../../scripts/zombie/normal-zombie.js'
+import { BoardCtx } from '../../../contexts/board.js'
 
 const NORMAL_ZOMBIE_WALK_0 = await loadTexture(
-  '/assets/sprites/zombies/normal-zombie/walk-0.png',
+  '/assets/sprites/entities/zombies/normal-zombie/walk-0.png',
 )
 const NORMAL_ZOMBIE_WALK_1 = await loadTexture(
-  '/assets/sprites/zombies/normal-zombie/walk-1.png',
+  '/assets/sprites/entities/zombies/normal-zombie/walk-1.png',
 )
 const NORMAL_ZOMBIE_EAT_0 = await loadTexture(
-  '/assets/sprites/zombies/normal-zombie/eat-0.png',
+  '/assets/sprites/entities/zombies/normal-zombie/eat-0.png',
 )
 const NORMAL_ZOMBIE_EAT_1 = await loadTexture(
-  '/assets/sprites/zombies/normal-zombie/eat-1.png',
+  '/assets/sprites/entities/zombies/normal-zombie/eat-1.png',
 )
 const states = {
   walk: ['walk-0', 'walk-1'],
@@ -95,6 +95,12 @@ export function NormalZombie({ position }: NormalZombieProps) {
     currentPlant.value = null
   })
 
+  useEvent(anim, 'animationIndexChanged', (index) => {
+    if (anim.node.currentAnim === 'walk') return
+    if (index % 2 === 0) return
+    currentPlant.value?.applyDamage(50)
+  })
+
   useEffect(() => {
     const key = currentPlant.value == null ? 'walk' : 'eat'
     const newAnim = states[key][currentState.value]
@@ -120,10 +126,10 @@ export function NormalZombie({ position }: NormalZombieProps) {
         collidesWith={[plantsLayer]}
       />
       <collider
-        shape={shapes.rectangle(2, 12)}
+        shape={shapes.rectangle(4, 12)}
         group={[zombiesLayer]}
         collidesWith={[]}
-        position={[3, 4]}
+        position={[6, 4]}
       />
     </transform>
   )

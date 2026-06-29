@@ -14,14 +14,19 @@ export const RowCtx = createContext<RowContext>({
   rowIndex: -1,
 })
 
-export interface RowSpawnersContext {
-  spawnProjectile(jsx: JSX.Element): void
-  spawnPlant(jsx: JSX.Element): void
-  spawnZombie(jsx: JSX.Element): void
-}
+export type RowPlantSpawnerContext = (jsx: JSX.Element) => void
 
-export const RowSpawnersCtx = createContext<RowSpawnersContext>({
-  spawnPlant() {},
-  spawnProjectile() {},
-  spawnZombie() {},
-})
+export const RowPlantSpawnerCtx = createContext<RowPlantSpawnerContext>(
+  () => {},
+)
+
+export type RowZombieSpawnerContext = (jsx: JSX.Element) => void
+
+export const RowZombieSpawnerCtx = createContext<RowZombieSpawnerContext>(
+  () => {},
+)
+
+export type RowProjectileSpawnerContext = (jsx: JSX.Element) => void
+
+export const RowProjectileSpawnerCtx =
+  createContext<RowProjectileSpawnerContext>(() => {})

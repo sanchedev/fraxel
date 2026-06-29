@@ -1,15 +1,31 @@
-import { RowCtx, RowSpawnersCtx } from '../../contexts/row.js'
-import { useContext, useRefNode, useSpawn } from 'tiny-engine/hooks'
+import {
+  RowCtx,
+  RowPlantSpawnerCtx,
+  RowProjectileSpawnerCtx,
+  RowZombieSpawnerCtx,
+} from '../../contexts/row.js'
+import {
+  NodeReference,
+  useContext,
+  useRefNode,
+  useSpawn,
+} from 'tiny-engine/hooks'
 import { PrimaryNode } from 'tiny-engine/nodes/enum.js'
-import { Peashooter } from '../plants/peashooter.js'
-import { NormalZombie } from '../zombies/normal-zombie.js'
+import { NormalZombie } from '../entities/zombies/normal-zombie.js'
 import { BoardCtx } from '../../contexts/board.js'
+import type { InRowProps } from '../types.js'
 
 interface RowProps {
+  registerSpawners: (
+    plants: (
+      colIndex: number,
+      Comp: (props: InRowProps) => JSX.Element,
+    ) => void,
+  ) => void
   rowIndex: number
 }
 
-export function Row({ rowIndex }: RowProps) {
+export function Row({ rowIndex, registerSpawners }: RowProps) {
   return (
     <RowCtx.Provider
       value={{
@@ -18,37 +34,70 @@ export function Row({ rowIndex }: RowProps) {
         zombiesLayer: `zombie-${rowIndex}`,
         rowIndex,
       }}>
-      <RowContainers />
+      <RowZombieSpawner
+        registerSpawners={registerSpawners}
+        rowIndex={rowIndex}
+      />
     </RowCtx.Provider>
   )
 }
 
-function RowContainers() {
-  const { cellSize } = useContext(BoardCtx)
-
-  const plants = useRefNode(PrimaryNode.Transform)
-  const spawnPlant = useSpawn(plants)
-  const projectiles = useRefNode(PrimaryNode.Transform)
-  const spawnProjectile = useSpawn(projectiles)
+function RowZombieSpawner(props: RowProps) {
   const zombies = useRefNode(PrimaryNode.Transform)
   const spawnZombie = useSpawn(zombies)
 
   return (
-    <RowSpawnersCtx.Provider
-      value={{
-        spawnPlant,
-        spawnProjectile,
-        spawnZombie,
-      }}>
-      <transform>
-        <transform ref={plants} id='plants'>
-          <Peashooter position={[0, 0]} />
-        </transform>
-        <transform ref={projectiles} id='projectiles'></transform>
-        <transform ref={zombies} id='zombies'>
-          <NormalZombie position={[3 * cellSize.x, 0]} />
-        </transform>
+    <RowZombieSpawnerCtx.Provider value={spawnZombie}>
+      <RowProjectileSpawner {...props} z={zombies} />
+    </RowZombieSpawnerCtx.Provider>
+  )
+}
+type node = NodeReference<PrimaryNode.Transform>
+function RowProjectileSpawner(props: RowProps & { z: node }) {
+  const projectiles = useRefNode(PrimaryNode.Transform)
+  const spawnProjectile = useSpawn(projectiles)
+
+  return (
+    <RowProjectileSpawnerCtx.Provider value={spawnProjectile}>
+      <RowPlantSpawner {...props} r={projectiles} />
+    </RowProjectileSpawnerCtx.Provider>
+  )
+}
+
+function RowPlantSpawner(props: RowProps & { z: node; r: node }) {
+  const plants = useRefNode(PrimaryNode.Transform)
+  const spawnPlant = useSpawn(plants)
+
+  return (
+    <RowPlantSpawnerCtx.Provider value={spawnPlant}>
+      <RowContainers {...props} p={plants} />
+    </RowPlantSpawnerCtx.Provider>
+  )
+}
+
+function RowContainers({
+  rowIndex,
+  registerSpawners,
+  z,
+  r,
+  p,
+}: RowProps & { z: node; r: node; p: node }) {
+  const { cellSize } = useContext(BoardCtx)
+  const spawnPlant = useContext(RowPlantSpawnerCtx)
+
+  registerSpawners((colIndex, Component) =>
+    spawnPlant(
+      <Component position={[colIndex * cellSize.x, rowIndex * cellSize.y]} />,
+    ),
+  )
+
+  return (
+    <transform>
+      <transform ref={p} id='plants' />
+      <transform ref={r} id='projectiles' />
+      <transform ref={z} id='zombies'>
+        <NormalZombie position={[7 * cellSize.x, 0]} />
       </transform>
-    </RowSpawnersCtx.Provider>
+    </transform>
   )
 }

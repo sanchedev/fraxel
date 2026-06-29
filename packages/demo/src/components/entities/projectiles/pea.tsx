@@ -1,10 +1,10 @@
 import { useContext, useEvent, useGame, useRefNode } from 'tiny-engine/hooks'
 import { loadTexture, PrimaryNode, shapes, type VectorLike } from 'tiny-engine'
-import { RowCtx } from '../../contexts/row'
-import { ZombieScript } from '../../scripts/zombie/zombie'
-import { BoardCtx } from '../../contexts/board'
+import { RowCtx } from '../../../contexts/row'
+import { ZombieScript } from '../../../scripts/zombie/zombie'
+import { BoardCtx } from '../../../contexts/board'
 
-const PEA = await loadTexture('/assets/sprites/projectiles/pea.png')
+const PEA = await loadTexture('/assets/sprites/entities/projectiles/pea.png')
 
 const PEA_DAMAGE = 20
 
