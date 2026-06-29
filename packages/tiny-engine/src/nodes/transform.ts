@@ -22,7 +22,7 @@ export interface TransformOptions extends NodeOptions<PrimaryNode.Transform> {}
  *
  *   return (
  *     <transform ref={body} position={new Vector2(100, 200)}>
- *       <sprite textureId="player" />
+ *       <sprite textureId={PLAYER} />
  *     </transform>
  *   )
  * }
