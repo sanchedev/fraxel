@@ -1,7 +1,12 @@
-import { PrimaryNode, type VectorLike } from 'tiny-engine'
+import { PrimaryNode, Vector2, type VectorLike } from 'tiny-engine'
 import type { Plant } from '../../lib/enums/plants'
 import { PlantComponents } from '../../lib/components/plants'
-import { useContext, useEffect, useRefNode, useSignal } from 'tiny-engine/hooks'
+import {
+  useComputed,
+  useContext,
+  useRefNode,
+  useSignal,
+} from 'tiny-engine/hooks'
 import { BoardCtx } from '../../contexts/board'
 import { plantsInfo } from '../../lib/info/plants'
 
@@ -15,50 +20,44 @@ export function PlantSeed({
   position?: VectorLike
 }) {
   const { spawnPlant } = useContext(BoardCtx)
-  const sprite = useRefNode(PrimaryNode.Sprite)
   const timer = useRefNode(PrimaryNode.Timer)
 
   const [hover, setHover] = useSignal(false)
-  const [ready, setReady] = useSignal(false)
+  const [disabled, setDisabled] = useSignal(true)
   const [time, setTime] = useSignal(0)
 
-  useEffect(() => {
-    const isReady = ready()
-    const isHover = hover()
-    const timeCount = time()
+  const progress = useComputed(() => time() / plantsInfo[plant].seedCooldown)
 
-    if (isReady) {
-      sprite.node.brightness = isHover ? 1.2 : 1
-      sprite.node.grayscale = 0
-    } else {
-      sprite.node.brightness =
-        0.75 + 0.25 * (timeCount / plantsInfo[plant].seedCooldown)
-      sprite.node.grayscale =
-        1 - 0.5 * (timeCount / plantsInfo[plant].seedCooldown)
-    }
-  })
+  const brightness = useComputed(() => (hover() ? 1.1 : 1))
+  const grayscale = useComputed(() => (disabled() ? 0.75 : 0))
+  const sourceSize = useComputed(() => new Vector2(24, (1 - progress()) * 16))
 
   const handleClick = () => {
-    if (!ready()) return
     spawnPlant(0, 2, PlantComponents[plant])
-    setReady(false)
+    setDisabled(true)
     timer.node.play()
   }
 
   return (
-    <sprite ref={sprite} textureId={seedTexture} position={position}>
+    <sprite
+      textureId={seedTexture}
+      position={position}
+      brightness={brightness}
+      grayscale={grayscale}>
+      <sprite textureId={seedTexture} grayscale={1} sourceSize={sourceSize} />
       <clickable
         size={[18, 14]}
         position={[3, 1]}
         onMouseEnter={() => setHover(true)}
         onMouseExit={() => setHover(false)}
         onClick={handleClick}
+        disabled={disabled}
       />
       <timer
         ref={timer}
         duration={plantsInfo[plant].seedCooldown}
         onTimeChange={setTime}
-        onTimeout={() => setReady(true)}
+        onTimeout={() => setDisabled(false)}
         autoPlay
       />
     </sprite>
