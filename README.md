@@ -19,7 +19,7 @@
 - **Sprite Animation** — Frame-based animations from sprite sheets
 - **Clickable Node** — Pointer interactions (click, hover) on child elements
 - **Sprite Filters** — brightness, grayscale, modulate, contrast, saturate, hueRotate, invert, opacity
-- **Timer Node** — Countdown timer with events
+- **Timer Node** — Count-up timer with events
 - **Scene Management** — Lazy-loaded scenes with transitions
 - **TypeScript-first** — Full type safety with `verbatimModuleSyntax`
 
@@ -102,8 +102,9 @@ Every game object is built from **nodes** — JSX elements that map to engine cl
 </sprite>
 ```
 
-- `size` is required (no default hit area)
-- Events: `clicked`, `mouseEntered`, `mouseExited`
+- `size` is required (no default hit area). Accepts `VectorLike`.
+- `disabled` prop disables all interaction.
+- Events: `click`, `mouseEnter`, `mouseExit` (useEvent names: `clicked`, `mouseEntered`, `mouseExited`)
 - Set `gameConfig.testOptions.showClickables = true` to visualize areas
 
 ### Timer
@@ -111,18 +112,23 @@ Every game object is built from **nodes** — JSX elements that map to engine cl
 ```tsx
 const timer = useRefNode(PrimaryNode.Timer)
 
-<timer
-  ref={timer}
-  duration={3}
-  onTimeChange={(t) => console.log(t)}
-  onTimerEnd={() => console.log('done')}
-  autoPlay
-/>
+useEvent(timer, 'timeout', () => {
+  console.log('done')
+})
+
+useEvent(timer, 'timeChanged', (elapsed) => {
+  console.log(elapsed) // current elapsed time in seconds
+})
+
+return (
+  <timer ref={timer} duration={3} autoPlay />
+)
 ```
 
-- `duration` is in seconds
+- `duration` is in seconds (reactive via `SignalGetter`)
 - `autoPlay` starts the timer immediately
-- Methods: `play()`, `pause()`, `stop()`
+- Timer increments each frame by `delta` (seconds)
+- Methods: `play(from?)`, `pause()`, `stop()`
 
 ## Hooks
 
@@ -168,7 +174,7 @@ import { PrimaryNode, shapes } from 'tiny-engine'
 function Enemy() {
   const collider = useRefNode(PrimaryNode.Collider)
 
-  useEvent(collider, 'colliderEnter', (other) => {
+  useEvent(collider, 'colliderEntered', (other) => {
     console.log('Hit:', other)
   })
 
@@ -257,7 +263,8 @@ function Spawner() {
     <transform ref={container}>
       <clickable onClick={() => spawn(<Enemy />)}>
         <sprite textureId={BUTTON} />
-      </button>
+        {/* Assume BUTTON is a preloaded texture symbol */}
+      </clickable>
     </transform>
   )
 }
@@ -285,22 +292,39 @@ Filters are applied via `ctx.filter` in the canvas rendering pipeline. `modulate
 
 ## Input System
 
-Unified pointer event system. All events use "pointer" naming:
+Unified pointer and keyboard event system.
+
+### Pointer
 
 | Property | Description |
 |----------|-------------|
-| `pointer.position` | Current pointer position in game coords |
-| `pointer.isDown` | Whether the pointer is currently pressed |
-| `pointer.wasClicked` | Whether the pointer was clicked this frame |
+| `input.pointerPosition` | Current pointer position in game coords (read-only `Vector2`) |
+| `input.isPointerPressed` | Whether the pointer is currently pressed |
 
-**Events:** `pointerDown`, `pointerUp`, `pointerMoved`, `clicked`
+**Pointer Events:** `pointerPress`, `pointerUnpress`, `pointerMove`
 
-All pointer events include `position` (game coords). Use `preventDefault` option to suppress default browser behavior (e.g., context menu).
+All pointer events emit `position` (game coords `Vector2`).
+
+### Keyboard
+
+| Method | Description |
+|--------|-------------|
+| `input.isKeyPressed(key, ctrl?, shift?, alt?)` | Whether key is currently held |
+| `input.isJustKeyPressed(key, ctrl?, shift?, alt?)` | Whether key was pressed this frame |
+| `input.isJustKeyUnpressed(key, ctrl?, shift?, alt?)` | Whether key was released this frame |
+| `input.getKeyAxis(positiveKey, negativeKey)` | Returns -1, 0, or 1 based on key state |
+
+### Options
 
 ```ts
-const input = new Input(canvas, { preventDefault: ['contextMenu'] })
-input.on('pointerDown', (e) => {
-  console.log(e.position) // { x, y } in game coords
+const input = new Input(canvas, size, { preventKeyDefaults: true })
+```
+
+- `preventKeyDefaults` (default `true`): calls `preventDefault()` on keyboard events to block browser shortcuts.
+
+```ts
+input.on('pointerPress', (position) => {
+  console.log(position) // Vector2 in game coords
 })
 input.destroy() // removes all event listeners
 ```
@@ -341,7 +365,7 @@ import { PrimaryNode, shapes } from 'tiny-engine'
 function Projectile() {
   const collider = useRefNode(PrimaryNode.Collider)
 
-  useEvent(collider, 'colliderEnter', (enemyCollider) => {
+  useEvent(collider, 'colliderEntered', (enemyCollider) => {
     enemyCollider.parent.script.applyDamage(20)
   })
 
@@ -367,7 +391,7 @@ import { PrimaryNode, Vector2 } from 'tiny-engine'
 function Detector() {
   const ray = useRefNode(PrimaryNode.RayCast)
 
-  useEvent(ray, 'colliderEnter', (collider) => {
+  useEvent(ray, 'colliderEntered', (collider) => {
     console.log('Detected:', collider)
   })
 
