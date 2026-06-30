@@ -8,11 +8,7 @@ export { useMount } from './use-mount.js'
 export { useRefNode, NodeReference } from './use-ref-node.js'
 export { useRef } from './use-ref.js'
 export { useScript } from './use-script.js'
-export {
-  useSignal,
-  type SignalGetter,
-  type SignalSetter,
-} from './use-signal.js'
+export { useSignal } from './use-signal.js'
 export { useComputed } from './use-computed.js'
 export { useSpawn } from './use-spawn.js'
 

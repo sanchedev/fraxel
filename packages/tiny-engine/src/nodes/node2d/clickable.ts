@@ -28,6 +28,19 @@ export interface ClickableOptions extends Node2DOptions<PrimaryNode.Clickable> {
    * ```
    */
   size: VectorLike | SignalGetter<VectorLike>
+  /**
+   * The **`disabled`** property disable the clickable area.
+   *
+   * @example
+   * ```tsx
+   * const handleClick = () => {
+   *   console.log("Never")
+   * }
+   *
+   * <clickable size={12} disabled onClick={handleClick} />
+   * ```
+   */
+  disabled?: boolean | SignalGetter<boolean>
 }
 
 /**
@@ -58,6 +71,7 @@ export interface ClickableOptions extends Node2DOptions<PrimaryNode.Clickable> {
  */
 export class Clickable extends Node2D<PrimaryNode.Clickable> {
   size: Vector2
+  disabled: boolean = false
   #isHovered = false
   #wasPressed = false
 
@@ -80,6 +94,7 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
   constructor(options: ClickableOptions) {
     super(PrimaryNode.Clickable, options)
     this.size = propSignal(this, 'size', applySignal(options.size, vectorize))
+    this.disabled = propSignal(this, 'disabled', options.disabled)
   }
 
   #isPointerInside(): boolean {
@@ -97,20 +112,24 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
   update(delta: number): void {
     const isInside = this.#isPointerInside()
 
-    if (isInside && !this.#isHovered) {
-      this.#isHovered = true
-      this.mouseEntered.emit()
-    } else if (!isInside && this.#isHovered) {
-      this.#isHovered = false
-      this.mouseExited.emit()
-    }
+    if (!this.disabled) {
+      if (isInside && !this.#isHovered) {
+        this.#isHovered = true
+        this.mouseEntered.emit()
+      } else if (!isInside && this.#isHovered) {
+        this.#isHovered = false
+        this.mouseExited.emit()
+      }
 
-    const isPressed = Game.input.isPointerPressed
-    if (this.#wasPressed && !isPressed && isInside) {
-      const local = Game.input.pointerPosition.toSubtracted(this.globalPosition)
-      this.clicked.emit(local)
+      const isPressed = Game.input.isPointerPressed
+      if (this.#wasPressed && !isPressed && isInside) {
+        const local = Game.input.pointerPosition.toSubtracted(
+          this.globalPosition,
+        )
+        this.clicked.emit(local)
+      }
+      this.#wasPressed = isPressed
     }
-    this.#wasPressed = isPressed
 
     super.update(delta)
   }
@@ -118,8 +137,8 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
   /** @internal Draws the clickable area for debugging when showClickables is enabled. */
   draw(delta: number): void {
     if (GameConfig.testOptions.showClickables) {
-      GameConfig.ctx.fillStyle = '#e2c8855c'
-      GameConfig.ctx.strokeStyle = '#abb37ab4'
+      GameConfig.ctx.fillStyle = this.disabled ? '#cbc2ac5c' : '#e2c8855c'
+      GameConfig.ctx.strokeStyle = this.disabled ? '#9ca082b4' : '#abb37ab4'
       GameConfig.ctx.lineWidth = 1
 
       GameConfig.ctx.fillRect(

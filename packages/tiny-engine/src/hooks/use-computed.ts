@@ -31,19 +31,25 @@ export function useComputed<T>(fn: () => T): SignalGetter<T> {
 
   let currentSignals: Signal<any>[] = []
 
+  const computedSignal = new Signal<T>(undefined as T)
+
   const refresh = () => {
-    computedSignal.value = watch()
+    currentSignals.forEach((s) => s.unsub(refresh))
+    evaluateAndTrack()
+    currentSignals.forEach((s) => s.sub(refresh))
   }
 
-  const watch = () => {
-    return SignalRegister.watch(fn, (signals) => {
-      currentSignals.forEach((s) => s.unsub(refresh))
+  const evaluateAndTrack = () => {
+    computedSignal.value = SignalRegister.watch(fn, (signals) => {
       currentSignals = signals
-      currentSignals.forEach((s) => s.sub(refresh))
     })
   }
 
-  const computedSignal = new Signal<T>(watch())
+  refresh()
 
-  return () => computedSignal.value
+  const getter: SignalGetter<T> = () => {
+    return computedSignal.value
+  }
+
+  return getter
 }

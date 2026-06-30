@@ -39,7 +39,8 @@ export class Signal<T> {
    */
   set value(val) {
     this.#value = val
-    this.#listeners.forEach((fn) => fn(val))
+    const currentListeners = Array.from(this.#listeners)
+    currentListeners.forEach((fn) => fn(val))
   }
 
   /**

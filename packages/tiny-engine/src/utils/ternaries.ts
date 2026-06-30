@@ -17,48 +17,59 @@ export function propSignal<N extends Node, K extends keyof N, T extends N[K]>(
   if (prop == null) {
     return node[key]
   }
-  if (typeof prop === 'function') {
-    const [value, onDestroy] = SignalRegister.watchOne(
-      prop as SignalGetter<T>,
-      (v) => (node[key] = v),
-    )
-    node.destroyed.on(onDestroy)
-    return value
+  if (typeof prop !== 'function') return prop
+
+  let currentSignals: Signal<any>[] = []
+
+  const refresh = () => {
+    currentSignals.forEach((s) => s.unsub(refresh))
+    evaluateAndTrack()
+    currentSignals.forEach((s) => s.sub(refresh))
   }
-  return prop
+
+  const evaluateAndTrack = () => {
+    node[key] = SignalRegister.watch(prop as SignalGetter<T>, (signals) => {
+      currentSignals = signals
+    })
+  }
+
+  refresh()
+
+  node.destroyed.on(() => currentSignals.forEach((s) => s.unsub(refresh)))
+
+  return node[key]
 }
 
 export function applySignal<T, K>(
   prop: T | SignalGetter<T>,
   changer: (value: T) => K,
 ): K | SignalGetter<K> {
-  if (typeof prop === 'function') {
-    const getsignal = prop as SignalGetter<T>
-    let currentSignals: Signal<any>[] = []
+  if (typeof prop !== 'function') return changer(prop)
 
-    const refresh = () => {
-      computedSignal.value = watch()
-    }
+  let currentSignals: Signal<any>[] = []
 
-    const watch = () => {
-      return SignalRegister.watch(
-        () => changer(getsignal()),
-        (signals) => {
-          currentSignals.forEach((s) => s.unsub(refresh))
-          currentSignals = signals
-          currentSignals.forEach((s) => s.sub(refresh))
-        },
-      )
-    }
+  const computedSignal = new Signal<K>(undefined as K)
 
-    const computedSignal = new Signal(changer(getsignal()))
-
-    const getter: SignalGetter<K> = () => {
-      return computedSignal.value
-    }
-
-    return getter
+  const refresh = () => {
+    currentSignals.forEach((s) => s.unsub(refresh))
+    evaluateAndTrack()
+    currentSignals.forEach((s) => s.sub(refresh))
   }
 
-  return changer(prop)
+  const evaluateAndTrack = () => {
+    computedSignal.value = SignalRegister.watch(
+      () => changer((prop as SignalGetter<T>)()),
+      (signals) => {
+        currentSignals = signals
+      },
+    )
+  }
+
+  refresh()
+
+  const getter: SignalGetter<K> = () => {
+    return computedSignal.value
+  }
+
+  return getter
 }
