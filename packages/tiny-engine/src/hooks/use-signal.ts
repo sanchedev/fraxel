@@ -7,7 +7,7 @@ import { pushEffect } from './context.js'
  * The signal will notify subscribers when its value changes.
  *
  * @param initialValue The initial value of the signal
- * @returns A tuple to [get, set, signal] the value.
+ * @returns A tuple to [get, set] the value.
  *
  * @example
  * ```tsx
@@ -26,7 +26,7 @@ import { pushEffect } from './context.js'
  */
 export function useSignal<T>(
   initialValue: T,
-): [SignalGetter<T>, SignalSetter<T>, Signal<T>] {
+): [SignalGetter<T>, SignalSetter<T>] {
   pushEffect('useSignal', () => {})
   const signal = new Signal(initialValue)
 
@@ -35,5 +35,5 @@ export function useSignal<T>(
     signal.value = value
   }
 
-  return [getter, setter, signal]
+  return [getter, setter]
 }
