@@ -3,10 +3,11 @@ import { GameConfig } from '../../core/game-config.js'
 import { vectorize, Vector2, type VectorLike } from '../../math/vector2.js'
 import type { Color } from '../../math/types.js'
 
-import { ns } from '../../utils/null-ternary.js'
+import { applySignal, ns, propSignal } from '../../utils/ternaries.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { Nodes } from '../lib/registry.js'
+import type { SignalGetter } from '../../reactivity/types.js'
 
 export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
   /**
@@ -22,7 +23,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * }
    * ```
    */
-  textureId?: symbol
+  textureId?: symbol | SignalGetter<symbol>
   /**
    * The **`margin`** property of `Sprite` represents the texture offset.
    *
@@ -37,7 +38,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * }
    * ```
    */
-  margin?: VectorLike
+  margin?: VectorLike | SignalGetter<VectorLike>
   /**
    * The **`sourceSize`** property of `Sprite` represents the source size to render.
    *
@@ -58,7 +59,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * }
    * ```
    */
-  sourceSize?: VectorLike
+  sourceSize?: VectorLike | SignalGetter<VectorLike>
   /**
    * The **`displaySize`** property of `Sprite` represents the display size.
    *
@@ -80,11 +81,11 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * }
    * ```
    */
-  displaySize?: VectorLike
+  displaySize?: VectorLike | SignalGetter<VectorLike>
   /** Whether to flip the sprite horizontally */
-  flipX?: boolean
+  flipX?: boolean | SignalGetter<boolean>
   /** Whether to flip the sprite vertically */
-  flipY?: boolean
+  flipY?: boolean | SignalGetter<boolean>
 
   /**
    * The **`brightness`** filter adjusts the sprite's brightness.
@@ -98,7 +99,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} brightness={1.5} />
    * ```
    */
-  brightness?: number
+  brightness?: number | SignalGetter<number>
   /**
    * The **`grayscale`** filter converts the sprite to grayscale.
    * `0` = full color, `1` = fully grayscale.
@@ -111,7 +112,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} grayscale={0.5} />
    * ```
    */
-  grayscale?: number
+  grayscale?: number | SignalGetter<number>
   /**
    * The **`modulate`** filter multiplies the sprite's colors by an RGB tint.
    * Each channel ranges from `0` (no intensity) to `1` (full intensity).
@@ -127,7 +128,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} modulate={[1, 0, 0]} />
    * ```
    */
-  modulate?: Color
+  modulate?: Color | SignalGetter<Color>
   /**
    * The **`contrast`** filter adjusts the sprite's contrast.
    * `0` = no contrast, `1` = base, `2` = double contrast.
@@ -139,7 +140,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} contrast={1.5} />
    * ```
    */
-  contrast?: number
+  contrast?: number | SignalGetter<number>
   /**
    * The **`saturate`** filter adjusts the sprite's color saturation.
    * `0` = desaturated, `1` = base, `2` = double saturation.
@@ -151,7 +152,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} saturate={0.5} />
    * ```
    */
-  saturate?: number
+  saturate?: number | SignalGetter<number>
   /**
    * The **`hueRotate`** filter rotates the sprite's hue in degrees.
    * `0` = no rotation, `360` = full rotation.
@@ -164,7 +165,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} hueRotate={90} />
    * ```
    */
-  hueRotate?: number
+  hueRotate?: number | SignalGetter<number>
   /**
    * The **`invert`** filter inverts the sprite's colors.
    * `0` = normal, `1` = fully inverted.
@@ -176,7 +177,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} invert={1} />
    * ```
    */
-  invert?: number
+  invert?: number | SignalGetter<number>
   /**
    * The **`opacity`** filter adjusts the sprite's opacity.
    * `0` = fully transparent, `1` = fully opaque.
@@ -189,7 +190,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} opacity={0.5} />
    * ```
    */
-  opacity?: number
+  opacity?: number | SignalGetter<number>
 }
 
 /**
@@ -356,20 +357,41 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
   constructor(options: SpriteOptions) {
     super(PrimaryNode.Sprite, options)
 
-    this.margin = ns(options.margin, vectorize, this.margin)
-    this.sourceSize = ns(options.sourceSize, vectorize, this.sourceSize)
-    this.displaySize = ns(options.displaySize, vectorize, this.displaySize)
-    this.textureId = options.textureId ?? this.textureId
-    this.flipX = options.flipX ?? this.flipX
-    this.flipY = options.flipY ?? this.flipY
-    this.brightness = options.brightness ?? this.brightness
-    this.grayscale = options.grayscale ?? this.grayscale
-    this.modulate = options.modulate ?? this.modulate
-    this.contrast = options.contrast ?? this.contrast
-    this.saturate = options.saturate ?? this.saturate
-    this.hueRotate = options.hueRotate ?? this.hueRotate
-    this.invert = options.invert ?? this.invert
-    this.opacity = options.opacity ?? this.opacity
+    type VectorNKeys = keyof {
+      [P in keyof Sprite as Sprite[P] extends Vector2 | undefined
+        ? P
+        : never]: null
+    }
+    type VectorOKeys = keyof {
+      [P in keyof typeof options as (typeof options)[P] extends
+        | VectorLike
+        | SignalGetter<VectorLike>
+        | undefined
+        ? P
+        : never]: null
+    }
+
+    const vectors = (key: VectorNKeys & VectorOKeys) => {
+      return ns(
+        options[key],
+        (vector) => propSignal(this, key, applySignal(vector, vectorize)),
+        this[key],
+      )
+    }
+    this.margin = vectors('margin')
+    this.sourceSize = vectors('sourceSize')
+    this.displaySize = vectors('displaySize')
+    this.textureId = propSignal(this, 'textureId', options.textureId)
+    this.flipX = propSignal(this, 'flipX', options.flipX)
+    this.flipY = propSignal(this, 'flipY', options.flipY)
+    this.brightness = propSignal(this, 'brightness', options.brightness)
+    this.grayscale = propSignal(this, 'grayscale', options.grayscale)
+    this.modulate = propSignal(this, 'modulate', options.modulate)
+    this.contrast = propSignal(this, 'contrast', options.contrast)
+    this.saturate = propSignal(this, 'saturate', options.saturate)
+    this.hueRotate = propSignal(this, 'hueRotate', options.hueRotate)
+    this.invert = propSignal(this, 'invert', options.invert)
+    this.opacity = propSignal(this, 'opacity', options.opacity)
   }
 
   /** @internal Loads the texture when the sprite starts. */

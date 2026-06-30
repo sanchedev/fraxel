@@ -1,3 +1,5 @@
+import { SignalRegister } from './register'
+
 /**
  * The **`Signal`** class is a reactive primitive that holds a value and notifies subscribers when it changes.
  *
@@ -49,6 +51,7 @@ export class Signal<T> {
    * ```
    */
   get value(): T {
+    SignalRegister.register(this)
     return this.#value
   }
 

@@ -1,4 +1,5 @@
 import { Signal } from '../reactivity/signal.js'
+import type { SignalGetter, SignalSetter } from '../reactivity/types.js'
 import { pushEffect } from './context.js'
 
 /**
@@ -29,35 +30,10 @@ export function useSignal<T>(
   pushEffect('useSignal', () => {})
   const signal = new Signal(initialValue)
 
-  const getter: SignalGetter<T> = () => {
-    signalReg.register(signal)
-    return signal.value
-  }
+  const getter: SignalGetter<T> = () => signal.value
   const setter: SignalSetter<T> = (value) => {
     signal.value = value
   }
 
   return [getter, setter, signal]
-}
-export const signalReg = {
-  signals: [] as Set<Signal<any>>[],
-  watch<T>(fn: () => T, deps: (signals: Signal<any>[]) => void) {
-    this.signals.push(new Set())
-    const val = fn()
-    deps(Array.from(this.signals.at(-1) ?? []))
-    this.signals.pop()
-    return val
-  },
-  register(signal: Signal<any>) {
-    const s = this.signals.at(-1)
-    if (s == null) return
-    s.add(signal)
-  },
-}
-
-export interface SignalGetter<T> {
-  (): T
-}
-export interface SignalSetter<T> {
-  (value: T): void
 }

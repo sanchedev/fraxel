@@ -1,9 +1,10 @@
 import { GameConfig } from '../../core/game-config.js'
 import { Vector2, vectorize, type VectorLike } from '../../math/vector2.js'
-import { ns } from '../../utils/null-ternary.js'
+import { applySignal, ns, propSignal } from '../../utils/ternaries.js'
 import type { PrimaryNode } from '../lib/enum.js'
 import { Node, type NodeOptions } from '../_node.js'
 import { getGlobalPosition } from './lib/utils.js'
+import type { SignalGetter } from '../../reactivity/types.js'
 
 export interface Node2DOptions<T extends PrimaryNode> extends NodeOptions<T> {
   /**
@@ -23,7 +24,7 @@ export interface Node2DOptions<T extends PrimaryNode> extends NodeOptions<T> {
    * )
    * ```
    */
-  position?: VectorLike
+  position?: VectorLike | SignalGetter<VectorLike>
 }
 
 export abstract class Node2D<
@@ -52,7 +53,11 @@ export abstract class Node2D<
 
   constructor(type: T, options: Node2DOptions<T>) {
     super(type, options)
-    this.position = ns(options.position, vectorize, this.position)
+    this.position = ns(
+      options.position,
+      (vector) => propSignal(this, 'position', applySignal(vector, vectorize)),
+      this.position,
+    )
   }
 
   /**

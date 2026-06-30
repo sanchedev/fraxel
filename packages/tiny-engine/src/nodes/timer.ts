@@ -2,6 +2,8 @@ import { Event } from '../events/event.js'
 import { PrimaryNode } from './lib/enum.js'
 import { Node, type NodeOptions } from './_node.js'
 import { Nodes } from './lib/registry.js'
+import type { SignalGetter } from '../reactivity/types.js'
+import { propSignal } from '../utils/ternaries.js'
 
 /**
  * The **`TimerOptions`** interface defines the options for a `Timer` node.
@@ -16,7 +18,7 @@ export interface TimerOptions extends NodeOptions<PrimaryNode.Timer> {
    * <timer duration={5} />
    * ```
    */
-  duration: number
+  duration: number | SignalGetter<number>
   /**
    * The **`autoPlay`** property determines whether the timer starts automatically.
    *
@@ -67,7 +69,7 @@ export class Timer extends Node<PrimaryNode.Timer> {
 
   constructor(options: TimerOptions) {
     super(PrimaryNode.Timer, options)
-    this.duration = options.duration
+    this.duration = propSignal(this, 'duration', options.duration)
     if (options.autoPlay) this.play()
   }
 

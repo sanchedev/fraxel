@@ -1,6 +1,5 @@
-import { Signal } from '../reactivity'
+import { Signal, SignalRegister, type SignalGetter } from '../reactivity'
 import { pushEffect } from './context'
-import { signalReg, type SignalGetter } from './use-signal'
 
 /**
  * The **`useComputed`** hook creates a derived signal that automatically updates
@@ -37,7 +36,7 @@ export function useComputed<T>(fn: () => T): SignalGetter<T> {
   }
 
   const watch = () => {
-    return signalReg.watch(fn, (signals) => {
+    return SignalRegister.watch(fn, (signals) => {
       currentSignals.forEach((s) => s.unsub(refresh))
       currentSignals = signals
       currentSignals.forEach((s) => s.sub(refresh))
@@ -46,10 +45,5 @@ export function useComputed<T>(fn: () => T): SignalGetter<T> {
 
   const computedSignal = new Signal<T>(watch())
 
-  const getter: SignalGetter<T> = () => {
-    signalReg.register(computedSignal)
-    return computedSignal.value
-  }
-
-  return getter
+  return () => computedSignal.value
 }

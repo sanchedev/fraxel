@@ -6,6 +6,8 @@ import { Node2D, type Node2DOptions } from './_node2d.js'
 import { Nodes } from '../lib/registry.js'
 import { CollisionSystem } from '../../collision/collision-system.js'
 import type { Collider } from './collider.js'
+import type { SignalGetter } from '../../reactivity/types.js'
+import { applySignal, propSignal } from '../../utils/ternaries.js'
 
 export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
   /**
@@ -24,7 +26,7 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
    * <ray-cast direction={new Vector2(3, 3)} ... />
    * ```
    */
-  direction: VectorLike
+  direction: VectorLike | SignalGetter<VectorLike>
   /**
    * The **`collidesWith`** property defines which groups this raycast can interact with.
    *
@@ -75,7 +77,11 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
   constructor(options: RayCastOptions) {
     super(PrimaryNode.RayCast, options)
 
-    this.direction = vectorize(options.direction)
+    this.direction = propSignal(
+      this,
+      'direction',
+      applySignal(options.direction, vectorize),
+    )
     this.#collidesWith = Array.from(new Set(options.collidesWith))
   }
 

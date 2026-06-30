@@ -1,6 +1,6 @@
+import { SignalRegister } from '../reactivity/register.js'
 import type { Signal } from '../reactivity/signal.js'
 import { pushEffect } from './context.js'
-import { signalReg } from './use-signal.js'
 
 /**
  * The **`useEffect`** hook runs an effect function when the node starts and whenever any of the specified signals change.
@@ -35,7 +35,7 @@ export function useEffect(fn: () => void | (() => void)): void {
 
         let currentSignals: Signal<any>[] = []
 
-        const unmountWatch = signalReg.watch(fn, (signals) => {
+        const unmountWatch = SignalRegister.watch(fn, (signals) => {
           currentSignals = signals
           currentSignals.forEach((signal) => signal.sub(refresh))
         })

@@ -5,6 +5,8 @@ import { vectorize, type Vector2, type VectorLike } from '../../math/vector2.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { Nodes } from '../lib/registry.js'
+import type { SignalGetter } from '../../reactivity/types.js'
+import { applySignal, propSignal } from '../../utils/ternaries.js'
 
 /**
  * The **`ClickableOptions`** interface defines the options for a `Clickable` node.
@@ -25,7 +27,7 @@ export interface ClickableOptions extends Node2DOptions<PrimaryNode.Clickable> {
    * <clickable size={64} />
    * ```
    */
-  size: VectorLike
+  size: VectorLike | SignalGetter<VectorLike>
 }
 
 /**
@@ -77,7 +79,7 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
 
   constructor(options: ClickableOptions) {
     super(PrimaryNode.Clickable, options)
-    this.size = vectorize(options.size)
+    this.size = propSignal(this, 'size', applySignal(options.size, vectorize))
   }
 
   #isPointerInside(): boolean {
