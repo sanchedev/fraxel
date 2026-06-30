@@ -130,9 +130,9 @@ const timer = useRefNode(PrimaryNode.Timer)
 |------|-------------|
 | `useRefNode(type)` | Creates a typed reference to pass as `ref` |
 | `useEvent(node, event, callback)` | Type-safe event subscription with auto-cleanup |
-| `useEffect(fn, signals)` | Runs effect on mount and when signals change |
+| `useEffect(fn)` | Runs effect on mount and when signals change |
 | `useSignal(initial)` | Creates reactive state that triggers re-renders |
-| `useComputed(fn, deps)` | Creates a derived signal that recomputes when deps change |
+| `useComputed(fn)` | Creates a derived signal that recomputes when deps change |
 | `useMount(fn)` | Runs once on mount, cleanup on destroy |
 | `useSpawn(node)` | Returns a function to dynamically spawn children |
 | `useGame()` | Access game controls (play, pause, changeScene) |
