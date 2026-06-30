@@ -2,6 +2,7 @@ import { NodeNotInitializedError } from '../errors/lifecycle.js'
 import { NodeTypeMismatchError } from '../errors/node.js'
 import { PrimaryNode } from '../nodes/lib/enum.js'
 import { type NodeInstances } from '../nodes/lib/types.js'
+import { pushEffect } from './context.js'
 
 /**
  * The **`useRefNode`** hook creates a reference to a node of the specified type.
@@ -34,6 +35,7 @@ import { type NodeInstances } from '../nodes/lib/types.js'
  * ```
  */
 export function useRefNode<T extends PrimaryNode>(type: T): NodeReference<T> {
+  pushEffect('useRefNode', () => {})
   const nodeRef = new NodeReference<T>(type)
 
   return nodeRef

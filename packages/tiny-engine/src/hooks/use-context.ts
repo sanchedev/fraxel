@@ -1,6 +1,6 @@
 import { Fragment } from '../jsx/components/fragment.js'
 import type { Tiny } from '../jsx/types.js'
-import { currentContext } from './context.js'
+import { currentContext, pushEffect } from './context.js'
 
 /**
  * The **`createContext`** hook creates a context with a default value.
@@ -48,6 +48,8 @@ export function createContext<T>(defaultValue: T) {
  * ```
  */
 export function useContext<T>(contextCreated: ContextCreated<T>): T {
+  pushEffect('useContext', () => {})
+
   let context: T | undefined
 
   for (let i = currentContext.length - 1; i >= 0; i--) {

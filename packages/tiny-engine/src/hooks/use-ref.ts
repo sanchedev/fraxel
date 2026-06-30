@@ -1,3 +1,5 @@
+import { pushEffect } from './context'
+
 /**
  * The **`Reference`** class holds a mutable value that persists across renders.
  */
@@ -28,5 +30,6 @@ export class Reference<T> {
  * ```
  */
 export function useRef<T>(value: T) {
+  pushEffect('useRef', () => {})
   return new Reference(value)
 }
