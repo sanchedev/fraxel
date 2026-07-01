@@ -1,3 +1,11 @@
+import { Signal } from 'tiny-engine'
 import { EntityScript } from '../entity'
 
-export abstract class ZombieScript extends EntityScript {}
+export class ZombieScript extends EntityScript {
+  health: Signal<number>
+
+  constructor(health: number) {
+    super()
+    this.health = new Signal(health)
+  }
+}

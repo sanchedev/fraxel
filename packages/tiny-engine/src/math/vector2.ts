@@ -75,21 +75,11 @@ export class Vector2 {
   toAdded(vector2: Vector2): Vector2
   /**
    * The **`toAdded`** method clones this vector and adds a number to `x` and `y` of the clone.
-   * @param vector2
+   * @param num
    */
   toAdded(num: number): Vector2
   toAdded(arg: Vector2 | number): Vector2 {
-    const vector2 = this.clone()
-    if (arg instanceof Vector2) {
-      vector2.x += arg.x
-      vector2.y += arg.y
-    }
-    if (typeof arg === 'number') {
-      vector2.x += arg
-      vector2.y += arg
-    }
-
-    return vector2
+    return this.clone().add(arg as number)
   }
 
   /**
@@ -99,7 +89,7 @@ export class Vector2 {
   subtract(vector2: Vector2): Vector2
   /**
    * The **`subtract`** method subtracts a number to `x` and `y` of this vector.
-   * @param vector2
+   * @param num
    */
   subtract(num: number): Vector2
   subtract(arg: Vector2 | number): Vector2 {
@@ -122,21 +112,11 @@ export class Vector2 {
   toSubtracted(vector2: Vector2): Vector2
   /**
    * The **`toSubtracted`** method clones this vector and subtracts a number to `x` and `y` of the clone.
-   * @param vector2
+   * @param num
    */
   toSubtracted(num: number): Vector2
   toSubtracted(arg: Vector2 | number): Vector2 {
-    const vector2 = this.clone()
-    if (arg instanceof Vector2) {
-      vector2.x -= arg.x
-      vector2.y -= arg.y
-    }
-    if (typeof arg === 'number') {
-      vector2.x -= arg
-      vector2.y -= arg
-    }
-
-    return vector2
+    return this.clone().subtract(arg as number)
   }
 
   /**
@@ -146,7 +126,7 @@ export class Vector2 {
   multiply(vector2: Vector2): Vector2
   /**
    * The **`multiply`** method multiplies a number to `x` and `y` of this vector.
-   * @param vector2
+   * @param num
    */
   multiply(num: number): Vector2
   multiply(arg: Vector2 | number): Vector2 {
@@ -169,21 +149,20 @@ export class Vector2 {
   toMultiplied(vector2: Vector2): Vector2
   /**
    * The **`toMultiplied`** method clones this vector and multiplies a number to `x` and `y` of the clone.
-   * @param vector2
+   * @param num
    */
   toMultiplied(num: number): Vector2
   toMultiplied(arg: Vector2 | number): Vector2 {
-    const vector2 = this.clone()
-    if (arg instanceof Vector2) {
-      vector2.x *= arg.x
-      vector2.y *= arg.y
-    }
-    if (typeof arg === 'number') {
-      vector2.x *= arg
-      vector2.y *= arg
-    }
+    return this.clone().multiply(arg as number)
+  }
 
-    return vector2
+  apply(fn: (coord: number, axis: 'x' | 'y') => number): Vector2 {
+    this.x = fn(this.x, 'x')
+    this.y = fn(this.y, 'y')
+    return this
+  }
+  toApplied(fn: (coord: number, axis: 'x' | 'y') => number): Vector2 {
+    return this.clone().apply(fn)
   }
 
   /**

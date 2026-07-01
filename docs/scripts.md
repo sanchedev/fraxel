@@ -10,8 +10,12 @@ class PlayerScript extends TinyScript<PrimaryNode.Transform> {
   health = 100
 
   setup() {
-    this.connect(this.me.started, () => {
+    this.connect('started', () => {
       console.log('Player spawned!')
+    })
+
+    this.connect('destroyed', () => {
+      console.log('Player destroyed!')
     })
   }
 
@@ -26,6 +30,23 @@ class PlayerScript extends TinyScript<PrimaryNode.Transform> {
 // Use in JSX
 <transform script={new PlayerScript()} />
 ```
+
+## API
+
+### `me`
+
+Read-only property that returns the node this script is attached to.
+Throws `NodeNotInitializedError` if accessed before initialization.
+
+### `connect(eventName, callback)`
+
+Type-safe event subscription. Accepts the event name as a string
+(e.g. `'started'`, `'destroyed'`, `'updated'`).
+
+### `setup()`
+
+Called once when the script is initialized. Override to register event
+listeners, initialize state, or set up subscriptions.
 
 ## Game.destroy
 

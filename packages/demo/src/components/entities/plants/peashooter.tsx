@@ -6,18 +6,18 @@ import {
   shapes,
   Vector2,
 } from 'tiny-engine'
-import type { InRowProps } from '../../types.js'
+import type { PlantProps } from '../../types.js'
 import {
   useContext,
   useEvent,
   useGame,
-  useMount,
   useRef,
   useRefNode,
 } from 'tiny-engine/hooks'
-import { PeashooterScript } from '../../../scripts/plant/peashooter.js'
 import { RowCtx, RowProjectileSpawnerCtx } from '../../../contexts/row.js'
 import { Pea } from '../projectiles/pea.js'
+import { PlantScript } from '../../../scripts/plant/plant.js'
+import { Plant } from '../../../lib/enums/plants.js'
 
 const PEASHOOTER_IDLE = await loadTexture(
   '/assets/sprites/entities/plants/peashooter/idle.png',
@@ -26,9 +26,7 @@ const PEASHOOTER_SHOOT = await loadTexture(
   '/assets/sprites/entities/plants/peashooter/shoot.png',
 )
 
-interface PeashooterProps extends InRowProps {}
-
-export function Peashooter({ position }: PeashooterProps) {
+export function Peashooter({ position, onDestroy }: PlantProps) {
   const { plantsLayer, zombiesLayer } = useContext(RowCtx)
   const spawnProjectile = useContext(RowProjectileSpawnerCtx)
 
@@ -39,21 +37,6 @@ export function Peashooter({ position }: PeashooterProps) {
   const width = useGame().getSize().x
 
   const isZombieDetected = useRef(false)
-
-  useMount(() => {
-    anim.node
-      .define({
-        idle: {
-          keyframes: kfFromSpriteSheet(sprite.node, PEASHOOTER_IDLE, 4),
-          fps: 8 / 3,
-        },
-        shoot: {
-          keyframes: kfFromSpriteSheet(sprite.node, PEASHOOTER_SHOOT, 4),
-          fps: 8 / 3,
-        },
-      })
-      .play('idle')
-  })
 
   useEvent(anim, 'animationEnded', () => {
     anim.node.setNext(isZombieDetected.current ? 'shoot' : 'idle')
@@ -83,9 +66,25 @@ export function Peashooter({ position }: PeashooterProps) {
   }
 
   return (
-    <transform position={position} script={new PeashooterScript()}>
+    <transform
+      position={position}
+      script={new PlantScript(Plant.Peashooter)}
+      onDestroy={onDestroy}>
       <sprite ref={sprite} textureId={PEASHOOTER_IDLE} sourceSize={[16, 16]}>
-        <animation-player ref={anim} />
+        <animation-player
+          ref={anim}
+          animations={() => ({
+            idle: {
+              keyframes: kfFromSpriteSheet(sprite.node, PEASHOOTER_IDLE, 4),
+              fps: 8 / 3,
+            },
+            shoot: {
+              keyframes: kfFromSpriteSheet(sprite.node, PEASHOOTER_SHOOT, 4),
+              fps: 8 / 3,
+            },
+          })}
+          currentAnim='idle'
+        />
       </sprite>
       <ray-cast
         ref={raycast}

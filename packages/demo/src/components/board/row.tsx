@@ -14,6 +14,7 @@ import { PrimaryNode } from 'tiny-engine/nodes/enum.js'
 import { NormalZombie } from '../entities/zombies/normal-zombie.js'
 import { BoardCtx } from '../../contexts/board.js'
 import type { InRowProps } from '../types.js'
+import { WallNut } from '../entities/plants/wall-nut.js'
 
 interface RowProps {
   registerSpawners: (
@@ -86,14 +87,14 @@ function RowContainers({
   const spawnPlant = useContext(RowPlantSpawnerCtx)
 
   registerSpawners((colIndex, Component) =>
-    spawnPlant(
-      <Component position={[colIndex * cellSize.x, rowIndex * cellSize.y]} />,
-    ),
+    spawnPlant(<Component position={[colIndex * cellSize.x, 0]} />),
   )
 
   return (
-    <transform>
-      <transform ref={p} id='plants' />
+    <transform position={[0, rowIndex * cellSize.y]}>
+      <transform ref={p} id='plants'>
+        <WallNut position={[5 * cellSize.x, 0]} />
+      </transform>
       <transform ref={r} id='projectiles' />
       <transform ref={z} id='zombies'>
         <NormalZombie position={[7 * cellSize.x, 0]} />

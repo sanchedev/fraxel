@@ -12,6 +12,7 @@ import type { EventName } from '../../events/types.js'
 import type { PrimaryNode } from './enum.js'
 import type { Clickable, ClickableOptions } from '../node2d/clickable.js'
 import type { Timer, TimerOptions } from '../timer.js'
+import type { Rectangle, RectangleOptions } from '../node2d/rectangle.js'
 
 /**
  * The **`NodeClasses`** interface maps each `PrimaryNode` to its class constructor.
@@ -25,6 +26,7 @@ export interface NodeClasses {
   [PrimaryNode.RayCast]: typeof RayCast
   [PrimaryNode.Clickable]: typeof Clickable
   [PrimaryNode.Timer]: typeof Timer
+  [PrimaryNode.Rectangle]: typeof Rectangle
 }
 
 /**
@@ -39,6 +41,7 @@ export interface NodesOptions {
   [PrimaryNode.RayCast]: RayCastOptions
   [PrimaryNode.Clickable]: ClickableOptions
   [PrimaryNode.Timer]: TimerOptions
+  [PrimaryNode.Rectangle]: RectangleOptions
 }
 
 type NodeName = keyof NodeClasses

@@ -3,10 +3,60 @@ import { Event } from '../events/event.js'
 import { PrimaryNode } from './lib/enum.js'
 import { Node, type NodeOptions } from './_node.js'
 import { Nodes } from './lib/registry.js'
+import type { SignalGetter } from '../reactivity/types.js'
+import type { Signal } from '../reactivity/signal.js'
+import { SignalRegister } from '../reactivity/register.js'
 
+/**
+ * Options for the `AnimationPlayer` node.
+ */
 export interface AnimationPlayerOptions extends NodeOptions<PrimaryNode.AnimationPlayer> {
-  animations?: Record<string, Animation>
-  currentAnim?: string
+  /**
+   * A function that returns a record of animation definitions.
+   * The function is called when the node starts (deferred), not at construction time.
+   *
+   * @example
+   * ```tsx
+   * <animation-player
+   *   animations={() => ({
+   *     idle: { keyframes: idleFrames, fps: 8 },
+   *     walk: { keyframes: walkFrames, fps: 8, loop: true },
+   *   })}
+   * />
+   * ```
+   */
+  animations?: () => Record<string, Animation>
+  /**
+   * The animation to play initially. Accepts a static name or a reactive `SignalGetter`
+   * that automatically switches animations when the signal value changes.
+   *
+   * @example
+   * ```tsx
+   * // Static
+   * <animation-player animations={...} currentAnim="idle" />
+   *
+   * // Reactive
+   * const animName = useComputed(() => isWalking() ? 'walk' : 'idle')
+   * <animation-player animations={...} currentAnim={animName} />
+   * ```
+   */
+  currentAnim?: string | SignalGetter<string>
+  /**
+   * When `true`, the node is automatically destroyed when the current animation ends.
+   * Useful for one-shot effect animations.
+   *
+   * @default false
+   *
+   * @example
+   * ```tsx
+   * <animation-player
+   *   animations={() => ({ explode: { keyframes: frames, fps: 12 } })}
+   *   currentAnim="explode"
+   *   destroyOnEnd
+   * />
+   * ```
+   */
+  destroyOnEnd?: boolean
 }
 
 export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
@@ -14,6 +64,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
   #currentAnim: string | null = null
   #nextAnim: string | null = null
   #index = 0
+  #destroyOnEnd = false
 
   /** The read-only **`currentAnim`** property returns the current animation name */
   get currentAnim() {
@@ -24,10 +75,53 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
     return Math.floor(this.#index)
   }
 
+  /**
+   * Creates a new `AnimationPlayer` node.
+   *
+   * If `animations` is provided, it is invoked when the node starts.
+   * If `currentAnim` is a `SignalGetter`, the player reactively tracks
+   * the signal and switches animations automatically.
+   *
+   * @param options AnimationPlayer configuration options
+   */
   constructor(options: AnimationPlayerOptions) {
     super(PrimaryNode.AnimationPlayer, options)
-    if (options.animations) this.define(options.animations)
-    if (options.currentAnim) this.play(options.currentAnim)
+    this.#destroyOnEnd = options.destroyOnEnd ?? false
+
+    if (options.animations) {
+      this.started.on(() => {
+        this.define(options.animations!())
+        if (options.currentAnim == null) return
+        if (typeof options.currentAnim === 'string') {
+          this.play(options.currentAnim)
+        } else {
+          let currentSignals: Signal<any>[] = []
+
+          const refresh = () => {
+            currentSignals.forEach((s) => s.unsub(refresh))
+            evaluateAndTrack()
+            currentSignals.forEach((s) => s.sub(refresh))
+          }
+
+          const evaluateAndTrack = () => {
+            this.play(
+              SignalRegister.watch(
+                options.currentAnim as SignalGetter<string>,
+                (signals) => {
+                  currentSignals = signals
+                },
+              ),
+            )
+          }
+
+          refresh()
+
+          this.destroyed.on(() =>
+            currentSignals.forEach((s) => s.unsub(refresh)),
+          )
+        }
+      })
+    }
   }
 
   // Events
@@ -209,6 +303,8 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
         if (this.#nextAnim != null) {
           this.play(this.#nextAnim)
           this.#nextAnim = null
+        } else if (this.#destroyOnEnd) {
+          this.destroy()
         }
 
         return
@@ -258,4 +354,8 @@ export interface Animation {
   loop?: boolean | undefined
 }
 
+/**
+ * A keyframe function that receives the local time (0–1) within the frame
+ * and applies the frame's visual state to the sprite.
+ */
 export type AnimationKeyframe = (time: number) => void

@@ -8,6 +8,8 @@ import { SunCountCtx } from '../../contexts/sun-count.js'
 import { PlantSeed } from '../seeds/plant.js'
 import { Plant } from '../../lib/enums/plants.js'
 import { List } from 'tiny-engine/jsx'
+import { Grid } from './grid.js'
+import { SeedProvider } from '../../providers/seed.js'
 
 interface BoardProps {
   position: VectorLike
@@ -22,33 +24,57 @@ export function Board({ position, cellsCount, cellSize }: BoardProps) {
 
   const sunCounter = useSignal(1)
 
+  const cell = {
+    size: Vector2.vectorize(cellSize),
+    count: Vector2.vectorize(cellsCount),
+  }
+
   return (
     <BoardCtx.Provider
       value={{
-        cellSize: Vector2.vectorize(cellSize),
-        cellsCount: Vector2.vectorize(cellsCount),
+        cellSize: cell.size,
+        cellsCount: cell.count,
+        floorTypeOnCells: Array.from({ length: cell.count.y }, () =>
+          Array.from({ length: cell.count.x }, () => 'grass'),
+        ),
         spawnPlant(rowIndex, colIndex, Comp) {
           plantSpawners.current[rowIndex]?.(colIndex, Comp)
         },
       }}>
-      <SunCountCtx.Provider value={sunCounter}>
-        <SunCounter position={[12, 4]} />
-        <transform position={[12, 16]}>
-          <List array={[Plant.Peashooter]} itemKey={(p) => p.toString()}>
-            {(plant, i) => <PlantSeed position={[0, i * 16]} plant={plant} />}
-          </List>
-        </transform>
-        <transform position={position}>
-          {Array.from({ length: 1 }, (_, i) => (
-            <Row
-              registerSpawners={(plants) => {
-                plantSpawners.current.push(plants)
+      <SeedProvider>
+        <Grid position={position} />
+        <SunCountCtx.Provider value={sunCounter}>
+          <SunCounter position={[12, 4]} />
+          <transform position={[12, 16]}>
+            <List
+              array={[Plant.Peashooter, Plant.WallNut]}
+              itemKey={(p) => p.toString()}>
+              {(plant, i) => (
+                <PlantSeed position={[0, i * 16]} plant={plant as Plant} />
+              )}
+            </List>
+          </transform>
+          <transform position={position}>
+            <List
+              array={Array.from(
+                { length: Vector2.vectorize(cellsCount).y },
+                (_, i) => i,
+              )}
+              itemKey={(i) => `row-${i}`}>
+              {(rowIndex) => {
+                return (
+                  <Row
+                    registerSpawners={(plants) => {
+                      plantSpawners.current.push(plants)
+                    }}
+                    rowIndex={rowIndex}
+                  />
+                )
               }}
-              rowIndex={i}
-            />
-          ))}
-        </transform>
-      </SunCountCtx.Provider>
+            </List>
+          </transform>
+        </SunCountCtx.Provider>
+      </SeedProvider>
     </BoardCtx.Provider>
   )
 }

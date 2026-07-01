@@ -39,6 +39,8 @@ export class EngineNotSetupError extends EngineStateError {
  */
 export class NodeNotInitializedError extends EngineStateError {
   constructor(nodeName: string) {
-    super(`Node "${nodeName}" was used before initialization`)
+    super(
+      `Node "${nodeName}" was used before initialization or It has not been placed in the ref attribute`,
+    )
   }
 }

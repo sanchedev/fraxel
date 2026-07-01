@@ -91,6 +91,12 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
    */
   mouseExited = new Event('mouseExit', () => {})
 
+  /**
+   * The **`mouseOver`** event fires every frame while the pointer is inside the clickable area.
+   * The callback receives the local position relative to the node's top-left corner.
+   */
+  mouseOver = new Event('mouseOver', (_position: Vector2) => {})
+
   constructor(options: ClickableOptions) {
     super(PrimaryNode.Clickable, options)
     this.size = propSignal(this, 'size', applySignal(options.size, vectorize))
@@ -129,6 +135,13 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
         this.clicked.emit(local)
       }
       this.#wasPressed = isPressed
+
+      if (isInside) {
+        const local = Game.input.pointerPosition.toSubtracted(
+          this.globalPosition,
+        )
+        this.mouseOver.emit(local)
+      }
     }
 
     super.update(delta)
@@ -163,6 +176,7 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
     this.clicked.clean()
     this.mouseEntered.clean()
     this.mouseExited.clean()
+    this.mouseOver.clean()
     super.cleanEvents()
   }
 }

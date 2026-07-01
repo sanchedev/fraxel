@@ -411,6 +411,9 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    * @param delta The time elapsed since the last frame in seconds.
    */
   draw(delta: number): void {
+    for (const node of this._children) {
+      node.draw(delta * node.deltaIncrease)
+    }
     this.drawed.emit(delta)
   }
 

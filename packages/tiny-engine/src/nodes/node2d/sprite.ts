@@ -114,18 +114,21 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    */
   grayscale?: number | SignalGetter<number>
   /**
-   * The **`modulate`** filter multiplies the sprite's colors by an RGB tint.
+   * The **`modulate`** filter multiplies the sprite's colors by an RGBA tint.
    * Each channel ranges from `0` (no intensity) to `1` (full intensity).
    *
-   * @default [1, 1, 1]
+   * @default [1, 1, 1, 1]
    *
    * @example
    * ```tsx
    * // Orange tint
-   * <sprite textureId={TEX} modulate={[1, 0.5, 0]} />
+   * <sprite textureId={TEX} modulate={[1, 0.5, 0, 1]} />
    *
    * // Red channel only
-   * <sprite textureId={TEX} modulate={[1, 0, 0]} />
+   * <sprite textureId={TEX} modulate={[1, 0, 0, 1]} />
+   *
+   * // Semi-transparent
+   * <sprite textureId={TEX} modulate={[1, 1, 1, 0.5]} />
    * ```
    */
   modulate?: Color | SignalGetter<Color>
@@ -214,7 +217,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
  *       sourceSize={new Vector2(32, 32)}
  *       displaySize={new Vector2(64, 64)}
  *       brightness={1.2}
- *       modulate={[1, 0.5, 0]}
+ *       modulate={[1, 0.5, 0, 1]}
  *     />
  *   )
  * }
@@ -254,7 +257,7 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
 
   #brightness = 1
   #grayscale = 0
-  #modulate: Color = [1, 1, 1]
+  #modulate: Color = [1, 1, 1, 1]
   #contrast = 1
   #saturate = 1
   #hueRotate = 0
@@ -306,7 +309,7 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
     this.#grayscale = value
   }
 
-  /** The **`modulate`** filter color `[r, g, b]` with values `0`-`1`. */
+  /** The **`modulate`** filter color `[r, g, b, a]` with values `0`-`1`. */
   get modulate() {
     return this.#modulate
   }
@@ -438,13 +441,14 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
       const isModulated =
         this.#modulate[0] !== 1 ||
         this.#modulate[1] !== 1 ||
-        this.#modulate[2] !== 1
+        this.#modulate[2] !== 1 ||
+        this.#modulate[3] !== 1
 
       if (isModulated) {
         ctx.filter = 'none'
         ctx.globalCompositeOperation = 'multiply'
 
-        ctx.fillStyle = `rgb(${this.#modulate[0] * 255}, ${this.#modulate[1] * 255}, ${this.#modulate[2] * 255})`
+        ctx.fillStyle = `rgba(${this.#modulate[0] * 255}, ${this.#modulate[1] * 255}, ${this.#modulate[2] * 255}, ${this.#modulate[3]})`
         ctx.fillRect(this.position.x, this.position.y, ds?.x ?? 0, ds?.y ?? 0)
 
         ctx.globalCompositeOperation = 'source-over'

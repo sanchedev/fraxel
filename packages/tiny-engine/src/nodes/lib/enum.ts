@@ -26,4 +26,6 @@ export enum PrimaryNode {
   Clickable = 'clickable',
   /** A node for use time functions. */
   Timer = 'timer',
+  /** A node that renders a filled/stroked rectangle. */
+  Rectangle = 'rectangle',
 }

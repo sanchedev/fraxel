@@ -6,17 +6,24 @@ import {
 } from 'tiny-engine'
 import type { InRowProps } from '../../types.js'
 import {
+  useComputed,
   useContext,
   useEffect,
   useEvent,
-  useMount,
   useRefNode,
+  useScript,
   useSignal,
 } from 'tiny-engine/hooks'
 import { RowCtx } from '../../../contexts/row.js'
 import { PlantScript } from '../../../scripts/plant/plant.js'
-import { NormalZombieScript } from '../../../scripts/zombie/normal-zombie.js'
+import { ZombieScript } from '../../../scripts/zombie/zombie.js'
 import { BoardCtx } from '../../../contexts/board.js'
+import { renderToNodes } from 'tiny-engine/jsx'
+import { OneShot } from '../effects/one-shot.js'
+
+const NORMAL_ZOMBIE_ARM = await loadTexture(
+  '/assets/sprites/entities/zombies/arms/normal-arm-falling.png',
+)
 
 const NORMAL_ZOMBIE_WALK_0 = await loadTexture(
   '/assets/sprites/entities/zombies/normal-zombie/walk-0.png',
@@ -46,35 +53,14 @@ export function NormalZombie({ position }: NormalZombieProps) {
   const anim = useRefNode(PrimaryNode.AnimationPlayer)
   const raycast = useRefNode(PrimaryNode.RayCast)
 
-  const [currentState, _setCurrentState] = useSignal(0)
-  const [currentPlant, setCurrentPlant] = useSignal<PlantScript | null>(null)
+  const script = useScript<ZombieScript>(zombie)
 
-  useMount(() => {
-    anim.node
-      .define({
-        [states.walk[0]]: {
-          keyframes: kfFromSpriteSheet(sprite.node, NORMAL_ZOMBIE_WALK_0, 4),
-          fps: 4,
-          loop: true,
-        },
-        [states.walk[1]]: {
-          keyframes: kfFromSpriteSheet(sprite.node, NORMAL_ZOMBIE_WALK_1, 4),
-          fps: 4,
-          loop: true,
-        },
-        [states.eat[0]]: {
-          keyframes: kfFromSpriteSheet(sprite.node, NORMAL_ZOMBIE_EAT_0, 4),
-          fps: 4,
-          loop: true,
-        },
-        [states.eat[1]]: {
-          keyframes: kfFromSpriteSheet(sprite.node, NORMAL_ZOMBIE_EAT_1, 4),
-          fps: 4,
-          loop: true,
-        },
-      })
-      .play(states.walk[0])
-  })
+  const [currentPlant, setCurrentPlant] = useSignal<PlantScript | null>(null)
+  const currentState = useComputed(() => {
+    const health = script.current?.health.value ?? 4000
+    if (health > 90) return 0
+    return 1
+  }, true)
 
   useEvent(zombie, 'updated', (delta) => {
     if (currentPlant() == null) {
@@ -101,26 +87,69 @@ export function NormalZombie({ position }: NormalZombieProps) {
     currentPlant()?.applyDamage(50)
   })
 
-  useEffect(() => {
+  const currentAnim = useComputed(() => {
     const plant = currentPlant()
     const state = currentState()
 
     const key = plant == null ? 'walk' : 'eat'
-    const newAnim = states[key][state]
-    if (newAnim == null) return
-    anim.node.play(newAnim)
+    return states[key][state]!
+  })
+
+  useEffect(() => {
+    if (currentState() !== 1) return
+
+    zombie.node.parent?.addChild(
+      ...renderToNodes(
+        <OneShot
+          textureId={NORMAL_ZOMBIE_ARM}
+          position={zombie.node.position.clone()}
+          spriteCountX={10}
+          fps={10}
+        />,
+      ),
+    )
   })
 
   return (
-    <transform
-      ref={zombie}
-      position={position}
-      script={new NormalZombieScript()}>
+    <transform ref={zombie} position={position} script={new ZombieScript(181)}>
       <sprite
         ref={sprite}
         textureId={NORMAL_ZOMBIE_WALK_0}
         sourceSize={[16, 16]}>
-        <animation-player ref={anim} />
+        <animation-player
+          ref={anim}
+          animations={() => ({
+            [states.walk[0]]: {
+              keyframes: kfFromSpriteSheet(
+                sprite.node,
+                NORMAL_ZOMBIE_WALK_0,
+                4,
+              ),
+              fps: 4,
+              loop: true,
+            },
+            [states.walk[1]]: {
+              keyframes: kfFromSpriteSheet(
+                sprite.node,
+                NORMAL_ZOMBIE_WALK_1,
+                4,
+              ),
+              fps: 4,
+              loop: true,
+            },
+            [states.eat[0]]: {
+              keyframes: kfFromSpriteSheet(sprite.node, NORMAL_ZOMBIE_EAT_0, 4),
+              fps: 4,
+              loop: true,
+            },
+            [states.eat[1]]: {
+              keyframes: kfFromSpriteSheet(sprite.node, NORMAL_ZOMBIE_EAT_1, 4),
+              fps: 4,
+              loop: true,
+            },
+          })}
+          currentAnim={currentAnim}
+        />
       </sprite>
       <ray-cast
         ref={raycast}

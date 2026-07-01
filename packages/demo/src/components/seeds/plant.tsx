@@ -1,15 +1,14 @@
 import { loadTexture, PrimaryNode, Vector2, type VectorLike } from 'tiny-engine'
 import { Plant } from '../../lib/enums/plants'
-import { PlantComponents } from '../../lib/components/plants'
 import {
   useComputed,
   useContext,
   useRefNode,
   useSignal,
 } from 'tiny-engine/hooks'
-import { BoardCtx } from '../../contexts/board'
 import { plantsInfo } from '../../lib/info/plants'
 import { SunCountCtx } from '../../contexts/sun-count'
+import { SeedCtx } from '../../contexts/seed'
 
 export function PlantSeed({
   plant,
@@ -18,8 +17,8 @@ export function PlantSeed({
   plant: Plant
   position?: VectorLike
 }) {
-  const { spawnPlant } = useContext(BoardCtx)
-  const [sunCount] = useContext(SunCountCtx)
+  const { current, planted, select } = useContext(SeedCtx)
+  const [sunCount, setSunCount] = useContext(SunCountCtx)
   const timer = useRefNode(PrimaryNode.Timer)
 
   const [hover, setHover] = useSignal(false)
@@ -36,10 +35,15 @@ export function PlantSeed({
   const grayscale = useComputed(() => (disabled() ? 0.75 : 0))
   const sourceSize = useComputed(() => new Vector2(24, (1 - progress()) * 16))
 
-  const handleClick = () => {
-    spawnPlant(0, 2, PlantComponents[plant])
+  planted.on((p) => {
+    if (p !== plant) return
     setLoaded(false)
+    setSunCount(sunCount() - plantsInfo[plant].price)
     timer.node.play()
+  })
+  const handleClick = () => {
+    if (current()?.plant === plant) current()!.unselect()
+    else select(plant)
   }
 
   return (
@@ -75,4 +79,5 @@ export function PlantSeed({
 
 const PLANT_SEEDS: Record<Plant, symbol> = {
   [Plant.Peashooter]: await loadTexture('/assets/sprites/seeds/peashooter.png'),
+  [Plant.WallNut]: await loadTexture('/assets/sprites/seeds/wall-nut.png'),
 }

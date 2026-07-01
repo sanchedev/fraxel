@@ -96,6 +96,37 @@ function CooldownSprite() {
 }
 ```
 
+### refreshOnNodeStart
+
+```tsx
+const health = useComputed(() => script.current?.health.value ?? 4000, true)
+```
+
+The second parameter `refreshOnNodeStart` (default `false`) forces the computed to re-evaluate
+when the node's `started` event fires. Useful when the computed depends on a value that is
+only available after the node is initialized (e.g. a script reference).
+
+## Signal
+
+### clearSubs
+
+```ts
+import { Signal } from 'tiny-engine'
+
+const health = new Signal(100)
+
+health.sub((val) => {
+  console.log('Health changed:', val)
+})
+
+health.value = 50 // logs: "Health changed: 50"
+
+health.clearSubs() // removes all subscribers
+```
+
+The `clearSubs()` method removes all subscribers from a signal. Useful for cleanup when
+a signal's owner is destroyed and no further notifications should be dispatched.
+
 ## createContext / useContext
 
 ```tsx

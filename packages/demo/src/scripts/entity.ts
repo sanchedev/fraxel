@@ -1,12 +1,16 @@
-import { PrimaryNode } from 'tiny-engine'
+import { PrimaryNode, Signal } from 'tiny-engine'
 import { TinyScript } from 'tiny-engine/scripts'
 
 export abstract class EntityScript extends TinyScript<PrimaryNode.Transform> {
-  abstract health: number
+  abstract health: Signal<number>
+
+  setup(): void {
+    this.connect('destroyed', () => this.health.clearSubs())
+  }
 
   applyDamage(damage: number) {
-    this.health -= damage
-    if (this.health <= 0) {
+    this.health.value -= damage
+    if (this.health.value <= 0) {
       this.me.destroy()
       return true
     }

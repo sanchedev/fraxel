@@ -2,15 +2,15 @@
 
 Every game object is built from **nodes** — JSX elements that map to engine classes.
 
-| Node | JSX Tag | Description |
-|------|---------|-------------|
-| `Transform` | `<transform>` | Positioning container for child nodes |
-| `Sprite` | `<sprite>` | Displays a texture with optional filters |
-| `AnimationPlayer` | `<animation-player>` | Plays frame-based animations |
-| `Collider` | `<collider>` | Detects overlaps with other colliders |
-| `RayCast` | `<ray-cast>` | Projects a ray to detect colliders |
-| `Clickable` | `<clickable>` | Detects click/hover pointer events |
-| `Timer` | `<timer>` | Counts up and fires events |
+| Node              | JSX Tag              | Description                              |
+| ----------------- | -------------------- | ---------------------------------------- |
+| `Transform`       | `<transform>`        | Positioning container for child nodes    |
+| `Sprite`          | `<sprite>`           | Displays a texture with optional filters |
+| `AnimationPlayer` | `<animation-player>` | Plays frame-based animations             |
+| `Collider`        | `<collider>`         | Detects overlaps with other colliders    |
+| `RayCast`         | `<ray-cast>`         | Projects a ray to detect colliders       |
+| `Clickable`       | `<clickable>`        | Detects click/hover pointer events       |
+| `Timer`           | `<timer>`            | Counts up and fires events               |
 
 ## Transform
 
@@ -28,7 +28,7 @@ Every game object is built from **nodes** — JSX elements that map to engine cl
   sourceSize={[16, 16]}
   displaySize={[32, 32]}
   brightness={1.2}
-  modulate={[1, 0.5, 0]}
+  modulate={[1, 0.5, 0, 1]}
 />
 ```
 
@@ -65,9 +65,7 @@ useEvent(timer, 'timeChanged', (elapsed) => {
   console.log(elapsed) // current elapsed time in seconds
 })
 
-return (
-  <timer ref={timer} duration={3} autoPlay />
-)
+return <timer ref={timer} duration={3} autoPlay />
 ```
 
 - `duration` is in seconds (reactive via `SignalGetter`)
@@ -114,12 +112,17 @@ function Detector() {
 ```tsx
 <animation-player
   ref={anim}
-  animations={{
+  animations={() => ({
     idle: idleFrames,
     walk: walkFrames,
-  }}
+  })}
   currentAnim="idle"
 />
 ```
 
-See [Animation](animation.md) for sprite sheet keyframes.
+- `animations` is a function called when the node starts (deferred). This allows referencing
+  sprite nodes that may not be available at construction time.
+- `currentAnim` accepts a static string or a reactive `SignalGetter<string>` for automatic
+  animation switching.
+
+See [Animation](animation.md) for sprite sheet keyframes and reactive animation examples.

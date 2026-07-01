@@ -7,6 +7,7 @@ import { pushEffect } from './context'
  * whenever a dependency signal's value changes.
  *
  * @param fn The computation function that derives a value from the signal values
+ * @param refreshOnNodeStart Whether to refresh the computed value when the node starts
  * @returns A getter of the current value of the Signal
  *
  * @example
@@ -26,9 +27,10 @@ import { pushEffect } from './context'
  * // sum() is now 35
  * ```
  */
-export function useComputed<T>(fn: () => T): SignalGetter<T> {
-  pushEffect('useComputed', () => {})
-
+export function useComputed<T>(
+  fn: () => T,
+  refreshOnNodeStart = false,
+): SignalGetter<T> {
   let currentSignals: Signal<any>[] = []
 
   const computedSignal = new Signal<T>(undefined as T)
@@ -45,6 +47,17 @@ export function useComputed<T>(fn: () => T): SignalGetter<T> {
     })
   }
 
+  pushEffect('useComputed', (nodes) => {
+    if (!refreshOnNodeStart) return
+    const node = nodes[0]
+    if (node == null) {
+      console.warn(
+        'useComputed: No node found in the current context. The computed value will not refresh on node start.',
+      )
+      return
+    }
+    node.started.on(refresh)
+  })
   refresh()
 
   const getter: SignalGetter<T> = () => {

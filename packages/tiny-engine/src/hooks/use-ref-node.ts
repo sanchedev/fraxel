@@ -53,7 +53,7 @@ export class NodeReference<T extends PrimaryNode> {
   }
   get node() {
     if (this.#node == null) {
-      throw new NodeNotInitializedError('unknown')
+      throw new NodeNotInitializedError(this.#type)
     }
     return this.#node
   }

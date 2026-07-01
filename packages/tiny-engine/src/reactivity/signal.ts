@@ -38,6 +38,7 @@ export class Signal<T> {
    * ```
    */
   set value(val) {
+    if (val === this.#value) return
     this.#value = val
     const currentListeners = Array.from(this.#listeners)
     currentListeners.forEach((fn) => fn(val))
@@ -93,5 +94,25 @@ export class Signal<T> {
    */
   unsub(fn: (value: T) => void) {
     this.#listeners.delete(fn)
+  }
+
+  /**
+   * The **`clearSubs`** method remove all subscribes of this signal.
+   *
+   * @example
+   * ```ts
+   * const damage = new Signal(0)
+   *
+   * damage.sub((val) => {
+   *   console.log('Damage taken:', val)
+   * })
+   *
+   * damage.value = 25 // logs: "Damage taken: 25"
+   *
+   * damage.clearSubs()
+   * ```
+   */
+  clearSubs() {
+    this.#listeners.clear()
   }
 }

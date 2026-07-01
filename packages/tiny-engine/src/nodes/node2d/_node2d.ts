@@ -85,6 +85,6 @@ export abstract class Node2D<
       GameConfig.translate.subtract(this.position)
       GameConfig.ctx.translate(-this.position.x, -this.position.y)
     }
-    super.draw(delta)
+    this.drawed.emit(delta)
   }
 }
