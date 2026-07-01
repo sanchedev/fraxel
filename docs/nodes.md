@@ -10,6 +10,7 @@ Every game object is built from **nodes** — JSX elements that map to engine cl
 | `Collider`        | `<collider>`         | Detects overlaps with other colliders    |
 | `RayCast`         | `<ray-cast>`         | Projects a ray to detect colliders       |
 | `Clickable`       | `<clickable>`        | Detects click/hover pointer events       |
+| `Rectangle`       | `<rectangle>`        | Renders a filled/stroked rectangle        |
 | `Timer`           | `<timer>`            | Counts up and fires events               |
 
 ## Transform
@@ -49,7 +50,8 @@ See [Sprite Filters](filters.md) for all available filter props.
 
 - `size` is required (no default hit area). Accepts `VectorLike`.
 - `disabled` prop disables all interaction.
-- Events: `click`, `mouseEnter`, `mouseExit` (useEvent names: `clicked`, `mouseEntered`, `mouseExited`)
+- Events: `click`, `mouseEnter`, `mouseExit`, `mouseOver` (useEvent names: `clicked`, `mouseEntered`, `mouseExited`, `mouseOver`)
+- `mouseOver` fires every frame while the pointer is inside the clickable area. Callback receives local position (`Vector2`) relative to the node.
 - Set `gameConfig.testOptions.showClickables = true` to visualize areas
 
 ## Timer
@@ -107,6 +109,23 @@ function Detector() {
 }
 ```
 
+## Rectangle
+
+```tsx
+<rectangle
+  ref={bar}
+  size={[128, 24]}
+  fillColor={[0.2, 0.8, 0.2, 1]}
+  strokeColor={[0, 0, 0, 1]}
+  strokeWidth={2}
+/>
+```
+
+- `size` — dimensions of the rectangle (required). Accepts `VectorLike`.
+- `fillColor` — RGBA fill color (optional).
+- `strokeColor` — RGBA border color (optional).
+- `strokeWidth` — border width in pixels (optional).
+
 ## AnimationPlayer
 
 ```tsx
@@ -124,5 +143,6 @@ function Detector() {
   sprite nodes that may not be available at construction time.
 - `currentAnim` accepts a static string or a reactive `SignalGetter<string>` for automatic
   animation switching.
+- `destroyOnEnd` destroys the node when the animation ends (after `animationEnded` fires and no next animation is queued).
 
 See [Animation](animation.md) for sprite sheet keyframes and reactive animation examples.
