@@ -203,12 +203,12 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
  * @example
  * ```tsx
  * import { loadTexture } from 'tiny-engine'
- * import { useRefNode } from 'tiny-engine/hooks'
+ * import { useNode } from 'tiny-engine/hooks'
  *
  * const PLAYER_TEXTURE = await loadTexture('/assets/player.png')
  *
  * function Player() {
- *   const sprite = useRefNode(PrimaryNode.Sprite)
+ *   const sprite = useNode(PrimaryNode.Sprite)
  *
  *   return (
  *     <sprite

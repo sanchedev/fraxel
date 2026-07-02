@@ -1,23 +1,24 @@
 import type { PrimaryNode } from '../nodes'
 import type { TinyScript } from '../scripts'
 import { pushEffect } from './context'
-import { Reference } from './use-ref'
-import type { NodeReference } from './use-ref-node'
+import type { NodeReference } from './use-node'
+import { useEffect } from './use-effect'
+import { Signal, type SignalGetter } from '../reactivity'
 
 /**
  * The **`useScript`** hook retrieves the script attached to a node reference.
  *
  * @param node A `NodeReference` to the node that has the script
- * @returns A `Reference` containing the script instance
+ * @returns A `SignalGetter` containing the script instance
  *
  * @example
  * ```tsx
  * function Player() {
- *   const sprite = useRefNode(PrimaryNode.Sprite)
+ *   const sprite = useNode(PrimaryNode.Sprite)
  *   const script = useScript<PlayerScript>(sprite)
  *
  *   const handleStart = () => {
- *     console.log(script.current) // The script instance
+ *     console.log(script()) // The script instance
  *   }
  *
  *   return <sprite ref={sprite} onStart={handleStart} script={new PlayerScript()} />
@@ -35,11 +36,15 @@ import type { NodeReference } from './use-ref-node'
 export function useScript<T extends TinyScript<PrimaryNode>>(
   node: NodeReference<PrimaryNode>,
 ) {
-  const script = new Reference<T | undefined>(undefined)
+  pushEffect('useScript', () => {})
 
-  pushEffect('useScript', () => {
-    script.current = node.node.script as T
+  const script = new Signal<T | undefined>(undefined)
+
+  useEffect(() => {
+    script.value = node.signal()?.script as T
   })
 
-  return script
+  const getter: SignalGetter<T | undefined> = () => script.value
+
+  return getter
 }

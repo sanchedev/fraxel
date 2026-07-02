@@ -1,7 +1,7 @@
 import { HookRequiresNodeRootError } from '../errors/hook.js'
 import type { PrimaryNode } from '../nodes/lib/enum.js'
 import { pushEffect } from './context.js'
-import { NodeReference } from './use-ref-node.js'
+import { NodeReference } from './use-node.js'
 
 /**
  * The **`useChild`** hook gets a reference to a child node by path and type.

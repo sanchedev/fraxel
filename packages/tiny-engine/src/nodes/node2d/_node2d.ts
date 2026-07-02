@@ -36,7 +36,7 @@ export abstract class Node2D<
    *
    * @example
    * ```tsx
-   * const transform = useRefNode(PrimaryNode.Transform)
+   * const transform = useNode(PrimaryNode.Transform)
    *
    * useEvent(transform, 'updated', (delta) => {
    *   transform.node.position.x += delta * 20

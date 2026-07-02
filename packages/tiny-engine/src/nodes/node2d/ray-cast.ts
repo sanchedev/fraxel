@@ -44,11 +44,11 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
  *
  * @example
  * ```tsx
- * import { useRefNode, useEvent } from 'tiny-engine/hooks'
+ * import { useNode, useEvent } from 'tiny-engine/hooks'
  * import { PrimaryNode } from 'tiny-engine/nodes/enum'
  *
  * function Gun() {
- *   const ray = useRefNode(PrimaryNode.RayCast)
+ *   const ray = useNode(PrimaryNode.RayCast)
  *
  *   useEvent(ray, 'colliderEnter', (collider) => {
  *     console.log('Hit:', collider)

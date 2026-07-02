@@ -3,7 +3,7 @@ import type { SignalGetter } from '../../reactivity/index.js'
 import { PrimaryNode } from '../../nodes/lib/enum.js'
 import { renderToNodes } from '../render/to-nodes.js'
 import { useEffect } from '../../hooks/use-effect.js'
-import { useRefNode } from '../../hooks/use-ref-node.js'
+import { useNode } from '../../hooks/use-node.js'
 import { currentContext } from '../../hooks/context.js'
 import { jsx } from '../jsx.js'
 import type { Tiny } from '../types.js'
@@ -99,7 +99,7 @@ export function List<T>({
   empty: _empty,
   children,
 }: ListOptions<T>): Tiny.Element {
-  const anchorRef = useRefNode(PrimaryNode.Transform)
+  const anchorRef = useNode(PrimaryNode.Transform)
   const savedCtx = currentContext.slice()
   let listNodes: Node[] = []
 

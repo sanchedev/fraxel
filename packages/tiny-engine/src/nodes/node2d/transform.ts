@@ -14,11 +14,11 @@ export interface TransformOptions extends Node2DOptions<PrimaryNode.Transform> {
  *
  * @example
  * ```tsx
- * import { useRefNode } from 'tiny-engine/hooks'
+ * import { useNode } from 'tiny-engine/hooks'
  * import { PrimaryNode } from 'tiny-engine/nodes/enum'
  *
  * function Player() {
- *   const body = useRefNode(PrimaryNode.Transform)
+ *   const body = useNode(PrimaryNode.Transform)
  *
  *   return (
  *     <transform ref={body} position={new Vector2(100, 200)}>

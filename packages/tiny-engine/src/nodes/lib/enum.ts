@@ -1,13 +1,13 @@
 /**
  * The **`PrimaryNode`** enum defines all built-in node types available in the engine.
- * Use these values when creating nodes with `useRefNode` or `useChild`.
+ * Use these values when creating nodes with `useNode` or `useChild`.
  *
  * @example
  * ```tsx
- * import { useRefNode } from 'tiny-engine/hooks'
+ * import { useNode } from 'tiny-engine/hooks'
  * import { PrimaryNode } from 'tiny-engine/nodes/enum'
  *
- * const sprite = useRefNode(PrimaryNode.Sprite)
+ * const sprite = useNode(PrimaryNode.Sprite)
  * return <sprite ref={sprite} textureId={PLAYER} />
  * ```
  */

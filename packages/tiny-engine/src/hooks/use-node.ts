@@ -2,10 +2,12 @@ import { NodeNotInitializedError } from '../errors/lifecycle.js'
 import { NodeTypeMismatchError } from '../errors/node.js'
 import { PrimaryNode } from '../nodes/lib/enum.js'
 import { type NodeInstances } from '../nodes/lib/types.js'
+import { Signal } from '../reactivity/signal.js'
+import type { SignalGetter } from '../reactivity/types.js'
 import { pushEffect } from './context.js'
 
 /**
- * The **`useRefNode`** hook creates a reference to a node of the specified type.
+ * The **`useNode`** hook creates a reference to a node of the specified type.
  * The reference can be passed to a node's `ref` prop to get a reference to it.
  *
  * @param type The type of node to reference
@@ -13,7 +15,7 @@ import { pushEffect } from './context.js'
  *
  * @example
  * ```tsx
- * const sprite = useRefNode(PrimaryNode.Sprite)
+ * const sprite = useNode(PrimaryNode.Sprite)
  *
  * return (
  *   <transform>
@@ -24,7 +26,7 @@ import { pushEffect } from './context.js'
  *
  * @example
  * ```tsx
- * const transform = useRefNode(PrimaryNode.Transform)
+ * const transform = useNode(PrimaryNode.Transform)
  * const spawn = useSpawn(transform)
  *
  * return (
@@ -34,8 +36,8 @@ import { pushEffect } from './context.js'
  * )
  * ```
  */
-export function useRefNode<T extends PrimaryNode>(type: T): NodeReference<T> {
-  pushEffect('useRefNode', () => {})
+export function useNode<T extends PrimaryNode>(type: T): NodeReference<T> {
+  pushEffect('useNode', () => {})
   const nodeRef = new NodeReference<T>(type)
 
   return nodeRef
@@ -43,19 +45,22 @@ export function useRefNode<T extends PrimaryNode>(type: T): NodeReference<T> {
 
 export class NodeReference<T extends PrimaryNode> {
   #type: T
-  #node: NodeInstances[T] | undefined
+  #node = new Signal<NodeInstances[T] | null>(null)
 
   set node(node: NodeInstances[T]) {
     if (node.type !== this.#type) {
       throw new NodeTypeMismatchError(this.#type, node.type)
     }
-    this.#node = node
+    this.#node.value = node
   }
   get node() {
-    if (this.#node == null) {
+    if (this.#node.value == null) {
       throw new NodeNotInitializedError(this.#type)
     }
-    return this.#node
+    return this.#node.value
+  }
+  signal: SignalGetter<NodeInstances[T] | null> = () => {
+    return this.#node.value
   }
 
   constructor(type: T) {

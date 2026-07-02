@@ -51,11 +51,11 @@ export interface ClickableOptions extends Node2DOptions<PrimaryNode.Clickable> {
  *
  * @example
  * ```tsx
- * import { useRefNode } from 'tiny-engine/hooks'
+ * import { useNode } from 'tiny-engine/hooks'
  * import { PrimaryNode } from 'tiny-engine/nodes/enum'
  *
  * function Button() {
- *   const btn = useRefNode(PrimaryNode.Clickable)
+ *   const btn = useNode(PrimaryNode.Clickable)
  *
  *   const handleClick = (pos: Vector2) => {
  *     console.log('Clicked at', pos.x, pos.y)

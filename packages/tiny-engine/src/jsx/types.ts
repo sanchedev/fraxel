@@ -1,5 +1,5 @@
 import type { Event } from '../events/event.js'
-import type { NodeReference } from '../hooks/use-ref-node.js'
+import type { NodeReference } from '../hooks/use-node.js'
 import type { PrimaryNode } from '../nodes/lib/enum.js'
 import type { NodeEvents, NodesOptions } from '../nodes/lib/types.js'
 
@@ -42,10 +42,10 @@ export namespace Tiny {
 
 // Intrinsic Elements
 export type IntrinsicElement<T extends PrimaryNode> = {
-  /** The **`ref`** property can be user for `useRef` hook.
+  /** The **`ref`** property can be used with the `useNode` hook.
    * @example
    * ```tsx
-   * const sprite = useRef()
+   * const sprite = useNode(PrimaryNode.Sprite)
    *
    * return <sprite ref={sprite} />
    * ```

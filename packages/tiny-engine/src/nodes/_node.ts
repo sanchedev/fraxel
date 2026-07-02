@@ -20,7 +20,7 @@ export interface NodeOptions<T extends PrimaryNode> {
    *
    * @example
    * ```tsx
-   * const transform = useRefNode(PrimaryNode.Transform)
+   * const transform = useNode(PrimaryNode.Transform)
    * const container = useChild(['container'], PrimaryNode.Transform)
    *
    * return (
@@ -176,7 +176,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    *
    * @example
    * ```tsx
-   * const transform = useRefNode(PrimaryNode.Transform)
+   * const transform = useNode(PrimaryNode.Transform)
    *
    * useMount(() => {
    *   const parent = transform.node.parent
@@ -199,7 +199,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    *
    * @example
    * ```tsx
-   * const transform = useRefNode(PrimaryNode.Transform)
+   * const transform = useNode(PrimaryNode.Transform)
    *
    * useMount(() => {
    *   const children = transform.node.children
@@ -260,7 +260,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    *
    * @example
    * ```tsx
-   * const transform = useRefNode(PrimaryNode.Transform)
+   * const transform = useNode(PrimaryNode.Transform)
    *
    * useMount(() => {
    *   const sprite = transform.node.child({
@@ -445,7 +445,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    *
    * @example
    * ```tsx
-   * const transform = useRefNode(PrimaryNode.Transform)
+   * const transform = useNode(PrimaryNode.Transform)
    *
    * useMount(() => {
    *   transform.node.started.on(() => {

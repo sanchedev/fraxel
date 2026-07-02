@@ -63,22 +63,22 @@ export interface RectangleOptions extends Node2DOptions<PrimaryNode.Rectangle> {
  *
  * @example
  * ```tsx
- * import { useRefNode } from 'tiny-engine/hooks'
+ * import { useNode } from 'tiny-engine/hooks'
  * import { PrimaryNode } from 'tiny-engine/nodes/enum'
  *
  * function HealthBar() {
- *   const bar = useRefNode(PrimaryNode.Rectangle)
+ *   const bar = useNode(PrimaryNode.Rectangle)
  *
  *   return (
  *     <rectangle
  *       ref={bar}
  *       position={[10, 10]}
-   *       size={[100, 8]}
-   *       fillColor={[0, 1, 0, 1]}
-   *     />
-   *   )
-   * }
-   * ```
+ *       size={[100, 8]}
+ *       fillColor={[0, 1, 0, 1]}
+ *     />
+ *   )
+ * }
+ * ```
  */
 export class Rectangle extends Node2D<PrimaryNode.Rectangle> {
   size: Vector2
@@ -89,7 +89,9 @@ export class Rectangle extends Node2D<PrimaryNode.Rectangle> {
   constructor(options: RectangleOptions) {
     super(PrimaryNode.Rectangle, options)
     this.size = propSignal(this, 'size', applySignal(options.size, vectorize))
-    this.fillColor = propSignal(this, 'fillColor', options.fillColor) ?? [1, 1, 1, 1]
+    this.fillColor = propSignal(this, 'fillColor', options.fillColor) ?? [
+      1, 1, 1, 1,
+    ]
     this.strokeColor = propSignal(this, 'strokeColor', options.strokeColor)
     this.strokeWidth = propSignal(this, 'strokeWidth', options.strokeWidth) ?? 1
   }

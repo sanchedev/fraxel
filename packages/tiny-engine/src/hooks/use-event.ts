@@ -4,7 +4,7 @@ import type { Fun } from '../events/types.js'
 import type { PrimaryNode } from '../nodes/lib/enum.js'
 import type { NodeInstances } from '../nodes/lib/types.js'
 import { pushEffect } from './context.js'
-import type { NodeReference } from './use-ref-node.js'
+import type { NodeReference } from './use-node.js'
 
 /**
  * The **`useEvent`** hook subscribes to an event on a node reference.
@@ -15,7 +15,7 @@ import type { NodeReference } from './use-ref-node.js'
  *
  * @example
  * ```tsx
- * const sprite = useRefNode(PrimaryNode.Sprite)
+ * const sprite = useNode(PrimaryNode.Sprite)
  *
  * useEvent(sprite, 'started', () => {
  *   console.log('Sprite started!')

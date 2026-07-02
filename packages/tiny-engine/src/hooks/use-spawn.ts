@@ -2,7 +2,7 @@ import { renderToNodes } from '../jsx/index.js'
 import type { Tiny } from '../jsx/types.js'
 import type { PrimaryNode } from '../nodes/lib/enum.js'
 import { currentContext, pushEffect } from './context.js'
-import type { NodeReference } from './use-ref-node.js'
+import type { NodeReference } from './use-node.js'
 
 /**
  * The **`useSpawn`** hook returns a function that can spawn nodes as children of the specified node.
@@ -12,7 +12,7 @@ import type { NodeReference } from './use-ref-node.js'
  *
  * @example
  * ```tsx
- * const container = useRefNode(PrimaryNode.Transform)
+ * const container = useNode(PrimaryNode.Transform)
  * const spawn = useSpawn(container)
  *
  * const handleClick = () => {

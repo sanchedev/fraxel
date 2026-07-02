@@ -157,8 +157,8 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    *
    * @example
    * ```tsx
-   * const sprite = useRefNode(PrimaryNode.Sprite)
-   * const anim = useRefNode(PrimaryNode.AnimationPlayer)
+   * const sprite = useNode(PrimaryNode.Sprite)
+   * const anim = useNode(PrimaryNode.AnimationPlayer)
    *
    * useMount(() => {
    *   anim.node
@@ -193,8 +193,8 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    *
    * @example
    * ```tsx
-   * const sprite = useRefNode(PrimaryNode.Sprite)
-   * const anim = useRefNode(PrimaryNode.AnimationPlayer)
+   * const sprite = useNode(PrimaryNode.Sprite)
+   * const anim = useNode(PrimaryNode.AnimationPlayer)
    *
    * useMount(() => {
    *   anim.node
@@ -238,7 +238,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    *
    * @example
    * ```tsx
-   * const anim = useRefNode(PrimaryNode.AnimationPlayer)
+   * const anim = useNode(PrimaryNode.AnimationPlayer)
    *
    * useMount(() => {
    *   anim.node.play('idle')
@@ -266,7 +266,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    *
    * @example
    * ```tsx
-   * const anim = useRefNode(PrimaryNode.AnimationPlayer)
+   * const anim = useNode(PrimaryNode.AnimationPlayer)
    *
    * useEvent(anim, 'animationEnded', () => {
    *   anim.node.setNext('idle')

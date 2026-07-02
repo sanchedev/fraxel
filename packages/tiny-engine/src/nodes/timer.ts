@@ -39,11 +39,11 @@ export interface TimerOptions extends NodeOptions<PrimaryNode.Timer> {
  *
  * @example
  * ```tsx
- * import { useRefNode, useEvent } from 'tiny-engine/hooks'
+ * import { useNode, useEvent } from 'tiny-engine/hooks'
  * import { PrimaryNode } from 'tiny-engine/nodes/enum'
  *
  * function CooldownTimer() {
- *   const timer = useRefNode(PrimaryNode.Timer)
+ *   const timer = useNode(PrimaryNode.Timer)
  *
  *   useEvent(timer, 'timeout', () => {
  *     console.log('Cooldown finished!')

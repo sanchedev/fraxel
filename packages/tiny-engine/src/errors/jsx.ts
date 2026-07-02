@@ -32,7 +32,7 @@ export class InvalidRefAttributeError extends JSXError {
           : typeof received
 
     super(
-      `Invalid value for "ref" attribute. Expected a proxy returned by useRefNode(), but received ${type}.`,
+      `Invalid value for "ref" attribute. Expected a proxy returned by useNode(), but received ${type}.`,
     )
   }
 }
