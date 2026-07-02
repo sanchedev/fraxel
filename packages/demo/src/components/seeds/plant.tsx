@@ -1,11 +1,6 @@
 import { loadTexture, PrimaryNode, Vector2, type VectorLike } from 'tiny-engine'
 import { Plant } from '../../lib/enums/plants'
-import {
-  useComputed,
-  useContext,
-  useRefNode,
-  useSignal,
-} from 'tiny-engine/hooks'
+import { useComputed, useContext, useNode, useSignal } from 'tiny-engine/hooks'
 import { plantsInfo } from '../../lib/info/plants'
 import { SunCountCtx } from '../../contexts/sun-count'
 import { SeedCtx } from '../../contexts/seed'
@@ -19,7 +14,7 @@ export function PlantSeed({
 }) {
   const { current, planted, select } = useContext(SeedCtx)
   const [sunCount, setSunCount] = useContext(SunCountCtx)
-  const timer = useRefNode(PrimaryNode.Timer)
+  const timer = useNode(PrimaryNode.Timer)
 
   const [hover, setHover] = useSignal(false)
   const [loaded, setLoaded] = useSignal(false)

@@ -1,4 +1,4 @@
-import { useContext, useEvent, useGame, useRefNode } from 'tiny-engine/hooks'
+import { useContext, useEvent, useGame, useNode } from 'tiny-engine/hooks'
 import { loadTexture, PrimaryNode, shapes, type VectorLike } from 'tiny-engine'
 import { RowCtx } from '../../../contexts/row'
 import { ZombieScript } from '../../../scripts/zombie/zombie'
@@ -12,8 +12,8 @@ export function Pea({ position }: { position: VectorLike }) {
   const { projectilesLayer, zombiesLayer } = useContext(RowCtx)
   const { cellSize } = useContext(BoardCtx)
 
-  const pea = useRefNode(PrimaryNode.Transform)
-  const collider = useRefNode(PrimaryNode.Collider)
+  const pea = useNode(PrimaryNode.Transform)
+  const collider = useNode(PrimaryNode.Collider)
 
   const width = useGame().getSize().x
 

@@ -10,7 +10,7 @@ import {
   useContext,
   useEffect,
   useEvent,
-  useRefNode,
+  useNode,
   useScript,
   useSignal,
 } from 'tiny-engine/hooks'
@@ -48,19 +48,19 @@ export function NormalZombie({ position }: NormalZombieProps) {
   const { plantsLayer, zombiesLayer } = useContext(RowCtx)
   const { cellSize } = useContext(BoardCtx)
 
-  const zombie = useRefNode(PrimaryNode.Transform)
-  const sprite = useRefNode(PrimaryNode.Sprite)
-  const anim = useRefNode(PrimaryNode.AnimationPlayer)
-  const raycast = useRefNode(PrimaryNode.RayCast)
+  const zombie = useNode(PrimaryNode.Transform)
+  const sprite = useNode(PrimaryNode.Sprite)
+  const anim = useNode(PrimaryNode.AnimationPlayer)
+  const raycast = useNode(PrimaryNode.RayCast)
 
   const script = useScript<ZombieScript>(zombie)
 
   const [currentPlant, setCurrentPlant] = useSignal<PlantScript | null>(null)
   const currentState = useComputed(() => {
-    const health = script.current?.health.value ?? 4000
+    const health = script()?.health.value ?? 181
     if (health > 90) return 0
     return 1
-  }, true)
+  })
 
   useEvent(zombie, 'updated', (delta) => {
     if (currentPlant() == null) {

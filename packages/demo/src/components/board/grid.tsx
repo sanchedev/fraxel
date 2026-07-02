@@ -4,7 +4,7 @@ import {
   useContext,
   useEvent,
   useRef,
-  useRefNode,
+  useNode,
   useSignal,
 } from 'tiny-engine/hooks'
 import { BoardCtx } from '../../contexts/board'
@@ -14,7 +14,7 @@ export function Grid({ position }: { position: VectorLike }) {
   const { cellSize, cellsCount, floorTypeOnCells } = useContext(BoardCtx)
   const { current } = useContext(SeedCtx)
 
-  const grid = useRefNode(PrimaryNode.Clickable)
+  const grid = useNode(PrimaryNode.Clickable)
 
   const plants = useRef<{ platform: boolean; plant: boolean }[][]>(
     floorTypeOnCells.map((floors) =>
@@ -25,14 +25,15 @@ export function Grid({ position }: { position: VectorLike }) {
   const [hover, setHover] = useSignal(false)
   const [pos, setPos] = useSignal(Vector2.ZERO)
 
-  const transparency = useComputed(() => {
-    if (current() == null) return 0
+  const ableToPlant = useComputed(() => {
+    if (current() == null) return false
 
     const p = pos()
-    if (plants.current[p.y]![p.x]!.plant) return 0
-    if (!hover()) return 0
-    return 0.5
+    if (plants.current[p.y]![p.x]!.plant) return false
+    if (!hover()) return false
+    return true
   })
+  const transparency = useComputed(() => (ableToPlant() ? 0.5 : 0.1))
 
   useEvent(grid, 'mouseOver', (position) => {
     setPos(position.apply((coord, axis) => Math.floor(coord / cellSize[axis])))
@@ -41,6 +42,8 @@ export function Grid({ position }: { position: VectorLike }) {
   useEvent(grid, 'clicked', () => {
     const c = current()
     if (c == null) return
+    if (!ableToPlant()) return
+
     const { x, y } = pos()
     plants.current[y]![x]!.plant = true
     c.setPlant(pos(), () => {

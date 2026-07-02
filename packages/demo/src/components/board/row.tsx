@@ -4,12 +4,7 @@ import {
   RowProjectileSpawnerCtx,
   RowZombieSpawnerCtx,
 } from '../../contexts/row.js'
-import {
-  NodeReference,
-  useContext,
-  useRefNode,
-  useSpawn,
-} from 'tiny-engine/hooks'
+import { NodeReference, useContext, useNode, useSpawn } from 'tiny-engine/hooks'
 import { PrimaryNode } from 'tiny-engine/nodes/enum.js'
 import { NormalZombie } from '../entities/zombies/normal-zombie.js'
 import { BoardCtx } from '../../contexts/board.js'
@@ -44,7 +39,7 @@ export function Row({ rowIndex, registerSpawners }: RowProps) {
 }
 
 function RowZombieSpawner(props: RowProps) {
-  const zombies = useRefNode(PrimaryNode.Transform)
+  const zombies = useNode(PrimaryNode.Transform)
   const spawnZombie = useSpawn(zombies)
 
   return (
@@ -55,7 +50,7 @@ function RowZombieSpawner(props: RowProps) {
 }
 type node = NodeReference<PrimaryNode.Transform>
 function RowProjectileSpawner(props: RowProps & { z: node }) {
-  const projectiles = useRefNode(PrimaryNode.Transform)
+  const projectiles = useNode(PrimaryNode.Transform)
   const spawnProjectile = useSpawn(projectiles)
 
   return (
@@ -66,7 +61,7 @@ function RowProjectileSpawner(props: RowProps & { z: node }) {
 }
 
 function RowPlantSpawner(props: RowProps & { z: node; r: node }) {
-  const plants = useRefNode(PrimaryNode.Transform)
+  const plants = useNode(PrimaryNode.Transform)
   const spawnPlant = useSpawn(plants)
 
   return (

@@ -12,7 +12,7 @@ import {
   useEvent,
   useGame,
   useRef,
-  useRefNode,
+  useNode,
 } from 'tiny-engine/hooks'
 import { RowCtx, RowProjectileSpawnerCtx } from '../../../contexts/row.js'
 import { Pea } from '../projectiles/pea.js'
@@ -30,9 +30,9 @@ export function Peashooter({ position, onDestroy }: PlantProps) {
   const { plantsLayer, zombiesLayer } = useContext(RowCtx)
   const spawnProjectile = useContext(RowProjectileSpawnerCtx)
 
-  const sprite = useRefNode(PrimaryNode.Sprite)
-  const anim = useRefNode(PrimaryNode.AnimationPlayer)
-  const raycast = useRefNode(PrimaryNode.RayCast)
+  const sprite = useNode(PrimaryNode.Sprite)
+  const anim = useNode(PrimaryNode.AnimationPlayer)
+  const raycast = useNode(PrimaryNode.RayCast)
 
   const width = useGame().getSize().x
 

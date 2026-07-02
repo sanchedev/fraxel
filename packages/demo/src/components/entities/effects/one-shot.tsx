@@ -1,5 +1,5 @@
 import { kfFromSpriteSheet, PrimaryNode, type VectorLike } from 'tiny-engine'
-import { useRefNode } from 'tiny-engine/hooks'
+import { useNode } from 'tiny-engine/hooks'
 
 interface OneShotProps {
   textureId: symbol
@@ -16,7 +16,7 @@ export function OneShot({
   spriteCountY = 1,
   fps,
 }: OneShotProps) {
-  const sprite = useRefNode(PrimaryNode.Sprite)
+  const sprite = useNode(PrimaryNode.Sprite)
 
   return (
     <animation-player

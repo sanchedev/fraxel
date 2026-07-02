@@ -5,12 +5,7 @@ import {
   shapes,
 } from 'tiny-engine'
 import type { PlantProps } from '../../types'
-import {
-  useComputed,
-  useContext,
-  useRefNode,
-  useScript,
-} from 'tiny-engine/hooks'
+import { useComputed, useContext, useNode, useScript } from 'tiny-engine/hooks'
 import { PlantScript } from '../../../scripts/plant/plant'
 import { Plant } from '../../../lib/enums/plants'
 import { RowCtx } from '../../../contexts/row'
@@ -26,17 +21,17 @@ const states = {
 export function WallNut({ position, onDestroy }: PlantProps) {
   const { plantsLayer } = useContext(RowCtx)
 
-  const sprite = useRefNode(PrimaryNode.Sprite)
+  const sprite = useNode(PrimaryNode.Sprite)
 
-  const wallNut = useRefNode(PrimaryNode.Transform)
+  const wallNut = useNode(PrimaryNode.Transform)
   const script = useScript<PlantScript>(wallNut)
 
   const currentState = useComputed(() => {
-    const health = script.current?.health.value ?? 4000
+    const health = script()?.health.value ?? 4000
     if (health > 3000) return 0
     if (health > 1500) return 1
     return 2
-  }, true)
+  })
 
   return (
     <transform
