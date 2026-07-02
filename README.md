@@ -65,7 +65,7 @@ Add the custom JSX runtime to your tsconfig.json:
 Dive into the official documentation to master the engine:
 
 - [Nodes Reference](docs/nodes.md) — `<transform>`, `<sprite>`, `<clickable>`, `<timer>`, `<collider>`, `<ray-cast>`
-- [Hooks API](docs/hooks.md) — useSignal, useComputed, useEffect, useRefNode, useEvent, useSpawn
+- [Hooks API](docs/hooks.md) — useSignal, useComputed, useEffect, useNode, useEvent, useSpawn
 - [Collisions](docs/collision.md) — Shapes, filtering groups, events, and raycasting
 - [Animation](docs/animation.md) — Sprite sheets and `<animation-player>`
 - [Input System](docs/input.md) — Pointer tracking and keyboard events

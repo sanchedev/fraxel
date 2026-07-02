@@ -10,7 +10,7 @@ Every game object is built from **nodes** — JSX elements that map to engine cl
 | `Collider`        | `<collider>`         | Detects overlaps with other colliders    |
 | `RayCast`         | `<ray-cast>`         | Projects a ray to detect colliders       |
 | `Clickable`       | `<clickable>`        | Detects click/hover pointer events       |
-| `Rectangle`       | `<rectangle>`        | Renders a filled/stroked rectangle        |
+| `Rectangle`       | `<rectangle>`        | Renders a filled/stroked rectangle       |
 | `Timer`           | `<timer>`            | Counts up and fires events               |
 
 ## Transform
@@ -57,7 +57,7 @@ See [Sprite Filters](filters.md) for all available filter props.
 ## Timer
 
 ```tsx
-const timer = useRefNode(PrimaryNode.Timer)
+const timer = useNode(PrimaryNode.Timer)
 
 useEvent(timer, 'timeout', () => {
   console.log('done')
@@ -89,11 +89,11 @@ See [Collision System](collision.md) for shapes, groups, and events.
 ## RayCast
 
 ```tsx
-import { useRefNode, useEvent } from 'tiny-engine/hooks'
+import { useNode, useEvent } from 'tiny-engine/hooks'
 import { PrimaryNode, Vector2 } from 'tiny-engine'
 
 function Detector() {
-  const ray = useRefNode(PrimaryNode.RayCast)
+  const ray = useNode(PrimaryNode.RayCast)
 
   useEvent(ray, 'colliderEntered', (collider) => {
     console.log('Detected:', collider)
@@ -135,7 +135,7 @@ function Detector() {
     idle: idleFrames,
     walk: walkFrames,
   })}
-  currentAnim="idle"
+  currentAnim='idle'
 />
 ```
 

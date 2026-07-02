@@ -23,11 +23,11 @@ Types: `Shape = RectangleShape | CircleShape`, discriminant: `shape.type === 're
 Colliders use groups for filtering. Events fire on both colliders:
 
 ```tsx
-import { useEvent, useRefNode } from 'tiny-engine/hooks'
+import { useEvent, useNode } from 'tiny-engine/hooks'
 import { PrimaryNode, shapes } from 'tiny-engine'
 
 function Projectile() {
-  const collider = useRefNode(PrimaryNode.Collider)
+  const collider = useNode(PrimaryNode.Collider)
 
   useEvent(collider, 'colliderEntered', (enemyCollider) => {
     enemyCollider.parent.script.applyDamage(20)
@@ -53,11 +53,11 @@ function Projectile() {
 Project rays to detect colliders along a direction:
 
 ```tsx
-import { useRefNode, useEvent } from 'tiny-engine/hooks'
+import { useNode, useEvent } from 'tiny-engine/hooks'
 import { PrimaryNode, Vector2 } from 'tiny-engine'
 
 function Detector() {
-  const ray = useRefNode(PrimaryNode.RayCast)
+  const ray = useNode(PrimaryNode.RayCast)
 
   useEvent(ray, 'colliderEntered', (collider) => {
     console.log('Detected:', collider)

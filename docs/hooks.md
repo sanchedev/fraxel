@@ -1,29 +1,29 @@
 # Hooks
 
-| Hook | Description |
-|------|-------------|
-| `useRefNode(type)` | Creates a typed reference to pass as `ref` |
-| `useEvent(node, event, callback)` | Type-safe event subscription with auto-cleanup |
-| `useEffect(fn)` | Runs effect on mount and when signals change |
-| `useSignal(initial)` | Creates reactive state that triggers re-renders |
-| `useComputed(fn)` | Creates a derived signal that recomputes when deps change |
-| `useMount(fn)` | Runs once on mount, cleanup on destroy |
-| `useSpawn(node)` | Returns a function to dynamically spawn children |
-| `useGame()` | Access game controls (play, pause, changeScene) |
-| `useChild(path, type)` | Gets a reference to a child node by path |
-| `useScript(ref)` | Retrieves the TinyScript attached to a node |
-| `createContext(default)` | Creates a context with `Provider` component |
-| `useContext(context)` | Retrieves the current context value |
-| `useRef(value)` | Mutable reference that persists across renders |
+| Hook                              | Description                                               |
+| --------------------------------- | --------------------------------------------------------- |
+| `useNode(type)`                   | Creates a typed reference to pass as `ref`                |
+| `useEvent(node, event, callback)` | Type-safe event subscription with auto-cleanup            |
+| `useEffect(fn)`                   | Runs effect on mount and when signals change              |
+| `useSignal(initial)`              | Creates reactive state that triggers re-renders           |
+| `useComputed(fn)`                 | Creates a derived signal that recomputes when deps change |
+| `useMount(fn)`                    | Runs once on mount, cleanup on destroy                    |
+| `useSpawn(node)`                  | Returns a function to dynamically spawn children          |
+| `useGame()`                       | Access game controls (play, pause, changeScene)           |
+| `useChild(path, type)`            | Gets a reference to a child node by path                  |
+| `useScript(ref)`                  | Retrieves the TinyScript attached to a node               |
+| `createContext(default)`          | Creates a context with `Provider` component               |
+| `useContext(context)`             | Retrieves the current context value                       |
+| `useRef(value)`                   | Mutable reference that persists across renders            |
 
-## useRefNode
+## useNode
 
 ```tsx
-import { useRefNode } from 'tiny-engine/hooks'
+import { useNode } from 'tiny-engine/hooks'
 import { PrimaryNode } from 'tiny-engine'
 
 function Player() {
-  const sprite = useRefNode(PrimaryNode.Sprite)
+  const sprite = useNode(PrimaryNode.Sprite)
 
   return (
     <transform>
@@ -36,11 +36,11 @@ function Player() {
 ## useEvent
 
 ```tsx
-import { useEvent, useRefNode } from 'tiny-engine/hooks'
+import { useEvent, useNode } from 'tiny-engine/hooks'
 import { PrimaryNode, shapes } from 'tiny-engine'
 
 function Enemy() {
-  const collider = useRefNode(PrimaryNode.Collider)
+  const collider = useNode(PrimaryNode.Collider)
 
   useEvent(collider, 'colliderEntered', (other) => {
     console.log('Hit:', other)
@@ -69,11 +69,7 @@ function HealthBar() {
     console.log('Health changed:', health())
   })
 
-  return (
-    <transform>
-      {/* health() triggers re-render when set */}
-    </transform>
-  )
+  return <transform>{/* health() triggers re-render when set */}</transform>
 }
 ```
 
@@ -85,26 +81,12 @@ import { useSignal, useComputed } from 'tiny-engine/hooks'
 function CooldownSprite() {
   const [time, setTime] = useSignal(0)
   const progress = useComputed(
-    () => time() / 3 // 3 second cooldown
+    () => time() / 3, // 3 second cooldown
   )
 
-  return (
-    <transform>
-      {/* progress() updates when time changes */}
-    </transform>
-  )
+  return <transform>{/* progress() updates when time changes */}</transform>
 }
 ```
-
-### refreshOnNodeStart
-
-```tsx
-const health = useComputed(() => script.current?.health.value ?? 4000, true)
-```
-
-The second parameter `refreshOnNodeStart` (default `false`) forces the computed to re-evaluate
-when the node's `started` event fires. Useful when the computed depends on a value that is
-only available after the node is initialized (e.g. a script reference).
 
 ## Signal
 
@@ -151,11 +133,11 @@ function Child() {
 ## useSpawn
 
 ```tsx
-import { useRefNode, useSpawn } from 'tiny-engine/hooks'
+import { useNode, useSpawn } from 'tiny-engine/hooks'
 import { PrimaryNode } from 'tiny-engine'
 
 function Spawner() {
-  const container = useRefNode(PrimaryNode.Transform)
+  const container = useNode(PrimaryNode.Transform)
   const spawn = useSpawn(container)
 
   return (
@@ -184,9 +166,11 @@ function EnemyList() {
 
   return (
     <List array={enemies} itemKey={(e) => e.id}>
-      {(enemy) => <transform position={[enemy.x, 0]}>
-        <sprite textureId={ENEMY} />
-      </transform>}
+      {(enemy) => (
+        <transform position={[enemy.x, 0]}>
+          <sprite textureId={ENEMY} />
+        </transform>
+      )}
     </List>
   )
 }
