@@ -11,8 +11,9 @@ import {
   useContext,
   useEvent,
   useGame,
-  useRef,
   useNode,
+  useCondition,
+  useEffect,
 } from 'tiny-engine/hooks'
 import { RowCtx, RowProjectileSpawnerCtx } from '../../../contexts/row.js'
 import { Pea } from '../projectiles/pea.js'
@@ -36,23 +37,19 @@ export function Peashooter({ position, onDestroy }: PlantProps) {
 
   const width = useGame().getSize().x
 
-  const isZombieDetected = useRef(false)
-
-  useEvent(anim, 'animationEnded', () => {
-    anim.node.setNext(isZombieDetected.current ? 'shoot' : 'idle')
-  })
-
   useEvent(anim, 'animationIndexChanged', (index) => {
     if (anim.node.currentAnim !== 'shoot') return
     if (index === 1) shoot()
   })
 
-  useEvent(raycast, 'colliderEntered', () => {
-    isZombieDetected.current = true
-  })
+  const isZombieDetected = useCondition(
+    raycast,
+    'colliderEntered',
+    'colliderExited',
+  )
 
-  useEvent(raycast, 'colliderExited', () => {
-    isZombieDetected.current = false
+  useEffect(() => {
+    anim.node.setNext(isZombieDetected() ? 'shoot' : 'idle')
   })
 
   const shoot = () => {

@@ -1,6 +1,6 @@
-import { createContext } from 'tiny-engine/hooks'
+import { createContext, type Trigger } from 'tiny-engine/hooks'
 import type { Plant } from '../lib/enums/plants'
-import type { Event, SignalGetter, Vector2 } from 'tiny-engine'
+import type { SignalGetter, Vector2 } from 'tiny-engine'
 
 export interface SeedSelected {
   plant: Plant
@@ -11,7 +11,7 @@ export interface SeedSelected {
 export const SeedCtx = createContext<{
   current: SignalGetter<SeedSelected | null>
   select: (plant: Plant) => void
-  planted: Event<[plant: Plant], 'plant'>
+  planted: Trigger<[plant: Plant]>
 }>({
   current: () => null,
   select: () => {},

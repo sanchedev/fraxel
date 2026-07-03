@@ -61,16 +61,14 @@ export function Board({ position, cellsCount, cellSize }: BoardProps) {
                 (_, i) => i,
               )}
               itemKey={(i) => `row-${i}`}>
-              {(rowIndex) => {
-                return (
-                  <Row
-                    registerSpawners={(plants) => {
-                      plantSpawners.current.push(plants)
-                    }}
-                    rowIndex={rowIndex}
-                  />
-                )
-              }}
+              {(rowIndex) => (
+                <Row
+                  registerSpawners={(plants) => {
+                    plantSpawners.current.push(plants)
+                  }}
+                  rowIndex={rowIndex}
+                />
+              )}
             </List>
           </transform>
         </SunCountCtx.Provider>
