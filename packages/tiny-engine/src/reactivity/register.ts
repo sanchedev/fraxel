@@ -1,4 +1,4 @@
-import type { Signal } from './signal'
+import { Signal } from './signal'
 
 export class SignalRegister {
   static #signals: Set<Signal<any>>[] = []

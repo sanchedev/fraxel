@@ -5,27 +5,31 @@ import type { Reactive, SignalGetter } from './types.js'
 export function subReactive<T>(
   value: Reactive<T>,
   onUse: (value: T) => void,
+  onSet?: (unsub: () => void) => void,
 ): T {
   if (typeof value !== 'function') return value
   const signal = value as SignalGetter<T>
 
-  let currentSignals: Signal<any>[] = []
+  const currentSignals: Signal<any>[] = []
   let currentValue: T | null = null
   let first = true
 
   const refresh = () => {
     currentSignals.forEach((s) => s.unsub(refresh))
     currentValue = SignalRegister.watch(signal, (signals) => {
-      currentSignals = signals
+      currentSignals.length = 0
+      currentSignals.push(...signals)
     })
     if (!first) {
       onUse(currentValue)
+    } else {
       first = false
     }
     currentSignals.forEach((s) => s.sub(refresh))
   }
 
   refresh()
+  onSet?.(() => currentSignals.forEach((s) => s.unsub(refresh)))
 
   return currentValue!
 }
