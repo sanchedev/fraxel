@@ -11,5 +11,8 @@ export { useScript } from './use-script.js'
 export { useSignal } from './use-signal.js'
 export { useComputed } from './use-computed.js'
 export { useSpawn } from './use-spawn.js'
+export { createTrigger, useTrigger, type Trigger } from './use-trigger.js'
 
 export { createContext, useContext } from './use-context.js'
+
+export * from './deriveds/index.js'

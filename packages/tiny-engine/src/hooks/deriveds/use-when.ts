@@ -1,0 +1,45 @@
+import {
+  reactive,
+  type Reactive,
+  type SignalGetter,
+} from '../../reactivity/index.js'
+import { declareDerivedHook } from '../context'
+import { useComputed } from '../use-computed.js'
+
+/**
+ * The **`useWhen`** derived hook creates a computed value that toggles between two values
+ * based on a boolean signal. Similar to a ternary expression but reactive.
+ *
+ * @param signal A `SignalGetter<boolean>` that determines which value to return
+ * @param whenTrue The value to return when the signal is `true`
+ * @param whenFalse The value to return when the signal is `false`
+ * @returns A `SignalGetter<T>` that reflects the current value
+ *
+ * @example
+ * ```tsx
+ * const isHovered = useCondition(clickable, 'mouseEntered', 'mouseExited')
+ * const brightness = useWhen(isHovered, 1.2, 1.0)
+ *
+ * return <sprite brightness={brightness} />
+ * ```
+ *
+ * @example
+ * ```tsx
+ * const isZombieDetected = useCondition(raycast, 'colliderEntered', 'colliderExited')
+ * const animName = useWhen(isZombieDetected, 'shoot', 'idle')
+ *
+ * return <animation-player currentAnim={animName} />
+ * ```
+ */
+export function useWhen<T>(
+  signal: SignalGetter<boolean>,
+  whenTrue: Reactive<T>,
+  whenFalse: Reactive<T>,
+): SignalGetter<T> {
+  declareDerivedHook('useWhen')
+
+  const trueValue = reactive(whenTrue)
+  const falseValue = reactive(whenFalse)
+
+  return useComputed(() => (signal() ? trueValue() : falseValue()))
+}
