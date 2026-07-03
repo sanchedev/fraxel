@@ -1,17 +1,18 @@
 import { pushEffect } from './context.js'
 
 /**
- * The **`useMount`** hook runs a function when the node starts and when it is destroyed.
- * It does not re-run on signal changes, only on mount and unmount.
+ * The **`useMount`** hook runs a function when the node starts.
+ * If the function returns a cleanup function, it runs when the node is destroyed.
+ * Does not re-run on signal changes — only on mount and unmount.
  *
- * @param fn The function to run. Can return a cleanup function.
+ * @param fn The function to run on mount. Can return a cleanup function that runs on destroy.
  *
  * @example
  * ```tsx
  * useMount(() => {
  *   console.log('Node mounted')
  *   return () => {
- *     console.log('Node unmounted')
+ *     console.log('Node destroyed')
  *   }
  * })
  *
@@ -23,14 +24,9 @@ export function useMount(fn: () => void | (() => void)): void {
     if (nodes.length < 0) return
     const node = nodes[0]!
 
-    let unmount: (() => void) | void
-
-    const refresh = () => {
-      if (typeof unmount === 'function') unmount()
-      unmount = fn()
-    }
-
-    node.started.on(refresh)
-    node.destroyed.on(refresh)
+    node.started.on(() => {
+      const unmount = fn()
+      if (unmount) node.destroyed.on(() => unmount())
+    })
   })
 }

@@ -1,13 +1,15 @@
 import '../../nodes/index.js'
-import type { SignalGetter } from '../../reactivity/index.js'
+import { subReactive, type SignalGetter } from '../../reactivity/index.js'
 import { PrimaryNode } from '../../nodes/lib/enum.js'
 import { renderToNodes } from '../render/to-nodes.js'
-import { useEffect } from '../../hooks/use-effect.js'
 import { useNode } from '../../hooks/use-node.js'
 import { currentContext } from '../../hooks/context.js'
 import { jsx } from '../jsx.js'
 import type { Tiny } from '../types.js'
 import type { Node } from '../../nodes/_node.js'
+import { useMount } from '../../hooks/use-mount.js'
+import { useRef } from '../../hooks/use-ref.js'
+import { HookRequiresNodeRootError } from '../../errors/hook.js'
 
 /**
  * The **`ListOptions`** interface defines the options for a `List` component.
@@ -96,86 +98,70 @@ export interface ListOptions<T> {
 export function List<T>({
   array,
   itemKey,
-  empty: _empty,
+  empty,
   children,
 }: ListOptions<T>): Tiny.Element {
-  const anchorRef = useNode(PrimaryNode.Transform)
   const savedCtx = currentContext.slice()
-  let listNodes: Node[] = []
+  const anchor = useNode(PrimaryNode.Transform)
+  const map = useRef(new Map<string | symbol, Node>())
+  const emptyNode = useRef<Node | null>(null)
 
-  const reconcile = (newArr: T[]) => {
-    const anchor = anchorRef.node
-    const parent = anchor._parent
-    if (parent == null) return
-
-    const anchorIdx = parent._children.indexOf(anchor)
-
-    // Build map of old nodes by key
-    const oldMap = new Map<string | symbol, Node>()
-    for (let i = 0; i < listNodes.length; i++) {
-      const k = itemKey(listNodes[i]! as any, i, listNodes as any[])
-      oldMap.set(k, listNodes[i]!)
-    }
-
-    const kept = new Map<string | symbol, Node>()
-
-    // Phase 1: Destroy removed nodes
-    for (const [k, node] of oldMap) {
-      const exists = newArr.some((item, i) => itemKey(item, i, newArr) === k)
-      if (!exists) {
-        if (!node.isDestroyed) node.destroy()
-      } else {
-        kept.set(k, node)
-      }
-    }
-
-    // Phase 2: Build new node list in order
+  const handleRegen = (arr: T[]) => {
     const prevCtx = currentContext.slice()
     currentContext.length = 0
     currentContext.push(...savedCtx)
 
-    const newNodes: Node[] = []
-    for (let i = 0; i < newArr.length; i++) {
-      const item = newArr[i]!
-      const k = itemKey(item, i, newArr)
+    if (emptyNode.current != null) {
+      emptyNode.current.destroy()
+      emptyNode.current = null
+    }
 
-      const existing = kept.get(k)
-      if (existing != null) {
-        newNodes.push(existing)
-      } else {
-        const rendered = renderToNodes(children(item, i, newArr))
-        newNodes.push(...rendered)
-        for (const n of rendered) {
-          n['_parent'] = parent
-          if (parent.isStarted) n.start()
-        }
+    const nodes: Node[] = []
+    const oldIds = new Set(map.current.keys())
+    for (let i = 0; i < arr.length; i++) {
+      const props = arr[i]!
+      const id = itemKey(props, i, arr)
+
+      if (oldIds.has(id)) {
+        oldIds.delete(id)
+        continue
       }
+
+      const node = renderToNodes(children(props, i, arr))
+      if (node.length !== 1)
+        throw new HookRequiresNodeRootError('internal-hook-List')
+
+      map.current.set(id, node[0]!)
+      nodes.push(node[0]!)
+    }
+
+    for (const [id, node] of map.current) {
+      if (!oldIds.has(id)) continue
+      map.current.delete(id)
+      node.destroy()
+    }
+
+    anchor.node.addChild(...nodes)
+
+    if (anchor.node.children.length === 0) {
+      const node = renderToNodes(empty)
+      if (node.length !== 1)
+        throw new HookRequiresNodeRootError('internal-hook-List')
+      emptyNode.current = node[0]!
+      anchor.node.addChild(emptyNode.current)
     }
 
     currentContext.length = 0
     currentContext.push(...prevCtx)
-
-    // Phase 3: Rebuild parent._children
-    const before = parent._children.slice(0, anchorIdx + 1)
-    const after = parent._children.slice(anchorIdx + 1)
-    const oldSet = new Set(oldMap.values())
-    const afterFiltered = after.filter((n) => !oldSet.has(n))
-    parent._children.length = 0
-    parent._children.push(...before, ...newNodes, ...afterFiltered)
-
-    listNodes = newNodes
   }
 
-  // Reconcile on array signal changes (runs when anchor starts + on every change)
-  useEffect(() => {
-    const newArr = Array.isArray(array) ? array : array()
-    reconcile(newArr)
+  useMount(() => {
+    const generator = subReactive(array, handleRegen, (unsub) => {
+      anchor.node.destroyed.on(unsub)
+    })
+
+    handleRegen(generator)
   })
 
-  return {
-    type: '',
-    props: {
-      children: jsx(PrimaryNode.Transform, { ref: anchorRef }),
-    },
-  }
+  return jsx(PrimaryNode.Transform, { ref: anchor })
 }
