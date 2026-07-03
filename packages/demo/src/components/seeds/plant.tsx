@@ -4,6 +4,7 @@ import {
   useClickable,
   useComputed,
   useContext,
+  useMount,
   useSignal,
   useTimer,
   useTrigger,
@@ -52,6 +53,10 @@ export function PlantSeed({
     else select(plant)
   }
 
+  useMount(() => {
+    console.log(timer.time())
+  })
+
   return (
     <sprite
       textureId={PLANT_SEEDS[plant]}
@@ -59,6 +64,7 @@ export function PlantSeed({
       brightness={brightness}
       grayscale={grayscale}>
       <sprite
+        id={plantsInfo[plant].name}
         textureId={PLANT_SEEDS[plant]}
         grayscale={1}
         brightness={0.75}

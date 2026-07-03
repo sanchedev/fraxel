@@ -74,10 +74,12 @@ export function Peashooter({ position, onDestroy }: PlantProps) {
             idle: {
               keyframes: kfFromSpriteSheet(sprite.node, PEASHOOTER_IDLE, 4),
               fps: 8 / 3,
+              loop: true,
             },
             shoot: {
               keyframes: kfFromSpriteSheet(sprite.node, PEASHOOTER_SHOOT, 4),
               fps: 8 / 3,
+              loop: true,
             },
           })}
           currentAnim='idle'

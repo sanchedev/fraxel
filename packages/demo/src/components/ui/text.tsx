@@ -1,5 +1,5 @@
 import { loadTexture, type SignalGetter, type VectorLike } from 'tiny-engine'
-import { useEffect, useRef } from 'tiny-engine/hooks'
+import { useComputed } from 'tiny-engine/hooks'
 import { List } from 'tiny-engine/jsx'
 
 const CHARS = await loadTexture('/assets/sprites/ui/characters.png')
@@ -29,22 +29,30 @@ export function Text({
   text: SignalGetter<string>
   position: VectorLike
 }) {
-  const currentWidth = useRef(0)
-  useEffect(() => {
-    currentWidth.current = 0
-    text()
+  const marks = useComputed(() => {
+    const ps: number[] = [0]
+    const ws: number[] = []
+    const chars = text().split('')
+    let acc = 0
+    for (let i = 0; i < chars.length; i++) {
+      const char = chars[i]!
+      const w = largers.includes(char) ? 5 : 3
+      ps.push(acc + w + 1)
+      ws.push(w)
+      acc += w + 1
+    }
+    return { positions: ps, widths: ws }
   })
+
   return (
     <transform position={position}>
       <List array={() => text().split('')} itemKey={(val, i) => `${val}-${i}`}>
-        {(c) => {
-          const w = largers.includes(c) ? 5 : 3
-          currentWidth.current += w + 1
+        {(c, i) => {
           return (
             <sprite
               textureId={CHARS}
-              position={[currentWidth.current - w - 1, 0]}
-              sourceSize={[w, 5]}
+              position={[marks().positions[i]!, 0]}
+              sourceSize={[marks().widths[i]!, 5]}
               margin={calcPos(c)}
             />
           )
