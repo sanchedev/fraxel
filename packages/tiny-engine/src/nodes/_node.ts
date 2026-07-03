@@ -315,6 +315,10 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    */
   addChild(...children: Node[]) {
     for (const child of children) {
+      if (this._children.includes(child)) {
+        const index = this._children.indexOf(child)
+        this._children.splice(index, 1)
+      }
       this.#attachChild(child)
       this._children.push(child)
       if (this.isStarted) {
@@ -323,12 +327,20 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
     }
     this.#sortChildren()
   }
+  removeChild(child: Node) {
+    const index = this._children.indexOf(child)
+    if (index === -1) return
+    child._parent = undefined
+    child.zIndexChanged.off(this.#reorder)
+    this._children.splice(index, 1)
+  }
 
   #attachChild(child: Node) {
     child._parent = this
-    child.zIndexChanged.on(() => {
-      this.#sortChildren()
-    })
+    child.zIndexChanged.on(this.#reorder)
+  }
+  #reorder = () => {
+    this.#sortChildren()
   }
   #sortChildren() {
     this._children.sort((a, b) => a.globalZIndex - b.globalZIndex)
