@@ -3,9 +3,8 @@ import { Event } from '../events/event.js'
 import { PrimaryNode } from './lib/enum.js'
 import { Node, type NodeOptions } from './_node.js'
 import { Nodes } from './lib/registry.js'
-import type { SignalGetter } from '../reactivity/types.js'
-import type { Signal } from '../reactivity/signal.js'
-import { SignalRegister } from '../reactivity/register.js'
+import type { Reactive } from '../reactivity/types.js'
+import { subReactive } from '../reactivity/reactive.js'
 
 /**
  * Options for the `AnimationPlayer` node.
@@ -25,9 +24,9 @@ export interface AnimationPlayerOptions extends NodeOptions<PrimaryNode.Animatio
    * />
    * ```
    */
-  animations?: () => Record<string, Animation>
+  animations?: Reactive<Record<string, Animation>>
   /**
-   * The animation to play initially. Accepts a static name or a reactive `SignalGetter`
+   * The animation to play initially. Accepts a static name or a reactive `Reactive`
    * that automatically switches animations when the signal value changes.
    *
    * @example
@@ -40,7 +39,7 @@ export interface AnimationPlayerOptions extends NodeOptions<PrimaryNode.Animatio
    * <animation-player animations={...} currentAnim={animName} />
    * ```
    */
-  currentAnim?: string | SignalGetter<string>
+  currentAnim?: Reactive<string>
   /**
    * When `true`, the node is automatically destroyed when the current animation ends.
    * Useful for one-shot effect animations.
@@ -88,40 +87,26 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
     super(PrimaryNode.AnimationPlayer, options)
     this.#destroyOnEnd = options.destroyOnEnd ?? false
 
-    if (options.animations) {
-      this.started.on(() => {
-        this.define(options.animations!())
-        if (options.currentAnim == null) return
-        if (typeof options.currentAnim === 'string') {
-          this.play(options.currentAnim)
-        } else {
-          let currentSignals: Signal<any>[] = []
+    this.started.on(() => {
+      if (options.animations) {
+        this.define(
+          subReactive(options.animations!, (animations) => {
+            this.#animations.clear()
+            this.define(animations)
+          }),
+        )
+      }
 
-          const refresh = () => {
-            currentSignals.forEach((s) => s.unsub(refresh))
-            evaluateAndTrack()
-            currentSignals.forEach((s) => s.sub(refresh))
-          }
-
-          const evaluateAndTrack = () => {
-            this.play(
-              SignalRegister.watch(
-                options.currentAnim as SignalGetter<string>,
-                (signals) => {
-                  currentSignals = signals
-                },
-              ),
-            )
-          }
-
-          refresh()
-
-          this.destroyed.on(() =>
-            currentSignals.forEach((s) => s.unsub(refresh)),
-          )
-        }
-      })
-    }
+      if (options.currentAnim != null) {
+        this.play(
+          subReactive(
+            options.currentAnim,
+            (anim) => this.play(anim),
+            (fn) => this.destroyed.on(fn),
+          ),
+        )
+      }
+    })
   }
 
   // Events
@@ -300,14 +285,20 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
         this.stop()
         this.animationEnded.emit(animName)
 
-        if (this.#nextAnim != null) {
-          this.play(this.#nextAnim)
-          this.#nextAnim = null
-        } else if (this.#destroyOnEnd) {
+        if (this.#destroyOnEnd) {
           this.destroy()
+          return
         }
 
-        return
+        if (this.#nextAnim == null) return
+      }
+
+      if (this.#nextAnim != null) {
+        if (this.#currentAnim != null) {
+          this.stop()
+        }
+        this.play(this.#nextAnim)
+        this.#nextAnim = null
       }
 
       this.#index = 0
