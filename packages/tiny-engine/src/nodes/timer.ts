@@ -2,7 +2,7 @@ import { Event } from '../events/event.js'
 import { PrimaryNode } from './lib/enum.js'
 import { Node, type NodeOptions } from './_node.js'
 import { Nodes } from './lib/registry.js'
-import type { SignalGetter } from '../reactivity/types.js'
+import type { Reactive } from '../reactivity/types.js'
 import { propSignal } from '../utils/ternaries.js'
 
 /**
@@ -18,7 +18,7 @@ export interface TimerOptions extends NodeOptions<PrimaryNode.Timer> {
    * <timer duration={5} />
    * ```
    */
-  duration: number | SignalGetter<number>
+  duration: Reactive<number>
   /**
    * The **`autoPlay`** property determines whether the timer starts automatically.
    *

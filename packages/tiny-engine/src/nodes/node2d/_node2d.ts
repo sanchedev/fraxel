@@ -4,7 +4,7 @@ import { applySignal, ns, propSignal } from '../../utils/ternaries.js'
 import type { PrimaryNode } from '../lib/enum.js'
 import { Node, type NodeOptions } from '../_node.js'
 import { getGlobalPosition } from './lib/utils.js'
-import type { SignalGetter } from '../../reactivity/types.js'
+import type { Reactive } from '../../reactivity/index.js'
 
 export interface Node2DOptions<T extends PrimaryNode> extends NodeOptions<T> {
   /**
@@ -24,7 +24,7 @@ export interface Node2DOptions<T extends PrimaryNode> extends NodeOptions<T> {
    * )
    * ```
    */
-  position?: VectorLike | SignalGetter<VectorLike>
+  position?: Reactive<VectorLike>
 }
 
 export abstract class Node2D<

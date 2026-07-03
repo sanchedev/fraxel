@@ -5,7 +5,7 @@ import { vectorize, type Vector2, type VectorLike } from '../../math/vector2.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { Nodes } from '../lib/registry.js'
-import type { SignalGetter } from '../../reactivity/types.js'
+import type { Reactive } from '../../reactivity/types.js'
 import { applySignal, propSignal } from '../../utils/ternaries.js'
 
 /**
@@ -27,7 +27,7 @@ export interface ClickableOptions extends Node2DOptions<PrimaryNode.Clickable> {
    * <clickable size={64} />
    * ```
    */
-  size: VectorLike | SignalGetter<VectorLike>
+  size: Reactive<VectorLike>
   /**
    * The **`disabled`** property disable the clickable area.
    *
@@ -40,7 +40,7 @@ export interface ClickableOptions extends Node2DOptions<PrimaryNode.Clickable> {
    * <clickable size={12} disabled onClick={handleClick} />
    * ```
    */
-  disabled?: boolean | SignalGetter<boolean>
+  disabled?: Reactive<boolean>
 }
 
 /**

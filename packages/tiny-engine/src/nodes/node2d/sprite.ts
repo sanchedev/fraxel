@@ -7,7 +7,7 @@ import { applySignal, ns, propSignal } from '../../utils/ternaries.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { Nodes } from '../lib/registry.js'
-import type { SignalGetter } from '../../reactivity/types.js'
+import type { Reactive } from '../../reactivity/types.js'
 
 export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
   /**
@@ -23,7 +23,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * }
    * ```
    */
-  textureId?: symbol | SignalGetter<symbol>
+  textureId?: Reactive<symbol>
   /**
    * The **`margin`** property of `Sprite` represents the texture offset.
    *
@@ -38,7 +38,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * }
    * ```
    */
-  margin?: VectorLike | SignalGetter<VectorLike>
+  margin?: Reactive<VectorLike>
   /**
    * The **`sourceSize`** property of `Sprite` represents the source size to render.
    *
@@ -59,7 +59,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * }
    * ```
    */
-  sourceSize?: VectorLike | SignalGetter<VectorLike>
+  sourceSize?: Reactive<VectorLike>
   /**
    * The **`displaySize`** property of `Sprite` represents the display size.
    *
@@ -81,11 +81,11 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * }
    * ```
    */
-  displaySize?: VectorLike | SignalGetter<VectorLike>
+  displaySize?: Reactive<VectorLike>
   /** Whether to flip the sprite horizontally */
-  flipX?: boolean | SignalGetter<boolean>
+  flipX?: Reactive<boolean>
   /** Whether to flip the sprite vertically */
-  flipY?: boolean | SignalGetter<boolean>
+  flipY?: Reactive<boolean>
 
   /**
    * The **`brightness`** filter adjusts the sprite's brightness.
@@ -99,7 +99,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} brightness={1.5} />
    * ```
    */
-  brightness?: number | SignalGetter<number>
+  brightness?: Reactive<number>
   /**
    * The **`grayscale`** filter converts the sprite to grayscale.
    * `0` = full color, `1` = fully grayscale.
@@ -112,7 +112,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} grayscale={0.5} />
    * ```
    */
-  grayscale?: number | SignalGetter<number>
+  grayscale?: Reactive<number>
   /**
    * The **`modulate`** filter multiplies the sprite's colors by an RGBA tint.
    * Each channel ranges from `0` (no intensity) to `1` (full intensity).
@@ -131,7 +131,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} modulate={[1, 1, 1, 0.5]} />
    * ```
    */
-  modulate?: Color | SignalGetter<Color>
+  modulate?: Reactive<Color>
   /**
    * The **`contrast`** filter adjusts the sprite's contrast.
    * `0` = no contrast, `1` = base, `2` = double contrast.
@@ -143,7 +143,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} contrast={1.5} />
    * ```
    */
-  contrast?: number | SignalGetter<number>
+  contrast?: Reactive<number>
   /**
    * The **`saturate`** filter adjusts the sprite's color saturation.
    * `0` = desaturated, `1` = base, `2` = double saturation.
@@ -155,7 +155,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} saturate={0.5} />
    * ```
    */
-  saturate?: number | SignalGetter<number>
+  saturate?: Reactive<number>
   /**
    * The **`hueRotate`** filter rotates the sprite's hue in degrees.
    * `0` = no rotation, `360` = full rotation.
@@ -168,7 +168,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} hueRotate={90} />
    * ```
    */
-  hueRotate?: number | SignalGetter<number>
+  hueRotate?: Reactive<number>
   /**
    * The **`invert`** filter inverts the sprite's colors.
    * `0` = normal, `1` = fully inverted.
@@ -180,7 +180,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} invert={1} />
    * ```
    */
-  invert?: number | SignalGetter<number>
+  invert?: Reactive<number>
   /**
    * The **`opacity`** filter adjusts the sprite's opacity.
    * `0` = fully transparent, `1` = fully opaque.
@@ -193,7 +193,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} opacity={0.5} />
    * ```
    */
-  opacity?: number | SignalGetter<number>
+  opacity?: Reactive<number>
 }
 
 /**
@@ -368,7 +368,7 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
     type VectorOKeys = keyof {
       [P in keyof typeof options as (typeof options)[P] extends
         | VectorLike
-        | SignalGetter<VectorLike>
+        | Reactive<VectorLike>
         | undefined
         ? P
         : never]: null

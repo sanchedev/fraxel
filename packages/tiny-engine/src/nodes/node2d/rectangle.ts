@@ -5,7 +5,7 @@ import { applySignal, propSignal } from '../../utils/ternaries.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { Nodes } from '../lib/registry.js'
-import type { SignalGetter } from '../../reactivity/types.js'
+import type { Reactive } from '../../reactivity/types.js'
 
 /**
  * Options for the `Rectangle` node.
@@ -21,7 +21,7 @@ export interface RectangleOptions extends Node2DOptions<PrimaryNode.Rectangle> {
    * <rectangle size={32} />
    * ```
    */
-  size: VectorLike | SignalGetter<VectorLike>
+  size: Reactive<VectorLike>
   /**
    * The **`fillColor`** property defines the fill color of the rectangle.
    * Each channel ranges from `0` to `1`.
@@ -33,7 +33,7 @@ export interface RectangleOptions extends Node2DOptions<PrimaryNode.Rectangle> {
    * <rectangle size={[64, 32]} fillColor={[1, 0, 0, 1]} />
    * ```
    */
-  fillColor?: Color | SignalGetter<Color>
+  fillColor?: Reactive<Color>
   /**
    * The **`strokeColor`** property defines the border color of the rectangle.
    * If not provided, no border is drawn.
@@ -43,7 +43,7 @@ export interface RectangleOptions extends Node2DOptions<PrimaryNode.Rectangle> {
    * <rectangle size={[64, 32]} strokeColor={[0, 0, 0, 1]} strokeWidth={2} />
    * ```
    */
-  strokeColor?: Color | SignalGetter<Color>
+  strokeColor?: Reactive<Color>
   /**
    * The **`strokeWidth`** property defines the border width in pixels.
    *
@@ -54,12 +54,12 @@ export interface RectangleOptions extends Node2DOptions<PrimaryNode.Rectangle> {
    * <rectangle size={[64, 32]} strokeColor={[0, 0, 0, 1]} strokeWidth={3} />
    * ```
    */
-  strokeWidth?: number | SignalGetter<number>
+  strokeWidth?: Reactive<number>
 }
 
 /**
  * The **`Rectangle`** node renders a filled and optionally stroked rectangle.
- * It supports reactive props via `SignalGetter` for dynamic visuals.
+ * It supports reactive props via `Reactive` for dynamic visuals.
  *
  * @example
  * ```tsx
