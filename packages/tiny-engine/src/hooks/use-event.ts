@@ -1,4 +1,4 @@
-import { InvalidEventHookResultError } from '../errors/hook.js'
+import { InvalidEventInHookError } from '../errors/hook.js'
 import { Event } from '../events/event.js'
 import type { Fun } from '../events/types.js'
 import type { PrimaryNode } from '../nodes/lib/enum.js'
@@ -31,14 +31,15 @@ export function useEvent<N extends PrimaryNode, K extends keyof Events<N>>(
 ) {
   pushEffect('useEvent', () => {
     const ev = node.node[eventName]
-    if (!(ev instanceof Event)) throw new InvalidEventHookResultError()
+    if (!(ev instanceof Event))
+      throw new InvalidEventInHookError('useEvent', eventName as string)
     ev.on(listener)
   })
 }
 
-type GetEvent<T> = T extends Event<infer P, string> ? Fun<P> : Fun<[]>
+export type GetEvent<T> = T extends Event<infer P, string> ? Fun<P> : Fun<[]>
 
-type Events<T extends PrimaryNode> = {
+export type Events<T extends PrimaryNode> = {
   [P in keyof NodeInstances[T] as NodeInstances[T][P] extends Event<
     any[],
     string

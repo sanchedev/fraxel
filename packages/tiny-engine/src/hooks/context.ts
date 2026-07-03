@@ -26,6 +26,12 @@ export function finishHooks(node: Node[]) {
   currentContext.pop()
 }
 
+export function declareDerivedHook(hookName: string) {
+  if (!currentContext) {
+    throw new HookOutsideComponentError(hookName)
+  }
+}
+
 export function pushEffect(hookName: string, effect: HookEffect) {
   if (!currentContext) {
     throw new HookOutsideComponentError(hookName)
