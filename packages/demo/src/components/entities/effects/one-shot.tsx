@@ -1,4 +1,4 @@
-import { kfFromSpriteSheet, PrimaryNode, type VectorLike } from 'tiny-engine'
+import { animationFromSheet, PrimaryNode, type VectorLike } from 'tiny-engine'
 import { useNode } from 'tiny-engine/hooks'
 
 interface OneShotProps {
@@ -18,13 +18,17 @@ export function OneShot({
 }: OneShotProps) {
   const sprite = useNode(PrimaryNode.Sprite)
 
+  const totalFrames = spriteCountX * spriteCountY
+  const duration = totalFrames / fps
+
   return (
     <animation-player
       animations={() => ({
-        play: {
-          fps,
-          keyframes: kfFromSpriteSheet(sprite.node, textureId, spriteCountX, spriteCountY),
-        },
+        play: animationFromSheet(sprite, textureId, {
+          columns: spriteCountX,
+          rows: spriteCountY,
+          duration,
+        }),
       })}
       currentAnim="play"
       destroyOnEnd

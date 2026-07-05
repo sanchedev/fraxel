@@ -1,4 +1,4 @@
-import { kfFromSpriteSheet, loadTexture, PrimaryNode, shapes } from 'tiny-engine'
+import { animationFromSheet, loadTexture, PrimaryNode, shapes } from 'tiny-engine'
 import type { PlantProps } from '../../types'
 import { useContext, useNode, useSpawn, useTimer } from 'tiny-engine/hooks'
 import { PlantScript } from '../../../scripts/plant/plant'
@@ -21,11 +21,11 @@ export function Sunflower({ position, onDestroy }: PlantProps) {
       <sprite ref={sprite} textureId={SUNFLOWER_IDLE} sourceSize={[16, 16]}>
         <animation-player
           animations={() => ({
-            idle: {
-              keyframes: kfFromSpriteSheet(sprite.node, SUNFLOWER_IDLE, 3),
-              fps: 3 / 2,
+            idle: animationFromSheet(sprite, SUNFLOWER_IDLE, {
+              columns: 3,
+              duration: 2,
               loop: true,
-            },
+            }),
           })}
           currentAnim="idle"
         />

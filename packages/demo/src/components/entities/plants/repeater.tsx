@@ -1,6 +1,6 @@
 import {
+  animationFromSheet,
   getGlobalPosition,
-  kfFromSpriteSheet,
   loadSound,
   loadTexture,
   PrimaryNode,
@@ -8,7 +8,8 @@ import {
   Vector2,
 } from 'tiny-engine'
 import type { PlantProps } from '../../types.js'
-import { useContext, useEvent, useGame, useNode, useCondition, useEffect } from 'tiny-engine/hooks'
+import { useContext, useGame, useNode, useEffect } from 'tiny-engine/hooks'
+import { useRayCast, useAnimation } from 'tiny-engine/hooks'
 import { RowCtx, RowProjectileSpawnerCtx } from '../../../contexts/row.js'
 import { Pea } from '../projectiles/pea.js'
 import { PlantScript } from '../../../scripts/plant/plant.js'
@@ -23,21 +24,19 @@ export function Repeater({ position, onDestroy }: PlantProps) {
   const spawnProjectile = useContext(RowProjectileSpawnerCtx)
 
   const sprite = useNode(PrimaryNode.Sprite)
-  const anim = useNode(PrimaryNode.AnimationPlayer)
-  const raycast = useNode(PrimaryNode.RayCast)
+  const { ref: anim, animName, frameIndex } = useAnimation()
+  const { ref: raycast, detected } = useRayCast()
   const audio = useNode(PrimaryNode.AudioPlayer)
 
   const width = useGame().getSize().x
 
-  useEvent(anim, 'animationIndexChanged', (index) => {
-    if (anim.node.currentAnim !== 'shoot') return
-    if (index === 1 || index === 3) shoot()
+  useEffect(() => {
+    if (animName() !== 'shoot') return
+    if (frameIndex() === 1 || frameIndex() === 3) shoot()
   })
 
-  const isZombieDetected = useCondition(raycast, 'colliderEntered', 'colliderExited')
-
   useEffect(() => {
-    anim.node.setNext(isZombieDetected() ? 'shoot' : 'idle')
+    anim.node.setNext(detected() ? 'shoot' : 'idle')
   })
 
   const shoot = () => {
@@ -57,16 +56,16 @@ export function Repeater({ position, onDestroy }: PlantProps) {
         <animation-player
           ref={anim}
           animations={() => ({
-            idle: {
-              keyframes: kfFromSpriteSheet(sprite.node, REPEATER_IDLE, 4),
-              fps: 3 / 2,
+            idle: animationFromSheet(sprite, REPEATER_IDLE, {
+              columns: 4,
+              duration: 8 / 3,
               loop: true,
-            },
-            shoot: {
-              keyframes: kfFromSpriteSheet(sprite.node, REPEATER_SHOOT, 4),
-              fps: 3 / 2,
+            }),
+            shoot: animationFromSheet(sprite, REPEATER_SHOOT, {
+              columns: 4,
+              duration: 8 / 3,
               loop: true,
-            },
+            }),
           })}
           currentAnim="idle"
         />

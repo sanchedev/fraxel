@@ -1,4 +1,4 @@
-import { kfFromSpriteSheet, loadTexture, PrimaryNode, shapes } from 'tiny-engine'
+import { animationFromSheet, loadTexture, PrimaryNode, shapes } from 'tiny-engine'
 import type { PlantProps } from '../../types'
 import { useComputed, useContext, useNode, useScript } from 'tiny-engine/hooks'
 import { PlantScript } from '../../../scripts/plant/plant'
@@ -20,11 +20,13 @@ export function WallNut({ position, onDestroy }: PlantProps) {
   const script = useScript<PlantScript>(wallNut)
 
   const currentState = useComputed(() => {
-    const health = script()?.health.value ?? 4000
+    const health = script()?.health.getter() ?? 4000
     if (health > 3000) return 0
     if (health > 1500) return 1
     return 2
   })
+
+  const currentAnim = useComputed(() => states.idle[currentState()])
 
   return (
     <transform
@@ -36,23 +38,29 @@ export function WallNut({ position, onDestroy }: PlantProps) {
       <sprite ref={sprite}>
         <animation-player
           animations={() => ({
-            [states.idle[0]]: {
-              fps: 3 / 2,
-              keyframes: kfFromSpriteSheet(sprite.node, WALL_NUT_IDLE, 2, 3, [0, 1]),
+            [states.idle[0]]: animationFromSheet(sprite, WALL_NUT_IDLE, {
+              columns: 2,
+              rows: 3,
+              range: [0, 1],
+              duration: 2,
               loop: true,
-            },
-            [states.idle[1]]: {
-              fps: 3 / 2,
-              keyframes: kfFromSpriteSheet(sprite.node, WALL_NUT_IDLE, 2, 3, [2, 3]),
+            }),
+            [states.idle[1]]: animationFromSheet(sprite, WALL_NUT_IDLE, {
+              columns: 2,
+              rows: 3,
+              range: [2, 3],
+              duration: 2,
               loop: true,
-            },
-            [states.idle[2]]: {
-              fps: 3 / 2,
-              keyframes: kfFromSpriteSheet(sprite.node, WALL_NUT_IDLE, 2, 3, [4, 5]),
+            }),
+            [states.idle[2]]: animationFromSheet(sprite, WALL_NUT_IDLE, {
+              columns: 2,
+              rows: 3,
+              range: [4, 5],
+              duration: 2,
               loop: true,
-            },
+            }),
           })}
-          currentAnim={() => states.idle[currentState()]}
+          currentAnim={currentAnim}
         />
       </sprite>
       <collider

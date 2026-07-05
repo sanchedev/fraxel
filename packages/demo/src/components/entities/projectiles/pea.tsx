@@ -1,5 +1,13 @@
-import { useContext, useEvent, useGame, useNode } from 'tiny-engine/hooks'
-import { loadSound, loadTexture, PrimaryNode, shapes, type VectorLike } from 'tiny-engine'
+import { useContext, useEvent, useGame, useNode, useEffect, useComputed } from 'tiny-engine/hooks'
+import { useCollider } from 'tiny-engine/hooks'
+import {
+  getParentScript,
+  loadSound,
+  loadTexture,
+  PrimaryNode,
+  shapes,
+  type VectorLike,
+} from 'tiny-engine'
 import { RowCtx } from '../../../contexts/row'
 import { ZombieScript } from '../../../scripts/zombie/zombie'
 import { BoardCtx } from '../../../contexts/board'
@@ -14,8 +22,23 @@ export function Pea({ position }: { position: VectorLike }) {
   const { cellSize } = useContext(BoardCtx)
 
   const pea = useNode(PrimaryNode.Transform)
-  const collider = useNode(PrimaryNode.Collider)
+  const collider = useCollider()
   const audio = useNode(PrimaryNode.AudioPlayer)
+
+  const zombie = useComputed(() => {
+    const colliders = collider.detectedColliders()
+    for (const col of colliders) {
+      const script = getParentScript(col, ZombieScript)
+      if (script) return script
+    }
+  })
+
+  useEffect(() => {
+    if (zombie() == null) return
+    zombie()!.applyDamage(PEA_DAMAGE)
+    audio.node.play()
+    pea.node.destroy()
+  })
 
   const width = useGame().getSize().x
 
@@ -24,19 +47,11 @@ export function Pea({ position }: { position: VectorLike }) {
     if (pea.node.position.x >= width) pea.node.destroy()
   })
 
-  useEvent(collider, 'colliderEntered', (zombieCollider) => {
-    const zombie = zombieCollider.parent
-    if (!(zombie?.script instanceof ZombieScript)) return
-    zombie.script.applyDamage(PEA_DAMAGE)
-    audio.node.play()
-    pea.node.destroy()
-  })
-
   return (
     <transform ref={pea} position={position}>
       <sprite textureId={PEA}>
         <collider
-          ref={collider}
+          ref={collider.ref}
           shape={shapes.circle(2)}
           group={[projectilesLayer]}
           collidesWith={[zombiesLayer]}

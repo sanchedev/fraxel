@@ -1,13 +1,23 @@
-import { kfFromSpriteSheet, loadSound, loadTexture, PrimaryNode, shapes } from 'tiny-engine'
+import {
+  animationFromSheet,
+  getParentScript,
+  loadSound,
+  loadTexture,
+  PrimaryNode,
+  shapes,
+} from 'tiny-engine'
 import type { InRowProps } from '../../types.js'
 import {
+  useAnimation,
+  useAudio,
   useComputed,
   useContext,
   useEffect,
   useEvent,
+  useMount,
   useNode,
+  useRayCast,
   useScript,
-  useSignal,
 } from 'tiny-engine/hooks'
 import { RowCtx } from '../../../contexts/row.js'
 import { PlantScript } from '../../../scripts/plant/plant.js'
@@ -48,48 +58,28 @@ export function NormalZombie({ position }: NormalZombieProps) {
 
   const zombie = useNode(PrimaryNode.Transform)
   const sprite = useNode(PrimaryNode.Sprite)
-  const anim = useNode(PrimaryNode.AnimationPlayer)
-  const raycast = useNode(PrimaryNode.RayCast)
-  const groanAudio = useNode(PrimaryNode.AudioPlayer)
-  const chompAudio = useNode(PrimaryNode.AudioPlayer)
+  const anim = useAnimation()
+  const raycast = useRayCast()
+  const groanAudio = useAudio()
+  const chompAudio = useAudio()
 
   const script = useScript<ZombieScript>(zombie)
 
-  const [currentPlant, setCurrentPlant] = useSignal<PlantScript | null>(null)
+  const currentPlant = useComputed(() => getParentScript(raycast.collider(), PlantScript) ?? null)
   const currentState = useComputed(() => {
     const health = script()?.health.value ?? 181
     if (health > 90) return 0
     return 1
   })
 
-  useEvent(zombie, 'started', () => {
-    groanAudio.node.play()
+  useMount(() => {
+    groanAudio.play()
   })
 
   useEvent(zombie, 'updated', (delta) => {
-    if (currentPlant() == null) {
-      zombie.node.position.x -= delta * (cellSize.x / 4.5)
-      if (zombie.node.position.x <= 0) zombie.node.destroy()
-    }
-  })
-
-  useEvent(raycast, 'colliderEntered', (collider) => {
-    const plant = collider.parent
-    if (!(plant?.script instanceof PlantScript)) return
-    setCurrentPlant(plant.script)
-  })
-  useEvent(raycast, 'colliderExited', (collider) => {
-    const plant = collider.parent
-    if (!(plant?.script instanceof PlantScript)) return
-    if (plant.script != currentPlant()) return
-    setCurrentPlant(null)
-  })
-
-  useEvent(anim, 'animationIndexChanged', (index) => {
-    if (anim.node.currentAnim?.startsWith('walk')) return
-    if (index % 2 === 0) return
-    currentPlant()?.applyDamage(50)
-    if (index === 3) chompAudio.node.play()
+    if (currentPlant() != null) return
+    zombie.node.position.x -= delta * (cellSize.x / 4.5)
+    if (zombie.node.position.x <= 0) zombie.node.destroy()
   })
 
   const currentAnim = useComputed(() => {
@@ -98,6 +88,16 @@ export function NormalZombie({ position }: NormalZombieProps) {
 
     const key = plant == null ? 'walk' : 'eat'
     return states[key][state]!
+  })
+
+  useEffect(() => {
+    if (currentPlant() == null) return
+
+    if (anim.animName()?.startsWith('walk')) return
+    if (anim.frameIndex() % 2 === 0) return
+    console.log(anim.animName(), anim.frameIndex())
+    currentPlant()!.applyDamage(50)
+    if (anim.frameIndex() === 3) chompAudio.play()
   })
 
   useEffect(() => {
@@ -119,41 +119,46 @@ export function NormalZombie({ position }: NormalZombieProps) {
     <transform ref={zombie} position={position} script={new ZombieScript(181)}>
       <sprite ref={sprite} textureId={NORMAL_ZOMBIE_WALK_0} sourceSize={[16, 16]}>
         <animation-player
-          ref={anim}
+          ref={anim.ref}
           animations={() => ({
-            [states.walk[0]]: {
-              keyframes: kfFromSpriteSheet(sprite.node, NORMAL_ZOMBIE_WALK_0, 4),
-              fps: 4,
+            [states.walk[0]]: animationFromSheet(sprite, NORMAL_ZOMBIE_WALK_0, {
+              columns: 4,
+              duration: 1,
               loop: true,
-            },
-            [states.walk[1]]: {
-              keyframes: kfFromSpriteSheet(sprite.node, NORMAL_ZOMBIE_WALK_1, 4),
-              fps: 4,
+            }),
+            [states.walk[1]]: animationFromSheet(sprite, NORMAL_ZOMBIE_WALK_1, {
+              columns: 4,
+              duration: 1,
               loop: true,
-            },
-            [states.eat[0]]: {
-              keyframes: kfFromSpriteSheet(sprite.node, NORMAL_ZOMBIE_EAT_0, 4),
-              fps: 4,
+            }),
+            [states.eat[0]]: animationFromSheet(sprite, NORMAL_ZOMBIE_EAT_0, {
+              columns: 4,
+              duration: 1,
               loop: true,
-            },
-            [states.eat[1]]: {
-              keyframes: kfFromSpriteSheet(sprite.node, NORMAL_ZOMBIE_EAT_1, 4),
-              fps: 4,
+            }),
+            [states.eat[1]]: animationFromSheet(sprite, NORMAL_ZOMBIE_EAT_1, {
+              columns: 4,
+              duration: 1,
               loop: true,
-            },
+            }),
           })}
           currentAnim={currentAnim}
         />
       </sprite>
-      <ray-cast ref={raycast} position={[4, 14]} direction={[-2, 0]} collidesWith={[plantsLayer]} />
+      <ray-cast
+        ref={raycast.ref}
+        position={[4, 14]}
+        direction={[-2, 0]}
+        collidesWith={[plantsLayer]}
+      />
       <collider
         shape={shapes.rectangle(4, 12)}
         group={[zombiesLayer]}
         collidesWith={[]}
         position={[6, 4]}
       />
-      <audio-player ref={groanAudio} soundId={GROAN_SOUND} />
-      <audio-player ref={chompAudio} soundId={CHOMP_SOUND} />
+      <audio-player ref={groanAudio.ref} soundId={GROAN_SOUND} />
+      <audio-player ref={chompAudio.ref} soundId={CHOMP_SOUND} />
     </transform>
   )
 }
