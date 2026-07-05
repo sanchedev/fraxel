@@ -1,6 +1,7 @@
 {
   "name": "pxvz",
   "private": true,
+  "type": "module",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -12,7 +13,10 @@
     "demo:dev": "pnpm --filter demo dev",
     "dev": "concurrently \"pnpm engine:dev\" \"pnpm demo:dev\"",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +25,10 @@
   "devDependencies": {
     "concurrently": "^9.2.1",
     "eslint": "^10.6.0",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.8",
+    "prettier": "^3.9.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.62.0"
   }

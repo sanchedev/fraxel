@@ -1,4 +1,5 @@
 import tseslint from 'typescript-eslint'
+import prettier from 'eslint-config-prettier'
 
 export default tseslint.config(
   {
@@ -21,4 +22,5 @@ export default tseslint.config(
       'prefer-const': 'warn',
     },
   },
+  prettier,
 )

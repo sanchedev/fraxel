@@ -4,7 +4,5 @@
     "jsxImportSource": "tiny-engine"
   },
   "extends": "../../tsconfig.json",
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }
