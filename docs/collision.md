@@ -5,7 +5,7 @@
 Define collision shapes with the `shapes` factory:
 
 ```tsx
-import { shapes } from 'diny'
+import { shapes } from 'fraxel'
 
 <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy']} />
 <collider shape={shapes.circle(16)} group={['projectile']} collidesWith={['zombie']} />
@@ -23,8 +23,8 @@ Types: `Shape = RectangleShape | CircleShape`, discriminant: `shape.type === 're
 Colliders use groups for filtering. Events fire on both colliders:
 
 ```tsx
-import { useEvent, useNode } from 'diny/hooks'
-import { PrimaryNode, shapes } from 'diny'
+import { useEvent, useNode } from 'fraxel/hooks'
+import { PrimaryNode, shapes } from 'fraxel'
 
 function Projectile() {
   const collider = useNode(PrimaryNode.Collider)
@@ -53,8 +53,8 @@ function Projectile() {
 Project rays to detect colliders along a direction:
 
 ```tsx
-import { useNode, useEvent } from 'diny/hooks'
-import { PrimaryNode, Vector2 } from 'diny'
+import { useNode, useEvent } from 'fraxel/hooks'
+import { PrimaryNode, Vector2 } from 'fraxel'
 
 function Detector() {
   const ray = useNode(PrimaryNode.RayCast)
@@ -83,7 +83,7 @@ function Detector() {
 Add physics simulation with `<rigid-body>`:
 
 ```tsx
-import { shapes } from 'diny'
+import { shapes } from 'fraxel'
 
 function Ball() {
   return (
@@ -105,9 +105,9 @@ function Ball() {
 ### Gravity
 
 ```tsx
-import { PhysicsSystem } from 'diny'
+import { PhysicsSystem, Vector2 } from 'fraxel'
 
-PhysicsSystem.gravity = { x: 0, y: 980 } // default
+PhysicsSystem.gravity = new Vector2(0, 980) // default
 ```
 
 ### Forces & Impulses

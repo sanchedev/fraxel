@@ -23,7 +23,7 @@ Filters are applied via `ctx.filter` in the canvas rendering pipeline. `modulate
 `Color` is `[number, number, number, number]` — an RGBA tuple with channels in `0`–`1` range:
 
 ```ts
-import type { Color } from 'diny'
+import type { Color } from 'fraxel'
 
 const red: Color = [1, 0, 0, 1]
 const orange: Color = [1, 0.5, 0, 1]

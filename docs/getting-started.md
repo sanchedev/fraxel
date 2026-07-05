@@ -4,13 +4,13 @@
 
 ```bash
 # pnpm
-pnpm add diny
+pnpm add fraxel
 
 # npm
-npm install diny
+npm install fraxel
 
 # yarn
-yarn add diny
+yarn add fraxel
 ```
 
 ## Setup
@@ -26,7 +26,7 @@ Add the custom JSX runtime to your `tsconfig.json`:
     "strict": true,
     "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "diny"
+    "jsxImportSource": "fraxel"
   }
 }
 ```
@@ -38,8 +38,8 @@ Add the custom JSX runtime to your `tsconfig.json`:
 Create a `main.tsx` file:
 
 ```tsx
-import { createGame, Game, Scene } from 'diny'
-import { loadTexture } from 'diny/assets'
+import { createGame, Game, Scene } from 'fraxel/jsx'
+import { loadTexture } from 'fraxel/assets'
 
 const BG = await loadTexture('/assets/background.png')
 const PLAYER = await loadTexture('/assets/player.png')
@@ -74,8 +74,8 @@ game.play()
 Use hooks to add state, events, and reactivity:
 
 ```tsx
-import { useNode, useEvent, useSignal } from 'diny/hooks'
-import { PrimaryNode } from 'diny'
+import { useNode, useEvent, useSignal } from 'fraxel/hooks'
+import { PrimaryNode } from 'fraxel'
 
 function Player() {
   const sprite = useNode(PrimaryNode.Sprite)
@@ -92,9 +92,9 @@ function Player() {
 ## Project Structure
 
 ```
-diny/
+fraxel/
 ├── packages/
-│   ├── diny/    # The engine library
+│   ├── fraxel/    # The engine library
 │   └── demo/           # Example game (Plants vs Zombies style)
 ```
 
@@ -102,22 +102,22 @@ diny/
 
 ```tsx
 // Main entry — nodes, math, collision, core, reactivity
-import { PrimaryNode, Vector2, shapes } from 'diny'
+import { PrimaryNode, Vector2, shapes } from 'fraxel'
 
 // Hooks
-import { useNode, useEvent, useSignal, useEffect } from 'diny/hooks'
+import { useNode, useEvent, useSignal, useEffect } from 'fraxel/hooks'
 
 // JSX components
-import { Game, Scene, List, Fragment } from 'diny/jsx'
+import { Game, Scene, List, Fragment } from 'fraxel/jsx'
 
 // Assets
-import { loadTexture, loadBatch } from 'diny/assets'
+import { loadTexture, loadBatch } from 'fraxel/assets'
 
 // Audio
-import { loadSound } from 'diny/assets'
+import { loadSound } from 'fraxel/assets'
 
 // Animation & tweening
-import { tween, easeOutQuad, animationFromSheet } from 'diny/animation'
+import { tween, easeOutQuad, animationFromSheet } from 'fraxel/animation'
 ```
 
 ## Next Steps

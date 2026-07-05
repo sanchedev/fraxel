@@ -7,8 +7,8 @@ The `<camera>` node controls the viewport — what part of the game world is vis
 Place the camera at the root of your scene:
 
 ```tsx
-import { useNode } from 'diny/hooks'
-import { PrimaryNode } from 'diny'
+import { useNode } from 'fraxel/hooks'
+import { PrimaryNode } from 'fraxel'
 
 function GameScene() {
   const camera = useNode(PrimaryNode.Camera)
@@ -73,8 +73,8 @@ This means children are drawn relative to the camera's position. If the camera i
 ## Example: Scrolling World
 
 ```tsx
-import { useNode, useEvent } from 'diny/hooks'
-import { PrimaryNode } from 'diny'
+import { useNode, useEvent } from 'fraxel/hooks'
+import { PrimaryNode } from 'fraxel'
 
 function SideScroller() {
   const camera = useNode(PrimaryNode.Camera)

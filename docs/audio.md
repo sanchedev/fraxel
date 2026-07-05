@@ -3,7 +3,7 @@
 ## Loading Sounds
 
 ```tsx
-import { loadSound } from 'diny/audio'
+import { loadSound } from 'fraxel/assets'
 
 const shootSound = await loadSound('/assets/sounds/shoot.mp3')
 const bgMusic = await loadSound('/assets/sounds/music.mp3')
@@ -14,9 +14,9 @@ const bgMusic = await loadSound('/assets/sounds/music.mp3')
 ## AudioPlayer Node
 
 ```tsx
-import { useNode, useEvent } from 'diny/hooks'
-import { PrimaryNode } from 'diny'
-import { loadSound } from 'diny/audio'
+import { useNode, useEvent } from 'fraxel/hooks'
+import { PrimaryNode } from 'fraxel'
+import { loadSound } from 'fraxel/assets'
 
 const SHOOT = await loadSound('/assets/shoot.mp3')
 
@@ -24,7 +24,7 @@ function Gun() {
   const audio = useNode(PrimaryNode.AudioPlayer)
   const clickable = useNode(PrimaryNode.Clickable)
 
-  useEvent(clickable, 'click', () => {
+  useEvent(clickable, 'clicked', () => {
     audio.node.play()
   })
 
@@ -73,7 +73,7 @@ function Gun() {
 The `AudioContext` is created lazily on first use. Browsers require a user gesture before audio can play:
 
 ```tsx
-import { getAudioContext } from 'diny/audio'
+import { getAudioContext } from 'fraxel/audio'
 
 // Call this after a click/tap to resume the context
 function onFirstClick() {
@@ -87,9 +87,10 @@ function onFirstClick() {
 ## Complete Example
 
 ```tsx
-import { useNode, useEvent, useMount } from 'diny/hooks'
-import { PrimaryNode } from 'diny'
-import { loadSound, getAudioContext } from 'diny/audio'
+import { useNode, useEvent, useMount } from 'fraxel/hooks'
+import { PrimaryNode } from 'fraxel'
+import { loadSound } from 'fraxel/assets'
+import { getAudioContext } from 'fraxel/audio'
 
 const BG_MUSIC = await loadSound('/assets/music.mp3')
 const SHOOT = await loadSound('/assets/shoot.mp3')

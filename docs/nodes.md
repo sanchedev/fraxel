@@ -95,7 +95,7 @@ return <timer ref={timer} duration={3} autoPlay />
 ## Collider
 
 ```tsx
-import { shapes } from 'diny'
+import { shapes } from 'fraxel'
 
 <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy']} />
 <collider shape={shapes.circle(16)} group={['projectile']} collidesWith={['zombie']} />
@@ -106,8 +106,8 @@ See [Collision System](collision.md) for shapes, groups, and events.
 ## RayCast
 
 ```tsx
-import { useNode, useEvent } from 'diny/hooks'
-import { PrimaryNode, Vector2 } from 'diny'
+import { useNode, useEvent } from 'fraxel/hooks'
+import { PrimaryNode, Vector2 } from 'fraxel'
 
 function Detector() {
   const ray = useNode(PrimaryNode.RayCast)
@@ -163,8 +163,8 @@ See [Animation](animation.md) for sprite sheet keyframes and reactive animation 
 Renders text on the canvas using `ctx.fillText()`:
 
 ```tsx
-import { useNode, useSignal } from 'diny/hooks'
-import { PrimaryNode } from 'diny'
+import { useNode, useSignal } from 'fraxel/hooks'
+import { PrimaryNode } from 'fraxel'
 
 function ScoreLabel() {
   const label = useNode(PrimaryNode.Text)
@@ -184,16 +184,16 @@ function ScoreLabel() {
 - `text` — string to render (reactive via `SignalGetter`).
 - `style` — partial `TextStyle` with `foregroundColor`, `fontSize`, `fontFamily`, `fontWeight`, `textAlign`.
 
-See [Audio](audio.md) for TextStyle details.
+See `TextStyle` in `src/core/theme.ts` for available style properties.
 
 ## AudioPlayer
 
 Plays audio buffers loaded with `loadSound()`:
 
 ```tsx
-import { useNode, useEvent } from 'diny/hooks'
-import { PrimaryNode } from 'diny'
-import { loadSound } from 'diny/assets'
+import { useNode, useEvent } from 'fraxel/hooks'
+import { PrimaryNode } from 'fraxel'
+import { loadSound } from 'fraxel/assets'
 
 const SHOOT = await loadSound('/assets/shoot.mp3')
 
@@ -201,7 +201,7 @@ function Gun() {
   const audio = useNode(PrimaryNode.AudioPlayer)
   const clickable = useNode(PrimaryNode.Clickable)
 
-  useEvent(clickable, 'click', () => {
+  useEvent(clickable, 'clicked', () => {
     audio.node.play()
   })
 
@@ -226,8 +226,8 @@ See [Audio](audio.md) for full documentation.
 Controls the viewport — what part of the game world is visible:
 
 ```tsx
-import { useNode, useMount } from 'diny/hooks'
-import { PrimaryNode } from 'diny'
+import { useNode, useMount } from 'fraxel/hooks'
+import { PrimaryNode } from 'fraxel'
 
 function GameScene() {
   const camera = useNode(PrimaryNode.Camera)
@@ -257,7 +257,7 @@ See [Camera](camera.md) for full documentation.
 Adds physics simulation to a collider:
 
 ```tsx
-import { shapes } from 'diny'
+import { shapes } from 'fraxel'
 
 function FallingRock() {
   return (

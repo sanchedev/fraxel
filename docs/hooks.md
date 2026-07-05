@@ -13,7 +13,7 @@
 | `useSpawn(node)`                  | Returns a function to dynamically spawn children          |
 | `useGame()`                       | Access game controls (play, pause, changeScene)           |
 | `useChild(path, type)`            | Gets a reference to a child node by path                  |
-| `useScript(ref)`                  | Retrieves the DinyScript attached to a node               |
+| `useScript(ref)`                  | Retrieves the FraxelScript attached to a node             |
 | `useTrigger(trigger, callback)`   | Pub/sub for cross-component communication                 |
 | `createContext(default)`          | Creates a context with `Provider` component               |
 | `useContext(context)`             | Retrieves the current context value                       |
@@ -36,8 +36,8 @@
 ## useNode
 
 ```tsx
-import { useNode } from 'diny/hooks'
-import { PrimaryNode } from 'diny'
+import { useNode } from 'fraxel/hooks'
+import { PrimaryNode } from 'fraxel'
 
 function Player() {
   const sprite = useNode(PrimaryNode.Sprite)
@@ -53,8 +53,8 @@ function Player() {
 ## useEvent
 
 ```tsx
-import { useEvent, useNode } from 'diny/hooks'
-import { PrimaryNode, shapes } from 'diny'
+import { useEvent, useNode } from 'fraxel/hooks'
+import { PrimaryNode, shapes } from 'fraxel'
 
 function Enemy() {
   const collider = useNode(PrimaryNode.Collider)
@@ -77,8 +77,8 @@ function Enemy() {
 ## useCondition
 
 ```tsx
-import { useCondition, useComputed, useNode } from 'diny/hooks'
-import { PrimaryNode } from 'diny'
+import { useCondition, useComputed, useNode } from 'fraxel/hooks'
+import { PrimaryNode } from 'fraxel'
 
 function Enemy() {
   const raycast = useNode(PrimaryNode.RayCast)
@@ -93,7 +93,7 @@ function Enemy() {
 ## useSignal + useEffect
 
 ```tsx
-import { useSignal, useEffect } from 'diny/hooks'
+import { useSignal, useEffect } from 'fraxel/hooks'
 
 function HealthBar() {
   const [health, setHealth] = useSignal(100)
@@ -126,7 +126,7 @@ Re-executions are deferred via `queueMicrotask` and run before the next frame.
 ## useComputed
 
 ```tsx
-import { useSignal, useComputed } from 'diny/hooks'
+import { useSignal, useComputed } from 'fraxel/hooks'
 
 function CooldownSprite() {
   const [time, setTime] = useSignal(0)
@@ -141,14 +141,6 @@ function CooldownSprite() {
 ## Derived Hooks
 
 Derived hooks are composed from native hooks to provide domain-specific abstractions. They don't introduce unique functionality — they simplify common patterns.
-
-### usePartialNode
-
-Helper that accepts an optional `NodeReference`. If provided, returns it; otherwise creates a new one via `useNode`:
-
-```tsx
-const ref = usePartialNode(PrimaryNode.Clickable, existingRef)
-```
 
 ### useCondition
 
@@ -165,7 +157,7 @@ It composes `useEvent` + `useSignal` internally. Use it when the raw `useNode` +
 `useClickable` is a node-specific derived hook for the `Clickable` node. It returns the node reference and a reactive `hovered` boolean.
 
 ```tsx
-import { useClickable } from 'diny/hooks'
+import { useClickable } from 'fraxel/hooks'
 
 function Button() {
   const { ref, hovered } = useClickable()
@@ -184,7 +176,7 @@ function Button() {
 `useTimer` is a node-specific derived hook for the `Timer` node. It returns the node reference, reactive time/progress, and control methods.
 
 ```tsx
-import { useTimer } from 'diny/hooks'
+import { useTimer } from 'fraxel/hooks'
 
 function Cooldown() {
   const { ref, time, progress, play, pause, stop } = useTimer()
@@ -207,7 +199,7 @@ function Cooldown() {
 `useRayCast` is a node-specific derived hook for the `RayCast` node. It returns the node reference, a reactive `detected` boolean, and the currently detected collider.
 
 ```tsx
-import { useRayCast, useComputed } from 'diny/hooks'
+import { useRayCast, useComputed } from 'fraxel/hooks'
 
 function EnemyDetector() {
   const { ref, detected, collider } = useRayCast()
@@ -225,7 +217,7 @@ function EnemyDetector() {
 `useCollider` is a node-specific derived hook for the `Collider` node. It returns the node reference, a reactive `colliding` boolean, and the other collider in the pair.
 
 ```tsx
-import { useCollider, useComputed } from 'diny/hooks'
+import { useCollider, useComputed } from 'fraxel/hooks'
 
 function Player() {
   const { ref, colliding, other } = useCollider()
@@ -245,7 +237,7 @@ function Player() {
 `useAnimation` is a node-specific derived hook for the `AnimationPlayer` node. It returns the node reference, reactive animation state, and control methods.
 
 ```tsx
-import { useAnimation, useComputed } from 'diny/hooks'
+import { useAnimation, useComputed } from 'fraxel/hooks'
 
 function Enemy() {
   const { ref, animName, frameIndex, ended, play, setNext } = useAnimation()
@@ -272,7 +264,7 @@ function Enemy() {
 `useAudio` is a node-specific derived hook for the `AudioPlayer` node. It returns the node reference, reactive `playing` state, and control methods.
 
 ```tsx
-import { useAudio, useClickable } from 'diny/hooks'
+import { useAudio, useClickable } from 'fraxel/hooks'
 
 function SoundEffect() {
   const { ref, playing, play, pause, stop } = useAudio()
@@ -322,7 +314,7 @@ return <sprite brightness={brightness} />
 ### clearSubs
 
 ```ts
-import { Signal } from 'diny'
+import { Signal } from 'fraxel'
 
 const health = new Signal(100)
 
@@ -341,7 +333,7 @@ a signal's owner is destroyed and no further notifications should be dispatched.
 ## createContext / useContext
 
 ```tsx
-import { createContext, useContext } from 'diny/hooks'
+import { createContext, useContext } from 'fraxel/hooks'
 
 const GameCtx = createContext({ score: 0 })
 
@@ -362,8 +354,8 @@ function Child() {
 ## useSpawn
 
 ```tsx
-import { useNode, useSpawn } from 'diny/hooks'
-import { PrimaryNode } from 'diny'
+import { useNode, useSpawn } from 'fraxel/hooks'
+import { PrimaryNode } from 'fraxel'
 
 function Spawner() {
   const container = useNode(PrimaryNode.Transform)
@@ -384,7 +376,7 @@ function Spawner() {
 `useTrigger` provides a pub/sub pattern for cross-component communication without node events.
 
 ```tsx
-import { createTrigger, useTrigger } from 'diny/hooks'
+import { createTrigger, useTrigger } from 'fraxel/hooks'
 
 // Create a trigger (shared between components)
 const planted = createTrigger<[Plant]>()
@@ -408,8 +400,8 @@ planted.emit(Plant.Peashooter)
 Render reactive arrays with automatic keyed reconciliation:
 
 ```tsx
-import { List } from 'diny/jsx'
-import { useSignal } from 'diny/hooks'
+import { List } from 'fraxel/jsx'
+import { useSignal } from 'fraxel/hooks'
 
 function EnemyList() {
   const [enemies] = useSignal([

@@ -5,7 +5,7 @@
 Generate keyframes from a sprite sheet:
 
 ```tsx
-import { keyframesFromSheet, kfFromProp, multiKF } from 'diny'
+import { keyframesFromSheet, kfFromProp, multiKF } from 'fraxel'
 
 // Full sprite sheet (all frames)
 const allFrames = keyframesFromSheet(spriteNode, walkTexture, 4, 1)
@@ -36,7 +36,7 @@ const combined = multiKF([frame1, frame2, frame3])
 Creates a complete `Animation` object with automatic FPS calculation:
 
 ```tsx
-import { animationFromSheet } from 'diny'
+import { animationFromSheet } from 'fraxel'
 
 const idle = animationFromSheet(sprite, IDLE_TEXTURE, {
   columns: 4,
@@ -84,7 +84,7 @@ const walk = animationFromSheet(sprite, WALK_TEXTURE, {
 ### Reactive currentAnim
 
 ```tsx
-import { useComputed } from 'diny/hooks'
+import { useComputed } from 'fraxel/hooks'
 
 const animName = useComputed(() => (isWalking() ? 'walk' : 'idle'))
 
@@ -104,8 +104,8 @@ switches animations automatically when the signal value changes.
 Interpolate numeric properties over time:
 
 ```tsx
-import { useMount } from 'diny/hooks'
-import { tween, easeOutQuad } from 'diny/animation'
+import { useMount } from 'fraxel/hooks'
+import { tween, easeOutQuad } from 'fraxel/animation'
 
 function FadeIn() {
   const sprite = useNode(PrimaryNode.Sprite)
@@ -165,7 +165,7 @@ tweenValue({
 ## Easing Functions
 
 ```tsx
-import { linear, easeOutQuad, easeOutBounce, easeOutElastic } from 'diny/animation'
+import { linear, easeOutQuad, easeOutBounce, easeOutElastic } from 'fraxel/animation'
 ```
 
 | Function         | Description                   |
@@ -190,7 +190,7 @@ See [Tweening](tweening.md) for full documentation.
 Run tweens in sequence or parallel:
 
 ```tsx
-import { tween, sequence, parallel } from 'diny/animation'
+import { tween, sequence, parallel } from 'fraxel/animation'
 
 // One after another
 sequence([

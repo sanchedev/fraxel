@@ -7,7 +7,7 @@ The physics system adds gravity, velocity, forces, and collision response to you
 Add `<rigid-body>` as a sibling of a `<collider>` to enable physics:
 
 ```tsx
-import { shapes } from 'diny'
+import { shapes } from 'fraxel'
 
 function FallingRock() {
   return (
@@ -35,13 +35,13 @@ function FallingRock() {
 The default gravity is `980 px/s²` downward (like Earth gravity in pixel units).
 
 ```tsx
-import { PhysicsSystem } from 'diny'
+import { PhysicsSystem, Vector2 } from 'fraxel'
 
 // Change gravity at runtime
-PhysicsSystem.gravity = { x: 0, y: -200 } // float upward
+PhysicsSystem.gravity = new Vector2(0, -200) // float upward
 
 // Moon gravity
-PhysicsSystem.gravity = { x: 0, y: 160 }
+PhysicsSystem.gravity = new Vector2(0, 160)
 ```
 
 ## Forces & Impulses
@@ -49,8 +49,8 @@ PhysicsSystem.gravity = { x: 0, y: 160 }
 Access the physics body through the `RigidBody` node:
 
 ```tsx
-import { useNode, useEvent } from 'diny/hooks'
-import { PrimaryNode, Vector2 } from 'diny'
+import { useNode, useEvent } from 'fraxel/hooks'
+import { PrimaryNode, Vector2 } from 'fraxel'
 
 function Player() {
   const body = useNode(PrimaryNode.RigidBody)
@@ -129,8 +129,8 @@ function Platform() {
 ## Complete Example
 
 ```tsx
-import { useNode, useMount } from 'diny/hooks'
-import { PrimaryNode, PhysicsSystem, Vector2, shapes } from 'diny'
+import { useNode, useMount } from 'fraxel/hooks'
+import { PrimaryNode, PhysicsSystem, Vector2, shapes } from 'fraxel'
 
 function GameScene() {
   useMount(() => {

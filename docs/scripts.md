@@ -1,12 +1,12 @@
 # Scripts
 
-Separate game logic from rendering with `DinyScript`:
+Separate game logic from rendering with `FraxelScript`:
 
 ```tsx
-import { DinyScript } from 'diny/scripts'
-import { PrimaryNode } from 'diny'
+import { FraxelScript } from 'fraxel/scripts'
+import { PrimaryNode } from 'fraxel'
 
-class PlayerScript extends DinyScript<PrimaryNode.Transform> {
+class PlayerScript extends FraxelScript<PrimaryNode.Transform> {
   health = 100
 
   setup() {
