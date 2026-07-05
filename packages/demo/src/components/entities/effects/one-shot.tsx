@@ -1,5 +1,5 @@
-import { animationFromSheet, PrimaryNode, type VectorLike } from 'tiny-engine'
-import { useNode } from 'tiny-engine/hooks'
+import { animationFromSheet, PrimaryNode, type VectorLike } from 'diny'
+import { useNode } from 'diny/hooks'
 
 interface OneShotProps {
   textureId: symbol

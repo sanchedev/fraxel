@@ -1,5 +1,5 @@
-import { PrimaryNode, Signal } from 'tiny-engine'
-import { DinyScript } from 'tiny-engine/scripts'
+import { PrimaryNode, Signal } from 'diny'
+import { DinyScript } from 'diny/scripts'
 
 export abstract class EntityScript extends DinyScript<PrimaryNode.Transform> {
   abstract health: Signal<number>

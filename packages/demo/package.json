@@ -11,7 +11,7 @@
     "dev": "concurrently \"node build/dev.js\" \"pnpm start\""
   },
   "dependencies": {
-    "tiny-engine": "workspace:*"
+    "diny": "workspace:*"
   },
   "keywords": [],
   "author": "",

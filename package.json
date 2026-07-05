@@ -6,8 +6,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "engine:build": "pnpm --filter tiny-engine build",
-    "engine:dev": "pnpm --filter tiny-engine dev",
+    "engine:build": "pnpm --filter diny build",
+    "engine:dev": "pnpm --filter diny dev",
     "demo:start": "pnpm --filter demo start",
     "demo:build": "pnpm --filter demo build",
     "demo:dev": "pnpm --filter demo dev",
@@ -20,7 +20,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "packageManager": "pnpm@10.29.3",
   "devDependencies": {
     "concurrently": "^9.2.1",

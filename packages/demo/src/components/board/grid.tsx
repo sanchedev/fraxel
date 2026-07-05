@@ -1,4 +1,4 @@
-import { tween, easeOutQuad, type VectorLike } from 'tiny-engine'
+import { tween, easeOutQuad, type VectorLike } from 'diny'
 import {
   useComputed,
   useContext,
@@ -7,7 +7,7 @@ import {
   useClickable,
   useSignal,
   useEffect,
-} from 'tiny-engine/hooks'
+} from 'diny/hooks'
 import { BoardCtx } from '../../contexts/board'
 import { SeedCtx } from '../../contexts/seed'
 

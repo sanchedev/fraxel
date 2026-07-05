@@ -1,4 +1,4 @@
-import { Signal } from 'tiny-engine'
+import { Signal } from 'diny'
 import type { Plant } from '../../lib/enums/plants'
 import { plantsInfo } from '../../lib/info/plants'
 import { EntityScript } from '../entity'

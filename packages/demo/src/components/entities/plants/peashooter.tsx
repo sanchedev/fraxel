@@ -6,10 +6,10 @@ import {
   PrimaryNode,
   shapes,
   Vector2,
-} from 'tiny-engine'
+} from 'diny'
 import type { PlantProps } from '../../types.js'
-import { useContext, useGame, useNode, useEffect } from 'tiny-engine/hooks'
-import { useRayCast, useAnimation } from 'tiny-engine/hooks'
+import { useContext, useGame, useNode, useEffect } from 'diny/hooks'
+import { useRayCast, useAnimation } from 'diny/hooks'
 import { RowCtx, RowProjectileSpawnerCtx } from '../../../contexts/row.js'
 import { Pea } from '../projectiles/pea.js'
 import { PlantScript } from '../../../scripts/plant/plant.js'

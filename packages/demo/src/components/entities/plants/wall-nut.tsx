@@ -1,6 +1,6 @@
-import { animationFromSheet, loadTexture, PrimaryNode, shapes } from 'tiny-engine'
+import { animationFromSheet, loadTexture, PrimaryNode, shapes } from 'diny'
 import type { PlantProps } from '../../types'
-import { useComputed, useContext, useNode, useScript } from 'tiny-engine/hooks'
+import { useComputed, useContext, useNode, useScript } from 'diny/hooks'
 import { PlantScript } from '../../../scripts/plant/plant'
 import { Plant } from '../../../lib/enums/plants'
 import { RowCtx } from '../../../contexts/row'

@@ -1,5 +1,5 @@
-import type { SignalGetter, SignalSetter } from 'tiny-engine'
-import { createContext } from 'tiny-engine/hooks'
+import type { SignalGetter, SignalSetter } from 'diny'
+import { createContext } from 'diny/hooks'
 
 export const SunCountCtx = createContext<[SignalGetter<number>, SignalSetter<number>]>([
   () => 0,

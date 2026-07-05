@@ -1,6 +1,6 @@
-import { createContext, type Trigger } from 'tiny-engine/hooks'
+import { createContext, type Trigger } from 'diny/hooks'
 import type { Plant } from '../lib/enums/plants'
-import type { SignalGetter, Vector2 } from 'tiny-engine'
+import type { SignalGetter, Vector2 } from 'diny'
 
 export interface SeedSelected {
   plant: Plant

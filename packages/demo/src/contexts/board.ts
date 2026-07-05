@@ -1,5 +1,5 @@
-import { Vector2 } from 'tiny-engine'
-import { createContext } from 'tiny-engine/hooks'
+import { Vector2 } from 'diny'
+import { createContext } from 'diny/hooks'
 import type { InRowProps } from '../components/types'
 
 export interface BoardContext {

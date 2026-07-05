@@ -1,4 +1,4 @@
-import { createGame, Game, Scene } from 'tiny-engine/jsx'
+import { createGame, Game, Scene } from 'diny/jsx'
 
 const game = createGame(
   <Game

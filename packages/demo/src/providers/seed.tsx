@@ -1,11 +1,11 @@
-import type { Tiny } from 'tiny-engine/jsx'
+import type { Diny } from 'diny/jsx'
 import { SeedCtx, type SeedSelected } from '../contexts/seed'
 import { Plant } from '../lib/enums/plants'
-import { createTrigger, useContext, useSignal } from 'tiny-engine/hooks'
+import { createTrigger, useContext, useSignal } from 'diny/hooks'
 import { BoardCtx } from '../contexts/board'
 import { PlantComponents } from '../lib/components/plants'
 
-export function SeedProvider({ children }: Tiny.WithChildren) {
+export function SeedProvider({ children }: Diny.WithChildren) {
   const [current, setCurrent] = useSignal<SeedSelected | null>(null)
   const { spawnPlant } = useContext(BoardCtx)
 

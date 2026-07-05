@@ -1,4 +1,4 @@
-import { Signal } from 'tiny-engine'
+import { Signal } from 'diny'
 import { EntityScript } from '../entity'
 
 export class ZombieScript extends EntityScript {

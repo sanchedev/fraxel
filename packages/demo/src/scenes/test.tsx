@@ -1,4 +1,4 @@
-import { loadTexture, loadSound } from 'tiny-engine'
+import { loadTexture, loadSound } from 'diny'
 import { Board } from '../components/board/board.js'
 
 const BG_DAY_4 = await loadTexture('/assets/sprites/ui/bgs/day/bg-4.png')

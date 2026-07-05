@@ -1,4 +1,4 @@
-import { createContext } from 'tiny-engine/hooks'
+import { createContext } from 'diny/hooks'
 
 export interface RowContext {
   projectilesLayer: string

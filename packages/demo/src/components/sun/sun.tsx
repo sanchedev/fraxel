@@ -1,12 +1,5 @@
-import {
-  loadTexture,
-  loadSound,
-  tween,
-  easeInQuad,
-  PrimaryNode,
-  type VectorLike,
-} from 'tiny-engine'
-import { useContext, useEvent, useNode } from 'tiny-engine/hooks'
+import { loadTexture, loadSound, tween, easeInQuad, PrimaryNode, type VectorLike } from 'diny'
+import { useContext, useEvent, useNode } from 'diny/hooks'
 import { SunCountCtx } from '../../contexts/sun-count'
 
 const SUN_SPRITE = await loadTexture('/assets/sprites/ui/sun.png')

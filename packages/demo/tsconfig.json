@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "tiny-engine"
+    "jsxImportSource": "diny"
   },
   "extends": "../../tsconfig.json",
   "include": ["src"]

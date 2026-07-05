@@ -1,13 +1,6 @@
-import { useContext, useEvent, useGame, useNode, useEffect, useComputed } from 'tiny-engine/hooks'
-import { useCollider } from 'tiny-engine/hooks'
-import {
-  getParentScript,
-  loadSound,
-  loadTexture,
-  PrimaryNode,
-  shapes,
-  type VectorLike,
-} from 'tiny-engine'
+import { useContext, useEvent, useGame, useNode, useEffect, useComputed } from 'diny/hooks'
+import { useCollider } from 'diny/hooks'
+import { getParentScript, loadSound, loadTexture, PrimaryNode, shapes, type VectorLike } from 'diny'
 import { RowCtx } from '../../../contexts/row'
 import { ZombieScript } from '../../../scripts/zombie/zombie'
 import { BoardCtx } from '../../../contexts/board'

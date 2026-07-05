@@ -1,4 +1,4 @@
-import type { VectorLike } from 'tiny-engine'
+import type { VectorLike } from 'diny'
 
 export interface InRowProps {
   position: VectorLike

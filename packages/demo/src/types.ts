@@ -1,4 +1,4 @@
-import type { Vector2 } from 'tiny-engine'
+import type { Vector2 } from 'diny'
 
 export interface PlantProps {
   cellPosition: Vector2
