@@ -1,14 +1,14 @@
 /**
- * The **`TinyEngineError`** error is the base error class for all errors thrown by the Tiny Engine.
+ * The **`DinyError`** error is the base error class for all errors thrown by the Diny Engine.
  * @example
  * ```ts
  * // When this happens:
- * throw new TinyEngineError('Something went wrong')
+ * throw new DinyError('Something went wrong')
  * ```
  */
-export class TinyEngineError extends Error {
+export class DinyError extends Error {
   constructor(message: string) {
     super(message)
-    this.name = 'TinyEngineError'
+    this.name = 'DinyError'
   }
 }

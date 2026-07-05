@@ -1,5 +1,5 @@
 import { Nodes } from '../nodes/lib/registry.js'
-import { TinyEngineError } from './base.js'
+import { DinyError } from './base.js'
 
 /**
  * The **`NodeError`** error is thrown when an error occurs during node creation, manipulation, or traversal.
@@ -9,7 +9,7 @@ import { TinyEngineError } from './base.js'
  * throw new NodeError('Node operation failed')
  * ```
  */
-export class NodeError extends TinyEngineError {
+export class NodeError extends DinyError {
   constructor(message: string) {
     super(message)
     this.name = 'NodeError'

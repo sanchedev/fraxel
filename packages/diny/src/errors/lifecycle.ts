@@ -1,4 +1,4 @@
-import { TinyEngineError } from './base.js'
+import { DinyError } from './base.js'
 
 /**
  * The **`EngineStateError`** error is thrown when an operation is attempted that is invalid given the current state of the engine.
@@ -8,7 +8,7 @@ import { TinyEngineError } from './base.js'
  * throw new EngineStateError('Invalid engine state')
  * ```
  */
-export class EngineStateError extends TinyEngineError {
+export class EngineStateError extends DinyError {
   constructor(message: string) {
     super(message)
     this.name = 'EngineStateError'

@@ -1,4 +1,4 @@
-import { TinyEngineError } from './base.js'
+import { DinyError } from './base.js'
 
 /**
  * The **`AnimationError`** error is thrown when an error occurs during animation processing or playback.
@@ -8,7 +8,7 @@ import { TinyEngineError } from './base.js'
  * throw new AnimationError('Animation failed to play')
  * ```
  */
-export class AnimationError extends TinyEngineError {
+export class AnimationError extends DinyError {
   constructor(message: string) {
     super(message)
     this.name = 'AnimationError'

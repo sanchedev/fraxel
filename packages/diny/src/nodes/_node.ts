@@ -10,7 +10,7 @@ import { getNodeName } from './lib/utils.js'
 import { Nodes } from './lib/registry.js'
 import type { Fun } from '../events/types.js'
 import { PrimaryNode } from './lib/enum.js'
-import type { TinyScript } from '../scripts/script.js'
+import type { DinyScript } from '../scripts/script.js'
 
 export interface NodeOptions<T extends PrimaryNode> {
   /**
@@ -72,7 +72,7 @@ export interface NodeOptions<T extends PrimaryNode> {
    */
   deltaIncrease?: number
   /** Optional script to attach to this node */
-  script?: TinyScript<T>
+  script?: DinyScript<T>
   /** Child nodes to add */
   children?: Node[]
 }
@@ -97,7 +97,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    * ```
    */
   deltaIncrease: number = 1
-  script?: TinyScript<T>
+  script?: DinyScript<T>
   // States
   /**
    * The **`isStarted`** property of the node indicates whether the node is started.

@@ -3,7 +3,7 @@ import type { PrimaryNode } from './enum.js'
 import type { Node } from '../_node.js'
 import { Nodes } from './registry.js'
 import type { NodeInstances } from './types.js'
-import { TinyScript } from '../../scripts/script.js'
+import { DinyScript } from '../../scripts/script.js'
 
 const nodeNamesMap = new Map<Node, PrimaryNode>()
 
@@ -55,7 +55,7 @@ export function getNodeName<T extends PrimaryNode>(node: NodeInstances[T]): T {
  * ```
  */
 export function getParentScript<
-  const K extends abstract new (...args: any) => TinyScript<PrimaryNode>,
+  const K extends abstract new (...args: any) => DinyScript<PrimaryNode>,
 >(node: Node | undefined | null, scriptClass: K): InstanceType<K> | undefined {
   const script = node?.parent?.script
   if (script == null) return

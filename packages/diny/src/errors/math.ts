@@ -1,4 +1,4 @@
-import { TinyEngineError } from './base.js'
+import { DinyError } from './base.js'
 
 /**
  * The **`MathError`** error is thrown when an error occurs in math operations.
@@ -8,7 +8,7 @@ import { TinyEngineError } from './base.js'
  * throw new MathError('Math operation failed')
  * ```
  */
-export class MathError extends TinyEngineError {
+export class MathError extends DinyError {
   constructor(message: string) {
     super(message)
     this.name = 'MathError'

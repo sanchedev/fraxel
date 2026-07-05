@@ -1,5 +1,5 @@
 import type { PrimaryNode } from '../nodes'
-import type { TinyScript } from '../scripts'
+import type { DinyScript } from '../scripts'
 import { pushEffect } from './context'
 import type { NodeReference } from './use-node'
 import { useEffect } from './use-effect'
@@ -24,7 +24,7 @@ import { Signal } from '../reactivity'
  *   return <sprite ref={sprite} onStart={handleStart} script={new PlayerScript()} />
  * }
  *
- * class PlayerScript extends TinyScript<PrimaryNode.Sprite> {
+ * class PlayerScript extends DinyScript<PrimaryNode.Sprite> {
  *   health = 100
  *
  *   setup() {
@@ -33,7 +33,7 @@ import { Signal } from '../reactivity'
  * }
  * ```
  */
-export function useScript<T extends TinyScript<PrimaryNode>>(node: NodeReference<PrimaryNode>) {
+export function useScript<T extends DinyScript<PrimaryNode>>(node: NodeReference<PrimaryNode>) {
   pushEffect('useScript', () => {})
 
   const script = new Signal<T | undefined>(undefined)

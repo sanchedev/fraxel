@@ -1,7 +1,7 @@
 import { Node } from '../nodes/_node.js'
-import { TinyEngineError } from './base.js'
+import { DinyError } from './base.js'
 
-export class JSXError extends TinyEngineError {
+export class JSXError extends DinyError {
   constructor(message: string) {
     super(message)
     this.name = 'JSXError'

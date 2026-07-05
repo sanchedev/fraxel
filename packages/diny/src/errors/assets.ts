@@ -1,4 +1,4 @@
-import { TinyEngineError } from './base.js'
+import { DinyError } from './base.js'
 
 /**
  * The **`AssetError`** error is thrown when an error occurs during asset loading, management, or retrieval.
@@ -8,7 +8,7 @@ import { TinyEngineError } from './base.js'
  * throw new AssetError('Failed to load asset')
  * ```
  */
-export class AssetError extends TinyEngineError {
+export class AssetError extends DinyError {
   constructor(message: string) {
     super(message)
     this.name = 'AssetError'

@@ -1,4 +1,4 @@
-import { TinyEngineError } from './base.js'
+import { DinyError } from './base.js'
 
 /**
  * The **`HookError`** error is thrown when an error occurs during hook execution or registration.
@@ -8,7 +8,7 @@ import { TinyEngineError } from './base.js'
  * throw new HookError('Hook failed to execute')
  * ```
  */
-export class HookError extends TinyEngineError {
+export class HookError extends DinyError {
   constructor(message: string) {
     super(message)
     this.name = 'HookError'

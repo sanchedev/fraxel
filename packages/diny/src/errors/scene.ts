@@ -1,4 +1,4 @@
-import { TinyEngineError } from './base.js'
+import { DinyError } from './base.js'
 
 /**
  * The **`SceneError`** error is thrown when an error occurs during scene management, loading, or rendering.
@@ -8,7 +8,7 @@ import { TinyEngineError } from './base.js'
  * throw new SceneError('Scene operation failed')
  * ```
  */
-export class SceneError extends TinyEngineError {
+export class SceneError extends DinyError {
   constructor(message: string) {
     super(message)
     this.name = 'SceneError'

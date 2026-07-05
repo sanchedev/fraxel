@@ -4,7 +4,7 @@ import type { Node, NodeInstances } from '../nodes'
 import type { PrimaryNode } from '../nodes/lib/enum'
 
 /**
- * The **`TinyScript`** abstract class separates game logic from rendering.
+ * The **`DinyScript`** abstract class separates game logic from rendering.
  * Attach a script to a node via the `script` prop to run logic independently
  * of the JSX component tree.
  *
@@ -12,7 +12,7 @@ import type { PrimaryNode } from '../nodes/lib/enum'
  *
  * @example
  * ```ts
- * class PlayerScript extends TinyScript<PrimaryNode.Transform> {
+ * class PlayerScript extends DinyScript<PrimaryNode.Transform> {
  *   health = 100
  *
  *   setup() {
@@ -28,7 +28,7 @@ import type { PrimaryNode } from '../nodes/lib/enum'
  * }
  * ```
  */
-export abstract class TinyScript<T extends PrimaryNode> {
+export abstract class DinyScript<T extends PrimaryNode> {
   #me: NodeInstances[T] | undefined
 
   /**

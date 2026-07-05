@@ -1,4 +1,4 @@
-import { TinyEngineError } from './base.js'
+import { DinyError } from './base.js'
 
 /**
  * The **`EnvironmentError`** error is thrown when the runtime environment does not support a required feature or configuration.
@@ -8,7 +8,7 @@ import { TinyEngineError } from './base.js'
  * throw new EnvironmentError('Feature not supported')
  * ```
  */
-export class EnvironmentError extends TinyEngineError {
+export class EnvironmentError extends DinyError {
   constructor(message: string) {
     super(message)
     this.name = 'EnvironmentError'
