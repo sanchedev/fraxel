@@ -39,8 +39,8 @@ export interface TimerOptions extends NodeOptions<PrimaryNode.Timer> {
  *
  * @example
  * ```tsx
- * import { useNode, useEvent } from 'tiny-engine/hooks'
- * import { PrimaryNode } from 'tiny-engine/nodes/enum'
+ * import { useNode, useEvent } from 'diny/hooks'
+ * import { PrimaryNode } from 'diny/nodes/enum'
  *
  * function CooldownTimer() {
  *   const timer = useNode(PrimaryNode.Timer)

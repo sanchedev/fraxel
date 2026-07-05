@@ -13,7 +13,7 @@ import { useCondition } from '../use-condition.js'
  *
  * @example
  * ```tsx
- * import { useAudio } from 'tiny-engine/hooks'
+ * import { useAudio } from 'diny/hooks'
  *
  * function MusicPlayer() {
  *   const { ref, playing, play, stop } = useAudio()

@@ -45,7 +45,7 @@ export interface RigidBodyOptions extends Node2DOptions<PrimaryNode.RigidBody> {
  *
  * @example
  * ```tsx
- * import { shapes } from 'tiny-engine'
+ * import { shapes } from 'diny'
  *
  * function FallingRock() {
  *   return (

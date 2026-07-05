@@ -16,7 +16,7 @@ import { useCondition } from '../use-condition.js'
  *
  * @example
  * ```tsx
- * import { useAnimation } from 'tiny-engine/hooks'
+ * import { useAnimation } from 'diny/hooks'
  *
  * function Character() {
  *   const sprite = useNode(PrimaryNode.Sprite)

@@ -14,8 +14,8 @@ export interface TransformOptions extends Node2DOptions<PrimaryNode.Transform> {
  *
  * @example
  * ```tsx
- * import { useNode } from 'tiny-engine/hooks'
- * import { PrimaryNode } from 'tiny-engine/nodes/enum'
+ * import { useNode } from 'diny/hooks'
+ * import { PrimaryNode } from 'diny/nodes/enum'
  *
  * function Player() {
  *   const body = useNode(PrimaryNode.Transform)

@@ -35,7 +35,7 @@ export function getNode<T extends PrimaryNode>(type: T, options: NodesOptions[T]
  * }
  *
  * // registry.ts
- * declare module 'tiny-engine' {
+ * declare module 'diny' {
  *   interface NodeClasses {
  *     entity: typeof MyNode
  *   }

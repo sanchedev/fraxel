@@ -36,7 +36,7 @@ export abstract class DinyScript<T extends PrimaryNode> {
    * Throws `NodeNotInitializedError` if accessed before `init()` is called.
    */
   get me() {
-    if (this.#me == null) throw new NodeNotInitializedError('tiny-script-unknown')
+    if (this.#me == null) throw new NodeNotInitializedError('diny-script-unknown')
     return this.#me
   }
 

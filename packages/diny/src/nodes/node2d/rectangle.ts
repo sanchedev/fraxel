@@ -63,8 +63,8 @@ export interface RectangleOptions extends Node2DOptions<PrimaryNode.Rectangle> {
  *
  * @example
  * ```tsx
- * import { useNode } from 'tiny-engine/hooks'
- * import { PrimaryNode } from 'tiny-engine/nodes/enum'
+ * import { useNode } from 'diny/hooks'
+ * import { PrimaryNode } from 'diny/nodes/enum'
  *
  * function HealthBar() {
  *   const bar = useNode(PrimaryNode.Rectangle)

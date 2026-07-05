@@ -53,7 +53,7 @@ export type Shape = RectangleShape | CircleShape
  *
  * @example
  * ```tsx
- * import { shapes } from 'tiny-engine'
+ * import { shapes } from 'diny'
  *
  * // Rectangle
  * <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy']} />

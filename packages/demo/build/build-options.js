@@ -7,7 +7,7 @@ export const buildOptions = {
   platform: 'browser',
   format: 'esm',
   target: 'es2022',
-  jsxImportSource: 'tiny-engine',
+  jsxImportSource: 'diny',
   loader: {
     '.ts': 'ts',
     '.tsx': 'tsx',

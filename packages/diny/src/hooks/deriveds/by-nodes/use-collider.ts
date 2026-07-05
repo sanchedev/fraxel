@@ -16,7 +16,7 @@ import { useComputed } from '../../use-computed.js'
  *
  * @example
  * ```tsx
- * import { useCollider } from 'tiny-engine/hooks'
+ * import { useCollider } from 'diny/hooks'
  *
  * function DamageZone() {
  *   const { ref, colliding, other } = useCollider()

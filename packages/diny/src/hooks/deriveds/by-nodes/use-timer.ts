@@ -15,7 +15,7 @@ import { usePartialNode } from '../use-partial-node.js'
  *
  * @example
  * ```tsx
- * import { useTimer } from 'tiny-engine/hooks'
+ * import { useTimer } from 'diny/hooks'
  *
  * function Cooldown() {
  *   const { ref, time, progress, play, pause, stop } = useTimer()

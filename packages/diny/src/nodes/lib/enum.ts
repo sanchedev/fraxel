@@ -4,8 +4,8 @@
  *
  * @example
  * ```tsx
- * import { useNode } from 'tiny-engine/hooks'
- * import { PrimaryNode } from 'tiny-engine/nodes/enum'
+ * import { useNode } from 'diny/hooks'
+ * import { PrimaryNode } from 'diny/nodes/enum'
  *
  * const sprite = useNode(PrimaryNode.Sprite)
  * return <sprite ref={sprite} textureId={PLAYER} />

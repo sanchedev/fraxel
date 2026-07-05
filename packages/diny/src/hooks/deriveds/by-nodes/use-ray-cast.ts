@@ -16,7 +16,7 @@ import { usePartialNode } from '../use-partial-node.js'
  *
  * @example
  * ```tsx
- * import { useRayCast } from 'tiny-engine/hooks'
+ * import { useRayCast } from 'diny/hooks'
  *
  * function Peashooter() {
  *   const { ref, detected, collider } = useRayCast()

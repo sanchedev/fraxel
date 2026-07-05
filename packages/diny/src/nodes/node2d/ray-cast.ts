@@ -44,8 +44,8 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
  *
  * @example
  * ```tsx
- * import { useNode, useEvent } from 'tiny-engine/hooks'
- * import { PrimaryNode } from 'tiny-engine/nodes/enum'
+ * import { useNode, useEvent } from 'diny/hooks'
+ * import { PrimaryNode } from 'diny/nodes/enum'
  *
  * function Gun() {
  *   const ray = useNode(PrimaryNode.RayCast)

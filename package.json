@@ -1,10 +1,7 @@
 {
-  "name": "pxvz",
   "private": true,
   "type": "module",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "scripts": {
     "engine:build": "pnpm --filter diny build",
     "engine:dev": "pnpm --filter diny dev",
@@ -18,8 +15,6 @@
     "format:check": "prettier . --check",
     "prepare": "husky"
   },
-  "keywords": [],
-  "author": "",
   "license": "MIT",
   "packageManager": "pnpm@10.29.3",
   "devDependencies": {

@@ -44,7 +44,7 @@ export interface TweenController {
  *
  * @example
  * ```ts
- * import { tween, easeOutQuad } from 'tiny-engine/animation'
+ * import { tween, easeOutQuad } from 'diny/animation'
  *
  * const controller = tween({
  *   target: sprite,
@@ -126,7 +126,7 @@ export function tween<T>(options: TweenOptions<T>): TweenController {
  *
  * @example
  * ```ts
- * import { tweenValue } from 'tiny-engine/animation'
+ * import { tweenValue } from 'diny/animation'
  *
  * tweenValue({
  *   from: 0,

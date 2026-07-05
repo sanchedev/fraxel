@@ -40,8 +40,8 @@ export interface TextOptions extends Node2DOptions<PrimaryNode.Text> {
  *
  * @example
  * ```tsx
- * import { useNode } from 'tiny-engine/hooks'
- * import { PrimaryNode } from 'tiny-engine/nodes/enum'
+ * import { useNode } from 'diny/hooks'
+ * import { PrimaryNode } from 'diny/nodes/enum'
  *
  * function ScoreLabel() {
  *   const label = useNode(PrimaryNode.Text)

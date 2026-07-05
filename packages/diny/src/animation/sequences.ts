@@ -5,7 +5,7 @@ import type { TweenController } from './tween.js'
  *
  * @example
  * ```ts
- * import { tween, sequence } from 'tiny-engine/animation'
+ * import { tween, sequence } from 'diny/animation'
  *
  * sequence([
  *   tween({ target: sprite, prop: 'opacity', from: 0, to: 1, duration: 0.5 }),
@@ -40,7 +40,7 @@ export function sequence(tweens: TweenController[]): void {
  *
  * @example
  * ```ts
- * import { tween, parallel } from 'tiny-engine/animation'
+ * import { tween, parallel } from 'diny/animation'
  *
  * parallel([
  *   tween({ target: sprite, prop: 'opacity', from: 0, to: 1, duration: 0.5 }),

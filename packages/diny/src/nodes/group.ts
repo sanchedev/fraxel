@@ -22,8 +22,8 @@ export interface GroupOptions extends NodeOptions<PrimaryNode.Group> {}
  *
  * @example
  * ```tsx
- * import { useNode } from 'tiny-engine/hooks'
- * import { PrimaryNode } from 'tiny-engine/nodes/enum'
+ * import { useNode } from 'diny/hooks'
+ * import { PrimaryNode } from 'diny/nodes/enum'
  *
  * function EnemySpawner() {
  *   const enemies = useNode(PrimaryNode.Group)

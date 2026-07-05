@@ -31,8 +31,8 @@ export interface CameraOptions extends Node2DOptions<PrimaryNode.Camera> {
  *
  * @example
  * ```tsx
- * import { useNode, useEffect } from 'tiny-engine/hooks'
- * import { PrimaryNode } from 'tiny-engine/nodes/enum'
+ * import { useNode, useEffect } from 'diny/hooks'
+ * import { PrimaryNode } from 'diny/nodes/enum'
  *
  * function GameScene() {
  *   const camera = useNode(PrimaryNode.Camera)

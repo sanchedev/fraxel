@@ -16,7 +16,7 @@ import { usePartialNode } from '../use-partial-node.js'
  *
  * @example
  * ```tsx
- * import { useClickable } from 'tiny-engine/hooks'
+ * import { useClickable } from 'diny/hooks'
  *
  * function Button() {
  *   const clickable = useClickable()

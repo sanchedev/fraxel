@@ -58,8 +58,8 @@ export interface AudioPlayerOptions extends NodeOptions<PrimaryNode.AudioPlayer>
  *
  * @example
  * ```tsx
- * import { useNode, useEvent } from 'tiny-engine/hooks'
- * import { PrimaryNode } from 'tiny-engine/nodes/enum'
+ * import { useNode, useEvent } from 'diny/hooks'
+ * import { PrimaryNode } from 'diny/nodes/enum'
  *
  * function Gun() {
  *   const audio = useNode(PrimaryNode.AudioPlayer)

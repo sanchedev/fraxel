@@ -47,7 +47,7 @@ export interface ColliderOptions extends Node2DOptions<PrimaryNode.Collider> {
  *
  * @example
  * ```tsx
- * import { shapes } from 'tiny-engine'
+ * import { shapes } from 'diny'
  *
  * // Rectangle collider
  * <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy']} />
