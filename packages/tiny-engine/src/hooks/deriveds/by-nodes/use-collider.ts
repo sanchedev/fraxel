@@ -1,10 +1,10 @@
-import { PrimaryNode } from '../../../nodes/index.js'
+import { Collider, PrimaryNode } from '../../../nodes/index.js'
 import { declareDerivedHook } from '../../context.js'
 import { useEvent } from '../../use-event.js'
 import type { NodeReference } from '../../use-node.js'
 import { useSignal } from '../../use-signal.js'
 import { usePartialNode } from '../use-partial-node.js'
-import { useCondition } from '../use-condition.js'
+import { useComputed } from '../../use-computed.js'
 
 /**
  * The **`useCollider`** derived hook provides a declarative API for the `Collider` node.
@@ -37,17 +37,23 @@ export function useCollider(collider?: NodeReference<PrimaryNode.Collider>) {
   declareDerivedHook('useCollider')
   const ref = usePartialNode(PrimaryNode.Collider, collider)
 
-  const colliding = useCondition(ref, 'colliderEntered', 'colliderExited')
+  const [detectedColliders, setDC] = useSignal<Set<Collider>>(new Set())
+  useEvent(ref, 'colliderEntered', (c) => {
+    const set = new Set(detectedColliders())
+    set.add(c)
+    setDC(set)
+  })
+  useEvent(ref, 'colliderExited', (c) => {
+    const set = new Set(detectedColliders())
+    set.delete(c)
+    setDC(set)
+  })
 
-  const [other, setOther] = useSignal<import('../../../nodes/node2d/collider.js').Collider | null>(
-    null,
-  )
-  useEvent(ref, 'colliderEntered', (c) => setOther(c))
-  useEvent(ref, 'colliderExited', () => setOther(null))
+  const colliding = useComputed(() => detectedColliders() != null)
 
   return {
     ref,
     colliding,
-    other,
+    detectedColliders,
   }
 }

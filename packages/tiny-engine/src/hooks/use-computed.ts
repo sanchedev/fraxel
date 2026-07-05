@@ -45,7 +45,5 @@ export function useComputed<T>(fn: () => T): SignalGetter<T> {
     ),
   )
 
-  const getter: SignalGetter<T> = () => signalComputed.value
-
-  return getter
+  return signalComputed.getter
 }

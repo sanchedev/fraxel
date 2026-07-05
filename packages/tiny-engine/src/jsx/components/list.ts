@@ -69,7 +69,7 @@ export interface ListOptions<T> {
 /**
  * The **`List`** component renders dynamic nodes from a reactive array with keyed reconciliation.
  * It returns a Fragment — no wrapper node is created.
- * A hidden `<transform>` is used as an anchor for reconciliation.
+ * A hidden `<group>` is used as an anchor for reconciliation.
  *
  * @param options The list options including the reactive array, key extractor, and render function.
  * @returns A Fragment containing the anchor node.
@@ -97,7 +97,7 @@ export interface ListOptions<T> {
  */
 export function List<T>({ array, itemKey, empty, children }: ListOptions<T>): Tiny.Element {
   const savedCtx = currentContext.slice()
-  const anchor = useNode(PrimaryNode.Transform)
+  const anchor = useNode(PrimaryNode.Group)
   const map = useRef(new Map<string | symbol, Node>())
   const emptyNode = useRef<Node | null>(null)
 
@@ -156,5 +156,5 @@ export function List<T>({ array, itemKey, empty, children }: ListOptions<T>): Ti
     handleRegen(generator)
   })
 
-  return jsx(PrimaryNode.Transform, { ref: anchor })
+  return jsx(PrimaryNode.Group, { ref: anchor })
 }

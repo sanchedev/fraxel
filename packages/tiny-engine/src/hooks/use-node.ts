@@ -59,11 +59,10 @@ export class NodeReference<T extends PrimaryNode> {
     }
     return this.#node.value
   }
-  signal: SignalGetter<NodeInstances[T] | null> = () => {
-    return this.#node.value
-  }
+  signal: SignalGetter<NodeInstances[T] | null>
 
   constructor(type: T) {
     this.#type = type
+    this.signal = this.#node.getter
   }
 }

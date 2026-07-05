@@ -4,6 +4,8 @@ import { pushEffect } from './context.js'
 
 /**
  * The **`useEffect`** hook runs an effect function when the node starts and whenever any of the specified signals change.
+ * Effect re-executions are batched — if multiple signals change synchronously,
+ * the effect only runs once before the next frame.
  * It also runs cleanup when the node is destroyed.
  *
  * @param fn The effect function. Can return a cleanup function.
@@ -29,24 +31,36 @@ export function useEffect(fn: () => void | (() => void)): void {
 
     node.started.on(() => {
       let unmountCurrentEffect = () => {}
+      let scheduled = false
+      let cancelled = false
 
       const refresh = () => {
+        scheduled = false
+        if (cancelled) return
+
         unmountCurrentEffect()
 
         let currentSignals: Signal<any>[] = []
 
         const unmountWatch = SignalRegister.watch(fn, (signals) => {
           currentSignals = signals
-          currentSignals.forEach((signal) => signal.sub(refresh))
+          currentSignals.forEach((signal) => signal.sub(scheduleRefresh))
         })
 
         unmountCurrentEffect = () => {
           unmountWatch?.()
-          currentSignals.forEach((signal) => signal.unsub(refresh))
+          currentSignals.forEach((signal) => signal.unsub(scheduleRefresh))
         }
       }
 
+      const scheduleRefresh = () => {
+        if (scheduled) return
+        scheduled = true
+        queueMicrotask(refresh)
+      }
+
       node.destroyed.on(() => {
+        cancelled = true
         unmountCurrentEffect()
       })
 

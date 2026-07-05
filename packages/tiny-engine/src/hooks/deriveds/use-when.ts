@@ -1,4 +1,9 @@
-import { reactive, type Reactive, type SignalGetter } from '../../reactivity/index.js'
+import {
+  reactive,
+  type Reactive,
+  type SignalGetter,
+  type SignalGetterLike,
+} from '../../reactivity/index.js'
 import { declareDerivedHook } from '../context'
 import { useComputed } from '../use-computed.js'
 
@@ -6,7 +11,7 @@ import { useComputed } from '../use-computed.js'
  * The **`useWhen`** derived hook creates a computed value that toggles between two values
  * based on a boolean signal. Similar to a ternary expression but reactive.
  *
- * @param signal A `SignalGetter<boolean>` that determines which value to return
+ * @param signal A `SignalGetterLike` that determines which value to return
  * @param whenTrue The value to return when the signal is `true`
  * @param whenFalse The value to return when the signal is `false`
  * @returns A `SignalGetter<T>` that reflects the current value
@@ -28,7 +33,7 @@ import { useComputed } from '../use-computed.js'
  * ```
  */
 export function useWhen<T>(
-  signal: SignalGetter<boolean>,
+  signal: SignalGetterLike<boolean>,
   whenTrue: Reactive<T>,
   whenFalse: Reactive<T>,
 ): SignalGetter<T> {

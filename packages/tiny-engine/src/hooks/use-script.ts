@@ -3,7 +3,7 @@ import type { TinyScript } from '../scripts'
 import { pushEffect } from './context'
 import type { NodeReference } from './use-node'
 import { useEffect } from './use-effect'
-import { Signal, type SignalGetter } from '../reactivity'
+import { Signal } from '../reactivity'
 
 /**
  * The **`useScript`** hook retrieves the script attached to a node reference.
@@ -42,7 +42,5 @@ export function useScript<T extends TinyScript<PrimaryNode>>(node: NodeReference
     script.value = node.signal()?.script as T
   })
 
-  const getter: SignalGetter<T | undefined> = () => script.value
-
-  return getter
+  return script.getter
 }

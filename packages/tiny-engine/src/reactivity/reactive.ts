@@ -1,6 +1,6 @@
 import { SignalRegister } from './register.js'
 import type { Signal } from './signal.js'
-import type { Reactive, SignalGetter } from './types.js'
+import type { Reactive, SignalGetterLike } from './types.js'
 
 export function subReactive<T>(
   value: Reactive<T>,
@@ -8,7 +8,7 @@ export function subReactive<T>(
   onSet?: (unsub: () => void) => void,
 ): T {
   if (typeof value !== 'function') return value
-  const signal = value as SignalGetter<T>
+  const signal = value as SignalGetterLike<T>
 
   const currentSignals: Signal<any>[] = []
   let currentValue: T | null = null
@@ -34,9 +34,9 @@ export function subReactive<T>(
   return currentValue!
 }
 
-export function reactive<T>(value: Reactive<T>): SignalGetter<T> {
+export function reactive<T>(value: Reactive<T>): SignalGetterLike<T> {
   if (typeof value !== 'function') return () => value
-  const signal = value as SignalGetter<T>
+  const signal = value as SignalGetterLike<T>
 
   let currentSignals: Signal<any>[] = []
 
@@ -56,7 +56,7 @@ export function reactive<T>(value: Reactive<T>): SignalGetter<T> {
 
   refresh()
 
-  const getter: SignalGetter<T> = () => {
+  const getter = () => {
     currentSignals.forEach((signal) => SignalRegister.register(signal))
     return currentValue
   }

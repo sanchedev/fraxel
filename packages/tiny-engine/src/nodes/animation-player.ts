@@ -143,12 +143,12 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    *   anim.node
    *     .add('idle', {
    *       fps: 4,
-   *       keyframes: kfFromSpriteSheet(sprite.node, IDLE_TEXTURE, 4),
+   *       keyframes: keyframesFromSheet(sprite.node, IDLE_TEXTURE, 4),
    *       loop: true,
    *     })
    *     .add('walk', {
    *       fps: 4,
-   *       keyframes: kfFromSpriteSheet(sprite.node, WALK_TEXTURE, 4),
+   *       keyframes: keyframesFromSheet(sprite.node, WALK_TEXTURE, 4),
    *       loop: true,
    *     })
    *     .play('idle')
@@ -180,12 +180,12 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    *     .define({
    *       idle: {
    *         fps: 4,
-   *         keyframes: kfFromSpriteSheet(sprite.node, IDLE_TEXTURE, 4),
+   *         keyframes: keyframesFromSheet(sprite.node, IDLE_TEXTURE, 4),
    *         loop: true,
    *       },
    *       walk: {
    *         fps: 4,
-   *         keyframes: kfFromSpriteSheet(sprite.node, WALK_TEXTURE, 4),
+   *         keyframes: keyframesFromSheet(sprite.node, WALK_TEXTURE, 4),
    *         loop: true,
    *       },
    *     })

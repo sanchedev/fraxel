@@ -32,10 +32,8 @@ export function useSignal<T>(initialValue: T): [SignalGetter<T>, SignalSetter<T>
 
   const signal = new Signal(initialValue)
 
-  const getter: SignalGetter<T> = () => signal.value
-  const setter: SignalSetter<T> = (value) => {
-    signal.value = value
-  }
+  const getter: SignalGetter<T> = signal.getter
+  const setter: SignalSetter<T> = signal.setter
 
   return [getter, setter]
 }

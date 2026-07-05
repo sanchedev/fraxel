@@ -1,11 +1,10 @@
-import { PrimaryNode } from '../../../nodes/index.js'
+import { Collider, PrimaryNode } from '../../../nodes/index.js'
 import { declareDerivedHook } from '../../context.js'
 import { useComputed } from '../../use-computed.js'
 import { useEvent } from '../../use-event.js'
 import type { NodeReference } from '../../use-node.js'
 import { useSignal } from '../../use-signal.js'
 import { usePartialNode } from '../use-partial-node.js'
-import { useCondition } from '../use-condition.js'
 
 /**
  * The **`useRayCast`** derived hook provides a declarative API for the `RayCast` node.
@@ -38,20 +37,15 @@ export function useRayCast(raycast?: NodeReference<PrimaryNode.RayCast>) {
   declareDerivedHook('useRayCast')
   const ref = usePartialNode(PrimaryNode.RayCast, raycast)
 
-  const detected = useCondition(ref, 'colliderEntered', 'colliderExited')
-
-  const [collider, setCollider] = useSignal<
-    import('../../../nodes/node2d/collider.js').Collider | null
-  >(null)
+  const [collider, setCollider] = useSignal<Collider | null>(null)
   useEvent(ref, 'colliderEntered', (c) => setCollider(c))
   useEvent(ref, 'colliderExited', () => setCollider(null))
 
-  const length = useComputed(() => ref.node?.length ?? 0)
+  const detected = useComputed(() => collider() != null)
 
   return {
     ref,
     detected,
     collider,
-    length,
   }
 }

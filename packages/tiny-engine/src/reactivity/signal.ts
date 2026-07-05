@@ -1,4 +1,5 @@
 import { SignalRegister } from './register'
+import type { SignalGetter, SignalSetter } from './types'
 
 /**
  * The **`Signal`** class is a reactive primitive that holds a value and notifies subscribers when it changes.
@@ -22,10 +23,24 @@ export class Signal<T> {
 
   /**
    * Creates a new `Signal` with an initial value.
+   * Automatically creates bound `getter` and `setter` functions that integrate
+   * with the reactivity system (`SignalRegister`).
+   *
    * @param initialValue The initial value of the signal.
    */
   constructor(initialValue: T) {
     this.#value = initialValue
+
+    // setter & getter
+    this.getter = (() => {
+      SignalRegister.register(this)
+      return this.value
+    }) as SignalGetter<T>
+    this.getter.value = () => this.value
+
+    this.setter = ((value) => {
+      this.value = value
+    }) as SignalSetter<T>
   }
 
   /**
@@ -53,9 +68,38 @@ export class Signal<T> {
    * ```
    */
   get value(): T {
-    SignalRegister.register(this)
     return this.#value
   }
+
+  /**
+   * A bound getter function that returns the current value.
+   * Calling it as a function (`getter()`) automatically registers the signal
+   * as a dependency of the current `SignalRegister.watch` context.
+   * Calling `.value()` bypasses dependency tracking.
+   *
+   * @example
+   * ```ts
+   * const health = new Signal(100)
+   *
+   * // Call as function — tracks dependency
+   * const val = health.getter() // 100
+   *
+   * // Use .value() — no dependency tracking
+   * const val2 = health.getter.value() // 100
+   * ```
+   */
+  getter: SignalGetter<T>
+  /**
+   * A bound setter function that updates the value and notifies subscribers.
+   * Equivalent to setting `signal.value = val`.
+   *
+   * @example
+   * ```ts
+   * const health = new Signal(100)
+   * health.setter(50) // equivalent to health.value = 50
+   * ```
+   */
+  setter: SignalSetter<T>
 
   /**
    * The **`sub`** method subscribes a listener that is called whenever the signal value changes.
@@ -97,19 +141,18 @@ export class Signal<T> {
   }
 
   /**
-   * The **`clearSubs`** method remove all subscribes of this signal.
+   * The **`clearSubs`** method removes all subscribers of this signal.
    *
    * @example
    * ```ts
    * const damage = new Signal(0)
+   * const log = (val: number) => console.log('Damage:', val)
    *
-   * damage.sub((val) => {
-   *   console.log('Damage taken:', val)
-   * })
-   *
-   * damage.value = 25 // logs: "Damage taken: 25"
+   * damage.sub(log)
+   * damage.value = 25 // logs: "Damage: 25"
    *
    * damage.clearSubs()
+   * damage.value = 50 // nothing logged — listener removed
    * ```
    */
   clearSubs() {
