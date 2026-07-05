@@ -47,7 +47,7 @@ importers:
         version: 14.2.6
 
   packages/tiny-engine:
-    dependencies:
+    devDependencies:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
