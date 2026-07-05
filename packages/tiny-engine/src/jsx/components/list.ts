@@ -1,5 +1,5 @@
 import '../../nodes/index.js'
-import { subReactive, type SignalGetter } from '../../reactivity/index.js'
+import { subReactive, type Reactive } from '../../reactivity/index.js'
 import { PrimaryNode } from '../../nodes/lib/enum.js'
 import { renderToNodes } from '../render/to-nodes.js'
 import { useNode } from '../../hooks/use-node.js'
@@ -27,7 +27,7 @@ export interface ListOptions<T> {
    * </List>
    * ```
    */
-  array: T[] | SignalGetter<T[]>
+  array: Reactive<T[]>
   /**
    * The **`key`** property extracts a unique identifier for each item.
    * Used for keyed reconciliation when the array changes.
@@ -95,12 +95,7 @@ export interface ListOptions<T> {
  * }
  * ```
  */
-export function List<T>({
-  array,
-  itemKey,
-  empty,
-  children,
-}: ListOptions<T>): Tiny.Element {
+export function List<T>({ array, itemKey, empty, children }: ListOptions<T>): Tiny.Element {
   const savedCtx = currentContext.slice()
   const anchor = useNode(PrimaryNode.Transform)
   const map = useRef(new Map<string | symbol, Node>())
@@ -128,8 +123,7 @@ export function List<T>({
       }
 
       const node = renderToNodes(children(props, i, arr))
-      if (node.length !== 1)
-        throw new HookRequiresNodeRootError('internal-hook-List')
+      if (node.length !== 1) throw new HookRequiresNodeRootError('internal-hook-List')
 
       map.current.set(id, node[0]!)
       nodes.push(node[0]!)
@@ -145,8 +139,7 @@ export function List<T>({
 
     if (anchor.node.children.length === 0) {
       const node = renderToNodes(empty)
-      if (node.length !== 1)
-        throw new HookRequiresNodeRootError('internal-hook-List')
+      if (node.length !== 1) throw new HookRequiresNodeRootError('internal-hook-List')
       emptyNode.current = node[0]!
       anchor.node.addChild(emptyNode.current)
     }

@@ -361,17 +361,15 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
     super(PrimaryNode.Sprite, options)
 
     type VectorNKeys = keyof {
-      [P in keyof Sprite as Sprite[P] extends Vector2 | undefined
-        ? P
-        : never]: null
+      [P in keyof Sprite as Sprite[P] extends Vector2 | undefined ? P : never]: null
     }
     type VectorOKeys = keyof {
-      [P in keyof typeof options as (typeof options)[P] extends
-        | VectorLike
-        | Reactive<VectorLike>
-        | undefined
-        ? P
-        : never]: null
+      [
+        P in keyof typeof options as (typeof options)[P] extends
+          VectorLike | Reactive<VectorLike> | undefined
+          ? P
+          : never
+      ]: null
     }
 
     const vectors = (key: VectorNKeys & VectorOKeys) => {
@@ -411,13 +409,11 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
       const ctx = GameConfig.ctx
 
       const filters: string[] = []
-      if (this.#brightness !== 1)
-        filters.push(`brightness(${this.#brightness})`)
+      if (this.#brightness !== 1) filters.push(`brightness(${this.#brightness})`)
       if (this.#grayscale !== 0) filters.push(`grayscale(${this.#grayscale})`)
       if (this.#contrast !== 1) filters.push(`contrast(${this.#contrast})`)
       if (this.#saturate !== 1) filters.push(`saturate(${this.#saturate})`)
-      if (this.#hueRotate !== 0)
-        filters.push(`hue-rotate(${this.#hueRotate}deg)`)
+      if (this.#hueRotate !== 0) filters.push(`hue-rotate(${this.#hueRotate}deg)`)
       if (this.#invert !== 0) filters.push(`invert(${this.#invert})`)
       if (this.#opacity !== 1) filters.push(`opacity(${this.#opacity})`)
 

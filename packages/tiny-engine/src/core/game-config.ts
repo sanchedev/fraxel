@@ -41,14 +41,7 @@ interface GCO {
   testOptions?: Partial<TestOptions>
 }
 
-export function _set_gc({
-  canvas,
-  ctx,
-  width,
-  height,
-  theme,
-  testOptions = {},
-}: GCO) {
+export function _set_gc({ canvas, ctx, width, height, theme, testOptions = {} }: GCO) {
   GameConfig.canvas = canvas
   GameConfig.ctx = ctx
   GameConfig.width = width

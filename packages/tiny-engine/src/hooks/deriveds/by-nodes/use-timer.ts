@@ -36,9 +36,7 @@ export function useTimer(timer?: NodeReference<PrimaryNode.Timer>) {
   const [time, setTime] = useSignal(0)
   useEvent(ref, 'timeChanged', setTime)
 
-  const progress = useComputed(
-    () => time() / (ref.signal()?.duration ?? time()),
-  )
+  const progress = useComputed(() => time() / (ref.signal()?.duration ?? time()))
 
   const play: typeof ref.node.play = (...args) => ref.node.play(...args)
   const pause: typeof ref.node.pause = (...args) => ref.node.pause(...args)

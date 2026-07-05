@@ -33,9 +33,7 @@ import { Signal, type SignalGetter } from '../reactivity'
  * }
  * ```
  */
-export function useScript<T extends TinyScript<PrimaryNode>>(
-  node: NodeReference<PrimaryNode>,
-) {
+export function useScript<T extends TinyScript<PrimaryNode>>(node: NodeReference<PrimaryNode>) {
   pushEffect('useScript', () => {})
 
   const script = new Signal<T | undefined>(undefined)

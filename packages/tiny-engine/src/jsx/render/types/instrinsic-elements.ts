@@ -23,10 +23,7 @@ export function applyIntrinsicAttributesToNode<T extends PrimaryNode>(
   return node
 }
 
-function applyEvents<T extends PrimaryNode>(
-  node: NodeInstances[T],
-  opts: IntrinsicElement<T>,
-) {
+function applyEvents<T extends PrimaryNode>(node: NodeInstances[T], opts: IntrinsicElement<T>) {
   const events: Map<string, Event<any[], string>> = new Map()
 
   for (const key in node) {

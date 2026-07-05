@@ -4,10 +4,7 @@ import type { PrimaryNode } from '../nodes/lib/enum.js'
 import type { NodeEvents, NodesOptions } from '../nodes/lib/types.js'
 
 export namespace Tiny {
-  export type Type =
-    | keyof JSX.IntrinsicElements
-    | ((props: any) => any)
-    | (new (props: any) => any)
+  export type Type = keyof JSX.IntrinsicElements | ((props: any) => any) | (new (props: any) => any)
 
   export interface Element<T extends Type = any> {
     type: T
@@ -15,13 +12,7 @@ export namespace Tiny {
     // key: string | null
   }
 
-  export type Node =
-    | Element<any>
-    | string
-    | number
-    | null
-    | undefined
-    | Iterable<Node>
+  export type Node = Element<any> | string | number | null | undefined | Iterable<Node>
 
   export type IntrinsicElements = {
     [P in PrimaryNode]: IntrinsicElement<P>
@@ -53,9 +44,7 @@ export type IntrinsicElement<T extends PrimaryNode> = {
   ref?: NodeReference<T>
 } & {
   [P in keyof NodeEvents[T]]?: NonNullable<
-    NodeEvents[T][P] extends Event<infer U, infer V>
-      ? Event<U, V>['exampleFun']
-      : never
+    NodeEvents[T][P] extends Event<infer U, infer V> ? Event<U, V>['exampleFun'] : never
   >
 } & Tiny.WithChildren<NodesOptions[T]>
 

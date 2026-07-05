@@ -2,15 +2,8 @@ import { Game, type GameOptions } from '../components/game.js'
 import { Game as GameP } from '../../core/game.js'
 import { Scene as SceneP } from '../../core/scene.js'
 import type { Tiny } from '../types.js'
-import {
-  getTinyElementFromTinyNode,
-  getTinyNodesFromTinyNode,
-} from '../utils.js'
-import {
-  Scene,
-  type SceneComponent,
-  type SceneOptions,
-} from '../components/scene.js'
+import { getTinyElementFromTinyNode, getTinyNodesFromTinyNode } from '../utils.js'
+import { Scene, type SceneComponent, type SceneOptions } from '../components/scene.js'
 import { renderToNodes } from './to-nodes.js'
 import { Node } from '../../nodes/_node.js'
 import {
@@ -117,12 +110,7 @@ async function SceneComponentToNode(component: SceneComponent): Promise<Node> {
 
   let nodesRendered: Node[]
 
-  if (
-    node == null ||
-    typeof node === 'string' ||
-    typeof node === 'number' ||
-    'type' in node
-  ) {
+  if (node == null || typeof node === 'string' || typeof node === 'number' || 'type' in node) {
     nodesRendered = renderToNodes(node)
   } else if (typeof node === 'function') {
     nodesRendered = renderToNodes(node())

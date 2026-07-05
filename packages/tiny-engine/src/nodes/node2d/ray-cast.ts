@@ -77,11 +77,7 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
   constructor(options: RayCastOptions) {
     super(PrimaryNode.RayCast, options)
 
-    this.direction = propSignal(
-      this,
-      'direction',
-      applySignal(options.direction, vectorize),
-    )
+    this.direction = propSignal(this, 'direction', applySignal(options.direction, vectorize))
     this.#collidesWith = Array.from(new Set(options.collidesWith))
   }
 

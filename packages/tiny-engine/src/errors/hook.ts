@@ -55,8 +55,6 @@ export class HookRequiresNodeRootError extends HookError {
  */
 export class InvalidEventInHookError extends HookError {
   constructor(hookName: string, eventName: string) {
-    super(
-      `${hookName} expected the event ${eventName} to be a valid Event instance`,
-    )
+    super(`${hookName} expected the event ${eventName} to be a valid Event instance`)
   }
 }

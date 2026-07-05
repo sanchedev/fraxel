@@ -121,9 +121,7 @@ export class Event<T extends any[], const K extends string> {
  * getEventName('colliderEnter') // 'onColliderEnter'
  * ```
  */
-export function getEventName<const K extends string>(
-  baseName: K,
-): EventName<K> {
+export function getEventName<const K extends string>(baseName: K): EventName<K> {
   const first = baseName[0]?.toUpperCase() ?? ''
   const rest = baseName.slice(1)
   const eventName = `on${first}${rest}`

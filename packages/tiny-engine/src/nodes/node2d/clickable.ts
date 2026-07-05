@@ -129,17 +129,13 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
 
       const isPressed = Game.input.isPointerPressed
       if (this.#wasPressed && !isPressed && isInside) {
-        const local = Game.input.pointerPosition.toSubtracted(
-          this.globalPosition,
-        )
+        const local = Game.input.pointerPosition.toSubtracted(this.globalPosition)
         this.clicked.emit(local)
       }
       this.#wasPressed = isPressed
 
       if (isInside) {
-        const local = Game.input.pointerPosition.toSubtracted(
-          this.globalPosition,
-        )
+        const local = Game.input.pointerPosition.toSubtracted(this.globalPosition)
         this.mouseOver.emit(local)
       }
     }
@@ -154,18 +150,8 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
       GameConfig.ctx.strokeStyle = this.disabled ? '#9ca082b4' : '#abb37ab4'
       GameConfig.ctx.lineWidth = 1
 
-      GameConfig.ctx.fillRect(
-        this.position.x,
-        this.position.y,
-        this.size.x,
-        this.size.y,
-      )
-      GameConfig.ctx.strokeRect(
-        this.position.x,
-        this.position.y,
-        this.size.x,
-        this.size.y,
-      )
+      GameConfig.ctx.fillRect(this.position.x, this.position.y, this.size.x, this.size.y)
+      GameConfig.ctx.strokeRect(this.position.x, this.position.y, this.size.x, this.size.y)
     }
 
     super.draw(delta)

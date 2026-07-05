@@ -1,16 +1,7 @@
 import type { Node } from '../nodes'
-import {
-  reactive,
-  subReactive,
-  type Reactive,
-  type SignalGetter,
-} from '../reactivity'
+import { reactive, subReactive, type Reactive, type SignalGetter } from '../reactivity'
 
-export function ns<T, K>(
-  value: T | null | undefined,
-  operation: (value: T) => K,
-  defaultValue: K,
-) {
+export function ns<T, K>(value: T | null | undefined, operation: (value: T) => K, defaultValue: K) {
   return value == null ? defaultValue : operation(value)
 }
 
@@ -32,10 +23,7 @@ export function propSignal<N extends Node, K extends keyof N, T extends N[K]>(
   return signal
 }
 
-export function applySignal<T, K>(
-  prop: Reactive<T>,
-  changer: (value: T) => K,
-): Reactive<K> {
+export function applySignal<T, K>(prop: Reactive<T>, changer: (value: T) => K): Reactive<K> {
   if (typeof prop !== 'function') return changer(prop)
 
   return reactive(() => changer((prop as SignalGetter<T>)()))

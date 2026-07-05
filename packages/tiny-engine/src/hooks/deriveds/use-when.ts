@@ -1,8 +1,4 @@
-import {
-  reactive,
-  type Reactive,
-  type SignalGetter,
-} from '../../reactivity/index.js'
+import { reactive, type Reactive, type SignalGetter } from '../../reactivity/index.js'
 import { declareDerivedHook } from '../context'
 import { useComputed } from '../use-computed.js'
 

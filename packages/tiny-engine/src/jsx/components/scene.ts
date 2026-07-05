@@ -2,9 +2,7 @@ import type { Tiny } from '../types.js'
 
 type Component = () => Tiny.Node
 
-export type SceneComponent =
-  | (() => Promise<Component | { default: Component }>)
-  | Component
+export type SceneComponent = (() => Promise<Component | { default: Component }>) | Component
 
 export type SceneOptions = {
   /** **`Name`** of the Scene */

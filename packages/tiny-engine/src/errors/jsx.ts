@@ -25,11 +25,7 @@ export class UnknownIntrinsicElementError extends JSXError {
 export class InvalidRefAttributeError extends JSXError {
   constructor(received: unknown) {
     const type =
-      received instanceof Node
-        ? 'Node instance'
-        : received === null
-          ? 'null'
-          : typeof received
+      received instanceof Node ? 'Node instance' : received === null ? 'null' : typeof received
 
     super(
       `Invalid value for "ref" attribute. Expected a proxy returned by useNode(), but received ${type}.`,
@@ -57,8 +53,6 @@ export class MissingSceneError extends JSXError {
 
 export class InvalidSceneComponentError extends JSXError {
   constructor() {
-    super(
-      'Scene `component` must be a sync or async function returning a Node.',
-    )
+    super('Scene `component` must be a sync or async function returning a Node.')
   }
 }

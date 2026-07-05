@@ -1,14 +1,8 @@
 import { getNode } from '../../nodes/lib/registry.js'
 import { Node } from '../../nodes/_node.js'
 import type { Tiny } from '../types'
-import {
-  applyIntrinsicAttributesToNode,
-  isIntrinsicElement,
-} from './types/instrinsic-elements.js'
-import {
-  InvalidJSXElementTypeError,
-  UnknownIntrinsicElementError,
-} from '../../errors/jsx.js'
+import { applyIntrinsicAttributesToNode, isIntrinsicElement } from './types/instrinsic-elements.js'
+import { InvalidJSXElementTypeError, UnknownIntrinsicElementError } from '../../errors/jsx.js'
 import type { NodeInstances } from '../../nodes/lib/types.js'
 import { finishHooks, startHooks } from '../../hooks/context.js'
 import { isClassComponent } from './types/class-component.js'
@@ -30,8 +24,7 @@ export function renderToNodes(jsx: Tiny.Node): NodeInstances[PrimaryNode][] {
       if (jsx.type === '') {
         return renderToNodes(jsx.props.children) // Fragment
       }
-      if (!isIntrinsicElement(jsx.type))
-        throw new UnknownIntrinsicElementError(jsx.type)
+      if (!isIntrinsicElement(jsx.type)) throw new UnknownIntrinsicElementError(jsx.type)
       return [renderIntrinsicElement(jsx.type, jsx.props)]
     }
     if (typeof jsx.type === 'function') {
@@ -54,21 +47,15 @@ function renderIntrinsicElement<T extends PrimaryNode>(
   nodeName: T,
   options: Tiny.IntrinsicElements[T],
 ): NodeInstances[T] {
-  const node = getNode<PrimaryNode.Transform>(
-    nodeName as PrimaryNode.Transform,
-    {
-      ...(options as Tiny.IntrinsicElements[PrimaryNode.Transform]),
-      children: renderToNodes(options.children),
-    },
-  ) as NodeInstances[T]
+  const node = getNode<PrimaryNode.Transform>(nodeName as PrimaryNode.Transform, {
+    ...(options as Tiny.IntrinsicElements[PrimaryNode.Transform]),
+    children: renderToNodes(options.children),
+  }) as NodeInstances[T]
 
   return applyIntrinsicAttributesToNode(node, options)
 }
 
-function renderFuncComponent<T extends (...args: any) => any>(
-  func: T,
-  props: Parameters<T>[0],
-) {
+function renderFuncComponent<T extends (...args: any) => any>(func: T, props: Parameters<T>[0]) {
   startHooks()
   const node = renderToNodes(func(props))
   finishHooks(node)

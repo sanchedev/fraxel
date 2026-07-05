@@ -27,9 +27,7 @@ export interface Node2DOptions<T extends PrimaryNode> extends NodeOptions<T> {
   position?: Reactive<VectorLike>
 }
 
-export abstract class Node2D<
-  T extends PrimaryNode = PrimaryNode,
-> extends Node<T> {
+export abstract class Node2D<T extends PrimaryNode = PrimaryNode> extends Node<T> {
   /**
    * The **`position`** property of a node.
    * It represents the position in the plane.

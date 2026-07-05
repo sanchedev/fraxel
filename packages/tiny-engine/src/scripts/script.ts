@@ -36,8 +36,7 @@ export abstract class TinyScript<T extends PrimaryNode> {
    * Throws `NodeNotInitializedError` if accessed before `init()` is called.
    */
   get me() {
-    if (this.#me == null)
-      throw new NodeNotInitializedError('tiny-script-unknown')
+    if (this.#me == null) throw new NodeNotInitializedError('tiny-script-unknown')
     return this.#me
   }
 
@@ -74,10 +73,7 @@ export abstract class TinyScript<T extends PrimaryNode> {
    * }
    * ```
    */
-  connect<K extends keyof NodeEvent<NodeInstances[T]>>(
-    ev: K,
-    func: EventFrom<T, K>['exampleFun'],
-  ) {
+  connect<K extends keyof NodeEvent<NodeInstances[T]>>(ev: K, func: EventFrom<T, K>['exampleFun']) {
     const event = this.me[ev] as EventFrom<T, K>
     event.on(func)
   }
@@ -97,7 +93,6 @@ type NodeEvent<T extends Node> = {
 type GetEvent<T extends Node, K extends keyof T> =
   T[K] extends Event<any[], string> ? T[K] : undefined
 
-type EventFrom<
-  T extends PrimaryNode,
-  K extends keyof NodeInstances[T],
-> = NonNullable<GetEvent<NodeInstances[T], K>>
+type EventFrom<T extends PrimaryNode, K extends keyof NodeInstances[T]> = NonNullable<
+  GetEvent<NodeInstances[T], K>
+>

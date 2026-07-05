@@ -68,9 +68,7 @@ export class NodeTypeMismatchError extends NodeError {
  */
 export class UnknownNodeTypeError extends NodeError {
   constructor(type: string) {
-    super(
-      `Unknown node type "${type}". Available types: ${Object.keys(Nodes).join(', ')}`,
-    )
+    super(`Unknown node type "${type}". Available types: ${Object.keys(Nodes).join(', ')}`)
   }
 }
 

@@ -137,13 +137,7 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
 
       if (this.#shape.type === 'circle') {
         GameConfig.ctx.beginPath()
-        GameConfig.ctx.arc(
-          this.position.x,
-          this.position.y,
-          this.#shape.radius,
-          0,
-          Math.PI * 2,
-        )
+        GameConfig.ctx.arc(this.position.x, this.position.y, this.#shape.radius, 0, Math.PI * 2)
         GameConfig.ctx.fill()
         GameConfig.ctx.stroke()
       } else {

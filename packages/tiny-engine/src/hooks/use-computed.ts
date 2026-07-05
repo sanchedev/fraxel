@@ -1,4 +1,4 @@
-import { reactive, type SignalGetter } from '../reactivity/index.js'
+import { Signal, subReactive, type SignalGetter } from '../reactivity/index.js'
 import { pushEffect } from './context.js'
 
 /**
@@ -27,7 +27,25 @@ import { pushEffect } from './context.js'
  * ```
  */
 export function useComputed<T>(fn: () => T): SignalGetter<T> {
-  pushEffect('useComputed', () => {})
+  let unsub: () => void
 
-  return reactive(fn)
+  pushEffect('useComputed', ([nd]) => {
+    if (nd == null) return
+    nd.destroyed.on(() => {
+      signalComputed.clearSubs()
+      unsub()
+    })
+  })
+
+  const signalComputed = new Signal(
+    subReactive(
+      fn,
+      (val) => (signalComputed.value = val),
+      (fn) => (unsub = fn),
+    ),
+  )
+
+  const getter: SignalGetter<T> = () => signalComputed.value
+
+  return getter
 }

@@ -31,8 +31,7 @@ export function useEvent<N extends PrimaryNode, K extends keyof Events<N>>(
 ) {
   pushEffect('useEvent', () => {
     const ev = node.node[eventName]
-    if (!(ev instanceof Event))
-      throw new InvalidEventInHookError('useEvent', eventName as string)
+    if (!(ev instanceof Event)) throw new InvalidEventInHookError('useEvent', eventName as string)
     ev.on(listener)
   })
 }
@@ -40,10 +39,7 @@ export function useEvent<N extends PrimaryNode, K extends keyof Events<N>>(
 export type GetEvent<T> = T extends Event<infer P, string> ? Fun<P> : Fun<[]>
 
 export type Events<T extends PrimaryNode> = {
-  [P in keyof NodeInstances[T] as NodeInstances[T][P] extends Event<
-    any[],
-    string
-  >
-    ? P
-    : never]: GetEvent<NodeInstances[T][P]>
+  [
+    P in keyof NodeInstances[T] as NodeInstances[T][P] extends Event<any[], string> ? P : never
+  ]: GetEvent<NodeInstances[T][P]>
 }

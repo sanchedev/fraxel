@@ -89,9 +89,7 @@ export class Rectangle extends Node2D<PrimaryNode.Rectangle> {
   constructor(options: RectangleOptions) {
     super(PrimaryNode.Rectangle, options)
     this.size = propSignal(this, 'size', applySignal(options.size, vectorize))
-    this.fillColor = propSignal(this, 'fillColor', options.fillColor) ?? [
-      1, 1, 1, 1,
-    ]
+    this.fillColor = propSignal(this, 'fillColor', options.fillColor) ?? [1, 1, 1, 1]
     this.strokeColor = propSignal(this, 'strokeColor', options.strokeColor)
     this.strokeWidth = propSignal(this, 'strokeWidth', options.strokeWidth) ?? 1
   }

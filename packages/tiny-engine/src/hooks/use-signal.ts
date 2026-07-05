@@ -24,10 +24,12 @@ import { pushEffect } from './context.js'
  * return <clickable onClick={handleClick} />
  * ```
  */
-export function useSignal<T>(
-  initialValue: T,
-): [SignalGetter<T>, SignalSetter<T>] {
-  pushEffect('useSignal', () => {})
+export function useSignal<T>(initialValue: T): [SignalGetter<T>, SignalSetter<T>] {
+  pushEffect('useSignal', ([node]) => {
+    if (node == null) return
+    node.destroyed.on(() => signal.clearSubs())
+  })
+
   const signal = new Signal(initialValue)
 
   const getter: SignalGetter<T> = () => signal.value

@@ -31,11 +31,7 @@ export class Input {
   #handlePointerUp: (ev: PointerEvent) => void
   #handleResize: () => void
 
-  constructor(
-    canvas: HTMLCanvasElement,
-    size: Vector2,
-    options?: InputOptions,
-  ) {
+  constructor(canvas: HTMLCanvasElement, size: Vector2, options?: InputOptions) {
     const { preventKeyDefaults = true } = options ?? {}
 
     const canvasBounding = canvas.getBoundingClientRect()
@@ -98,11 +94,9 @@ export class Input {
 
   #getPointerPosition(ev: PointerEvent): Vector2 {
     return new Vector2(
-      (clamp(0, ev.x - this.#canvasPos.x, this.#canvasSize.x) *
-        this.#canvasResSize.x) /
+      (clamp(0, ev.x - this.#canvasPos.x, this.#canvasSize.x) * this.#canvasResSize.x) /
         this.#canvasSize.x,
-      (clamp(0, ev.y - this.#canvasPos.y, this.#canvasSize.y) *
-        this.#canvasResSize.y) /
+      (clamp(0, ev.y - this.#canvasPos.y, this.#canvasSize.y) * this.#canvasResSize.y) /
         this.#canvasSize.y,
     )
   }
@@ -111,12 +105,7 @@ export class Input {
     return `${ev.key.toLowerCase()}|${ev.ctrlKey}|${ev.altKey}|${ev.shiftKey}`
   }
 
-  isJustKeyPressed(
-    key: string,
-    ctrlKey = false,
-    shiftKey = false,
-    altKey = false,
-  ) {
+  isJustKeyPressed(key: string, ctrlKey = false, shiftKey = false, altKey = false) {
     return this.#justKeys.has(
       this.#getKeyString({
         key,
@@ -136,12 +125,7 @@ export class Input {
       }),
     )
   }
-  isJustKeyUnpressed(
-    key: string,
-    ctrlKey = false,
-    shiftKey = false,
-    altKey = false,
-  ) {
+  isJustKeyUnpressed(key: string, ctrlKey = false, shiftKey = false, altKey = false) {
     return this.#justKeysUnpressed.has(
       this.#getKeyString({
         key,
