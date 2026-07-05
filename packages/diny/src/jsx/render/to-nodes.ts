@@ -1,6 +1,6 @@
 import { getNode } from '../../nodes/lib/registry.js'
 import { Node } from '../../nodes/_node.js'
-import type { Tiny } from '../types'
+import type { Diny } from '../types'
 import { applyIntrinsicAttributesToNode, isIntrinsicElement } from './types/instrinsic-elements.js'
 import { InvalidJSXElementTypeError, UnknownIntrinsicElementError } from '../../errors/jsx.js'
 import type { NodeInstances } from '../../nodes/lib/types.js'
@@ -13,7 +13,7 @@ import type { PrimaryNode } from '../../nodes/lib/enum.js'
  * @param jsx The JSX element to be rendered into nodes. This can be a string, number, intrinsic element, functional component, or an array of JSX elements.
  * @returns An array of nodes that have been rendered from the provided JSX element. If the input is null or undefined, it returns an empty array. If the input is a string or number, it also returns an empty array, as these types are not directly renderable as nodes.
  */
-export function renderToNodes(jsx: Tiny.Node): NodeInstances[PrimaryNode][] {
+export function renderToNodes(jsx: Diny.Node): NodeInstances[PrimaryNode][] {
   if (jsx == null) return []
 
   if (typeof jsx === 'string') return []
@@ -45,10 +45,10 @@ export function renderToNodes(jsx: Tiny.Node): NodeInstances[PrimaryNode][] {
 
 function renderIntrinsicElement<T extends PrimaryNode>(
   nodeName: T,
-  options: Tiny.IntrinsicElements[T],
+  options: Diny.IntrinsicElements[T],
 ): NodeInstances[T] {
   const node = getNode<PrimaryNode.Transform>(nodeName as PrimaryNode.Transform, {
-    ...(options as Tiny.IntrinsicElements[PrimaryNode.Transform]),
+    ...(options as Diny.IntrinsicElements[PrimaryNode.Transform]),
     children: renderToNodes(options.children),
   }) as NodeInstances[T]
 

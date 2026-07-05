@@ -1,7 +1,7 @@
 import type { Game as GameP } from '../../core/game.js'
-import type { Tiny } from '../types.js'
+import type { Diny } from '../types.js'
 
-export type GameOptions = Tiny.WithChildren<
+export type GameOptions = Diny.WithChildren<
   Omit<Parameters<(typeof GameP)['setup']>[0], 'root'>
 > & {
   /** The **`defaultScene`** of the Game */

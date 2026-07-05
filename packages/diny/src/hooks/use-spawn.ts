@@ -1,5 +1,5 @@
 import { renderToNodes } from '../jsx/index.js'
-import type { Tiny } from '../jsx/types.js'
+import type { Diny } from '../jsx/types.js'
 import type { PrimaryNode } from '../nodes/lib/enum.js'
 import { currentContext, pushEffect } from './context.js'
 import type { NodeReference } from './use-node.js'
@@ -29,7 +29,7 @@ import type { NodeReference } from './use-node.js'
 export function useSpawn<T extends PrimaryNode>(node: NodeReference<T>) {
   const oldCtx = currentContext.slice()
 
-  const spawn = (jsx: Tiny.Node) => {
+  const spawn = (jsx: Diny.Node) => {
     const currentCtx = currentContext.slice()
 
     currentContext.length = 0

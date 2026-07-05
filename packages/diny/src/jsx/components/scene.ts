@@ -1,6 +1,6 @@
-import type { Tiny } from '../types.js'
+import type { Diny } from '../types.js'
 
-type Component = () => Tiny.Node
+type Component = () => Diny.Node
 
 export type SceneComponent = (() => Promise<Component | { default: Component }>) | Component
 

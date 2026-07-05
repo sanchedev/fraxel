@@ -1,8 +1,8 @@
 import { Game, type GameOptions } from '../components/game.js'
 import { Game as GameP } from '../../core/game.js'
 import { Scene as SceneP } from '../../core/scene.js'
-import type { Tiny } from '../types.js'
-import { getTinyElementFromTinyNode, getTinyNodesFromTinyNode } from '../utils.js'
+import type { Diny } from '../types.js'
+import { getDinyElementFromNode, getDinyNodesFromNode } from '../utils.js'
 import { Scene, type SceneComponent, type SceneOptions } from '../components/scene.js'
 import { renderToNodes } from './to-nodes.js'
 import { Node } from '../../nodes/_node.js'
@@ -30,12 +30,12 @@ import { GameConfig } from '../../core/game-config.js'
  * @param jsx The jsx to create the game
  * @param root Where the canvas will create
  */
-export function createGame(jsx: Tiny.Node, root: HTMLElement): GameControls {
+export function createGame(jsx: Diny.Node, root: HTMLElement): GameControls {
   if (root == null) {
     throw new MissingGameRootError()
   }
 
-  const jsxEl = getTinyElementFromTinyNode(jsx)
+  const jsxEl = getDinyElementFromNode(jsx)
   if (jsxEl == null || jsxEl.type !== Game) {
     throw new InvalidGameElementError()
   }
@@ -46,10 +46,10 @@ export function createGame(jsx: Tiny.Node, root: HTMLElement): GameControls {
     root,
   })
 
-  const scenes = getTinyNodesFromTinyNode(children)
+  const scenes = getDinyNodesFromNode(children)
 
   for (const scene of scenes) {
-    const sceneEl = getTinyElementFromTinyNode(scene)
+    const sceneEl = getDinyElementFromNode(scene)
     if (sceneEl?.type !== Scene) {
       throw new MissingSceneError()
     }

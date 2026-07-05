@@ -3,7 +3,7 @@ import type { NodeReference } from '../hooks/use-node.js'
 import type { PrimaryNode } from '../nodes/lib/enum.js'
 import type { NodeEvents, NodesOptions } from '../nodes/lib/types.js'
 
-export namespace Tiny {
+export namespace Diny {
   export type Type = keyof JSX.IntrinsicElements | ((props: any) => any) | (new (props: any) => any)
 
   export interface Element<T extends Type = any> {
@@ -46,13 +46,13 @@ export type IntrinsicElement<T extends PrimaryNode> = {
   [P in keyof NodeEvents[T]]?: NonNullable<
     NodeEvents[T][P] extends Event<infer U, infer V> ? Event<U, V>['exampleFun'] : never
   >
-} & Tiny.WithChildren<NodesOptions[T]>
+} & Diny.WithChildren<NodesOptions[T]>
 
 // JSX Declaration
 declare global {
   namespace JSX {
-    type Element = Tiny.Element
+    type Element = Diny.Element
 
-    interface IntrinsicElements extends Tiny.IntrinsicElements {}
+    interface IntrinsicElements extends Diny.IntrinsicElements {}
   }
 }

@@ -5,7 +5,7 @@ import { renderToNodes } from '../render/to-nodes.js'
 import { useNode } from '../../hooks/use-node.js'
 import { currentContext } from '../../hooks/context.js'
 import { jsx } from '../jsx.js'
-import type { Tiny } from '../types.js'
+import type { Diny } from '../types.js'
 import type { Node } from '../../nodes/_node.js'
 import { useMount } from '../../hooks/use-mount.js'
 import { useRef } from '../../hooks/use-ref.js'
@@ -50,7 +50,7 @@ export interface ListOptions<T> {
    * </List>
    * ```
    */
-  empty?: Tiny.Node
+  empty?: Diny.Node
   /**
    * The **`children`** property is a render function called for each item in the array.
    *
@@ -63,7 +63,7 @@ export interface ListOptions<T> {
    * </List>
    * ```
    */
-  children: (value: T, index: number, arr: T[]) => Tiny.Node
+  children: (value: T, index: number, arr: T[]) => Diny.Node
 }
 
 /**
@@ -76,8 +76,8 @@ export interface ListOptions<T> {
  *
  * @example
  * ```tsx
- * import { List } from 'tiny-engine/jsx'
- * import { useSignal } from 'tiny-engine/hooks'
+ * import { List } from 'diny/jsx'
+ * import { useSignal } from 'diny/hooks'
  *
  * function EnemyList() {
  *   const [enemies] = useSignal([
@@ -95,7 +95,7 @@ export interface ListOptions<T> {
  * }
  * ```
  */
-export function List<T>({ array, itemKey, empty, children }: ListOptions<T>): Tiny.Element {
+export function List<T>({ array, itemKey, empty, children }: ListOptions<T>): Diny.Element {
   const savedCtx = currentContext.slice()
   const anchor = useNode(PrimaryNode.Group)
   const map = useRef(new Map<string | symbol, Node>())

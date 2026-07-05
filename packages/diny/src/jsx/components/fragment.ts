@@ -1,6 +1,6 @@
-import type { Tiny } from '../types'
+import type { Diny } from '../types'
 
-export function Fragment(props: Tiny.WithChildren): Tiny.Element {
+export function Fragment(props: Diny.WithChildren): Diny.Element {
   return {
     type: '',
     props,

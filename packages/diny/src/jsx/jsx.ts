@@ -1,5 +1,5 @@
-import type { Tiny } from './types.js'
+import type { Diny } from './types.js'
 
-export function jsx<T extends Tiny.Type>(type: T, props: Tiny.PropsOf<T>): Tiny.Element {
+export function jsx<T extends Diny.Type>(type: T, props: Diny.PropsOf<T>): Diny.Element {
   return { type, props }
 }

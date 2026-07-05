@@ -1,5 +1,5 @@
 import { Fragment } from '../jsx/components/fragment.js'
-import type { Tiny } from '../jsx/types.js'
+import type { Diny } from '../jsx/types.js'
 import { currentContext, pushEffect } from './context.js'
 
 /**
@@ -71,7 +71,7 @@ class ContextCreated<T> {
     this.__id = genContextId()
   }
 
-  Provider = (props: Tiny.WithChildren<{ value: T }>) => {
+  Provider = (props: Diny.WithChildren<{ value: T }>) => {
     const ctx = currentContext.at(-1)
     if (ctx) {
       ctx.context = { id: this.__id, value: props.value }
