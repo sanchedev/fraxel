@@ -1,2 +1,6 @@
 export { useClickable } from './use-clickable.js'
 export { useTimer } from './use-timer.js'
+export { useRayCast } from './use-ray-cast.js'
+export { useCollider } from './use-collider.js'
+export { useAnimation } from './use-animation.js'
+export { useAudio } from './use-audio.js'

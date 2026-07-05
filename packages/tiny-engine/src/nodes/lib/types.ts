@@ -14,12 +14,14 @@ import type { Text, TextOptions } from '../node2d/text.js'
 import type { AudioPlayer, AudioPlayerOptions } from '../audio-player.js'
 import type { Camera, CameraOptions } from '../node2d/camera.js'
 import type { RigidBody, RigidBodyOptions } from '../node2d/rigid-body.js'
+import type { Group, GroupOptions } from '../group.js'
 
 /**
  * The **`NodeClasses`** interface maps each `PrimaryNode` to its class constructor.
  * Used internally by the node registry to instantiate nodes.
  */
 export interface NodeClasses {
+  [PrimaryNode.Group]: typeof Group
   [PrimaryNode.Transform]: typeof Transform
   [PrimaryNode.Sprite]: typeof Sprite
   [PrimaryNode.AnimationPlayer]: typeof AnimationPlayer
@@ -39,6 +41,7 @@ export interface NodeClasses {
  * Used to type-check constructor options when creating nodes.
  */
 export interface NodesOptions {
+  [PrimaryNode.Group]: GroupOptions
   [PrimaryNode.Transform]: TransformOptions
   [PrimaryNode.Sprite]: SpriteOptions
   [PrimaryNode.AnimationPlayer]: AnimationPlayerOptions

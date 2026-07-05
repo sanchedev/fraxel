@@ -12,6 +12,8 @@
  * ```
  */
 export enum PrimaryNode {
+  /** A container node organizing child nodes without position management. */
+  Group = 'group',
   /** A container node for positioning and organizing child nodes. */
   Transform = 'transform',
   /** A node that displays a texture or sprite. */
