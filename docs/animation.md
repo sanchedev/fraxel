@@ -5,14 +5,14 @@
 Generate keyframes from a sprite sheet:
 
 ```tsx
-import { kfFromSpriteSheet, kfFromProp, multiKF } from 'tiny-engine'
+import { keyframesFromSheet, kfFromProp, multiKF } from 'tiny-engine'
 
 // Full sprite sheet (all frames)
-const allFrames = kfFromSpriteSheet(spriteNode, walkTexture, 4, 1)
+const allFrames = keyframesFromSheet(spriteNode, walkTexture, 4, 1)
 
 // Subset of frames using range [from, to] (0-indexed, inclusive)
-const walkFrames = kfFromSpriteSheet(spriteNode, walkTexture, 4, 2, [0, 3])
-const runFrames = kfFromSpriteSheet(spriteNode, walkTexture, 4, 2, [4, 7])
+const walkFrames = keyframesFromSheet(spriteNode, walkTexture, 4, 2, [0, 3])
+const runFrames = keyframesFromSheet(spriteNode, walkTexture, 4, 2, [4, 7])
 
 // Set a property for a frame
 const frame1 = kfFromProp(spriteNode, 'textureId', frame1Texture)
@@ -21,15 +21,49 @@ const frame1 = kfFromProp(spriteNode, 'textureId', frame1Texture)
 const combined = multiKF([frame1, frame2, frame3])
 ```
 
-### kfFromSpriteSheet Parameters
+### keyframesFromSheet Parameters
 
-| Parameter       | Type               | Description                                                                     |
-| --------------- | ------------------ | ------------------------------------------------------------------------------- |
-| `sprite`        | `Sprite`           | The sprite instance to animate                                                  |
-| `textureId`     | `symbol \| null`   | Texture symbol. If `null`, the sprite texture won't change                      |
-| `spritesCountX` | `number`           | Number of columns in the sheet (default `1`)                                    |
-| `spritesCounty` | `number`           | Number of rows in the sheet (default `1`)                                       |
-| `range`         | `[number, number]` | Optional `[from, to]` tuple (0-indexed, inclusive) to select a subset of frames |
+| Parameter   | Type               | Description                                                                     |
+| ----------- | ------------------ | ------------------------------------------------------------------------------- |
+| `sprite`    | `Sprite`           | The sprite instance to animate                                                  |
+| `textureId` | `symbol \| null`   | Texture symbol. If `null`, the sprite texture won't change                      |
+| `columns`   | `number`           | Number of columns in the sheet (default `1`)                                    |
+| `rows`      | `number`           | Number of rows in the sheet (default `1`)                                       |
+| `range`     | `[number, number]` | Optional `[from, to]` tuple (0-indexed, inclusive) to select a subset of frames |
+
+## animationFromSheet
+
+Creates a complete `Animation` object with automatic FPS calculation:
+
+```tsx
+import { animationFromSheet } from 'tiny-engine'
+
+const idle = animationFromSheet(sprite, IDLE_TEXTURE, {
+  columns: 4,
+  duration: 1,
+  loop: true,
+})
+
+const walk = animationFromSheet(sprite, WALK_TEXTURE, {
+  columns: 4,
+  rows: 2,
+  range: [0, 7],
+  duration: 2,
+  loop: true,
+})
+```
+
+### animationFromSheet Parameters
+
+| Parameter   | Type                      | Description                                                                     |
+| ----------- | ------------------------- | ------------------------------------------------------------------------------- |
+| `sprite`    | `Sprite \| NodeReference` | The sprite instance or node reference                                           |
+| `textureId` | `symbol \| null`          | Texture symbol. If `null`, the sprite texture won't change                      |
+| `columns`   | `number`                  | Number of columns in the sheet (default `1`)                                    |
+| `rows`      | `number`                  | Number of rows in the sheet (default `1`)                                       |
+| `range`     | `[number, number]`        | Optional `[from, to]` tuple (0-indexed, inclusive) to select a subset of frames |
+| `duration`  | `number`                  | Total animation time in seconds. FPS = `(columns * rows) / duration`            |
+| `loop`      | `boolean`                 | Whether the animation should loop                                               |
 
 ## AnimationPlayer
 

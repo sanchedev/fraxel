@@ -11,64 +11,75 @@ const bgTex = await loadTexture('/assets/background.png')
 
 `loadTexture()` loads an image and returns a `symbol` ID. Duplicate URLs are deduped automatically.
 
-## AssetManager
-
-The `AssetManager` provides batch loading with progress tracking:
-
-```tsx
-import { AssetManager } from 'tiny-engine/assets'
-
-const manager = new AssetManager()
-
-const [bg, player, enemy] = await manager.loadTextures(
-  ['/assets/background.png', '/assets/player.png', '/assets/enemy.png'],
-  {
-    onProgress: (loaded, total) => {
-      console.log(`Loading: ${loaded}/${total}`)
-    },
-  },
-)
-
-console.log('All assets loaded!')
-```
-
-### API
-
-| Property/Method                | Description                         |
-| ------------------------------ | ----------------------------------- |
-| `new AssetManager()`           | Creates a new manager instance      |
-| `loadTextures(urls, options?)` | Loads multiple images in parallel   |
-| `unload(id)`                   | Removes an asset from memory        |
-| `loaded`                       | Number of assets loaded (get)       |
-| `total`                        | Total assets in current batch (get) |
-| `progress`                     | Progress ratio 0–1 (get)            |
-
-### loadTextures options
-
-| Property     | Type                                      | Description                |
-| ------------ | ----------------------------------------- | -------------------------- |
-| `onProgress` | `(loaded: number, total: number) => void` | Called as each asset loads |
-
 ## Loading Sounds
 
 ```tsx
-import { loadSound } from 'tiny-engine/audio'
+import { loadSound } from 'tiny-engine/assets'
 
 const shootSound = await loadSound('/assets/sounds/shoot.mp3')
 ```
 
 See [Audio](audio.md) for playback with `<audio-player>`.
 
+## Batch Loading
+
+`loadBatch` loads multiple assets in parallel with progress tracking:
+
+```tsx
+import { loadBatch, loadTexture, loadSound } from 'tiny-engine/assets'
+
+const [bg, player, shoot] = await loadBatch(
+  [
+    () => loadTexture('/assets/bg.png'),
+    () => loadTexture('/assets/player.png'),
+    () => loadSound('/assets/shoot.ogg'),
+  ],
+  {
+    onProgress: (loaded, total) => console.log(`${loaded}/${total}`),
+  },
+)
+```
+
+### loadBatchAsset
+
+`loadBatchAsset` is a typed variant for loading multiple assets of the same type:
+
+```tsx
+import { loadBatchAsset } from 'tiny-engine/assets'
+
+const [bg, player, enemy] = await loadBatchAsset('texture', [
+  '/assets/bg.png',
+  '/assets/player.png',
+  '/assets/enemy.png',
+])
+```
+
+### API
+
+| Function                               | Description                                |
+| -------------------------------------- | ------------------------------------------ |
+| `loadTexture(url)`                     | Loads an image, returns a symbol ID        |
+| `loadSound(url)`                       | Loads an audio buffer, returns a symbol ID |
+| `loadBatch(loaders, options?)`         | Loads multiple assets in parallel          |
+| `loadBatchAsset(type, urls, options?)` | Typed variant for same-type assets         |
+| `unloadTexture(id)`                    | Frees texture memory                       |
+| `unloadSound(id)`                      | Frees sound memory                         |
+
+### Options
+
+| Property     | Type                                      | Description                |
+| ------------ | ----------------------------------------- | -------------------------- |
+| `onProgress` | `(loaded: number, total: number) => void` | Called as each asset loads |
+
 ## Unloading Assets
 
 Free memory when assets are no longer needed:
 
 ```tsx
-const manager = new AssetManager()
-const [tex] = await manager.loadTextures(['/assets/temp.png'])
+import { unloadTexture, unloadSound } from 'tiny-engine/assets'
 
-// Later...
-manager.unload(tex)
+unloadTexture(PLAYER)
+unloadSound(SHOOT)
 ```
 
 ## Usage Patterns
@@ -87,13 +98,16 @@ const ENEMY = await loadTexture('/assets/enemy.png')
 Load all assets before starting the game:
 
 ```tsx
-import { AssetManager } from 'tiny-engine/assets'
+import { loadBatch, loadTexture, loadSound } from 'tiny-engine/assets'
 
 async function preload() {
-  const manager = new AssetManager()
-
-  await manager.loadTextures(
-    ['/assets/bg.png', '/assets/player.png', '/assets/enemy.png', '/assets/ui.png'],
+  await loadBatch(
+    [
+      () => loadTexture('/assets/bg.png'),
+      () => loadTexture('/assets/player.png'),
+      () => loadTexture('/assets/enemy.png'),
+      () => loadSound('/assets/shoot.ogg'),
+    ],
     {
       onProgress: (loaded, total) => {
         const bar = document.querySelector('#loading-bar')
@@ -112,9 +126,13 @@ await preload()
 Load scene-specific assets when the scene loads:
 
 ```tsx
+import { loadBatchAsset } from 'tiny-engine/assets'
+
 async function level1() {
-  const manager = new AssetManager()
-  const [bg, enemies] = await manager.loadTextures(['/assets/level1-bg.png', '/assets/enemies.png'])
+  const [bg, enemies] = await loadBatchAsset('texture', [
+    '/assets/level1-bg.png',
+    '/assets/enemies.png',
+  ])
 
   return (
     <transform>

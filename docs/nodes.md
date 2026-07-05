@@ -2,20 +2,21 @@
 
 Every game object is built from **nodes** — JSX elements that map to engine classes.
 
-| Node              | JSX Tag              | Description                              |
-| ----------------- | -------------------- | ---------------------------------------- |
-| `Transform`       | `<transform>`        | Positioning container for child nodes    |
-| `Sprite`          | `<sprite>`           | Displays a texture with optional filters |
-| `AnimationPlayer` | `<animation-player>` | Plays frame-based animations             |
-| `Collider`        | `<collider>`         | Detects overlaps with other colliders    |
-| `RayCast`         | `<ray-cast>`         | Projects a ray to detect colliders       |
-| `Clickable`       | `<clickable>`        | Detects click/hover pointer events       |
-| `Rectangle`       | `<rectangle>`        | Renders a filled/stroked rectangle       |
-| `Timer`           | `<timer>`            | Counts up and fires events               |
-| `Text`            | `<text>`             | Renders text on the canvas               |
-| `AudioPlayer`     | `<audio-player>`     | Plays audio buffers                      |
-| `Camera`          | `<camera>`           | Controls the viewport                    |
-| `RigidBody`       | `<rigid-body>`       | Adds physics simulation                  |
+| Node              | JSX Tag              | Description                                |
+| ----------------- | -------------------- | ------------------------------------------ |
+| `Transform`       | `<transform>`        | Positioning container for child nodes      |
+| `Group`           | `<group>`            | Logical container (no spatial positioning) |
+| `Sprite`          | `<sprite>`           | Displays a texture with optional filters   |
+| `AnimationPlayer` | `<animation-player>` | Plays frame-based animations               |
+| `Collider`        | `<collider>`         | Detects overlaps with other colliders      |
+| `RayCast`         | `<ray-cast>`         | Projects a ray to detect colliders         |
+| `Clickable`       | `<clickable>`        | Detects click/hover pointer events         |
+| `Rectangle`       | `<rectangle>`        | Renders a filled/stroked rectangle         |
+| `Timer`           | `<timer>`            | Counts up and fires events                 |
+| `Text`            | `<text>`             | Renders text on the canvas                 |
+| `AudioPlayer`     | `<audio-player>`     | Plays audio buffers                        |
+| `Camera`          | `<camera>`           | Controls the viewport                      |
+| `RigidBody`       | `<rigid-body>`       | Adds physics simulation                    |
 
 ## Transform
 
@@ -24,6 +25,18 @@ Every game object is built from **nodes** — JSX elements that map to engine cl
   <sprite textureId={playerTexture} />
 </transform>
 ```
+
+## Group
+
+```tsx
+<group>
+  <sprite textureId={playerTexture} />
+  <sprite textureId={bgTexture} />
+</group>
+```
+
+- Logical container without spatial positioning (unlike `<transform>` which has a `position`).
+- Used internally by the `<List>` component as an anchor for keyed reconciliation.
 
 ## Sprite
 
@@ -180,7 +193,7 @@ Plays audio buffers loaded with `loadSound()`:
 ```tsx
 import { useNode, useEvent } from 'tiny-engine/hooks'
 import { PrimaryNode } from 'tiny-engine'
-import { loadSound } from 'tiny-engine/audio'
+import { loadSound } from 'tiny-engine/assets'
 
 const SHOOT = await loadSound('/assets/shoot.mp3')
 
@@ -202,6 +215,7 @@ function Gun() {
 
 - `soundId` — symbol from `loadSound()` (required).
 - `loop`, `volume`, `playbackRate` — playback options.
+- `persistUntilEnd` — defers node destruction until sound finishes (useful for one-shot sounds).
 - Methods: `play(offset?)`, `pause()`, `stop()`.
 - Events: `ended`, `error`.
 

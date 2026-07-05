@@ -6,7 +6,7 @@
 | --------------------------------- | --------------------------------------------------------- |
 | `useNode(type)`                   | Creates a typed reference to pass as `ref`                |
 | `useEvent(node, event, callback)` | Type-safe event subscription with auto-cleanup            |
-| `useEffect(fn)`                   | Runs effect on mount and when signals change              |
+| `useEffect(fn)`                   | Runs effect on mount and when signals change (batched)    |
 | `useSignal(initial)`              | Creates reactive state that triggers re-renders           |
 | `useComputed(fn)`                 | Creates a derived signal that recomputes when deps change |
 | `useMount(fn)`                    | Runs once on mount, cleanup on destroy                    |
@@ -28,6 +28,10 @@
 | `useWhen(signal, true, false)` | Ternary expression for signals                   |
 | `useClickable(ref?)`           | Clickable node with reactive `hovered` state     |
 | `useTimer(ref?)`               | Timer node with `time`, `progress`, and controls |
+| `useRayCast(ref?)`             | RayCast node with reactive `detected` state      |
+| `useCollider(ref?)`            | Collider node with reactive `colliding` state    |
+| `useAnimation(ref?)`           | AnimationPlayer with reactive frame state        |
+| `useAudio(ref?)`               | AudioPlayer with reactive `playing` state        |
 
 ## useNode
 
@@ -101,6 +105,23 @@ function HealthBar() {
   return <transform>{/* health() triggers re-render when set */}</transform>
 }
 ```
+
+### Batching
+
+`useEffect` batches multiple synchronous signal changes. If `x`, `y`, and `z` all change in the same synchronous block, the effect runs once (not three times):
+
+```tsx
+useEffect(() => {
+  console.log(x(), y(), z())
+})
+
+// All three changes trigger a single effect execution
+setX(1)
+setY(2)
+setZ(3)
+```
+
+Re-executions are deferred via `queueMicrotask` and run before the next frame.
 
 ## useComputed
 
@@ -179,6 +200,94 @@ function Cooldown() {
 
 - `time`: `SignalGetter<number>` — current elapsed time
 - `progress`: `SignalGetter<number>` — 0 to 1 based on duration
+- `play()`, `pause()`, `stop()`: control methods
+
+### useRayCast
+
+`useRayCast` is a node-specific derived hook for the `RayCast` node. It returns the node reference, a reactive `detected` boolean, and the currently detected collider.
+
+```tsx
+import { useRayCast, useComputed } from 'tiny-engine/hooks'
+
+function EnemyDetector() {
+  const { ref, detected, collider } = useRayCast()
+  const name = useComputed(() => collider()?.node.name ?? 'none')
+
+  return <ray-cast ref={ref} direction={[100, 0]} collidesWith={['enemy']} />
+}
+```
+
+- `detected`: `SignalGetter<boolean>` — true while a collider is detected
+- `collider`: `SignalGetter<Collider | null>` — the detected collider
+
+### useCollider
+
+`useCollider` is a node-specific derived hook for the `Collider` node. It returns the node reference, a reactive `colliding` boolean, and the other collider in the pair.
+
+```tsx
+import { useCollider, useComputed } from 'tiny-engine/hooks'
+
+function Player() {
+  const { ref, colliding, other } = useCollider()
+  const tag = useComputed(() => other()?.node.tag ?? 'none')
+
+  return (
+    <collider ref={ref} shape={shapes.circle(16)} group={['player']} collidesWith={['enemy']} />
+  )
+}
+```
+
+- `colliding`: `SignalGetter<boolean>` — true while colliding with another collider
+- `other`: `SignalGetter<Collider | null>` — the other collider in the pair
+
+### useAnimation
+
+`useAnimation` is a node-specific derived hook for the `AnimationPlayer` node. It returns the node reference, reactive animation state, and control methods.
+
+```tsx
+import { useAnimation, useComputed } from 'tiny-engine/hooks'
+
+function Enemy() {
+  const { ref, animName, frameIndex, ended, play, setNext } = useAnimation()
+
+  const frameColor = useComputed(() => (ended() ? [1, 0, 0, 1] : [1, 1, 1, 1]))
+
+  return (
+    <animation-player
+      ref={ref}
+      animations={() => ({ idle: idleFrames, attack: attackFrames })}
+      currentAnim="idle"
+    />
+  )
+}
+```
+
+- `animName`: `SignalGetter<string>` — current animation name
+- `frameIndex`: `SignalGetter<number>` — current frame index
+- `ended`: `SignalGetter<boolean>` — true when the current animation ends
+- `play(animName?)`, `setNext(animName?)`: control methods
+
+### useAudio
+
+`useAudio` is a node-specific derived hook for the `AudioPlayer` node. It returns the node reference, reactive `playing` state, and control methods.
+
+```tsx
+import { useAudio, useClickable } from 'tiny-engine/hooks'
+
+function SoundEffect() {
+  const { ref, playing, play, pause, stop } = useAudio()
+  const { ref: btn } = useClickable()
+
+  return (
+    <sprite ref={btn}>
+      <clickable size={[32, 32]} onClick={() => (playing() ? pause() : play())} />
+      <audio-player ref={ref} soundId={SOUND} />
+    </sprite>
+  )
+}
+```
+
+- `playing`: `SignalGetter<boolean>` — true while audio is playing
 - `play()`, `pause()`, `stop()`: control methods
 
 ### useMatch
