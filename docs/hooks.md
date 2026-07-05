@@ -13,7 +13,7 @@
 | `useSpawn(node)`                  | Returns a function to dynamically spawn children          |
 | `useGame()`                       | Access game controls (play, pause, changeScene)           |
 | `useChild(path, type)`            | Gets a reference to a child node by path                  |
-| `useScript(ref)`                  | Retrieves the TinyScript attached to a node               |
+| `useScript(ref)`                  | Retrieves the DinyScript attached to a node               |
 | `useTrigger(trigger, callback)`   | Pub/sub for cross-component communication                 |
 | `createContext(default)`          | Creates a context with `Provider` component               |
 | `useContext(context)`             | Retrieves the current context value                       |
@@ -36,8 +36,8 @@
 ## useNode
 
 ```tsx
-import { useNode } from 'tiny-engine/hooks'
-import { PrimaryNode } from 'tiny-engine'
+import { useNode } from 'diny/hooks'
+import { PrimaryNode } from 'diny'
 
 function Player() {
   const sprite = useNode(PrimaryNode.Sprite)
@@ -53,8 +53,8 @@ function Player() {
 ## useEvent
 
 ```tsx
-import { useEvent, useNode } from 'tiny-engine/hooks'
-import { PrimaryNode, shapes } from 'tiny-engine'
+import { useEvent, useNode } from 'diny/hooks'
+import { PrimaryNode, shapes } from 'diny'
 
 function Enemy() {
   const collider = useNode(PrimaryNode.Collider)
@@ -77,8 +77,8 @@ function Enemy() {
 ## useCondition
 
 ```tsx
-import { useCondition, useComputed, useNode } from 'tiny-engine/hooks'
-import { PrimaryNode } from 'tiny-engine'
+import { useCondition, useComputed, useNode } from 'diny/hooks'
+import { PrimaryNode } from 'diny'
 
 function Enemy() {
   const raycast = useNode(PrimaryNode.RayCast)
@@ -93,7 +93,7 @@ function Enemy() {
 ## useSignal + useEffect
 
 ```tsx
-import { useSignal, useEffect } from 'tiny-engine/hooks'
+import { useSignal, useEffect } from 'diny/hooks'
 
 function HealthBar() {
   const [health, setHealth] = useSignal(100)
@@ -126,7 +126,7 @@ Re-executions are deferred via `queueMicrotask` and run before the next frame.
 ## useComputed
 
 ```tsx
-import { useSignal, useComputed } from 'tiny-engine/hooks'
+import { useSignal, useComputed } from 'diny/hooks'
 
 function CooldownSprite() {
   const [time, setTime] = useSignal(0)
@@ -165,7 +165,7 @@ It composes `useEvent` + `useSignal` internally. Use it when the raw `useNode` +
 `useClickable` is a node-specific derived hook for the `Clickable` node. It returns the node reference and a reactive `hovered` boolean.
 
 ```tsx
-import { useClickable } from 'tiny-engine/hooks'
+import { useClickable } from 'diny/hooks'
 
 function Button() {
   const { ref, hovered } = useClickable()
@@ -184,7 +184,7 @@ function Button() {
 `useTimer` is a node-specific derived hook for the `Timer` node. It returns the node reference, reactive time/progress, and control methods.
 
 ```tsx
-import { useTimer } from 'tiny-engine/hooks'
+import { useTimer } from 'diny/hooks'
 
 function Cooldown() {
   const { ref, time, progress, play, pause, stop } = useTimer()
@@ -207,7 +207,7 @@ function Cooldown() {
 `useRayCast` is a node-specific derived hook for the `RayCast` node. It returns the node reference, a reactive `detected` boolean, and the currently detected collider.
 
 ```tsx
-import { useRayCast, useComputed } from 'tiny-engine/hooks'
+import { useRayCast, useComputed } from 'diny/hooks'
 
 function EnemyDetector() {
   const { ref, detected, collider } = useRayCast()
@@ -225,7 +225,7 @@ function EnemyDetector() {
 `useCollider` is a node-specific derived hook for the `Collider` node. It returns the node reference, a reactive `colliding` boolean, and the other collider in the pair.
 
 ```tsx
-import { useCollider, useComputed } from 'tiny-engine/hooks'
+import { useCollider, useComputed } from 'diny/hooks'
 
 function Player() {
   const { ref, colliding, other } = useCollider()
@@ -245,7 +245,7 @@ function Player() {
 `useAnimation` is a node-specific derived hook for the `AnimationPlayer` node. It returns the node reference, reactive animation state, and control methods.
 
 ```tsx
-import { useAnimation, useComputed } from 'tiny-engine/hooks'
+import { useAnimation, useComputed } from 'diny/hooks'
 
 function Enemy() {
   const { ref, animName, frameIndex, ended, play, setNext } = useAnimation()
@@ -272,7 +272,7 @@ function Enemy() {
 `useAudio` is a node-specific derived hook for the `AudioPlayer` node. It returns the node reference, reactive `playing` state, and control methods.
 
 ```tsx
-import { useAudio, useClickable } from 'tiny-engine/hooks'
+import { useAudio, useClickable } from 'diny/hooks'
 
 function SoundEffect() {
   const { ref, playing, play, pause, stop } = useAudio()
@@ -322,7 +322,7 @@ return <sprite brightness={brightness} />
 ### clearSubs
 
 ```ts
-import { Signal } from 'tiny-engine'
+import { Signal } from 'diny'
 
 const health = new Signal(100)
 
@@ -341,7 +341,7 @@ a signal's owner is destroyed and no further notifications should be dispatched.
 ## createContext / useContext
 
 ```tsx
-import { createContext, useContext } from 'tiny-engine/hooks'
+import { createContext, useContext } from 'diny/hooks'
 
 const GameCtx = createContext({ score: 0 })
 
@@ -362,8 +362,8 @@ function Child() {
 ## useSpawn
 
 ```tsx
-import { useNode, useSpawn } from 'tiny-engine/hooks'
-import { PrimaryNode } from 'tiny-engine'
+import { useNode, useSpawn } from 'diny/hooks'
+import { PrimaryNode } from 'diny'
 
 function Spawner() {
   const container = useNode(PrimaryNode.Transform)
@@ -384,7 +384,7 @@ function Spawner() {
 `useTrigger` provides a pub/sub pattern for cross-component communication without node events.
 
 ```tsx
-import { createTrigger, useTrigger } from 'tiny-engine/hooks'
+import { createTrigger, useTrigger } from 'diny/hooks'
 
 // Create a trigger (shared between components)
 const planted = createTrigger<[Plant]>()
@@ -408,8 +408,8 @@ planted.emit(Plant.Peashooter)
 Render reactive arrays with automatic keyed reconciliation:
 
 ```tsx
-import { List } from 'tiny-engine/jsx'
-import { useSignal } from 'tiny-engine/hooks'
+import { List } from 'diny/jsx'
+import { useSignal } from 'diny/hooks'
 
 function EnemyList() {
   const [enemies] = useSignal([

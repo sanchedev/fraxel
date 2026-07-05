@@ -1,12 +1,12 @@
 # Scripts
 
-Separate game logic from rendering with `TinyScript`:
+Separate game logic from rendering with `DinyScript`:
 
 ```tsx
-import { TinyScript } from 'tiny-engine/scripts'
-import { PrimaryNode } from 'tiny-engine'
+import { DinyScript } from 'diny/scripts'
+import { PrimaryNode } from 'diny'
 
-class PlayerScript extends TinyScript<PrimaryNode.Transform> {
+class PlayerScript extends DinyScript<PrimaryNode.Transform> {
   health = 100
 
   setup() {

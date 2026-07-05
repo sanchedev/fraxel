@@ -7,7 +7,7 @@ The physics system adds gravity, velocity, forces, and collision response to you
 Add `<rigid-body>` as a sibling of a `<collider>` to enable physics:
 
 ```tsx
-import { shapes } from 'tiny-engine'
+import { shapes } from 'diny'
 
 function FallingRock() {
   return (
@@ -35,7 +35,7 @@ function FallingRock() {
 The default gravity is `980 px/s²` downward (like Earth gravity in pixel units).
 
 ```tsx
-import { PhysicsSystem } from 'tiny-engine'
+import { PhysicsSystem } from 'diny'
 
 // Change gravity at runtime
 PhysicsSystem.gravity = { x: 0, y: -200 } // float upward
@@ -49,8 +49,8 @@ PhysicsSystem.gravity = { x: 0, y: 160 }
 Access the physics body through the `RigidBody` node:
 
 ```tsx
-import { useNode, useEvent } from 'tiny-engine/hooks'
-import { PrimaryNode, Vector2 } from 'tiny-engine'
+import { useNode, useEvent } from 'diny/hooks'
+import { PrimaryNode, Vector2 } from 'diny'
 
 function Player() {
   const body = useNode(PrimaryNode.RigidBody)
@@ -129,8 +129,8 @@ function Platform() {
 ## Complete Example
 
 ```tsx
-import { useNode, useMount } from 'tiny-engine/hooks'
-import { PrimaryNode, PhysicsSystem, Vector2, shapes } from 'tiny-engine'
+import { useNode, useMount } from 'diny/hooks'
+import { PrimaryNode, PhysicsSystem, Vector2, shapes } from 'diny'
 
 function GameScene() {
   useMount(() => {

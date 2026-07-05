@@ -1,4 +1,4 @@
-# tiny-engine
+# diny
 
 > A lightning-fast JSX runtime for building 2D games in the browser — declarative, reactive, zero React.
 
@@ -7,9 +7,9 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Built with TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
-![tiny-engine icon](packages/demo/assets/icon.png)
+![diny icon](packages/demo/assets/icon.png)
 
-**tiny-engine** lets you build 2D games using JSX syntax with a custom runtime — **no React, no DOM overhead, no bundle bloat.** Write your game logic using the hooks, signals, and component architecture that frontend developers already know and love.
+**diny** lets you build 2D games using JSX syntax with a custom runtime — **no React, no DOM overhead, no bundle bloat.** Write your game logic using the hooks, signals, and component architecture that frontend developers already know and love.
 
 ## Features
 
@@ -28,10 +28,10 @@
 
 ## The DX
 
-tiny-engine removes the boilerplate. Look how easy it is to create a reactive, interactable game entity:
+diny removes the boilerplate. Look how easy it is to create a reactive, interactable game entity:
 
 ```tsx
-import { useSignal } from 'tiny-engine/hooks'
+import { useSignal } from 'diny/hooks'
 import { PLAYER_TEX } from './assets'
 
 export function Player() {
@@ -55,13 +55,13 @@ That's it. Reactive state, computed properties, pointer events, and sprite filte
 
 ```bash
 # pnpm
-pnpm add tiny-engine
+pnpm add diny
 
 # npm
-npm install tiny-engine
+npm install diny
 
 # yarn
-yarn add tiny-engine
+yarn add diny
 ```
 
 Add the custom JSX runtime to your tsconfig.json:
@@ -70,7 +70,7 @@ Add the custom JSX runtime to your tsconfig.json:
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "tiny-engine"
+    "jsxImportSource": "diny"
   }
 }
 ```
@@ -88,19 +88,19 @@ Dive into the official documentation to master the engine:
 - [Audio](docs/audio.md) — Sound loading, playback, and `<audio-player>` node
 - [Animation](docs/animation.md) — Sprite sheets, `<animation-player>`, tweening, and easing
 - [Tweening](docs/tweening.md) — Interpolation, easing functions, and sequences
-- [Assets](docs/assets.md) — Batch loading and `AssetManager`
+- [Assets](docs/assets.md) — Batch loading and management
 - [Input System](docs/input.md) — Pointer tracking and keyboard events
-- [Scripts](docs/scripts.md) — TinyScript and Game lifecycle management
+- [Scripts](docs/scripts.md) — DinyScript and Game lifecycle management
 - [Filters](docs/filters.md) — Sprite filter props and Color types
 
 ## Development
 
 This is a pnpm monorepo consisting of the engine and a fully featured Plants vs Zombies-style demo game.
 
-| Package       | Description              | Build Command       |
-| ------------- | ------------------------ | ------------------- |
-| `tiny-engine` | The core engine library  | `pnpm engine:build` |
-| `demo`        | Interactive example game | `pnpm demo:build`   |
+| Package | Description              | Build Command       |
+| ------- | ------------------------ | ------------------- |
+| `diny`  | The core engine library  | `pnpm engine:build` |
+| `demo`  | Interactive example game | `pnpm demo:build`   |
 
 ### Quick Commands
 

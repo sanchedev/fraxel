@@ -5,7 +5,7 @@
 Define collision shapes with the `shapes` factory:
 
 ```tsx
-import { shapes } from 'tiny-engine'
+import { shapes } from 'diny'
 
 <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy']} />
 <collider shape={shapes.circle(16)} group={['projectile']} collidesWith={['zombie']} />
@@ -23,8 +23,8 @@ Types: `Shape = RectangleShape | CircleShape`, discriminant: `shape.type === 're
 Colliders use groups for filtering. Events fire on both colliders:
 
 ```tsx
-import { useEvent, useNode } from 'tiny-engine/hooks'
-import { PrimaryNode, shapes } from 'tiny-engine'
+import { useEvent, useNode } from 'diny/hooks'
+import { PrimaryNode, shapes } from 'diny'
 
 function Projectile() {
   const collider = useNode(PrimaryNode.Collider)
@@ -53,8 +53,8 @@ function Projectile() {
 Project rays to detect colliders along a direction:
 
 ```tsx
-import { useNode, useEvent } from 'tiny-engine/hooks'
-import { PrimaryNode, Vector2 } from 'tiny-engine'
+import { useNode, useEvent } from 'diny/hooks'
+import { PrimaryNode, Vector2 } from 'diny'
 
 function Detector() {
   const ray = useNode(PrimaryNode.RayCast)
@@ -83,7 +83,7 @@ function Detector() {
 Add physics simulation with `<rigid-body>`:
 
 ```tsx
-import { shapes } from 'tiny-engine'
+import { shapes } from 'diny'
 
 function Ball() {
   return (
@@ -105,7 +105,7 @@ function Ball() {
 ### Gravity
 
 ```tsx
-import { PhysicsSystem } from 'tiny-engine'
+import { PhysicsSystem } from 'diny'
 
 PhysicsSystem.gravity = { x: 0, y: 980 } // default
 ```

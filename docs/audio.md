@@ -3,7 +3,7 @@
 ## Loading Sounds
 
 ```tsx
-import { loadSound } from 'tiny-engine/audio'
+import { loadSound } from 'diny/audio'
 
 const shootSound = await loadSound('/assets/sounds/shoot.mp3')
 const bgMusic = await loadSound('/assets/sounds/music.mp3')
@@ -14,9 +14,9 @@ const bgMusic = await loadSound('/assets/sounds/music.mp3')
 ## AudioPlayer Node
 
 ```tsx
-import { useNode, useEvent } from 'tiny-engine/hooks'
-import { PrimaryNode } from 'tiny-engine'
-import { loadSound } from 'tiny-engine/audio'
+import { useNode, useEvent } from 'diny/hooks'
+import { PrimaryNode } from 'diny'
+import { loadSound } from 'diny/audio'
 
 const SHOOT = await loadSound('/assets/shoot.mp3')
 
@@ -73,7 +73,7 @@ function Gun() {
 The `AudioContext` is created lazily on first use. Browsers require a user gesture before audio can play:
 
 ```tsx
-import { getAudioContext } from 'tiny-engine/audio'
+import { getAudioContext } from 'diny/audio'
 
 // Call this after a click/tap to resume the context
 function onFirstClick() {
@@ -87,9 +87,9 @@ function onFirstClick() {
 ## Complete Example
 
 ```tsx
-import { useNode, useEvent, useMount } from 'tiny-engine/hooks'
-import { PrimaryNode } from 'tiny-engine'
-import { loadSound, getAudioContext } from 'tiny-engine/audio'
+import { useNode, useEvent, useMount } from 'diny/hooks'
+import { PrimaryNode } from 'diny'
+import { loadSound, getAudioContext } from 'diny/audio'
 
 const BG_MUSIC = await loadSound('/assets/music.mp3')
 const SHOOT = await loadSound('/assets/shoot.mp3')

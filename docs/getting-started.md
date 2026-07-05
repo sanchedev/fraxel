@@ -4,13 +4,13 @@
 
 ```bash
 # pnpm
-pnpm add tiny-engine
+pnpm add diny
 
 # npm
-npm install tiny-engine
+npm install diny
 
 # yarn
-yarn add tiny-engine
+yarn add diny
 ```
 
 ## Setup
@@ -26,7 +26,7 @@ Add the custom JSX runtime to your `tsconfig.json`:
     "strict": true,
     "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "tiny-engine"
+    "jsxImportSource": "diny"
   }
 }
 ```
@@ -38,8 +38,8 @@ Add the custom JSX runtime to your `tsconfig.json`:
 Create a `main.tsx` file:
 
 ```tsx
-import { createGame, Game, Scene } from 'tiny-engine'
-import { loadTexture } from 'tiny-engine/assets'
+import { createGame, Game, Scene } from 'diny'
+import { loadTexture } from 'diny/assets'
 
 const BG = await loadTexture('/assets/background.png')
 const PLAYER = await loadTexture('/assets/player.png')
@@ -74,8 +74,8 @@ game.play()
 Use hooks to add state, events, and reactivity:
 
 ```tsx
-import { useNode, useEvent, useSignal } from 'tiny-engine/hooks'
-import { PrimaryNode } from 'tiny-engine'
+import { useNode, useEvent, useSignal } from 'diny/hooks'
+import { PrimaryNode } from 'diny'
 
 function Player() {
   const sprite = useNode(PrimaryNode.Sprite)
@@ -92,9 +92,9 @@ function Player() {
 ## Project Structure
 
 ```
-tiny-engine/
+diny/
 ├── packages/
-│   ├── tiny-engine/    # The engine library
+│   ├── diny/    # The engine library
 │   └── demo/           # Example game (Plants vs Zombies style)
 ```
 
@@ -102,22 +102,22 @@ tiny-engine/
 
 ```tsx
 // Main entry — nodes, math, collision, core, reactivity
-import { PrimaryNode, Vector2, shapes } from 'tiny-engine'
+import { PrimaryNode, Vector2, shapes } from 'diny'
 
 // Hooks
-import { useNode, useEvent, useSignal, useEffect } from 'tiny-engine/hooks'
+import { useNode, useEvent, useSignal, useEffect } from 'diny/hooks'
 
 // JSX components
-import { Game, Scene, List, Fragment } from 'tiny-engine/jsx'
+import { Game, Scene, List, Fragment } from 'diny/jsx'
 
 // Assets
-import { loadTexture, loadBatch } from 'tiny-engine/assets'
+import { loadTexture, loadBatch } from 'diny/assets'
 
 // Audio
-import { loadSound } from 'tiny-engine/assets'
+import { loadSound } from 'diny/assets'
 
 // Animation & tweening
-import { tween, easeOutQuad, animationFromSheet } from 'tiny-engine/animation'
+import { tween, easeOutQuad, animationFromSheet } from 'diny/animation'
 ```
 
 ## Next Steps

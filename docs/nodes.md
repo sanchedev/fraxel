@@ -95,7 +95,7 @@ return <timer ref={timer} duration={3} autoPlay />
 ## Collider
 
 ```tsx
-import { shapes } from 'tiny-engine'
+import { shapes } from 'diny'
 
 <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy']} />
 <collider shape={shapes.circle(16)} group={['projectile']} collidesWith={['zombie']} />
@@ -106,8 +106,8 @@ See [Collision System](collision.md) for shapes, groups, and events.
 ## RayCast
 
 ```tsx
-import { useNode, useEvent } from 'tiny-engine/hooks'
-import { PrimaryNode, Vector2 } from 'tiny-engine'
+import { useNode, useEvent } from 'diny/hooks'
+import { PrimaryNode, Vector2 } from 'diny'
 
 function Detector() {
   const ray = useNode(PrimaryNode.RayCast)
@@ -163,8 +163,8 @@ See [Animation](animation.md) for sprite sheet keyframes and reactive animation 
 Renders text on the canvas using `ctx.fillText()`:
 
 ```tsx
-import { useNode, useSignal } from 'tiny-engine/hooks'
-import { PrimaryNode } from 'tiny-engine'
+import { useNode, useSignal } from 'diny/hooks'
+import { PrimaryNode } from 'diny'
 
 function ScoreLabel() {
   const label = useNode(PrimaryNode.Text)
@@ -191,9 +191,9 @@ See [Audio](audio.md) for TextStyle details.
 Plays audio buffers loaded with `loadSound()`:
 
 ```tsx
-import { useNode, useEvent } from 'tiny-engine/hooks'
-import { PrimaryNode } from 'tiny-engine'
-import { loadSound } from 'tiny-engine/assets'
+import { useNode, useEvent } from 'diny/hooks'
+import { PrimaryNode } from 'diny'
+import { loadSound } from 'diny/assets'
 
 const SHOOT = await loadSound('/assets/shoot.mp3')
 
@@ -226,8 +226,8 @@ See [Audio](audio.md) for full documentation.
 Controls the viewport — what part of the game world is visible:
 
 ```tsx
-import { useNode, useMount } from 'tiny-engine/hooks'
-import { PrimaryNode } from 'tiny-engine'
+import { useNode, useMount } from 'diny/hooks'
+import { PrimaryNode } from 'diny'
 
 function GameScene() {
   const camera = useNode(PrimaryNode.Camera)
@@ -257,7 +257,7 @@ See [Camera](camera.md) for full documentation.
 Adds physics simulation to a collider:
 
 ```tsx
-import { shapes } from 'tiny-engine'
+import { shapes } from 'diny'
 
 function FallingRock() {
   return (
