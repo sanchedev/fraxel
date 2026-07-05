@@ -6,5 +6,8 @@ export * from './ray-cast.js'
 export * from './sprite.js'
 export * from './transform.js'
 export * from './rectangle.js'
+export * from './text.js'
+export * from './camera.js'
+export * from './rigid-body.js'
 
 export * from './lib/index.js'

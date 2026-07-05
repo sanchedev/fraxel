@@ -1,2 +1,5 @@
 export { Texture, getTexture } from './texture.js'
-export * from './load-textures.js'
+export { loadTexture, unloadTexture } from './load-texture.js'
+export { loadSound, getSound, unloadSound } from './load-sound.js'
+export { loadBatch, loadBatchAsset } from './loader.js'
+export type { LoaderOptions, AssetType } from './loader.js'

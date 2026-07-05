@@ -9,10 +9,7 @@ export const Nodes: NodeClasses = {} as NodeClasses
  * @param options - The options to pass to the node constructor when creating an instance of the node.
  * @returns An instance of the node corresponding to the provided node name and options.
  */
-export function getNode<T extends PrimaryNode>(
-  type: T,
-  options: NodesOptions[T],
-) {
+export function getNode<T extends PrimaryNode>(type: T, options: NodesOptions[T]) {
   const cls = Nodes[type] as new (option: NodesOptions[T]) => NodeInstances[T]
   return new cls(options)
 }
@@ -48,9 +45,6 @@ export function getNode<T extends PrimaryNode>(
  *
  * ```
  */
-export function registerNode<T extends PrimaryNode>(
-  nodeName: T,
-  nodeClass: NodeClasses[T],
-) {
+export function registerNode<T extends PrimaryNode>(nodeName: T, nodeClass: NodeClasses[T]) {
   Nodes[nodeName] = nodeClass
 }

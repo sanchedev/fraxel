@@ -108,10 +108,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    */
   isDestroyed: boolean = false
 
-  constructor(
-    type: T,
-    { id, zIndex, deltaIncrease, script, children }: NodeOptions<T>,
-  ) {
+  constructor(type: T, { id, zIndex, deltaIncrease, script, children }: NodeOptions<T>) {
     this.type = type
 
     if (typeof id === 'string') {
@@ -276,10 +273,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    * )
    * ```
    */
-  child<T extends PrimaryNode>(options: {
-    path: (string | symbol)[]
-    type: T
-  }): NodeInstances[T] {
+  child<T extends PrimaryNode>(options: { path: (string | symbol)[]; type: T }): NodeInstances[T] {
     const { type, path } = options
 
     if (!(type in Nodes)) {
@@ -300,10 +294,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
     }
 
     if (!(node instanceof Nodes[type])) {
-      throw new NodeTypeMismatchError(
-        type,
-        getNodeName(node as NodeInstances[PrimaryNode]),
-      )
+      throw new NodeTypeMismatchError(type, getNodeName(node as NodeInstances[PrimaryNode]))
     }
 
     return node as NodeInstances[T]

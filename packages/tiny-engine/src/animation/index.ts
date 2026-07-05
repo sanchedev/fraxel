@@ -1,3 +1,6 @@
+export * from './easing.js'
 export * from './multiple.js'
 export * from './properties.js'
+export * from './sequences.js'
 export * from './sprite-sheet.js'
+export * from './tween.js'

@@ -8,6 +8,7 @@ import { EngineNotSetupError } from '../errors/lifecycle.js'
 import { Input, type InputOptions } from '../input/input.js'
 import { Vector2 } from '../math/vector2.js'
 import { CollisionSystem } from '../collision/collision-system.js'
+import { PhysicsSystem } from '../collision/physics/physics-system.js'
 
 interface SetupOptions {
   /** The **`width`** of the canvas. */
@@ -194,6 +195,7 @@ export class Game {
 
       node.update(delta)
       CollisionSystem.update(delta)
+      PhysicsSystem.update(delta)
       node.draw(delta)
     }
 

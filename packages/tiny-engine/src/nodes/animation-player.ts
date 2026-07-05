@@ -113,10 +113,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
   /**
    * Detects whether `currentAnim` **change**
    */
-  animationChanged = new Event(
-    'animationChange',
-    (_newAnim: string, _oldAnim: string | null) => {},
-  )
+  animationChanged = new Event('animationChange', (_newAnim: string, _oldAnim: string | null) => {})
   /**
    * Detects whether `stop` is **called**
    */
@@ -124,10 +121,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
   /**
    * Detects whether this `index` **change**
    */
-  animationIndexChanged = new Event(
-    'animationIndexChange',
-    (_index: number) => {},
-  )
+  animationIndexChanged = new Event('animationIndexChange', (_index: number) => {})
   /**
    * Detects whether the current animation **end**
    */
@@ -233,10 +227,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    * ```
    */
   play(animName: string, index?: number) {
-    if (
-      this.#currentAnim === animName &&
-      (index == null || Math.floor(this.#index) === index)
-    )
+    if (this.#currentAnim === animName && (index == null || Math.floor(this.#index) === index))
       return
     if (this.#currentAnim != null) this.stop()
     const oldAnim = this.#currentAnim

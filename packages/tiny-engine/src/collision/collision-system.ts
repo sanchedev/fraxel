@@ -216,17 +216,11 @@ export class CollisionSystem {
 
     if (previous !== detected) {
       if (previous) {
-        CollisionEmitter.emitRaycastExit(
-          previous,
-          raycast as unknown as Collider,
-        )
+        CollisionEmitter.emitRaycastExit(previous, raycast as unknown as Collider)
         raycast.colliderExited.emit(previous)
       }
       if (detected) {
-        CollisionEmitter.emitRaycastEnter(
-          detected,
-          raycast as unknown as Collider,
-        )
+        CollisionEmitter.emitRaycastEnter(detected, raycast as unknown as Collider)
         raycast.colliderEntered.emit(detected)
       }
     }
@@ -235,9 +229,7 @@ export class CollisionSystem {
   }
 
   #groupsMatch(a: Collider, b: Collider): boolean {
-    const result = Array.from(a.collidesWith).some((group) =>
-      b.group.has(group),
-    )
+    const result = Array.from(a.collidesWith).some((group) => b.group.has(group))
     return result
   }
 

@@ -38,16 +38,13 @@ export class Narrowphase {
   }
 
   static #rectangleOverlap(a: Collider, b: Collider): boolean {
-    if (a.shape.type !== 'rectangle' || b.shape.type !== 'rectangle')
-      return false
+    if (a.shape.type !== 'rectangle' || b.shape.type !== 'rectangle') return false
     const fromA = a.globalPosition
     const toA = fromA.toAdded(a.shape.size)
     const fromB = b.globalPosition
     const toB = fromB.toAdded(b.shape.size)
 
-    return (
-      fromA.x < toB.x && toA.x > fromB.x && fromA.y < toB.y && toA.y > fromB.y
-    )
+    return fromA.x < toB.x && toA.x > fromB.x && fromA.y < toB.y && toA.y > fromB.y
   }
 
   static #circleOverlap(a: Collider, b: Collider): boolean {
@@ -59,12 +56,8 @@ export class Narrowphase {
     return distSq < radiusSum * radiusSum
   }
 
-  static #rectangleCircleOverlap(
-    rectangle: Collider,
-    circle: Collider,
-  ): boolean {
-    if (rectangle.shape.type !== 'rectangle' || circle.shape.type !== 'circle')
-      return false
+  static #rectangleCircleOverlap(rectangle: Collider, circle: Collider): boolean {
+    if (rectangle.shape.type !== 'rectangle' || circle.shape.type !== 'circle') return false
     const rectFrom = rectangle.globalPosition
     const rectTo = rectFrom.toAdded(rectangle.shape.size)
     const cx = circle.globalPosition.x

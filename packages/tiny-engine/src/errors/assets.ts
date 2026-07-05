@@ -28,3 +28,16 @@ export class TextureNotFoundError extends AssetError {
     super(`Texture "${id}" does not exist`)
   }
 }
+
+/**
+ * The **`SoundNotFoundError`** error is thrown when attempting to access a sound that does not exist in the audio registry.
+ * @example
+ * ```ts
+ * throw new SoundNotFoundError('my-sound-id')
+ * ```
+ */
+export class SoundNotFoundError extends AssetError {
+  constructor(id: string) {
+    super(`Sound "${id}" does not exist`)
+  }
+}

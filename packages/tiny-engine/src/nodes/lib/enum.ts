@@ -28,4 +28,12 @@ export enum PrimaryNode {
   Timer = 'timer',
   /** A node that renders a filled/stroked rectangle. */
   Rectangle = 'rectangle',
+  /** A node that renders text on the canvas. */
+  Text = 'text',
+  /** A node that plays audio buffers. */
+  AudioPlayer = 'audio-player',
+  /** A node that controls the viewport. */
+  Camera = 'camera',
+  /** A node that adds physics simulation to a collider. */
+  RigidBody = 'rigid-body',
 }

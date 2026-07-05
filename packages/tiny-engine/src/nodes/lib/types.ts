@@ -1,10 +1,7 @@
 import type { Node } from '../_node.js'
 import type { Transform, TransformOptions } from '../node2d/transform.js'
 import type { Sprite, SpriteOptions } from '../node2d/sprite.js'
-import type {
-  AnimationPlayer,
-  AnimationPlayerOptions,
-} from '../animation-player.js'
+import type { AnimationPlayer, AnimationPlayerOptions } from '../animation-player.js'
 import type { Collider, ColliderOptions } from '../node2d/collider.js'
 import type { RayCast, RayCastOptions } from '../node2d/ray-cast.js'
 import type { Event } from '../../events/event.js'
@@ -13,6 +10,10 @@ import type { PrimaryNode } from './enum.js'
 import type { Clickable, ClickableOptions } from '../node2d/clickable.js'
 import type { Timer, TimerOptions } from '../timer.js'
 import type { Rectangle, RectangleOptions } from '../node2d/rectangle.js'
+import type { Text, TextOptions } from '../node2d/text.js'
+import type { AudioPlayer, AudioPlayerOptions } from '../audio-player.js'
+import type { Camera, CameraOptions } from '../node2d/camera.js'
+import type { RigidBody, RigidBodyOptions } from '../node2d/rigid-body.js'
 
 /**
  * The **`NodeClasses`** interface maps each `PrimaryNode` to its class constructor.
@@ -27,6 +28,10 @@ export interface NodeClasses {
   [PrimaryNode.Clickable]: typeof Clickable
   [PrimaryNode.Timer]: typeof Timer
   [PrimaryNode.Rectangle]: typeof Rectangle
+  [PrimaryNode.Text]: typeof Text
+  [PrimaryNode.AudioPlayer]: typeof AudioPlayer
+  [PrimaryNode.Camera]: typeof Camera
+  [PrimaryNode.RigidBody]: typeof RigidBody
 }
 
 /**
@@ -42,6 +47,10 @@ export interface NodesOptions {
   [PrimaryNode.Clickable]: ClickableOptions
   [PrimaryNode.Timer]: TimerOptions
   [PrimaryNode.Rectangle]: RectangleOptions
+  [PrimaryNode.Text]: TextOptions
+  [PrimaryNode.AudioPlayer]: AudioPlayerOptions
+  [PrimaryNode.Camera]: CameraOptions
+  [PrimaryNode.RigidBody]: RigidBodyOptions
 }
 
 type NodeName = keyof NodeClasses
@@ -65,14 +74,11 @@ export type NodeToOptions<T extends typeof Node> = ConstructorParameters<T>[0]
  */
 export type NodeEvents = {
   [P in NodeName]: {
-    [Q in keyof NodeInstances[P] as NodeEvent<
-      NodeInstances[P],
-      Q
-    > extends undefined
-      ? never
-      : EventName<
-          NonNullable<NodeEvent<NodeInstances[P], Q>>['baseName']
-        >]: NonNullable<NodeEvent<NodeInstances[P], Q>>
+    [
+      Q in keyof NodeInstances[P] as NodeEvent<NodeInstances[P], Q> extends undefined
+        ? never
+        : EventName<NonNullable<NodeEvent<NodeInstances[P], Q>>['baseName']>
+    ]: NonNullable<NodeEvent<NodeInstances[P], Q>>
   }
 }
 
@@ -89,10 +95,5 @@ export type NodeEventListeners = {
   }
 }
 
-type NodeEventListener<
-  T extends keyof NodeEvents,
-  K extends keyof NodeEvents[T],
-> =
-  NodeEvents[T][K] extends Event<any[], string>
-    ? NodeEvents[T][K]['exampleFun']
-    : undefined
+type NodeEventListener<T extends keyof NodeEvents, K extends keyof NodeEvents[T]> =
+  NodeEvents[T][K] extends Event<any[], string> ? NodeEvents[T][K]['exampleFun'] : undefined

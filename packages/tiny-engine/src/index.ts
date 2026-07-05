@@ -1,6 +1,7 @@
 export * from './nodes/index.js'
 export * from './animation/index.js'
 export * from './assets/index.js'
+export * from './audio/index.js'
 export * from './collision/index.js'
 export * from './core/index.js'
 export * from './events/index.js'
