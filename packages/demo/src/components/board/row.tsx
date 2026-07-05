@@ -5,7 +5,7 @@ import {
   RowZombieSpawnerCtx,
 } from '../../contexts/row.js'
 import { NodeReference, useContext, useNode, useSpawn } from 'tiny-engine/hooks'
-import { PrimaryNode } from 'tiny-engine/nodes/enum.js'
+import { PrimaryNode } from 'tiny-engine'
 import { NormalZombie } from '../entities/zombies/normal-zombie.js'
 import { BoardCtx } from '../../contexts/board.js'
 import type { InRowProps } from '../types.js'
