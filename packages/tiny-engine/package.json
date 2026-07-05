@@ -35,7 +35,7 @@
     "browser"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "sideEffects": false,
   "engines": {
     "node": ">=18"

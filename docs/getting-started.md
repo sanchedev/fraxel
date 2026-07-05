@@ -111,13 +111,13 @@ import { useNode, useEvent, useSignal, useEffect } from 'tiny-engine/hooks'
 import { Game, Scene, List, Fragment } from 'tiny-engine/jsx'
 
 // Assets
-import { loadTexture, AssetManager } from 'tiny-engine/assets'
+import { loadTexture, loadBatch } from 'tiny-engine/assets'
 
 // Audio
-import { loadSound, getAudioContext } from 'tiny-engine/audio'
+import { loadSound } from 'tiny-engine/assets'
 
 // Animation & tweening
-import { tween, easeOutQuad, kfFromSpriteSheet } from 'tiny-engine/animation'
+import { tween, easeOutQuad, animationFromSheet } from 'tiny-engine/animation'
 ```
 
 ## Next Steps

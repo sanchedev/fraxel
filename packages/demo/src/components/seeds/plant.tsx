@@ -4,7 +4,6 @@ import {
   useClickable,
   useComputed,
   useContext,
-  useMount,
   useSignal,
   useTimer,
   useTrigger,
@@ -41,10 +40,6 @@ export function PlantSeed({ plant, position }: { plant: Plant; position?: Vector
     if (current()?.plant === plant) current()!.unselect()
     else select(plant)
   }
-
-  useMount(() => {
-    console.log(timer.time())
-  })
 
   return (
     <sprite

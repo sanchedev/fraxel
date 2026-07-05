@@ -95,7 +95,6 @@ export function NormalZombie({ position }: NormalZombieProps) {
 
     if (anim.animName()?.startsWith('walk')) return
     if (anim.frameIndex() % 2 === 0) return
-    console.log(anim.animName(), anim.frameIndex())
     currentPlant()!.applyDamage(50)
     if (anim.frameIndex() === 3) chompAudio.play()
   })
