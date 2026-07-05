@@ -1,7 +1,7 @@
-import { Vector2, type VectorLike } from 'tiny-engine'
+import { Vector2, loadSound, PrimaryNode, type VectorLike } from 'tiny-engine'
 import { Row } from './row.js'
 import { BoardCtx } from '../../contexts/board.js'
-import { useRef, useSignal } from 'tiny-engine/hooks'
+import { useRef, useSignal, useNode } from 'tiny-engine/hooks'
 import type { InRowProps } from '../types.js'
 import { SunCounter } from '../sun/sun-counter.js'
 import { SunCountCtx } from '../../contexts/sun-count.js'
@@ -10,6 +10,8 @@ import { Plant } from '../../lib/enums/plants.js'
 import { List } from 'tiny-engine/jsx'
 import { Grid } from './grid.js'
 import { SeedProvider } from '../../providers/seed.js'
+
+const PLANT_SOUND = await loadSound('/assets/audios/plant.ogg')
 
 interface BoardProps {
   position: VectorLike
@@ -23,6 +25,7 @@ export function Board({ position, cellsCount, cellSize }: BoardProps) {
   >([])
 
   const sunCounter = useSignal(1)
+  const plantAudio = useNode(PrimaryNode.AudioPlayer)
 
   const cell = {
     size: Vector2.vectorize(cellSize),
@@ -39,28 +42,28 @@ export function Board({ position, cellsCount, cellSize }: BoardProps) {
         ),
         spawnPlant(rowIndex, colIndex, Comp) {
           plantSpawners.current[rowIndex]?.(colIndex, Comp)
+          plantAudio.node.play()
         },
-      }}>
-      <SeedProvider>
-        <Grid position={position} />
-        <SunCountCtx.Provider value={sunCounter}>
+      }}
+    >
+      <SunCountCtx.Provider value={sunCounter}>
+        <SeedProvider>
+          <Grid position={position} />
+          <audio-player ref={plantAudio} soundId={PLANT_SOUND} />
           <SunCounter position={[12, 4]} />
           <transform position={[12, 16]}>
             <List
-              array={[Plant.Peashooter, Plant.WallNut]}
-              itemKey={(p) => p.toString()}>
-              {(plant, i) => (
-                <PlantSeed position={[0, i * 16]} plant={plant as Plant} />
-              )}
+              array={[Plant.Peashooter, Plant.WallNut, Plant.Sunflower, Plant.Repeater]}
+              itemKey={(p) => p.toString()}
+            >
+              {(plant, i) => <PlantSeed position={[0, i * 16]} plant={plant as Plant} />}
             </List>
           </transform>
           <transform position={position}>
             <List
-              array={Array.from(
-                { length: Vector2.vectorize(cellsCount).y },
-                (_, i) => i,
-              )}
-              itemKey={(i) => `row-${i}`}>
+              array={Array.from({ length: Vector2.vectorize(cellsCount).y }, (_, i) => i)}
+              itemKey={(i) => `row-${i}`}
+            >
               {(rowIndex) => (
                 <Row
                   registerSpawners={(plants) => {
@@ -71,8 +74,8 @@ export function Board({ position, cellsCount, cellSize }: BoardProps) {
               )}
             </List>
           </transform>
-        </SunCountCtx.Provider>
-      </SeedProvider>
+        </SeedProvider>
+      </SunCountCtx.Provider>
     </BoardCtx.Provider>
   )
 }

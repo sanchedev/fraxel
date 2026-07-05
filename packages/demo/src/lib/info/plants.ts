@@ -13,6 +13,18 @@ export const plantsInfo: Record<Plant, PlantInfo> = {
     health: 4000,
     seedCooldown: 30,
   },
+  [Plant.Sunflower]: {
+    name: 'Sunflower',
+    price: 2,
+    health: 300,
+    seedCooldown: 7.5,
+  },
+  [Plant.Repeater]: {
+    name: 'Repeater',
+    price: 4,
+    health: 100,
+    seedCooldown: 7.5,
+  },
 }
 
 interface PlantInfo {

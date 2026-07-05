@@ -14,13 +14,7 @@ import { plantsInfo } from '../../lib/info/plants'
 import { SunCountCtx } from '../../contexts/sun-count'
 import { SeedCtx } from '../../contexts/seed'
 
-export function PlantSeed({
-  plant,
-  position,
-}: {
-  plant: Plant
-  position?: VectorLike
-}) {
+export function PlantSeed({ plant, position }: { plant: Plant; position?: VectorLike }) {
   const { current, planted, select } = useContext(SeedCtx)
   const [sunCount, setSunCount] = useContext(SunCountCtx)
 
@@ -29,17 +23,12 @@ export function PlantSeed({
 
   const [loaded, setLoaded] = useSignal(false)
 
-  const disabled = useComputed(
-    () => !loaded() || sunCount() < plantsInfo[plant].price,
-  )
+  const disabled = useComputed(() => !loaded() || sunCount() < plantsInfo[plant].price)
 
   const brightness = useWhen(clickable.hovered, 1.1, 1)
   const grayscale = useWhen(disabled, 0.75, 0)
 
-  const sourceSize = useComputed<VectorLike>(() => [
-    24,
-    (1 - timer.progress()) * 16,
-  ])
+  const sourceSize = useComputed<VectorLike>(() => [24, (1 - timer.progress()) * 16])
 
   useTrigger(planted, (p) => {
     if (p !== plant) return
@@ -62,7 +51,8 @@ export function PlantSeed({
       textureId={PLANT_SEEDS[plant]}
       position={position}
       brightness={brightness}
-      grayscale={grayscale}>
+      grayscale={grayscale}
+    >
       <sprite
         id={plantsInfo[plant].name}
         textureId={PLANT_SEEDS[plant]}
@@ -90,4 +80,6 @@ export function PlantSeed({
 const PLANT_SEEDS: Record<Plant, symbol> = {
   [Plant.Peashooter]: await loadTexture('/assets/sprites/seeds/peashooter.png'),
   [Plant.WallNut]: await loadTexture('/assets/sprites/seeds/wall-nut.png'),
+  [Plant.Sunflower]: await loadTexture('/assets/sprites/seeds/sunflower.png'),
+  [Plant.Repeater]: await loadTexture('/assets/sprites/seeds/repeater.png'),
 }

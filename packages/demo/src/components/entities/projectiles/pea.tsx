@@ -1,10 +1,11 @@
 import { useContext, useEvent, useGame, useNode } from 'tiny-engine/hooks'
-import { loadTexture, PrimaryNode, shapes, type VectorLike } from 'tiny-engine'
+import { loadSound, loadTexture, PrimaryNode, shapes, type VectorLike } from 'tiny-engine'
 import { RowCtx } from '../../../contexts/row'
 import { ZombieScript } from '../../../scripts/zombie/zombie'
 import { BoardCtx } from '../../../contexts/board'
 
 const PEA = await loadTexture('/assets/sprites/entities/projectiles/pea.png')
+const SPLAT_SOUND = await loadSound('/assets/audios/plants/pea/splat.ogg')
 
 const PEA_DAMAGE = 20
 
@@ -14,6 +15,7 @@ export function Pea({ position }: { position: VectorLike }) {
 
   const pea = useNode(PrimaryNode.Transform)
   const collider = useNode(PrimaryNode.Collider)
+  const audio = useNode(PrimaryNode.AudioPlayer)
 
   const width = useGame().getSize().x
 
@@ -26,6 +28,7 @@ export function Pea({ position }: { position: VectorLike }) {
     const zombie = zombieCollider.parent
     if (!(zombie?.script instanceof ZombieScript)) return
     zombie.script.applyDamage(PEA_DAMAGE)
+    audio.node.play()
     pea.node.destroy()
   })
 
@@ -40,6 +43,7 @@ export function Pea({ position }: { position: VectorLike }) {
           position={[2, 2]}
         />
       </sprite>
+      <audio-player ref={audio} soundId={SPLAT_SOUND} persistUntilEnd />
     </transform>
   )
 }

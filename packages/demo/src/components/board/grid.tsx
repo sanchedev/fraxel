@@ -1,11 +1,12 @@
-import { type VectorLike } from 'tiny-engine'
+import { tween, easeOutQuad, type VectorLike } from 'tiny-engine'
 import {
   useComputed,
   useContext,
   useEvent,
   useRef,
-  useWhen,
   useClickable,
+  useSignal,
+  useEffect,
 } from 'tiny-engine/hooks'
 import { BoardCtx } from '../../contexts/board'
 import { SeedCtx } from '../../contexts/seed'
@@ -15,25 +16,36 @@ export function Grid({ position }: { position: VectorLike }) {
   const { current } = useContext(SeedCtx)
 
   const plants = useRef<{ platform: boolean; plant: boolean }[][]>(
-    floorTypeOnCells.map((floors) =>
-      floors.map(() => ({ platform: false, plant: false })),
-    ),
+    floorTypeOnCells.map((floors) => floors.map(() => ({ platform: false, plant: false }))),
   )
 
   const clickable = useClickable()
   const pos = useComputed(() =>
-    clickable
-      .position()
-      .apply((coord, axis) => Math.floor(coord / cellSize[axis])),
+    clickable.position().apply((coord, axis) => Math.floor(coord / cellSize[axis])),
   )
 
   const ableToPlant = useComputed(
-    () =>
-      current() != null &&
-      !plants.current[pos().y]![pos().x]!.plant &&
-      clickable.hovered(),
+    () => current() != null && !plants.current[pos().y]![pos().x]!.plant && clickable.hovered(),
   )
-  const transparency = useWhen(ableToPlant, 0.5, 0)
+
+  const [transparency, setTransparency] = useSignal(0)
+  const tweenRef = useRef<ReturnType<typeof tween> | null>(null)
+
+  useEffect(() => {
+    tweenRef.current?.stop()
+    const target = ableToPlant() ? 0.5 : 0
+    const from = transparency()
+    if (from === target) return
+    tweenRef.current = tween({
+      target: { v: from },
+      prop: 'v',
+      from,
+      to: target,
+      duration: 0.15,
+      easing: easeOutQuad,
+      onUpdate: (v) => setTransparency(v),
+    })
+  })
 
   useEvent(clickable.ref, 'clicked', () => {
     const c = current()
@@ -48,10 +60,7 @@ export function Grid({ position }: { position: VectorLike }) {
   })
 
   return (
-    <clickable
-      ref={clickable.ref}
-      position={position}
-      size={cellSize.toMultiplied(cellsCount)}>
+    <clickable ref={clickable.ref} position={position} size={cellSize.toMultiplied(cellsCount)}>
       <rectangle
         position={() => [pos().x * cellSize.x, 0]}
         size={[cellSize.x, cellSize.y * cellsCount.y]}

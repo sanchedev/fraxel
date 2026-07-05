@@ -23,16 +23,12 @@ export function OneShot({
       animations={() => ({
         play: {
           fps,
-          keyframes: kfFromSpriteSheet(
-            sprite.node,
-            textureId,
-            spriteCountX,
-            spriteCountY,
-          ),
+          keyframes: kfFromSpriteSheet(sprite.node, textureId, spriteCountX, spriteCountY),
         },
       })}
-      currentAnim='play'
-      destroyOnEnd>
+      currentAnim="play"
+      destroyOnEnd
+    >
       <sprite ref={sprite} textureId={textureId} position={position} />
     </animation-player>
   )

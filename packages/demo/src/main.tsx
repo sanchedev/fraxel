@@ -4,10 +4,10 @@ const game = createGame(
   <Game
     width={192}
     height={112}
-    defaultScene='test'
+    defaultScene="test"
     // testOptions={{ showClickables: true, showColliders: true }}
   >
-    <Scene name='test' component={() => import('./scenes/test.js')} />
+    <Scene name="test" component={() => import('./scenes/test.js')} />
   </Game>,
   document.querySelector('#root')!,
 )

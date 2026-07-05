@@ -34,7 +34,8 @@ export function SeedProvider({ children }: Tiny.WithChildren) {
         current,
         select,
         planted,
-      }}>
+      }}
+    >
       {children}
     </SeedCtx.Provider>
   )

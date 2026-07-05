@@ -1,31 +1,22 @@
 import {
   getGlobalPosition,
   kfFromSpriteSheet,
+  loadSound,
   loadTexture,
   PrimaryNode,
   shapes,
   Vector2,
 } from 'tiny-engine'
 import type { PlantProps } from '../../types.js'
-import {
-  useContext,
-  useEvent,
-  useGame,
-  useNode,
-  useCondition,
-  useEffect,
-} from 'tiny-engine/hooks'
+import { useContext, useEvent, useGame, useNode, useCondition, useEffect } from 'tiny-engine/hooks'
 import { RowCtx, RowProjectileSpawnerCtx } from '../../../contexts/row.js'
 import { Pea } from '../projectiles/pea.js'
 import { PlantScript } from '../../../scripts/plant/plant.js'
 import { Plant } from '../../../lib/enums/plants.js'
 
-const PEASHOOTER_IDLE = await loadTexture(
-  '/assets/sprites/entities/plants/peashooter/idle.png',
-)
-const PEASHOOTER_SHOOT = await loadTexture(
-  '/assets/sprites/entities/plants/peashooter/shoot.png',
-)
+const PEASHOOTER_IDLE = await loadTexture('/assets/sprites/entities/plants/peashooter/idle.png')
+const PEASHOOTER_SHOOT = await loadTexture('/assets/sprites/entities/plants/peashooter/shoot.png')
+const THROW_SOUND = await loadSound('/assets/audios/plants/peashooter/throw.ogg')
 
 export function Peashooter({ position, onDestroy }: PlantProps) {
   const { plantsLayer, zombiesLayer } = useContext(RowCtx)
@@ -34,6 +25,7 @@ export function Peashooter({ position, onDestroy }: PlantProps) {
   const sprite = useNode(PrimaryNode.Sprite)
   const anim = useNode(PrimaryNode.AnimationPlayer)
   const raycast = useNode(PrimaryNode.RayCast)
+  const audio = useNode(PrimaryNode.AudioPlayer)
 
   const width = useGame().getSize().x
 
@@ -42,17 +34,14 @@ export function Peashooter({ position, onDestroy }: PlantProps) {
     if (index === 1) shoot()
   })
 
-  const isZombieDetected = useCondition(
-    raycast,
-    'colliderEntered',
-    'colliderExited',
-  )
+  const isZombieDetected = useCondition(raycast, 'colliderEntered', 'colliderExited')
 
   useEffect(() => {
     anim.node.setNext(isZombieDetected() ? 'shoot' : 'idle')
   })
 
   const shoot = () => {
+    audio.node.play()
     spawnProjectile(
       <Pea
         position={sprite.node.globalPosition
@@ -63,10 +52,7 @@ export function Peashooter({ position, onDestroy }: PlantProps) {
   }
 
   return (
-    <transform
-      position={position}
-      script={new PlantScript(Plant.Peashooter)}
-      onDestroy={onDestroy}>
+    <transform position={position} script={new PlantScript(Plant.Peashooter)} onDestroy={onDestroy}>
       <sprite ref={sprite} textureId={PEASHOOTER_IDLE} sourceSize={[16, 16]}>
         <animation-player
           ref={anim}
@@ -82,7 +68,7 @@ export function Peashooter({ position, onDestroy }: PlantProps) {
               loop: true,
             },
           })}
-          currentAnim='idle'
+          currentAnim="idle"
         />
       </sprite>
       <ray-cast
@@ -101,6 +87,7 @@ export function Peashooter({ position, onDestroy }: PlantProps) {
         shape={shapes.rectangle(7, 9)}
         position={[4, 7]}
       />
+      <audio-player ref={audio} soundId={THROW_SOUND} />
     </transform>
   )
 }

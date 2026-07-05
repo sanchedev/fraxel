@@ -10,13 +10,11 @@ import { NormalZombie } from '../entities/zombies/normal-zombie.js'
 import { BoardCtx } from '../../contexts/board.js'
 import type { InRowProps } from '../types.js'
 import { WallNut } from '../entities/plants/wall-nut.js'
+import { Sunflower } from '../entities/plants/sunflower.js'
 
 interface RowProps {
   registerSpawners: (
-    plants: (
-      colIndex: number,
-      Comp: (props: InRowProps) => JSX.Element,
-    ) => void,
+    plants: (colIndex: number, Comp: (props: InRowProps) => JSX.Element) => void,
   ) => void
   rowIndex: number
 }
@@ -29,11 +27,9 @@ export function Row({ rowIndex, registerSpawners }: RowProps) {
         plantsLayer: `plant-${rowIndex}`,
         zombiesLayer: `zombie-${rowIndex}`,
         rowIndex,
-      }}>
-      <RowZombieSpawner
-        registerSpawners={registerSpawners}
-        rowIndex={rowIndex}
-      />
+      }}
+    >
+      <RowZombieSpawner registerSpawners={registerSpawners} rowIndex={rowIndex} />
     </RowCtx.Provider>
   )
 }
@@ -87,11 +83,12 @@ function RowContainers({
 
   return (
     <transform position={[0, rowIndex * cellSize.y]}>
-      <transform ref={p} id='plants'>
+      <transform ref={p} id="plants">
+        <Sunflower position={[2 * cellSize.x, 0]} />
         <WallNut position={[5 * cellSize.x, 0]} />
       </transform>
-      <transform ref={r} id='projectiles' />
-      <transform ref={z} id='zombies'>
+      <transform ref={r} id="projectiles" />
+      <transform ref={z} id="zombies">
         <NormalZombie position={[7 * cellSize.x, 0]} />
       </transform>
     </transform>

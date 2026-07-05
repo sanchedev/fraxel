@@ -6,11 +6,7 @@ export interface BoardContext {
   cellSize: Vector2
   cellsCount: Vector2
   floorTypeOnCells: ('grass' | 'roof' | 'water')[][]
-  spawnPlant(
-    rowIndex: number,
-    colIndex: number,
-    Comp: (props: InRowProps) => JSX.Element,
-  ): void
+  spawnPlant(rowIndex: number, colIndex: number, Comp: (props: InRowProps) => JSX.Element): void
 }
 
 export const BoardCtx = createContext<BoardContext>({

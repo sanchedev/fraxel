@@ -16,17 +16,12 @@ export const RowCtx = createContext<RowContext>({
 
 export type RowPlantSpawnerContext = (jsx: JSX.Element) => void
 
-export const RowPlantSpawnerCtx = createContext<RowPlantSpawnerContext>(
-  () => {},
-)
+export const RowPlantSpawnerCtx = createContext<RowPlantSpawnerContext>(() => {})
 
 export type RowZombieSpawnerContext = (jsx: JSX.Element) => void
 
-export const RowZombieSpawnerCtx = createContext<RowZombieSpawnerContext>(
-  () => {},
-)
+export const RowZombieSpawnerCtx = createContext<RowZombieSpawnerContext>(() => {})
 
 export type RowProjectileSpawnerContext = (jsx: JSX.Element) => void
 
-export const RowProjectileSpawnerCtx =
-  createContext<RowProjectileSpawnerContext>(() => {})
+export const RowProjectileSpawnerCtx = createContext<RowProjectileSpawnerContext>(() => {})
