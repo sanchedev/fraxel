@@ -3,7 +3,7 @@
 > A lightning-fast JSX runtime for building 2D games in the browser — declarative, reactive, zero React.
 
 [![CI](https://github.com/sanchedev/diny/actions/workflows/ci.yml/badge.svg)](https://github.com/sanchedev/diny/actions)
-[![npm version](https://img.shields.io/badge/version-0.0.0-blue)](https://github.com/sanchedev/diny)
+[![npm version](https://img.shields.io/badge/version-0.1.0--alpha.1-blue)](https://github.com/sanchedev/diny)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Built with TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
@@ -22,7 +22,7 @@
 - **Audio Playback** — Load sounds and play them with `<audio-player>` node.
 - **Text Rendering** — Render text on canvas with `<text>` node and configurable styles.
 - **Tweening & Easing** — Interpolate properties with 12 easing functions and sequence/parallel composition.
-- **Asset Pipeline** — Batch loading with progress tracking via `AssetManager`.
+- **Asset Pipeline** — Batch loading with progress tracking via `loadBatch`.
 - **Sprite Filters** — Hardware-accelerated brightness, grayscale, modulate, contrast, and opacity.
 - **TypeScript-First** — Built from the ground up for strict type safety (`verbatimModuleSyntax`).
 

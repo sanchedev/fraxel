@@ -1,6 +1,6 @@
 {
   "name": "diny",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.1",
   "type": "module",
   "description": "Declarative 2D game engine for the browser with JSX runtime and fine-grained reactivity",
   "main": "dist/index.js",
@@ -34,8 +34,16 @@
     "reactivity",
     "browser"
   ],
-  "author": "",
+  "author": "José Sánchez",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sanchedev/diny.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sanchedev/diny/issues"
+  },
+  "homepage": "https://github.com/sanchedev/diny#readme",
   "sideEffects": false,
   "engines": {
     "node": ">=18"
