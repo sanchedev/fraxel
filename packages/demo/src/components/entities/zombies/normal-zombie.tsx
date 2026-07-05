@@ -5,7 +5,7 @@ import {
   loadTexture,
   PrimaryNode,
   shapes,
-} from 'diny'
+} from 'fraxel'
 import type { InRowProps } from '../../types.js'
 import {
   useAnimation,
@@ -18,12 +18,12 @@ import {
   useNode,
   useRayCast,
   useScript,
-} from 'diny/hooks'
+} from 'fraxel/hooks'
 import { RowCtx } from '../../../contexts/row.js'
 import { PlantScript } from '../../../scripts/plant/plant.js'
 import { ZombieScript } from '../../../scripts/zombie/zombie.js'
 import { BoardCtx } from '../../../contexts/board.js'
-import { renderToNodes } from 'diny/jsx'
+import { renderToNodes } from 'fraxel/jsx'
 import { OneShot } from '../effects/one-shot.js'
 
 const NORMAL_ZOMBIE_ARM = await loadTexture(

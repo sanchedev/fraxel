@@ -1,4 +1,4 @@
-import { loadTexture, loadSound } from 'diny'
+import { loadTexture, loadSound } from 'fraxel'
 import { Board } from '../components/board/board.js'
 
 const BG_DAY_4 = await loadTexture('/assets/sprites/ui/bgs/day/bg-4.png')

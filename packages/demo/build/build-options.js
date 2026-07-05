@@ -7,7 +7,7 @@ export const buildOptions = {
   platform: 'browser',
   format: 'esm',
   target: 'es2022',
-  jsxImportSource: 'diny',
+  jsxImportSource: 'fraxel',
   loader: {
     '.ts': 'ts',
     '.tsx': 'tsx',

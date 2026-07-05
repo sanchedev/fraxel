@@ -1,7 +1,7 @@
-import { PrimaryNode, Signal } from 'diny'
-import { DinyScript } from 'diny/scripts'
+import { PrimaryNode, Signal } from 'fraxel'
+import { FraxelScript } from 'fraxel/scripts'
 
-export abstract class EntityScript extends DinyScript<PrimaryNode.Transform> {
+export abstract class EntityScript extends FraxelScript<PrimaryNode.Transform> {
   abstract health: Signal<number>
 
   setup(): void {

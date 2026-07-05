@@ -11,7 +11,7 @@
     "dev": "concurrently \"node build/dev.js\" \"pnpm start\""
   },
   "dependencies": {
-    "diny": "workspace:*"
+    "fraxel": "workspace:*"
   },
   "keywords": [],
   "author": "",

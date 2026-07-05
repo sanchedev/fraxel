@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "diny"
+    "jsxImportSource": "fraxel"
   },
   "extends": "../../tsconfig.json",
   "include": ["src"]

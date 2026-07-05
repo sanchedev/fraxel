@@ -1,4 +1,4 @@
-import type { Vector2 } from 'diny'
+import type { Vector2 } from 'fraxel'
 
 export interface PlantProps {
   cellPosition: Vector2

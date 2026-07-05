@@ -1,6 +1,13 @@
-import { useContext, useEvent, useGame, useNode, useEffect, useComputed } from 'diny/hooks'
-import { useCollider } from 'diny/hooks'
-import { getParentScript, loadSound, loadTexture, PrimaryNode, shapes, type VectorLike } from 'diny'
+import { useContext, useEvent, useGame, useNode, useEffect, useComputed } from 'fraxel/hooks'
+import { useCollider } from 'fraxel/hooks'
+import {
+  getParentScript,
+  loadSound,
+  loadTexture,
+  PrimaryNode,
+  shapes,
+  type VectorLike,
+} from 'fraxel'
 import { RowCtx } from '../../../contexts/row'
 import { ZombieScript } from '../../../scripts/zombie/zombie'
 import { BoardCtx } from '../../../contexts/board'

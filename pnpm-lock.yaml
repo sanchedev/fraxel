@@ -35,9 +35,9 @@ importers:
 
   packages/demo:
     dependencies:
-      diny:
+      fraxel:
         specifier: workspace:*
-        version: link:../diny
+        version: link:../fraxel
     devDependencies:
       esbuild:
         specifier: ^0.27.3
@@ -46,7 +46,7 @@ importers:
         specifier: ^14.2.6
         version: 14.2.6
 
-  packages/diny:
+  packages/fraxel:
     devDependencies:
       typescript:
         specifier: ^5.9.3

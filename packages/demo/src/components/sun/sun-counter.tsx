@@ -1,5 +1,5 @@
-import { loadTexture, loadSound, tween, easeOutQuad, PrimaryNode, type VectorLike } from 'diny'
-import { useContext, useNode, useEffect } from 'diny/hooks'
+import { loadTexture, loadSound, tween, easeOutQuad, PrimaryNode, type VectorLike } from 'fraxel'
+import { useContext, useNode, useEffect } from 'fraxel/hooks'
 import { SunCountCtx } from '../../contexts/sun-count'
 
 const SUN_COUNTER = await loadTexture('/assets/sprites/ui/sun-counter.png')

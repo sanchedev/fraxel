@@ -1,5 +1,5 @@
-import { animationFromSheet, PrimaryNode, type VectorLike } from 'diny'
-import { useNode } from 'diny/hooks'
+import { animationFromSheet, PrimaryNode, type VectorLike } from 'fraxel'
+import { useNode } from 'fraxel/hooks'
 
 interface OneShotProps {
   textureId: symbol

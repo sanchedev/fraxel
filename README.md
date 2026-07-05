@@ -1,15 +1,15 @@
-# diny
+# Fraxel
 
 > A lightning-fast JSX runtime for building 2D games in the browser — declarative, reactive, zero React.
 
-[![CI](https://github.com/sanchedev/diny/actions/workflows/ci.yml/badge.svg)](https://github.com/sanchedev/diny/actions)
-[![npm version](https://img.shields.io/badge/version-0.1.0--alpha.1-blue)](https://github.com/sanchedev/diny)
+[![CI](https://github.com/sanchedev/fraxel/actions/workflows/ci.yml/badge.svg)](https://github.com/sanchedev/fraxel/actions)
+[![npm version](https://img.shields.io/badge/version-0.1.0--alpha.2-blue)](https://github.com/sanchedev/fraxel)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Built with TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
-![diny icon](packages/demo/assets/icon.png)
+![fraxel icon](packages/demo/assets/icon.png)
 
-**diny** lets you build 2D games using JSX syntax with a custom runtime — **no React, no DOM overhead, no bundle bloat.** Write your game logic using the hooks, signals, and component architecture that frontend developers already know and love.
+**fraxel** lets you build 2D games using JSX syntax with a custom runtime — **no React, no DOM overhead, no bundle bloat.** Write your game logic using the hooks, signals, and component architecture that frontend developers already know and love.
 
 ## Features
 
@@ -28,10 +28,10 @@
 
 ## The DX
 
-diny removes the boilerplate. Look how easy it is to create a reactive, interactable game entity:
+fraxel removes the boilerplate. Look how easy it is to create a reactive, interactable game entity:
 
 ```tsx
-import { useSignal } from 'diny/hooks'
+import { useSignal } from 'fraxel/hooks'
 import { PLAYER_TEX } from './assets'
 
 export function Player() {
@@ -55,13 +55,13 @@ That's it. Reactive state, computed properties, pointer events, and sprite filte
 
 ```bash
 # pnpm
-pnpm add diny
+pnpm add fraxel
 
 # npm
-npm install diny
+npm install fraxel
 
 # yarn
-yarn add diny
+yarn add fraxel
 ```
 
 Add the custom JSX runtime to your tsconfig.json:
@@ -70,7 +70,7 @@ Add the custom JSX runtime to your tsconfig.json:
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "diny"
+    "jsxImportSource": "fraxel"
   }
 }
 ```
@@ -90,17 +90,17 @@ Dive into the official documentation to master the engine:
 - [Tweening](docs/tweening.md) — Interpolation, easing functions, and sequences
 - [Assets](docs/assets.md) — Batch loading and management
 - [Input System](docs/input.md) — Pointer tracking and keyboard events
-- [Scripts](docs/scripts.md) — DinyScript and Game lifecycle management
+- [Scripts](docs/scripts.md) — FraxelScript and Game lifecycle management
 - [Filters](docs/filters.md) — Sprite filter props and Color types
 
 ## Development
 
 This is a pnpm monorepo consisting of the engine and a fully featured Plants vs Zombies-style demo game.
 
-| Package | Description              | Build Command       |
-| ------- | ------------------------ | ------------------- |
-| `diny`  | The core engine library  | `pnpm engine:build` |
-| `demo`  | Interactive example game | `pnpm demo:build`   |
+| Package  | Description              | Build Command       |
+| -------- | ------------------------ | ------------------- |
+| `fraxel` | The core engine library  | `pnpm engine:build` |
+| `demo`   | Interactive example game | `pnpm demo:build`   |
 
 ### Quick Commands
 

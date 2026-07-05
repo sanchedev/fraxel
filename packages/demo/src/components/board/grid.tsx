@@ -1,4 +1,4 @@
-import { tween, easeOutQuad, type VectorLike } from 'diny'
+import { tween, easeOutQuad, type VectorLike } from 'fraxel'
 import {
   useComputed,
   useContext,
@@ -7,7 +7,7 @@ import {
   useClickable,
   useSignal,
   useEffect,
-} from 'diny/hooks'
+} from 'fraxel/hooks'
 import { BoardCtx } from '../../contexts/board'
 import { SeedCtx } from '../../contexts/seed'
 

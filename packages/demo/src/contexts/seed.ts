@@ -1,6 +1,6 @@
-import { createContext, type Trigger } from 'diny/hooks'
+import { createContext, type Trigger } from 'fraxel/hooks'
 import type { Plant } from '../lib/enums/plants'
-import type { SignalGetter, Vector2 } from 'diny'
+import type { SignalGetter, Vector2 } from 'fraxel'
 
 export interface SeedSelected {
   plant: Plant

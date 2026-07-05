@@ -1,4 +1,4 @@
-import { createGame, Game, Scene } from 'diny/jsx'
+import { createGame, Game, Scene } from 'fraxel/jsx'
 
 const game = createGame(
   <Game

@@ -4,8 +4,8 @@ import {
   RowProjectileSpawnerCtx,
   RowZombieSpawnerCtx,
 } from '../../contexts/row.js'
-import { NodeReference, useContext, useNode, useSpawn } from 'diny/hooks'
-import { PrimaryNode } from 'diny'
+import { NodeReference, useContext, useNode, useSpawn } from 'fraxel/hooks'
+import { PrimaryNode } from 'fraxel'
 import { NormalZombie } from '../entities/zombies/normal-zombie.js'
 import { BoardCtx } from '../../contexts/board.js'
 import type { InRowProps } from '../types.js'

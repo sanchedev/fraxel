@@ -1,4 +1,4 @@
-import { loadTexture, type VectorLike } from 'diny'
+import { loadTexture, type VectorLike } from 'fraxel'
 import { Plant } from '../../lib/enums/plants'
 import {
   useClickable,
@@ -8,7 +8,7 @@ import {
   useTimer,
   useTrigger,
   useWhen,
-} from 'diny/hooks'
+} from 'fraxel/hooks'
 import { plantsInfo } from '../../lib/info/plants'
 import { SunCountCtx } from '../../contexts/sun-count'
 import { SeedCtx } from '../../contexts/seed'

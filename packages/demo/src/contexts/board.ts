@@ -1,5 +1,5 @@
-import { Vector2 } from 'diny'
-import { createContext } from 'diny/hooks'
+import { Vector2 } from 'fraxel'
+import { createContext } from 'fraxel/hooks'
 import type { InRowProps } from '../components/types'
 
 export interface BoardContext {

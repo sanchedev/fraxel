@@ -1,4 +1,4 @@
-import { Signal } from 'diny'
+import { Signal } from 'fraxel'
 import { EntityScript } from '../entity'
 
 export class ZombieScript extends EntityScript {

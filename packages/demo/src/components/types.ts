@@ -1,4 +1,4 @@
-import type { VectorLike } from 'diny'
+import type { VectorLike } from 'fraxel'
 
 export interface InRowProps {
   position: VectorLike
