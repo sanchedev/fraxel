@@ -28,7 +28,7 @@ class PlayerScript extends TinyScript<PrimaryNode.Transform> {
 }
 
 // Use in JSX
-<transform script={new PlayerScript()} />
+;<transform script={new PlayerScript()} />
 ```
 
 ## API

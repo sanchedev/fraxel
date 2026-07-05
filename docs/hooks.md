@@ -21,13 +21,13 @@
 
 ## Derived Hooks (Summary)
 
-| Hook                              | Description                                               |
-| --------------------------------- | --------------------------------------------------------- |
-| `useCondition(node, on, off)`     | Reactive boolean toggled by two opposing events          |
-| `useMatch(signal, record)`        | Maps signal value to record (like switch)                |
-| `useWhen(signal, true, false)`    | Ternary expression for signals                           |
-| `useClickable(ref?)`              | Clickable node with reactive `hovered` state             |
-| `useTimer(ref?)`                  | Timer node with `time`, `progress`, and controls         |
+| Hook                           | Description                                      |
+| ------------------------------ | ------------------------------------------------ |
+| `useCondition(node, on, off)`  | Reactive boolean toggled by two opposing events  |
+| `useMatch(signal, record)`     | Maps signal value to record (like switch)        |
+| `useWhen(signal, true, false)` | Ternary expression for signals                   |
+| `useClickable(ref?)`           | Clickable node with reactive `hovered` state     |
+| `useTimer(ref?)`               | Timer node with `time`, `progress`, and controls |
 
 ## useNode
 
@@ -82,13 +82,7 @@ function Enemy() {
 
   const brightness = useComputed(() => (isDetected() ? 1.2 : 1))
 
-  return (
-    <ray-cast
-      ref={raycast}
-      direction={[100, 0]}
-      collidesWith={['enemy']}
-    />
-  )
+  return <ray-cast ref={raycast} direction={[100, 0]} collidesWith={['enemy']} />
 }
 ```
 

@@ -12,6 +12,10 @@ Every game object is built from **nodes** — JSX elements that map to engine cl
 | `Clickable`       | `<clickable>`        | Detects click/hover pointer events       |
 | `Rectangle`       | `<rectangle>`        | Renders a filled/stroked rectangle       |
 | `Timer`           | `<timer>`            | Counts up and fires events               |
+| `Text`            | `<text>`             | Renders text on the canvas               |
+| `AudioPlayer`     | `<audio-player>`     | Plays audio buffers                      |
+| `Camera`          | `<camera>`           | Controls the viewport                    |
+| `RigidBody`       | `<rigid-body>`       | Adds physics simulation                  |
 
 ## Transform
 
@@ -99,13 +103,7 @@ function Detector() {
     console.log('Detected:', collider)
   })
 
-  return (
-    <ray-cast
-      ref={ray}
-      direction={new Vector2(100, 0)}
-      collidesWith={['enemy']}
-    />
-  )
+  return <ray-cast ref={ray} direction={new Vector2(100, 0)} collidesWith={['enemy']} />
 }
 ```
 
@@ -135,7 +133,7 @@ function Detector() {
     idle: idleFrames,
     walk: walkFrames,
   })}
-  currentAnim='idle'
+  currentAnim="idle"
 />
 ```
 
@@ -146,3 +144,120 @@ function Detector() {
 - `destroyOnEnd` destroys the node when the animation ends (after `animationEnded` fires and no next animation is queued).
 
 See [Animation](animation.md) for sprite sheet keyframes and reactive animation examples.
+
+## Text
+
+Renders text on the canvas using `ctx.fillText()`:
+
+```tsx
+import { useNode, useSignal } from 'tiny-engine/hooks'
+import { PrimaryNode } from 'tiny-engine'
+
+function ScoreLabel() {
+  const label = useNode(PrimaryNode.Text)
+  const [score] = useSignal(0)
+
+  return (
+    <text
+      ref={label}
+      position={[10, 20]}
+      text={() => `Score: ${score()}`}
+      style={{ fontSize: 16, foregroundColor: '#ffffff', fontFamily: 'monospace' }}
+    />
+  )
+}
+```
+
+- `text` — string to render (reactive via `SignalGetter`).
+- `style` — partial `TextStyle` with `foregroundColor`, `fontSize`, `fontFamily`, `fontWeight`, `textAlign`.
+
+See [Audio](audio.md) for TextStyle details.
+
+## AudioPlayer
+
+Plays audio buffers loaded with `loadSound()`:
+
+```tsx
+import { useNode, useEvent } from 'tiny-engine/hooks'
+import { PrimaryNode } from 'tiny-engine'
+import { loadSound } from 'tiny-engine/audio'
+
+const SHOOT = await loadSound('/assets/shoot.mp3')
+
+function Gun() {
+  const audio = useNode(PrimaryNode.AudioPlayer)
+  const clickable = useNode(PrimaryNode.Clickable)
+
+  useEvent(clickable, 'click', () => {
+    audio.node.play()
+  })
+
+  return (
+    <sprite ref={clickable} textureId={GUN}>
+      <audio-player ref={audio} soundId={SHOOT} volume={0.8} />
+    </sprite>
+  )
+}
+```
+
+- `soundId` — symbol from `loadSound()` (required).
+- `loop`, `volume`, `playbackRate` — playback options.
+- Methods: `play(offset?)`, `pause()`, `stop()`.
+- Events: `ended`, `error`.
+
+See [Audio](audio.md) for full documentation.
+
+## Camera
+
+Controls the viewport — what part of the game world is visible:
+
+```tsx
+import { useNode, useMount } from 'tiny-engine/hooks'
+import { PrimaryNode } from 'tiny-engine'
+
+function GameScene() {
+  const camera = useNode(PrimaryNode.Camera)
+  const player = useNode(PrimaryNode.Sprite)
+
+  useMount(() => {
+    camera.follow(player)
+  })
+
+  return (
+    <camera ref={camera} zoom={2}>
+      <sprite ref={player} textureId={PLAYER} />
+      <sprite textureId={BG} />
+    </camera>
+  )
+}
+```
+
+- `zoom` — viewport scale (default `1`).
+- `position` — camera position in world space.
+- Methods: `follow(target)`, `follow(undefined)`.
+
+See [Camera](camera.md) for full documentation.
+
+## RigidBody
+
+Adds physics simulation to a collider:
+
+```tsx
+import { shapes } from 'tiny-engine'
+
+function FallingRock() {
+  return (
+    <transform position={[100, 0]}>
+      <sprite textureId={ROCK} />
+      <collider shape={shapes.circle(16)} group={['rock']} collidesWith={['ground']} />
+      <rigid-body mass={2} bounce={0.6} />
+    </transform>
+  )
+}
+```
+
+- `mass`, `friction`, `bounce`, `isStatic`, `useGravity` — physics properties.
+- Must be a sibling of a `<collider>`.
+- Access `physicsBody` for `applyForce()` and `applyImpulse()`.
+
+See [Physics](physics.md) for full documentation.

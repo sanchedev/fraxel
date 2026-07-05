@@ -63,13 +63,7 @@ function Detector() {
     console.log('Detected:', collider)
   })
 
-  return (
-    <ray-cast
-      ref={ray}
-      direction={new Vector2(100, 0)}
-      collidesWith={['enemy']}
-    />
-  )
+  return <ray-cast ref={ray} direction={new Vector2(100, 0)} collidesWith={['enemy']} />
 }
 ```
 
@@ -83,3 +77,49 @@ function Detector() {
 - `#getBounds()` handles both shapes: rectangle uses `position` to `position + size`, circle uses `center ± radius`.
 - Raycasts query candidates directly from `#colliderGroups` (not the spatial hash).
 - The spatial hash is only used for collider-vs-collider broadphase.
+
+## Physics
+
+Add physics simulation with `<rigid-body>`:
+
+```tsx
+import { shapes } from 'tiny-engine'
+
+function Ball() {
+  return (
+    <transform position={[100, 0]}>
+      <sprite textureId={BALL} />
+      <collider shape={shapes.circle(8)} group={['ball']} collidesWith={['ground']} />
+      <rigid-body mass={1} bounce={0.8} />
+    </transform>
+  )
+}
+```
+
+- `mass` — body mass (0 = infinite mass / static)
+- `friction` — friction coefficient (0–1)
+- `bounce` — restitution (0 = no bounce, 1 = perfect)
+- `isStatic` — immovable body
+- `useGravity` — whether gravity affects this body
+
+### Gravity
+
+```tsx
+import { PhysicsSystem } from 'tiny-engine'
+
+PhysicsSystem.gravity = { x: 0, y: 980 } // default
+```
+
+### Forces & Impulses
+
+```tsx
+const body = useNode(PrimaryNode.RigidBody)
+
+// Continuous force (thrust, wind)
+body.node.physicsBody.applyForce(new Vector2(100, 0))
+
+// Instant impulse (jump, explosion)
+body.node.physicsBody.applyImpulse(new Vector2(0, -400))
+```
+
+See [Physics](physics.md) for full documentation.
