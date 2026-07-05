@@ -44,7 +44,6 @@
     "url": "https://github.com/sanchedev/diny/issues"
   },
   "homepage": "https://github.com/sanchedev/diny#readme",
-  "sideEffects": false,
   "engines": {
     "node": ">=18"
   },
