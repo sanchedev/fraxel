@@ -8,6 +8,5 @@ export type { CollisionBounds } from './types.js'
 export type { Shape, RectangleShape, CircleShape } from './narrowphase/shapes.js'
 export { shapes } from './narrowphase/shapes.js'
 
-export { PhysicsBody } from './physics/physics-body.js'
 export { PhysicsSystem } from './physics/physics-system.js'
-export { resolveCollision, computeAABBOverlap } from './physics/resolver.js'
+export { resolveCollision, computeOverlap } from './physics/resolver.js'

@@ -97,6 +97,20 @@ export class CollisionSystem {
   }
 
   /**
+   * The **`queryCandidates`** method returns all colliders that may overlap with the given collider.
+   * Used internally by the physics system for broadphase filtering.
+   * @param collider The collider to query candidates for.
+   * @returns A set of candidate colliders.
+   */
+  static queryCandidates(collider: Collider): Set<Collider> {
+    const instance = CollisionSystem.getInstance()
+    if (instance.#dirty) {
+      instance.#broadphase()
+    }
+    return instance.#queryCandidates(collider)
+  }
+
+  /**
    * The **`update`** method runs the full collision detection pipeline.
    * Called automatically each frame by `Game.loop()`.
    * @param delta The time elapsed since the last frame.

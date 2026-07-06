@@ -87,11 +87,10 @@ import { shapes } from 'fraxel'
 
 function Ball() {
   return (
-    <transform position={[100, 0]}>
+    <rigid-body position={[100, 0]} mass={1} bounce={0.8}>
       <sprite textureId={BALL} />
       <collider shape={shapes.circle(8)} group={['ball']} collidesWith={['ground']} />
-      <rigid-body mass={1} bounce={0.8} />
-    </transform>
+    </rigid-body>
   )
 }
 ```

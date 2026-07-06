@@ -254,24 +254,23 @@ See [Camera](camera.md) for full documentation.
 
 ## RigidBody
 
-Adds physics simulation to a collider:
+Adds physics simulation to your game:
 
 ```tsx
 import { shapes } from 'fraxel'
 
 function FallingRock() {
   return (
-    <transform position={[100, 0]}>
+    <rigid-body position={[100, 0]} mass={2} bounce={0.6}>
       <sprite textureId={ROCK} />
       <collider shape={shapes.circle(16)} group={['rock']} collidesWith={['ground']} />
-      <rigid-body mass={2} bounce={0.6} />
-    </transform>
+    </rigid-body>
   )
 }
 ```
 
 - `mass`, `friction`, `bounce`, `isStatic`, `useGravity` — physics properties.
-- Must be a sibling of a `<collider>`.
+- Must be parent of a `<collider>`.
 - Access `physicsBody` for `applyForce()` and `applyImpulse()`.
 
 See [Physics](physics.md) for full documentation.

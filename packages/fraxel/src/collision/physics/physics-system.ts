@@ -1,12 +1,11 @@
 import { Vector2 } from '../../math/vector2.js'
-import { Narrowphase } from '../narrowphase/detector.js'
 import type { Collider } from '../../nodes/node2d/collider.js'
-import { PhysicsBody } from './physics-body.js'
-import { computeAABBOverlap, resolveCollision } from './resolver.js'
+import type { RigidBody } from '../../nodes/index.js'
+import { resolveCollision, computeOverlap } from './resolver.js'
+import { CollisionSystem } from '../collision-system.js'
 
 interface BodyEntry {
-  body: PhysicsBody
-  collider: Collider
+  body: RigidBody
 }
 
 const GRAVITY = new Vector2(0, 980)
@@ -40,12 +39,12 @@ export class PhysicsSystem {
   }
 
   /** Registers a physics body with its associated collider. */
-  static register(body: PhysicsBody, collider: Collider) {
-    PhysicsSystem.getInstance().#bodies.push({ body, collider })
+  static register(body: RigidBody) {
+    PhysicsSystem.getInstance().#bodies.push({ body })
   }
 
   /** Unregisters a physics body. */
-  static unregister(body: PhysicsBody) {
+  static unregister(body: RigidBody) {
     const instance = PhysicsSystem.getInstance()
     instance.#bodies = instance.#bodies.filter((e) => e.body !== body)
   }
@@ -58,48 +57,62 @@ export class PhysicsSystem {
   #updateInternal(delta: number) {
     // 1. Apply gravity and integrate
     for (const entry of this.#bodies) {
-      const { body, collider } = entry
+      const { body } = entry
       if (body.isStatic || !body.useGravity) continue
 
+      const effectiveDelta = delta * body.globalDeltaIncrease
       const accel = body.consumeAcceleration()
       accel.x += this.#gravity.x
       accel.y += this.#gravity.y
 
-      body.velocity.x += accel.x * delta
-      body.velocity.y += accel.y * delta
+      body.velocity.x += accel.x * effectiveDelta
+      body.velocity.y += accel.y * effectiveDelta
 
-      collider.position.x += body.velocity.x * delta
-      collider.position.y += body.velocity.y * delta
+      body.position.x += body.velocity.x * effectiveDelta
+      body.position.y += body.velocity.y * effectiveDelta
     }
 
-    // 2. Resolve collisions between physics bodies
-    for (let i = 0; i < this.#bodies.length; i++) {
-      for (let j = i + 1; j < this.#bodies.length; j++) {
-        const a = this.#bodies[i]!
-        const b = this.#bodies[j]!
+    // 2. Resolve collisions between physics bodies using spatial hash
+    const resolved = new Set<string>()
 
-        if (!a.collider.collidesWith.size || !b.collider.collidesWith.size) continue
-        if (!this.#groupsMatch(a.collider, b.collider)) continue
-        if (!Narrowphase.detect(a.collider, b.collider)) continue
+    for (const entry of this.#bodies) {
+      for (const collider of entry.body.colliders) {
+        const candidates = CollisionSystem.queryCandidates(collider)
 
-        const result = this.#computeOverlap(a.collider, b.collider)
-        if (result == null) continue
+        for (const candidate of candidates) {
+          const otherEntry = this.#findBodyEntry(candidate)
+          if (otherEntry == null) continue
+          if (otherEntry.body === entry.body) continue
 
-        resolveCollision(a.body, b.body, result.overlap, result.normal)
+          const pairKey = this.#pairKey(entry.body, otherEntry.body)
+          if (resolved.has(pairKey)) continue
+
+          if (!this.#groupsMatch(collider, candidate)) continue
+
+          const result = computeOverlap(collider, candidate)
+          if (result == null) continue
+
+          resolved.add(pairKey)
+          resolveCollision(entry.body, otherEntry.body, result.overlap, result.normal)
+        }
       }
     }
   }
 
-  #groupsMatch(a: Collider, b: Collider): boolean {
-    return Array.from(a.collidesWith).some((group) => b.group.has(group))
+  #findBodyEntry(collider: Collider): BodyEntry | undefined {
+    for (const entry of this.#bodies) {
+      if (entry.body.colliders.has(collider)) return entry
+    }
+    return undefined
   }
 
-  #computeOverlap(a: Collider, b: Collider) {
-    const posA = a.globalPosition
-    const posB = b.globalPosition
-    const sizeA = a.size
-    const sizeB = b.size
+  #pairKey(a: RigidBody, b: RigidBody): string {
+    const aId = a.id.toString()
+    const bId = b.id.toString()
+    return aId < bId ? `${aId}:${bId}` : `${bId}:${aId}`
+  }
 
-    return computeAABBOverlap(posA, sizeA, posB, sizeB)
+  #groupsMatch(a: Collider, b: Collider): boolean {
+    return Array.from(a.collidesWith).some((group) => b.group.has(group))
   }
 }
