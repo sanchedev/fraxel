@@ -46,6 +46,10 @@ export class Input {
   static #handlePointerUp: (ev: PointerEvent) => void = () => {}
   static #handleResize: () => void = () => {}
 
+  /**
+   * The **`getInstance`** method returns the singleton instance of the `Input` class.
+   * @returns The `Input` instance.
+   */
   static getInstance(): Input {
     if (!Input.#instance) {
       Input.#instance = new Input()
@@ -53,7 +57,12 @@ export class Input {
     return Input.#instance
   }
 
-  /** Sets up the input system with the game canvas. Called by `Game.setup()`. */
+  /**
+   * The **`setup`** method initializes the input system with the game canvas.
+   * Called automatically by `Game.setup()`.
+   * @param canvas The game canvas element.
+   * @param size The logical game dimensions (width, height).
+   */
   static setup(canvas: HTMLCanvasElement, size: Vector2) {
     const canvasBounding = canvas.getBoundingClientRect()
     Input.#canvasPos = vector2(canvasBounding.x, canvasBounding.y)
@@ -118,8 +127,16 @@ export class Input {
   // --- Actions ---
 
   /**
-   * Creates an input action from a key binding and returns a symbol identifier.
+   * The **`createAction`** method creates an input action from a key binding and returns a symbol identifier.
+   * @param options The key binding configuration.
+   * @returns A unique symbol identifying the action.
    * @throws {DuplicateKeyError} if the key combo is already bound to another action.
+   *
+   * @example
+   * ```ts
+   * const Jump = Input.createAction({ key: ' ' })
+   * const Dash = Input.createAction({ key: 'ShiftLeft', shift: true })
+   * ```
    */
   static createAction(options: InputKey): symbol {
     const keyString = Input.#keyComboString(options)
@@ -135,7 +152,9 @@ export class Input {
   }
 
   /**
-   * Returns the key binding for a registered action.
+   * The **`getAction`** method returns the key binding for a registered action.
+   * @param action The action symbol to look up.
+   * @returns The `InputKey` configuration for the action.
    * @throws {ActionNotFoundError} if the action hasn't been registered.
    */
   static getAction(action: symbol): InputKey {
@@ -144,21 +163,33 @@ export class Input {
     return key
   }
 
-  /** Returns `true` while the action's key is held down. */
+  /**
+   * The **`isActionPressed`** method returns `true` while the action's key is held down.
+   * @param action The action symbol to check.
+   * @returns `true` if the action is currently pressed.
+   */
   static isActionPressed(action: symbol): boolean {
     const key = Input.#actions.get(action)
     if (key == null) return false
     return Input.isKeyPressed(key.key, key.ctrl, key.shift, key.alt)
   }
 
-  /** Returns `true` on the first frame the action's key is pressed. */
+  /**
+   * The **`justActionPressed`** method returns `true` on the first frame the action's key is pressed.
+   * @param action The action symbol to check.
+   * @returns `true` if the action was just pressed.
+   */
   static justActionPressed(action: symbol): boolean {
     const key = Input.#actions.get(action)
     if (key == null) return false
     return Input.isJustKeyPressed(key.key, key.ctrl, key.shift, key.alt)
   }
 
-  /** Returns `true` on the first frame the action's key is released. */
+  /**
+   * The **`justActionUnpressed`** method returns `true` on the first frame the action's key is released.
+   * @param action The action symbol to check.
+   * @returns `true` if the action was just released.
+   */
   static justActionUnpressed(action: symbol): boolean {
     const key = Input.#actions.get(action)
     if (key == null) return false
@@ -184,6 +215,14 @@ export class Input {
     return `${options.key.toLowerCase()}|${options.ctrl ?? false}|${options.alt ?? false}|${options.shift ?? false}`
   }
 
+  /**
+   * The **`isJustKeyPressed`** method returns `true` on the first frame a key is pressed.
+   * @param key The key name (e.g., `'a'`, `' '`, `'ArrowLeft'`).
+   * @param ctrlKey Whether Ctrl is required (default `false`).
+   * @param shiftKey Whether Shift is required (default `false`).
+   * @param altKey Whether Alt is required (default `false`).
+   * @returns `true` if the key was just pressed.
+   */
   static isJustKeyPressed(key: string, ctrlKey = false, shiftKey = false, altKey = false) {
     return Input.#justKeys.has(
       Input.#getKeyString({
@@ -194,6 +233,14 @@ export class Input {
       }),
     )
   }
+  /**
+   * The **`isKeyPressed`** method returns `true` while a key is held down.
+   * @param key The key name (e.g., `'a'`, `' '`, `'ArrowLeft'`).
+   * @param ctrlKey Whether Ctrl is required (default `false`).
+   * @param shiftKey Whether Shift is required (default `false`).
+   * @param altKey Whether Alt is required (default `false`).
+   * @returns `true` if the key is currently held.
+   */
   static isKeyPressed(key: string, ctrlKey = false, shiftKey = false, altKey = false) {
     return Input.#currentKeys.has(
       Input.#getKeyString({
@@ -204,6 +251,14 @@ export class Input {
       }),
     )
   }
+  /**
+   * The **`isJustKeyUnpressed`** method returns `true` on the first frame a key is released.
+   * @param key The key name (e.g., `'a'`, `' '`, `'ArrowLeft'`).
+   * @param ctrlKey Whether Ctrl is required (default `false`).
+   * @param shiftKey Whether Shift is required (default `false`).
+   * @param altKey Whether Alt is required (default `false`).
+   * @returns `true` if the key was just released.
+   */
   static isJustKeyUnpressed(key: string, ctrlKey = false, shiftKey = false, altKey = false) {
     return Input.#justKeysUnpressed.has(
       Input.#getKeyString({
@@ -215,6 +270,18 @@ export class Input {
     )
   }
 
+  /**
+   * The **`getKeyAxis`** method returns an axis value based on two opposing keys.
+   * @param positiveKey The key that produces +1 (e.g., `'ArrowRight'`).
+   * @param negativeKey The key that produces -1 (e.g., `'ArrowLeft'`).
+   * @returns `-1`, `0`, or `1` based on which key is held.
+   *
+   * @example
+   * ```ts
+   * const horizontal = Input.getKeyAxis('ArrowRight', 'ArrowLeft')
+   * // Returns: -1 (left), 0 (none), or 1 (right)
+   * ```
+   */
   static getKeyAxis(positiveKey: string, negativeKey: string) {
     let axis = 0
     if (Input.isKeyPressed(positiveKey)) axis += 1

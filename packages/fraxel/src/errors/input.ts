@@ -16,7 +16,12 @@ export class InputError extends FraxelError {
 }
 
 /**
- * Thrown when trying to access an action that hasn't been registered.
+ * The **`ActionNotFoundError`** error is thrown when trying to access an action that hasn't been registered.
+ * @example
+ * ```ts
+ * const action = Symbol('unknown')
+ * Input.getAction(action) // throws ActionNotFoundError
+ * ```
  */
 export class ActionNotFoundError extends InputError {
   constructor(action: symbol) {
@@ -25,7 +30,12 @@ export class ActionNotFoundError extends InputError {
 }
 
 /**
- * Thrown when trying to bind a key combo that's already used by another action.
+ * The **`DuplicateKeyError`** error is thrown when trying to bind a key combo that's already used by another action.
+ * @example
+ * ```ts
+ * const Jump = Input.createAction({ key: ' ' })
+ * const DoubleJump = Input.createAction({ key: ' ' }) // throws DuplicateKeyError
+ * ```
  */
 export class DuplicateKeyError extends InputError {
   constructor(keyCombo: string, existingAction: symbol, newAction: symbol) {

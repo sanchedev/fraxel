@@ -16,7 +16,9 @@ export class MathError extends FraxelError {
 }
 
 /**
- * The **`InvalidBoundsLikeError`** error is thrown when a value is not a valid BoundsLike (Bounds, {x, y} object, [x, y] tuple, or number).
+ * The **`InvalidBoundsLikeError`** error is thrown when a value is not a valid BoundsLike.
+ * A BoundsLike is a `Bounds` instance, number, `[horizontal, vertical]` tuple,
+ * `[left, top, right, bottom]` tuple, or object with `left/top/right/bottom` or `horizontal/vertical` properties.
  * @example
  * ```ts
  * // When this happens:
@@ -33,7 +35,7 @@ export class InvalidBoundsLikeError extends MathError {
           : (received?.constructor?.name ?? typeof received)
 
     super(
-      `Expected a BoundsLike but received ${type}. A BoundsLike is a Bounds2, {x, y} object, [x, y] tuple, or number.`,
+      `Expected a BoundsLike but received ${type}. A BoundsLike is a Bounds, number, [horizontal, vertical] tuple, or { left, top, right, bottom } object.`,
     )
   }
 }

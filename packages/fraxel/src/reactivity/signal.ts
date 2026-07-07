@@ -169,6 +169,22 @@ function createSignalGetter<T>(signal: Signal<T>): SignalGetter<T> {
   return fn
 }
 
+/**
+ * The **`isSignalGetter`** function checks if a value is a `SignalGetter` created by a `Signal`.
+ * Type guard that verifies the internal structure: has `.value()`, `.signal`, and the SignalSymbol marker.
+ * @param fn The value to check.
+ * @returns `true` if the value is a `SignalGetter`.
+ *
+ * @example
+ * ```ts
+ * const signal = new Signal(0)
+ * const getter = signal.getter
+ *
+ * isSignalGetter(getter)    // true
+ * isSignalGetter(() => 0)   // false
+ * isSignalGetter(42)        // false
+ * ```
+ */
 export function isSignalGetter<T>(fn: (...args: any[]) => T): fn is SignalGetter<T> {
   if (typeof fn !== 'function') return false
   if (!('value' in fn)) return false
