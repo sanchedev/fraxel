@@ -363,13 +363,6 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    */
   destroyed = new Event('destroy', () => {})
 
-  // Event functions
-  onZIndexChange?(_zIndex: number) {}
-  onStart?() {}
-  onDraw?(_delta: number) {}
-  onUpdate?(_delta: number) {}
-  onDestroy?() {}
-
   // Lifecycle methods
   /**
    * The **`start`** method initializes the node and starts its lifecycle.

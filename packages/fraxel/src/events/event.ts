@@ -31,6 +31,7 @@ export class Event<T extends any[], const K extends string> {
    */
   on(cb: Fun<T>) {
     this.#list.push(cb)
+    return () => this.off(cb)
   }
 
   /**
