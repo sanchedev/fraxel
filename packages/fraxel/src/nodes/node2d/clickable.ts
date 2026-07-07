@@ -1,12 +1,12 @@
-import { Game } from '../../core/game.js'
 import { GameConfig } from '../../core/game-config.js'
 import { Event } from '../../events/event.js'
-import { vectorize, type Vector2, type VectorLike } from '../../math/vector2.js'
+import { type Vector2, type VectorLike } from '../../math/vector2.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { Nodes } from '../lib/registry.js'
 import type { Reactive } from '../../reactivity/types.js'
-import { applySignal, propSignal } from '../../utils/ternaries.js'
+import { propSignal, signalVector } from '../../utils/ternaries.js'
+import { Input } from '../../input/input.js'
 
 /**
  * The **`ClickableOptions`** interface defines the options for a `Clickable` node.
@@ -99,12 +99,12 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
 
   constructor(options: ClickableOptions) {
     super(PrimaryNode.Clickable, options)
-    this.size = propSignal(this, 'size', applySignal(options.size, vectorize))
+    this.size = propSignal(this, 'size', signalVector(options.size))
     this.disabled = propSignal(this, 'disabled', options.disabled)
   }
 
   #isPointerInside(): boolean {
-    const pointer = Game.input.pointerPosition
+    const pointer = Input.pointerPosition
     const pos = this.globalPosition
     return (
       pointer.x >= pos.x &&
@@ -127,15 +127,15 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
         this.mouseExited.emit()
       }
 
-      const isPressed = Game.input.isPointerPressed
+      const isPressed = Input.isPointerPressed
       if (this.#wasPressed && !isPressed && isInside) {
-        const local = Game.input.pointerPosition.toSubtracted(this.globalPosition)
+        const local = Input.pointerPosition.toSubtracted(this.globalPosition)
         this.clicked.emit(local)
       }
       this.#wasPressed = isPressed
 
       if (isInside) {
-        const local = Game.input.pointerPosition.toSubtracted(this.globalPosition)
+        const local = Input.pointerPosition.toSubtracted(this.globalPosition)
         this.mouseOver.emit(local)
       }
     }
