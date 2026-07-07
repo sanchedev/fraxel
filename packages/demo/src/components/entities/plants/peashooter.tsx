@@ -5,7 +5,6 @@ import {
   loadTexture,
   PrimaryNode,
   shapes,
-  Vector2,
 } from 'fraxel'
 import type { PlantProps } from '../../types.js'
 import { useContext, useGame, useNode, useEffect } from 'fraxel/hooks'
@@ -44,7 +43,7 @@ export function Peashooter({ position, onDestroy }: PlantProps) {
     spawnProjectile(
       <Pea
         position={sprite.node.globalPosition
-          .toAdded(new Vector2(10, 8))
+          .toAdded([10, 8])
           .subtract(getGlobalPosition(sprite.node.parent?.parent))}
       />,
     )

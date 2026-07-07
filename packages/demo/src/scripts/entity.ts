@@ -1,5 +1,4 @@
-import { PrimaryNode, Signal } from 'fraxel'
-import { FraxelScript } from 'fraxel/scripts'
+import { FraxelScript, PrimaryNode, Signal } from 'fraxel'
 
 export abstract class EntityScript extends FraxelScript<PrimaryNode.Transform> {
   abstract health: Signal<number>
