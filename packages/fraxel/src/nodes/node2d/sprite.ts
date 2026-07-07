@@ -1,9 +1,9 @@
 import { getTexture, type Texture } from '../../assets/texture.js'
 import { GameConfig } from '../../core/game-config.js'
-import { vectorize, Vector2, type VectorLike } from '../../math/vector2.js'
+import { Vector2, type VectorLike } from '../../math/vector2.js'
 import type { Color } from '../../math/types.js'
 
-import { applySignal, ns, propSignal } from '../../utils/ternaries.js'
+import { ns, propSignal, signalVector } from '../../utils/ternaries.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { Nodes } from '../lib/registry.js'
@@ -33,7 +33,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    *
    * function Player() {
    *   return (
-   *     <sprite textureId={IDLE_TEXTURE} margin={new Vector2(16, 0)} />
+   *     <sprite textureId={IDLE_TEXTURE} margin={[16, 0]} />
    *   )
    * }
    * ```
@@ -52,8 +52,8 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    *   return (
    *     <sprite
    *       textureId={IDLE_TEXTURE}
-   *       margin={new Vector2(16, 0)}
-   *       sourceSize={new Vector2(16, 16)}
+   *       margin={[16, 0]}
+   *       sourceSize={[16, 16]}
    *     />
    *   )
    * }
@@ -73,9 +73,9 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    *   return (
    *     <sprite
    *       textureId={IDLE_TEXTURE}
-   *       margin={new Vector2(16, 0)}
-   *       sourceSize={new Vector2(16, 16)}
-   *       displaySize={new Vector2(32, 32)}
+   *       margin={[16, 0]}
+   *       sourceSize={[16, 16]}
+   *       displaySize={[32, 32]}
    *     />
    *   )
    * }
@@ -214,8 +214,8 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
  *     <sprite
  *       ref={sprite}
  *       textureId={PLAYER_TEXTURE}
- *       sourceSize={new Vector2(32, 32)}
- *       displaySize={new Vector2(64, 64)}
+ *       sourceSize={[32, 32]}
+ *       displaySize={[64, 64]}
  *       brightness={1.2}
  *       modulate={[1, 0.5, 0, 1]}
  *     />
@@ -373,11 +373,7 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
     }
 
     const vectors = (key: VectorNKeys & VectorOKeys) => {
-      return ns(
-        options[key],
-        (vector) => propSignal(this, key, applySignal(vector, vectorize)),
-        this[key],
-      )
+      return ns(options[key], (vector) => propSignal(this, key, signalVector(vector)), this[key])
     }
     this.margin = vectors('margin')
     this.sourceSize = vectors('sourceSize')
@@ -429,9 +425,7 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
         position: this.position,
         margin: this.margin,
         sourceSize: this.sourceSize,
-        displaySize: this.displaySize?.toMultiplied(
-          new Vector2(this.flipX ? -1 : 1, this.flipY ? -1 : 1),
-        ),
+        displaySize: this.displaySize?.toMultiplied([this.flipX ? -1 : 1, this.flipY ? -1 : 1]),
       })
 
       const isModulated =

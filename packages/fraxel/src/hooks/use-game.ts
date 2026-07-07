@@ -1,7 +1,7 @@
 import { GameConfig } from '../core/game-config.js'
 import { Game } from '../core/game.js'
 import type { GameControls } from '../jsx/render/game.js'
-import { Vector2 } from '../math/vector2.js'
+import { vector2 } from '../math/vector2.js'
 import { pushEffect } from './context.js'
 
 /**
@@ -24,6 +24,7 @@ export function useGame(): GameControls {
   return {
     play: () => Game.play(),
     pause: () => Game.pause(),
+    destroy: () => Game.destroy(),
     changeScene: (name) => {
       return Game.sceneManager.setScene(name)
     },
@@ -31,7 +32,7 @@ export function useGame(): GameControls {
       return Game.sceneManager.preloadScene(name)
     },
     getSize() {
-      return new Vector2(GameConfig.width, GameConfig.height)
+      return vector2(GameConfig.width, GameConfig.height)
     },
   }
 }

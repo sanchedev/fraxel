@@ -1,6 +1,6 @@
 import { GameConfig } from '../core/game-config.js'
 import { TextureNotFoundError } from '../errors/assets.js'
-import { Vector2 } from '../math/vector2.js'
+import { type Vector2 } from '../math/vector2.js'
 
 export class Texture {
   /** The **`width`** of the texture. */
@@ -33,7 +33,7 @@ export class Texture {
     const scaleX = flipX ? -1 : 1
     const scaleY = flipY ? -1 : 1
 
-    const pos = options.position.toMultiplied(new Vector2(scaleX, scaleY))
+    const pos = options.position.toMultiplied([scaleX, scaleY])
 
     GameConfig.ctx.save()
     GameConfig.ctx.scale(scaleX, scaleY)

@@ -21,7 +21,7 @@ export interface TransformOptions extends Node2DOptions<PrimaryNode.Transform> {
  *   const body = useNode(PrimaryNode.Transform)
  *
  *   return (
- *     <transform ref={body} position={new Vector2(100, 200)}>
+ *     <transform ref={body} position={[100, 200]}>
  *       <sprite textureId={PLAYER} />
  *     </transform>
  *   )

@@ -89,13 +89,21 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
   /**
    * The read-only **`size`** property returns the bounding dimensions of the shape.
    * For rectangles, returns the width and height. For circles, returns diameter x diameter.
+   * For capsules, returns the bounding box based on direction.
    */
   get size(): Vector2 {
     if (this.#shape.type === 'rectangle') {
       return this.#shape.size
     }
-    const d = this.#shape.radius * 2
-    return { x: d, y: d } as Vector2
+    if (this.#shape.type === 'circle') {
+      const d = this.#shape.radius * 2
+      return { x: d, y: d } as Vector2
+    }
+    // capsule
+    if (this.#shape.direction === 'vertical') {
+      return { x: this.#shape.radius * 2, y: this.#shape.length } as Vector2
+    }
+    return { x: this.#shape.length, y: this.#shape.radius * 2 } as Vector2
   }
 
   constructor(options: ColliderOptions) {
@@ -140,6 +148,8 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
         GameConfig.ctx.arc(this.position.x, this.position.y, this.#shape.radius, 0, Math.PI * 2)
         GameConfig.ctx.fill()
         GameConfig.ctx.stroke()
+      } else if (this.#shape.type === 'capsule') {
+        this.#drawCapsule()
       } else {
         GameConfig.ctx.fillRect(
           this.position.x,
@@ -157,6 +167,40 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
     }
 
     super.draw(delta)
+  }
+
+  #drawCapsule(): void {
+    if (this.#shape.type !== 'capsule') return
+    const { length, radius, direction } = this.#shape
+    const ctx = GameConfig.ctx
+    const px = this.position.x
+    const py = this.position.y
+
+    ctx.beginPath()
+
+    if (direction === 'vertical') {
+      const cx = px + radius
+      const topY = py + radius
+      const botY = py + length - radius
+
+      ctx.arc(cx, topY, radius, Math.PI, 0)
+      ctx.lineTo(cx + radius, botY)
+      ctx.arc(cx, botY, radius, 0, Math.PI)
+      ctx.lineTo(cx - radius, topY)
+    } else {
+      const cy = py + radius
+      const leftX = px + radius
+      const rightX = px + length - radius
+
+      ctx.arc(leftX, cy, radius, Math.PI * 0.5, Math.PI * 1.5)
+      ctx.lineTo(rightX, cy - radius)
+      ctx.arc(rightX, cy, radius, -Math.PI * 0.5, Math.PI * 0.5)
+      ctx.lineTo(leftX, cy + radius)
+    }
+
+    ctx.closePath()
+    ctx.fill()
+    ctx.stroke()
   }
 
   /** @internal Checks position changes and marks collision system dirty. */

@@ -155,7 +155,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    * })
    *
    * return (
-   *   <sprite ref={sprite} textureId={IDLE_TEXTURE} sourceSize={new Vector2(16, 16)}>
+   *   <sprite ref={sprite} textureId={IDLE_TEXTURE} sourceSize={[16, 16]}>
    *     <animation-player ref={anim} />
    *   </sprite>
    * )
@@ -193,7 +193,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    * })
    *
    * return (
-   *   <sprite ref={sprite} textureId={IDLE_TEXTURE} sourceSize={new Vector2(16, 16)}>
+   *   <sprite ref={sprite} textureId={IDLE_TEXTURE} sourceSize={[16, 16]}>
    *     <animation-player ref={anim} />
    *   </sprite>
    * )

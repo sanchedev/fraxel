@@ -5,7 +5,7 @@ import type { NodeReference } from '../../use-node.js'
 import { useSignal } from '../../use-signal.js'
 import { usePartialNode } from '../use-partial-node.js'
 import { useComputed } from '../../use-computed.js'
-import { vectorize, type VectorLike } from '../../../math/vector2.js'
+import { vector2, type VectorLike } from '../../../math/vector2.js'
 
 /**
  * The **`useRigidBody`** derived hook provides a declarative API for the `RigidBody` node.
@@ -51,18 +51,18 @@ export function useRigidBody(body?: NodeReference<PrimaryNode.RigidBody>) {
     setGrounded(node.isGrounded)
   })
 
-  const velocity = useComputed(() => ({ x: velX(), y: velY() }))
+  const velocity = useComputed(() => vector2(velX(), velY()))
 
   const applyForce = (force: VectorLike) => {
-    ref.node.applyForce(vectorize(force))
+    ref.node.applyForce(vector2(force))
   }
 
   const applyImpulse = (impulse: VectorLike) => {
-    ref.node.applyImpulse(vectorize(impulse))
+    ref.node.applyImpulse(vector2(impulse))
   }
 
   const setVelocity = (v: VectorLike) => {
-    ref.node.setVelocity(vectorize(v))
+    ref.node.setVelocity(vector2(v))
   }
 
   return {

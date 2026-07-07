@@ -12,7 +12,7 @@ import {
   MissingGameRootError,
   MissingSceneError,
 } from '../../errors/jsx.js'
-import { Vector2 } from '../../math/vector2.js'
+import { vector2, Vector2 } from '../../math/vector2.js'
 import { GameConfig } from '../../core/game-config.js'
 
 /** The **`createGame`** function creates the game and returns an object with control methods that can be used to play, pause the game, change the scene, etc...
@@ -65,11 +65,10 @@ export function createGame(jsx: Fraxel.Node, root: HTMLElement): GameControls {
 
   GameP.sceneManager.setScene(defaultScene)
 
-  GameP.play()
-
   return {
     play: () => GameP.play(),
     pause: () => GameP.pause(),
+    destroy: () => GameP.destroy(),
     changeScene: (name) => {
       return GameP.sceneManager.setScene(name)
     },
@@ -77,7 +76,7 @@ export function createGame(jsx: Fraxel.Node, root: HTMLElement): GameControls {
       return GameP.sceneManager.preloadScene(name)
     },
     getSize() {
-      return new Vector2(GameConfig.width, GameConfig.height)
+      return vector2(GameConfig.width, GameConfig.height)
     },
   }
 }
@@ -91,6 +90,10 @@ export interface GameControls {
    * The **`pause`** method pauses the game.
    */
   pause: () => void
+  /**
+   * The **`destroy`** method destroys the game.
+   */
+  destroy: () => void
   /**
    * The **`changeScene`** method sets and loads the scene.
    */

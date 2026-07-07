@@ -17,11 +17,11 @@ import type { Node } from '../nodes/_node.js'
  *       multiKF([
  *         kfFromProp(sprite, 'textureId', 'idle'),
  *         // () => sprite.margin.x = 0,
- *         kfFromProp(sprite, 'margin', new Vector2(0, 0)),
+ *         kfFromProp(sprite, 'margin', vector2(0, 0)),
  *       ]),
- *       kfFromProp(sprite, 'margin', new Vector2(16, 0)),
- *       kfFromProp(sprite, 'margin', new Vector2(32, 0)),
- *       kfFromProp(sprite, 'margin', new Vector2(48, 0)),
+ *       kfFromProp(sprite, 'margin', vector2(16, 0)),
+ *       kfFromProp(sprite, 'margin', vector2(32, 0)),
+ *       kfFromProp(sprite, 'margin', vector2(48, 0)),
  *     ],
  *     loop: true,
  *   })

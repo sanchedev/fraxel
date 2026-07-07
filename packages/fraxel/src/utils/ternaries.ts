@@ -1,4 +1,5 @@
-import type { Node } from '../nodes'
+import { vector2, type Vector2, type VectorLike } from '../math/index.js'
+import type { Node } from '../nodes/_node.js'
 import { reactive, subReactive, type Reactive, type SignalGetter } from '../reactivity'
 
 export function ns<T, K>(value: T | null | undefined, operation: (value: T) => K, defaultValue: K) {
@@ -27,4 +28,8 @@ export function applySignal<T, K>(prop: Reactive<T>, changer: (value: T) => K): 
   if (typeof prop !== 'function') return changer(prop)
 
   return reactive(() => changer((prop as SignalGetter<T>)()))
+}
+
+export function signalVector(vector: Reactive<VectorLike>): Reactive<Vector2> {
+  return applySignal(vector, (v) => vector2(v))
 }

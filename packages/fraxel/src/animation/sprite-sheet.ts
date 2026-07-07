@@ -1,6 +1,6 @@
 import { getTexture } from '../assets/texture.js'
 import type { NodeReference } from '../hooks/use-node.js'
-import { Vector2 } from '../math/vector2.js'
+import { vector2 } from '../math/vector2.js'
 import type { Animation, AnimationKeyframe } from '../nodes/animation-player.js'
 import type { PrimaryNode } from '../nodes/index.js'
 import { Sprite } from '../nodes/node2d/sprite.js'
@@ -50,13 +50,13 @@ export function keyframesFromSheet(
   const from = Math.min(range?.[0] ?? 0, count - 1)
   const to = Math.max(range?.[1] ?? count - 1, from)
 
-  sprite.sourceSize = new Vector2(sizeX, sizeY)
+  sprite.sourceSize = vector2(sizeX, sizeY)
   const kfs = Array.from({ length: to - from + 1 }, (_, i) => {
     const index = i + from
     const x = index % columns
     const y = Math.floor(index / columns)
 
-    return kfFromProp(sprite, 'margin', new Vector2(x * sizeX, y * sizeY))
+    return kfFromProp(sprite, 'margin', vector2(x * sizeX, y * sizeY))
   })
 
   return [

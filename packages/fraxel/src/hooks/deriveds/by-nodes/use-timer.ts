@@ -23,7 +23,7 @@ import { usePartialNode } from '../use-partial-node.js'
  *   return (
  *     <transform>
  *       <timer ref={ref} duration={3} autoPlay />
- *       <rectangle size={[100, 10]} fillColor={[1 - progress(), progress(), 0, 1]} />
+ *       <geometry shape={shapes.rectangle(100, 10)} fillColor={[1 - progress(), progress(), 0, 1]} />
  *     </transform>
  *   )
  * }

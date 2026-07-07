@@ -1,6 +1,6 @@
 import { GameConfig } from '../../core/game-config.js'
-import { Vector2, vectorize, type VectorLike } from '../../math/vector2.js'
-import { applySignal, ns, propSignal } from '../../utils/ternaries.js'
+import { Vector2, type VectorLike } from '../../math/vector2.js'
+import { ns, propSignal, signalVector } from '../../utils/ternaries.js'
 import type { PrimaryNode } from '../lib/enum.js'
 import { Node, type NodeOptions } from '../_node.js'
 import { getGlobalPosition } from './lib/utils.js'
@@ -53,7 +53,7 @@ export abstract class Node2D<T extends PrimaryNode = PrimaryNode> extends Node<T
     super(type, options)
     this.position = ns(
       options.position,
-      (vector) => propSignal(this, 'position', applySignal(vector, vectorize)),
+      (vector) => propSignal(this, 'position', signalVector(vector)),
       this.position,
     )
   }

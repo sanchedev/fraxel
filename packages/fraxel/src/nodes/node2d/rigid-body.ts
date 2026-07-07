@@ -59,9 +59,9 @@ export interface RigidBodyOptions extends Node2DOptions<PrimaryNode.RigidBody> {
  */
 export class RigidBody extends Node2D<PrimaryNode.RigidBody> {
   /** Current velocity in pixels per second. */
-  velocity = new Vector2(0, 0)
+  velocity = Vector2.ZERO
   /** Accumulated force to apply this frame (reset after integration). */
-  #acceleration = new Vector2(0, 0)
+  #acceleration = Vector2.ZERO
   /** Mass — higher values are heavier. 0 means infinite mass (static). */
   mass: number
   /** Friction coefficient (0 to 1). Applied on collision. */
@@ -73,7 +73,7 @@ export class RigidBody extends Node2D<PrimaryNode.RigidBody> {
   /** If false, gravity is not applied. */
   useGravity: boolean
 
-  /** Whether this body is currently on the ground (set by resolver). */
+  /** Whether this body is currently resting on a surface below it. Set automatically each frame. */
   isGrounded = false
 
   colliders: Set<Collider> = new Set()

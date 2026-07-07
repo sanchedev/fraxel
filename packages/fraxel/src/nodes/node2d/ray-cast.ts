@@ -1,13 +1,13 @@
 import { GameConfig } from '../../core/game-config.js'
 import { Event } from '../../events/event.js'
-import { Vector2, vectorize, type VectorLike } from '../../math/vector2.js'
+import { Vector2, type VectorLike } from '../../math/vector2.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { Nodes } from '../lib/registry.js'
 import { CollisionSystem } from '../../collision/collision-system.js'
 import type { Collider } from './collider.js'
 import type { Reactive } from '../../reactivity/types.js'
-import { applySignal, propSignal } from '../../utils/ternaries.js'
+import { propSignal, signalVector } from '../../utils/ternaries.js'
 
 export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
   /**
@@ -17,13 +17,13 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
    * @example
    * ```tsx
    * // 3 units to the right
-   * <ray-cast direction={new Vector2(3, 0)} ... />
+   * <ray-cast direction={[3, 0]} ... />
    *
    * // 2 units to the left
-   * <ray-cast direction={new Vector2(-2, 0)} ... />
+   * <ray-cast direction={[-2, 0]} ... />
    *
    * // 3 units right and 3 units up (diagonal)
-   * <ray-cast direction={new Vector2(3, 3)} ... />
+   * <ray-cast direction={[3, 3]} ... />
    * ```
    */
   direction: Reactive<VectorLike>
@@ -57,7 +57,7 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
  *   return (
  *     <ray-cast
  *       ref={ray}
- *       direction={new Vector2(100, 0)}
+ *       direction={[100, 0]}
  *       collidesWith={['enemy']}
  *     />
  *   )
@@ -77,7 +77,7 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
   constructor(options: RayCastOptions) {
     super(PrimaryNode.RayCast, options)
 
-    this.direction = propSignal(this, 'direction', applySignal(options.direction, vectorize))
+    this.direction = propSignal(this, 'direction', signalVector(options.direction))
     this.#collidesWith = Array.from(new Set(options.collidesWith))
   }
 
