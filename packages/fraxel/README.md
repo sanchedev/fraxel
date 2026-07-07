@@ -3,7 +3,7 @@
 > A lightning-fast JSX runtime for building 2D games in the browser — declarative, reactive, zero React.
 
 [![CI](https://github.com/sanchedev/fraxel/actions/workflows/ci.yml/badge.svg)](https://github.com/sanchedev/fraxel/actions)
-[![npm version](https://img.shields.io/badge/version-0.1.0--alpha.2-blue)](https://github.com/sanchedev/fraxel)
+[![npm version](https://img.shields.io/badge/version-0.1.0--alpha.3-blue)](https://github.com/sanchedev/fraxel)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 **fraxel** lets you build 2D games using JSX syntax with a custom runtime — **no React, no DOM overhead, no bundle bloat.** Write your game logic using hooks, signals, and component architecture that frontend developers already know and love, rendered directly to `<canvas>` at 60FPS.
@@ -101,7 +101,7 @@ JSX elements that map to engine classes:
 | `Collider`        | `<collider>`         | Detects overlaps with other colliders      |
 | `RayCast`         | `<ray-cast>`         | Projects a ray to detect colliders         |
 | `Clickable`       | `<clickable>`        | Detects click/hover pointer events         |
-| `Rectangle`       | `<rectangle>`        | Renders a filled/stroked rectangle         |
+| `Geometry`        | `<geometry>`         | Renders rectangles, circles, or capsules   |
 | `Timer`           | `<timer>`            | Counts up and fires events                 |
 | `Text`            | `<text>`             | Renders text on the canvas                 |
 | `AudioPlayer`     | `<audio-player>`     | Plays audio buffers                        |
@@ -112,22 +112,24 @@ JSX elements that map to engine classes:
 
 ### Core Hooks
 
-| Hook                              | Description                                               |
-| --------------------------------- | --------------------------------------------------------- |
-| `useNode(type)`                   | Creates a typed reference to pass as `ref`                |
-| `useEvent(node, event, callback)` | Type-safe event subscription with auto-cleanup            |
-| `useEffect(fn)`                   | Runs effect on mount and when signals change (batched)    |
-| `useSignal(initial)`              | Creates reactive state that triggers re-renders           |
-| `useComputed(fn)`                 | Creates a derived signal that recomputes when deps change |
-| `useMount(fn)`                    | Runs once on mount, cleanup on destroy                    |
-| `useSpawn(node)`                  | Returns a function to dynamically spawn children          |
-| `useGame()`                       | Access game controls (play, pause, changeScene)           |
-| `useChild(path, type)`            | Gets a reference to a child node by path                  |
-| `useScript(ref)`                  | Retrieves the FraxelScript attached to a node             |
-| `useTrigger(trigger, callback)`   | Pub/sub for cross-component communication                 |
-| `createContext(default)`          | Creates a context with `Provider` component               |
-| `useContext(context)`             | Retrieves the current context value                       |
-| `useRef(value)`                   | Mutable reference that persists across renders            |
+| Hook                              | Description                                                 |
+| --------------------------------- | ----------------------------------------------------------- |
+| `useNode(type)`                   | Creates a typed reference to pass as `ref`                  |
+| `useEvent(node, event, callback)` | Type-safe event subscription with auto-cleanup              |
+| `useEffect(fn)`                   | Runs effect on mount and when signals change (batched)      |
+| `useSignal(initial)`              | Creates reactive state that triggers re-renders             |
+| `useComputed(fn)`                 | Creates a derived signal that recomputes when deps change   |
+| `useMount(fn)`                    | Runs once on mount, cleanup on destroy                      |
+| `useSpawn(node)`                  | Returns a function to dynamically spawn children            |
+| `useGame()`                       | Access game controls (play, pause, changeScene)             |
+| `useChild(path, type)`            | Gets a reference to a child node by path                    |
+| `useScript(ref)`                  | Retrieves the FraxelScript attached to a node               |
+| `useAction(action)`               | Reactive action state (pressed, justPressed, justUnpressed) |
+| `useActionAxis(neg, pos)`         | Reactive axis from two opposing actions (-1, 0, or 1)       |
+| `useTrigger(trigger, callback)`   | Pub/sub for cross-component communication                   |
+| `createContext(default)`          | Creates a context with `Provider` component                 |
+| `useContext(context)`             | Retrieves the current context value                         |
+| `useRef(value)`                   | Mutable reference that persists across renders              |
 
 ### Derived Hooks
 
@@ -145,13 +147,14 @@ JSX elements that map to engine classes:
 
 ## Collision System
 
-Built-in rectangle/circle shapes with spatial hash broadphase and raycast support:
+Built-in rectangle, circle, and capsule shapes with spatial hash broadphase and raycast support:
 
 ```tsx
 import { shapes } from 'fraxel'
 
 <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy']} />
 <collider shape={shapes.circle(16)} group={['projectile']} collidesWith={['zombie']} />
+<collider shape={shapes.capsule(60, 20)} group={['player']} collidesWith={['ground']} />
 ```
 
 ## Physics
