@@ -116,7 +116,7 @@ function Detector() {
     console.log('Detected:', collider)
   })
 
-  return <ray-cast ref={ray} direction={new Vector2(100, 0)} collidesWith={['enemy']} />
+  return <ray-cast ref={ray} direction={[100, 0]} collidesWith={['enemy']} />
 }
 ```
 

@@ -85,13 +85,13 @@ function Player() {
 The default gravity is `980 px/s²` downward (like Earth gravity in pixel units).
 
 ```tsx
-import { PhysicsSystem, Vector2 } from 'fraxel'
+import { PhysicsSystem, vector2 } from 'fraxel'
 
 // Change gravity at runtime
-PhysicsSystem.gravity = new Vector2(0, -200) // float upward
+PhysicsSystem.gravity = vector2(0, -200) // float upward
 
 // Moon gravity
-PhysicsSystem.gravity = new Vector2(0, 160)
+PhysicsSystem.gravity = vector2(0, 160)
 ```
 
 ## Forces & Impulses
@@ -100,19 +100,19 @@ Access the physics body through the `useRigidBody` hook or directly via `useNode
 
 ```tsx
 import { useNode, useEvent } from 'fraxel/hooks'
-import { PrimaryNode, Vector2 } from 'fraxel'
+import { PrimaryNode, vector2 } from 'fraxel'
 
 function Player() {
   const body = useNode(PrimaryNode.RigidBody)
 
   useEvent(body, 'updated', (delta) => {
     // Apply a continuous force (like thrust)
-    body.node.applyForce(new Vector2(100 * delta, 0))
+    body.node.applyForce(vector2(100 * delta, 0))
   })
 
   // Apply an instant impulse (like a jump)
   const jump = () => {
-    body.node.applyImpulse(new Vector2(0, -400))
+    body.node.applyImpulse(vector2(0, -400))
   }
 
   return (

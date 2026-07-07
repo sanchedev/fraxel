@@ -54,7 +54,7 @@ Project rays to detect colliders along a direction:
 
 ```tsx
 import { useNode, useEvent } from 'fraxel/hooks'
-import { PrimaryNode, Vector2 } from 'fraxel'
+import { PrimaryNode } from 'fraxel'
 
 function Detector() {
   const ray = useNode(PrimaryNode.RayCast)
@@ -63,7 +63,7 @@ function Detector() {
     console.log('Detected:', collider)
   })
 
-  return <ray-cast ref={ray} direction={new Vector2(100, 0)} collidesWith={['enemy']} />
+  return <ray-cast ref={ray} direction={[100, 0]} collidesWith={['enemy']} />
 }
 ```
 
@@ -104,9 +104,9 @@ function Ball() {
 ### Gravity
 
 ```tsx
-import { PhysicsSystem, Vector2 } from 'fraxel'
+import { PhysicsSystem, vector2 } from 'fraxel'
 
-PhysicsSystem.gravity = new Vector2(0, 980) // default
+PhysicsSystem.gravity = vector2(0, 980) // default
 ```
 
 ### Forces & Impulses
@@ -115,10 +115,10 @@ PhysicsSystem.gravity = new Vector2(0, 980) // default
 const body = useNode(PrimaryNode.RigidBody)
 
 // Continuous force (thrust, wind)
-body.node.physicsBody.applyForce(new Vector2(100, 0))
+body.node.physicsBody.applyForce(vector2(100, 0))
 
 // Instant impulse (jump, explosion)
-body.node.physicsBody.applyImpulse(new Vector2(0, -400))
+body.node.physicsBody.applyImpulse(vector2(0, -400))
 ```
 
 See [Physics](physics.md) for full documentation.
