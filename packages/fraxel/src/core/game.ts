@@ -5,10 +5,11 @@ import { getDPRFromCtx } from '../utils/dpr.js'
 import { Event } from '../events/event.js'
 import { Context2DNotSupportedError } from '../errors/env.js'
 import { EngineNotSetupError } from '../errors/lifecycle.js'
-import { Input, type InputOptions } from '../input/input.js'
-import { Vector2 } from '../math/vector2.js'
+import { Input } from '../input/input.js'
+import { vector2 } from '../math/vector2.js'
 import { CollisionSystem } from '../collision/collision-system.js'
 import { PhysicsSystem } from '../collision/physics/physics-system.js'
+import { Camera } from '../nodes/node2d/camera.js'
 
 interface SetupOptions {
   /** The **`width`** of the canvas. */
@@ -21,8 +22,6 @@ interface SetupOptions {
   testOptions?: Partial<TestOptions>
   /** The defualt **`Theme`**. */
   theme?: Theme
-  /** The **`inputOptions`** of the game. */
-  inputOptions?: InputOptions
 }
 
 let isPaused = false
@@ -103,7 +102,7 @@ export class Game {
 
     this.sceneManager.setScene(null)
 
-    Game.input = new Input(canvas, new Vector2(width, height), options.inputOptions)
+    Input.setup(canvas, vector2(width, height))
   }
 
   /**
@@ -150,7 +149,7 @@ export class Game {
     window.cancelAnimationFrame(handle)
     window.removeEventListener('blur', onBlur)
 
-    Game.input.destroy()
+    Input.destroy()
     this.sceneManager.setScene(null)
 
     wakeLock?.release()
@@ -196,13 +195,16 @@ export class Game {
       node.update(delta)
       CollisionSystem.update(delta)
       PhysicsSystem.update(delta)
+
+      const camera = Camera.getCurrent()
+      GameConfig.ctx.save()
+      camera?.apply(GameConfig.ctx)
       node.draw(delta)
+      GameConfig.ctx.restore()
     }
 
-    Game.input.update()
+    Input.update()
   }
-
-  static input: Input
 
   /**
    * Detects whether the `Game` is **blured**
