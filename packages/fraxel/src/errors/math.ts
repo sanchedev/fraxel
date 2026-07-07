@@ -16,6 +16,29 @@ export class MathError extends FraxelError {
 }
 
 /**
+ * The **`InvalidBoundsLikeError`** error is thrown when a value is not a valid BoundsLike (Bounds, {x, y} object, [x, y] tuple, or number).
+ * @example
+ * ```ts
+ * // When this happens:
+ * throw new InvalidBoundsLikeError(null)
+ * ```
+ */
+export class InvalidBoundsLikeError extends MathError {
+  constructor(received: unknown) {
+    const type =
+      received === null
+        ? 'null'
+        : received === undefined
+          ? 'undefined'
+          : (received?.constructor?.name ?? typeof received)
+
+    super(
+      `Expected a BoundsLike but received ${type}. A BoundsLike is a Bounds2, {x, y} object, [x, y] tuple, or number.`,
+    )
+  }
+}
+
+/**
  * The **`InvalidVectorLikeError`** error is thrown when a value is not a valid VectorLike (Vector2, {x, y} object, [x, y] tuple, or number).
  * @example
  * ```ts

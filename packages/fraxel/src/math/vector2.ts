@@ -1,173 +1,326 @@
 import { InvalidVectorLikeError } from '../errors/math.js'
 
-/** **`Vector2`** class helps to manage points in the plane. */
+/**
+ * The **`Vector2`** class represents a 2D vector and helps manage points in the plane.
+ * Supports construction from multiple formats and provides immutable/mutable operations.
+ *
+ * @example
+ * ```ts
+ * import { Vector2 } from 'fraxel'
+ *
+ * // From x, y
+ * const a = new Vector2(10, 20)
+ *
+ * // From array
+ * const b = new Vector2([5, 15])
+ *
+ * // From object
+ * const c = new Vector2({ x: 3, y: 7 })
+ *
+ * // Uniform scale
+ * const d = new Vector2(5) // (5, 5)
+ * ```
+ */
 export class Vector2 {
-  /** Vector in position ZERO (0, 0) */
+  /** The **`ZERO`** constant returns a vector at position (0, 0). */
   static get ZERO() {
     return new Vector2(0, 0)
   }
-  /** Vector in position ONE (1, 1) */
+  /** The **`ONE`** constant returns a vector at position (1, 1). */
   static get ONE() {
     return new Vector2(1, 1)
   }
 
   /**
-   * The **`fromJSON`** method creates a `Vector2` from a `Position` object.
-   * @param position The position object with `x` and `y` properties.
+   * The **`from`** static method creates a `Vector2` from various input formats.
+   * @throws {InvalidVectorLikeError} if the input is not a valid vector format.
+   *
+   * @example
+   * ```ts
+   * const a = Vector2.from(new Vector2(1, 2))       // from Vector2
+   * const b = Vector2.from({ x: 3, y: 4 })          // from Position
+   * const c = Vector2.from([5, 6])                   // from tuple
+   * const d = Vector2.from(7)                         // uniform scale (7, 7)
+   * const e = Vector2.from(3, 4)                      // from x, y
+   * ```
+   */
+  static from(vector2: Vector2): Vector2
+  static from(position: Position): Vector2
+  static from(coords: [x: number, y: number]): Vector2
+  static from(scale: number): Vector2
+  static from(vectorLike: VectorLike): Vector2
+  static from(x: number, y: number): Vector2
+  static from(arg1: VectorLike, arg2?: number): Vector2 {
+    return new Vector2(arg1 as number, arg2!)
+  }
+
+  /** The x-coordinate of the vector. */
+  x: number
+  /** The y-coordinate of the vector. */
+  y: number
+
+  /**
+   * Creates a new `Vector2`. Accepts multiple input formats.
+   * @throws {InvalidVectorLikeError} if the input is not a valid vector format.
+   *
+   * @example
+   * ```ts
+   * new Vector2(10, 20)          // (10, 20)
+   * new Vector2([5, 15])         // (5, 15)
+   * new Vector2({ x: 3, y: 7 }) // (3, 7)
+   * new Vector2(5)               // (5, 5)
+   * ```
+   */
+  constructor(vector2: Vector2)
+  constructor(position: Position)
+  constructor(coords: [x: number, y: number])
+  constructor(scale: number)
+  constructor(vectorLike: VectorLike)
+  constructor(x: number, y: number)
+  constructor(arg1: VectorLike, arg2?: number) {
+    if (arg1 instanceof Vector2) {
+      this.x = arg1.x
+      this.y = arg1.y
+    } else if (typeof arg1 === 'number') {
+      this.x = arg1
+      this.y = arg2 ?? arg1
+    } else if (
+      'x' in arg1 &&
+      typeof arg1.x === 'number' &&
+      'y' in arg1 &&
+      typeof arg1.y === 'number'
+    ) {
+      this.x = arg1.x
+      this.y = arg1.y
+    } else if (
+      Array.isArray(arg1) &&
+      arg1.length === 2 &&
+      typeof arg1[0] === 'number' &&
+      typeof arg1[1] === 'number'
+    ) {
+      this.x = arg1[0]
+      this.y = arg1[1]
+    } else {
+      throw new InvalidVectorLikeError(arg1)
+    }
+  }
+
+  /**
+   * The **`clone`** method returns a new `Vector2` with the same x and y values.
    * @returns A new `Vector2` instance.
    *
    * @example
    * ```ts
-   * const vec = Vector2.fromJSON({ x: 10, y: 20 })
-   * vec.x // 10
-   * vec.y // 20
+   * const a = new Vector2(1, 2)
+   * const b = a.clone()
+   * b.x = 10
+   * console.log(a.x) // 1 (unchanged)
    * ```
-   */
-  static fromJSON(position: Position): Vector2 {
-    return new Vector2(position.x, position.y)
-  }
-
-  static vectorize(vectorlike: VectorLike) {
-    return vectorize(vectorlike)
-  }
-
-  constructor(
-    /** The **`x`** property of `Vector2` represents the x-coordinate. */
-    public x: number,
-    /** The **`y`** property of `Vector2` represents the y-coordinate. */
-    public y: number,
-  ) {}
-
-  /**
-   * The **`clone`** method clones the vector without the same reference.
    */
   clone() {
     return new Vector2(this.x, this.y)
   }
 
   /**
-   * The **`add`** method adds other vector to this vector.
-   * @param vector2
+   * The **`add`** method adds a vector to this vector (mutating).
+   * @param vectorLike The vector to add.
+   * @returns This vector for chaining.
+   *
+   * @example
+   * ```ts
+   * const v = new Vector2(1, 2)
+   * v.add([3, 4]) // v is now (4, 6)
+   * ```
    */
-  add(vector2: Vector2): Vector2
-  /**
-   * The **`add`** method adds a number to `x` and `y` of this vector.
-   * @param vector2
-   */
-  add(num: number): Vector2
-  add(arg: Vector2 | number): Vector2 {
-    if (arg instanceof Vector2) {
-      this.x += arg.x
-      this.y += arg.y
-    }
-    if (typeof arg === 'number') {
-      this.x += arg
-      this.y += arg
-    }
-
-    return this
+  add(vectorLike: VectorLike): Vector2 {
+    const vector = new Vector2(vectorLike)
+    return this.apply((coord, axis) => coord + vector[axis])
   }
 
   /**
-   * The **`toAdded`** method clones this vector and adds other vector to the clone.
-   * @param vector2
+   * The **`toAdded`** method returns a new vector with the sum of this and another vector.
+   * @param vectorLike The vector to add.
+   * @returns A new `Vector2` instance.
+   *
+   * @example
+   * ```ts
+   * const a = new Vector2(1, 2)
+   * const b = a.toAdded([3, 4]) // (4, 6)
+   * console.log(a.x)           // 1 (unchanged)
+   * ```
    */
-  toAdded(vector2: Vector2): Vector2
-  /**
-   * The **`toAdded`** method clones this vector and adds a number to `x` and `y` of the clone.
-   * @param num
-   */
-  toAdded(num: number): Vector2
-  toAdded(arg: Vector2 | number): Vector2 {
-    return this.clone().add(arg as number)
+  toAdded(vectorLike: VectorLike): Vector2 {
+    return this.clone().add(vectorLike)
   }
 
   /**
-   * The **`subtract`** method subtracts other vector to this vector.
-   * @param vector2
+   * The **`subtract`** method subtracts a vector from this vector (mutating).
+   * @param vectorLike The vector to subtract.
+   * @returns This vector for chaining.
+   *
+   * @example
+   * ```ts
+   * const v = new Vector2(5, 10)
+   * v.subtract([2, 3]) // v is now (3, 7)
+   * ```
    */
-  subtract(vector2: Vector2): Vector2
-  /**
-   * The **`subtract`** method subtracts a number to `x` and `y` of this vector.
-   * @param num
-   */
-  subtract(num: number): Vector2
-  subtract(arg: Vector2 | number): Vector2 {
-    if (arg instanceof Vector2) {
-      this.x -= arg.x
-      this.y -= arg.y
-    }
-    if (typeof arg === 'number') {
-      this.x -= arg
-      this.y -= arg
-    }
-
-    return this
+  subtract(vectorLike: VectorLike): Vector2 {
+    const vector = new Vector2(vectorLike)
+    return this.apply((coord, axis) => coord - vector[axis])
   }
 
   /**
-   * The **`toSubtracted`** method clones this vector and subtracts other vector to the clone.
-   * @param vector2
+   * The **`toSubtracted`** method returns a new vector with the difference of this and another vector.
+   * @param vectorLike The vector to subtract.
+   * @returns A new `Vector2` instance.
+   *
+   * @example
+   * ```ts
+   * const a = new Vector2(5, 10)
+   * const b = a.toSubtracted([2, 3]) // (3, 7)
+   * console.log(a.x)                 // 5 (unchanged)
+   * ```
    */
-  toSubtracted(vector2: Vector2): Vector2
-  /**
-   * The **`toSubtracted`** method clones this vector and subtracts a number to `x` and `y` of the clone.
-   * @param num
-   */
-  toSubtracted(num: number): Vector2
-  toSubtracted(arg: Vector2 | number): Vector2 {
-    return this.clone().subtract(arg as number)
+  toSubtracted(vectorLike: VectorLike): Vector2 {
+    return this.clone().subtract(vectorLike)
   }
 
   /**
-   * The **`multiply`** method multiplies other vector to this vector.
-   * @param vector2
+   * The **`multiply`** method multiplies this vector by another vector (mutating).
+   * @param vectorLike The vector to multiply by.
+   * @returns This vector for chaining.
+   *
+   * @example
+   * ```ts
+   * const v = new Vector2(2, 3)
+   * v.multiply([4, 5]) // v is now (8, 15)
+   * ```
    */
-  multiply(vector2: Vector2): Vector2
-  /**
-   * The **`multiply`** method multiplies a number to `x` and `y` of this vector.
-   * @param num
-   */
-  multiply(num: number): Vector2
-  multiply(arg: Vector2 | number): Vector2 {
-    if (arg instanceof Vector2) {
-      this.x *= arg.x
-      this.y *= arg.y
-    }
-    if (typeof arg === 'number') {
-      this.x *= arg
-      this.y *= arg
-    }
-
-    return this
+  multiply(vectorLike: VectorLike): Vector2 {
+    const vector = new Vector2(vectorLike)
+    return this.apply((coord, axis) => coord * vector[axis])
   }
 
   /**
-   * The **`toMultiplied`** method clones this vector and multiplies other vector to the clone.
-   * @param vector2
+   * The **`toMultiplied`** method returns a new vector with the product of this and another vector.
+   * @param vectorLike The vector to multiply by.
+   * @returns A new `Vector2` instance.
+   *
+   * @example
+   * ```ts
+   * const a = new Vector2(2, 3)
+   * const b = a.toMultiplied([4, 5]) // (8, 15)
+   * console.log(a.x)                 // 2 (unchanged)
+   * ```
    */
-  toMultiplied(vector2: Vector2): Vector2
-  /**
-   * The **`toMultiplied`** method clones this vector and multiplies a number to `x` and `y` of the clone.
-   * @param num
-   */
-  toMultiplied(num: number): Vector2
-  toMultiplied(arg: Vector2 | number): Vector2 {
-    return this.clone().multiply(arg as number)
+  toMultiplied(vectorLike: VectorLike): Vector2 {
+    return this.clone().multiply(vectorLike)
   }
 
+  /**
+   * The **`divide`** method divides this vector by another vector (mutating).
+   * @param vectorLike The vector to divide by.
+   * @returns This vector for chaining.
+   *
+   * @example
+   * ```ts
+   * const v = new Vector2(8, 15)
+   * v.divide([4, 5]) // v is now (2, 3)
+   * ```
+   */
+  divide(vectorLike: VectorLike): Vector2 {
+    const vector = new Vector2(vectorLike)
+    return this.apply((coord, axis) => coord / vector[axis])
+  }
+
+  /**
+   * The **`toDivided`** method returns a new vector with the quotient of this and another vector.
+   * @param vectorLike The vector to divide by.
+   * @returns A new `Vector2` instance.
+   *
+   * @example
+   * ```ts
+   * const a = new Vector2(8, 15)
+   * const b = a.toDivided([4, 5]) // (2, 3)
+   * console.log(a.x)              // 8 (unchanged)
+   * ```
+   */
+  toDivided(vectorLike: VectorLike): Vector2 {
+    return this.clone().divide(vectorLike)
+  }
+
+  /**
+   * The **`apply`** method transforms each component using a callback function (mutating).
+   * @param fn A function that receives the current coordinate and axis name, returns the new value.
+   * @returns This vector for chaining.
+   *
+   * @example
+   * ```ts
+   * const v = new Vector2(3, 4)
+   * v.apply((coord) => coord * 2) // v is now (6, 8)
+   * ```
+   */
   apply(fn: (coord: number, axis: 'x' | 'y') => number): Vector2 {
     this.x = fn(this.x, 'x')
     this.y = fn(this.y, 'y')
     return this
   }
+
+  /**
+   * The **`toApplied`** method returns a new vector with each component transformed by a callback.
+   * @param fn A function that receives the current coordinate and axis name, returns the new value.
+   * @returns A new `Vector2` instance.
+   *
+   * @example
+   * ```ts
+   * const a = new Vector2(3, 4)
+   * const b = a.toApplied((coord) => coord * 2) // (6, 8)
+   * console.log(a.x) // 3 (unchanged)
+   * ```
+   */
   toApplied(fn: (coord: number, axis: 'x' | 'y') => number): Vector2 {
     return this.clone().apply(fn)
   }
 
   /**
+   * The **`lerp`** method linearly interpolates this vector towards the target by the given weight (mutating).
+   * @param to The target vector.
+   * @param weight The interpolation factor (0 = this, 1 = to).
+   * @returns This vector for chaining.
+   *
+   * @example
+   * ```ts
+   * const v = new Vector2(0, 0)
+   * v.lerp([10, 10], 0.5) // v is now (5, 5)
+   * ```
+   */
+  lerp(to: VectorLike, weight: number): Vector2 {
+    const target = new Vector2(to)
+    this.x += (target.x - this.x) * weight
+    this.y += (target.y - this.y) * weight
+    return this
+  }
+
+  /**
+   * The **`toLerped`** method returns a new vector linearly interpolated towards the target by the given weight.
+   * @param to The target vector.
+   * @param weight The interpolation factor (0 = this, 1 = to).
+   * @returns A new `Vector2` instance.
+   *
+   * @example
+   * ```ts
+   * const a = new Vector2(0, 0)
+   * const b = a.toLerped([10, 10], 0.5) // (5, 5)
+   * console.log(a.x)                     // 0 (unchanged)
+   * ```
+   */
+  toLerped(to: VectorLike, weight: number): Vector2 {
+    return this.clone().lerp(to, weight)
+  }
+
+  /**
    * The **`equals`** method checks if this vector has the same x and y values as another vector.
-   * @param vector2 The vector to compare with.
+   * @param vectorLike The vector to compare with.
    * @returns `true` if both components are equal, `false` otherwise.
    *
    * @example
@@ -177,7 +330,8 @@ export class Vector2 {
    * a.equals(b) // true
    * ```
    */
-  equals(vector2: Vector2): boolean {
+  equals(vectorLike: VectorLike): boolean {
+    const vector2 = new Vector2(vectorLike)
     return this.x === vector2.x && this.y === vector2.y
   }
 
@@ -223,6 +377,12 @@ export class Vector2 {
 /**
  * The **`Position`** interface represents a 2D point with `x` and `y` coordinates.
  * Used as a lightweight alternative to `Vector2` when methods are not needed.
+ *
+ * @example
+ * ```ts
+ * const pos: Position = { x: 10, y: 20 }
+ * const vec = new Vector2(pos) // Vector2(10, 20)
+ * ```
  */
 export interface Position {
   /** The x-coordinate. */
@@ -231,25 +391,77 @@ export interface Position {
   y: number
 }
 
+/**
+ * The **`VectorLike`** type represents all accepted formats for vector input.
+ * Can be a `Vector2`, `Position`, `[x, y]` tuple, or a single `number` for uniform scale.
+ *
+ * @example
+ * ```ts
+ * const a: VectorLike = new Vector2(1, 2)
+ * const b: VectorLike = { x: 3, y: 4 }
+ * const c: VectorLike = [5, 6]
+ * const d: VectorLike = 7 // both x and y become 7
+ * ```
+ */
 export type VectorLike = Vector2 | Position | [x: number, y: number] | number
 
-export function vectorize(vectorLike: VectorLike) {
-  if (vectorLike instanceof Vector2) return vectorLike
-  if (typeof vectorLike === 'number') return new Vector2(vectorLike, vectorLike)
+/**
+ * The **`isVectorLike`** function checks if a value is a valid `VectorLike` format.
+ * Useful as a type guard before passing unknown data to vector constructors.
+ * @param object The value to check.
+ * @returns `true` if the value is a `Vector2`, `number`, `[number, number]` tuple, or `{ x, y }` object.
+ *
+ * @example
+ * ```ts
+ * isVectorLike(new Vector2(1, 2)) // true
+ * isVectorLike([3, 4])            // true
+ * isVectorLike({ x: 5, y: 6 })   // true
+ * isVectorLike(7)                 // true
+ * isVectorLike('hello')           // false
+ * isVectorLike({ x: 'a', y: 'b' }) // false
+ * ```
+ */
+export function isVectorLike(object: unknown): object is VectorLike {
+  if (object instanceof Vector2) return true
+  if (typeof object === 'number') return true
   if (
-    'x' in vectorLike &&
-    typeof vectorLike.x === 'number' &&
-    'y' in vectorLike &&
-    typeof vectorLike.y === 'number'
+    Array.isArray(object) &&
+    object.length === 2 &&
+    typeof object[0] === 'number' &&
+    typeof object[1] === 'number'
   )
-    return Vector2.fromJSON(vectorLike)
+    return true
   if (
-    Array.isArray(vectorLike) &&
-    vectorLike.length === 2 &&
-    typeof vectorLike[0] === 'number' &&
-    typeof vectorLike[1] === 'number'
+    typeof object === 'object' &&
+    object != null &&
+    'x' in object &&
+    typeof object.x === 'number' &&
+    'y' in object &&
+    typeof object.y === 'number'
   )
-    return new Vector2(...vectorLike)
+    return true
+  return false
+}
 
-  throw new InvalidVectorLikeError(vectorLike)
+/**
+ * The **`vector2`** function creates a `Vector2` from various input formats.
+ * @throws {InvalidVectorLikeError} if the input is not a valid vector format.
+ *
+ * @example
+ * ```ts
+ * const a = vector2(new Vector2(1, 2))       // from Vector2
+ * const b = vector2({ x: 3, y: 4 })          // from Position
+ * const c = vector2([5, 6])                   // from tuple
+ * const d = vector2(7)                         // uniform scale (7, 7)
+ * const e = vector2(3, 4)                      // from x, y
+ * ```
+ */
+export function vector2(vector2: Vector2): Vector2
+export function vector2(position: Position): Vector2
+export function vector2(coords: [x: number, y: number]): Vector2
+export function vector2(scale: number): Vector2
+export function vector2(vectorLike: VectorLike): Vector2
+export function vector2(x: number, y: number): Vector2
+export function vector2(arg1: VectorLike, arg2?: number): Vector2 {
+  return new Vector2(arg1 as number, arg2!)
 }
