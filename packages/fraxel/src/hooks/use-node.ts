@@ -26,6 +26,9 @@ import { pushEffect } from './context.js'
  *
  * @example
  * ```tsx
+ * import { useNode, useSpawn } from 'fraxel/hooks'
+ * import { PrimaryNode } from 'fraxel'
+ *
  * const transform = useNode(PrimaryNode.Transform)
  * const spawn = useSpawn(transform)
  *

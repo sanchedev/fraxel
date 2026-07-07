@@ -7,6 +7,7 @@ import type { AnimationKeyframe } from '../nodes/animation-player.js'
  *
  * @example
  * ```ts
+ * // Assumes `animPlayer` is an AnimationPlayer and `sprite` is a Sprite node
  * animPlayer
  *   .add('idle', {
  *     fps: 4,

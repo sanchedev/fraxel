@@ -2,6 +2,15 @@ import { SignalRegister } from './register.js'
 import type { Signal } from './signal.js'
 import type { Reactive, SignalGetterLike } from './types.js'
 
+/**
+ * The **`subReactive`** function subscribes to a reactive value, calling `onUse` when the value changes.
+ * For static values, it returns the value directly. For getter functions, it tracks signal dependencies
+ * and re-evaluates when any dependency changes.
+ * @param value A reactive or static value
+ * @param onUse Callback invoked when the value changes (not on initial call)
+ * @param onSet Optional callback to receive an unsubscribe function
+ * @returns The current value
+ */
 export function subReactive<T>(
   value: Reactive<T>,
   onUse: (value: T) => void,
@@ -34,6 +43,12 @@ export function subReactive<T>(
   return currentValue!
 }
 
+/**
+ * The **`reactive`** function converts a reactive value into a `SignalGetterLike` that automatically
+ * tracks signal dependencies and re-evaluates when dependencies change.
+ * @param value A reactive or static value
+ * @returns A getter function that returns the current value
+ */
 export function reactive<T>(value: Reactive<T>): SignalGetterLike<T> {
   if (typeof value !== 'function') return () => value
   const signal = value as SignalGetterLike<T>

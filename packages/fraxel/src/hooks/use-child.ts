@@ -12,6 +12,9 @@ import { NodeReference } from './use-node.js'
  *
  * @example
  * ```tsx
+ * import { useChild } from 'fraxel/hooks'
+ * import { PrimaryNode } from 'fraxel'
+ *
  * const sprite = useChild(['child1', 'child2'], PrimaryNode.Sprite)
  *
  * return (

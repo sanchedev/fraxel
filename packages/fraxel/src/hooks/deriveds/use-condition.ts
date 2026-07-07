@@ -18,6 +18,9 @@ import { useSignal } from '../use-signal.js'
  *
  * @example
  * ```tsx
+ * import { useCondition, useComputed, useNode } from 'fraxel/hooks'
+ * import { PrimaryNode } from 'fraxel'
+ *
  * const clickable = useNode(PrimaryNode.Clickable)
  * const hover = useCondition(clickable, 'mouseEntered', 'mouseExited')
  *
@@ -28,6 +31,9 @@ import { useSignal } from '../use-signal.js'
  *
  * @example
  * ```tsx
+ * import { useCondition, useEffect, useNode } from 'fraxel/hooks'
+ * import { PrimaryNode } from 'fraxel'
+ *
  * const raycast = useNode(PrimaryNode.RayCast)
  * const isZombieDetected = useCondition(raycast, 'colliderEntered', 'colliderExited')
  *

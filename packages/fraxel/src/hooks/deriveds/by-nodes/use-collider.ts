@@ -16,14 +16,15 @@ import { useComputed } from '../../use-computed.js'
  *
  * @example
  * ```tsx
- * import { useCollider } from 'fraxel/hooks'
+ * import { useCollider, useEffect } from 'fraxel/hooks'
+ * import { shapes } from 'fraxel'
  *
  * function DamageZone() {
- *   const { ref, colliding, other } = useCollider()
+ *   const { ref, colliding, detectedColliders } = useCollider()
  *
  *   useEffect(() => {
  *     if (colliding()) {
- *       console.log('Touching:', other())
+ *       console.log('Touching:', detectedColliders())
  *     }
  *   })
  *

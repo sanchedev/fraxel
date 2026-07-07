@@ -97,6 +97,7 @@ export interface SpriteSheetAnimationOptions {
  * @example
  * ```tsx
  * // Basic usage — 4-column sprite sheet, 1 second animation
+ * // Assumes `sprite` is a Sprite node and `IDLE_TEXTURE` is a loaded texture ID
  * const idle = animationFromSheet(sprite, IDLE_TEXTURE, {
  *   columns: 4,
  *   duration: 1,

@@ -10,6 +10,10 @@ interface BodyEntry {
 
 const GRAVITY = vector2(0, 980)
 
+/**
+ * The **`PhysicsSystem`** class manages rigid body simulation, gravity, and collision resolution.
+ * It uses a spatial hash for broadphase detection and resolves overlaps with position correction and impulse-based velocity.
+ */
 export class PhysicsSystem {
   static #instance: PhysicsSystem
   #bodies: BodyEntry[] = []

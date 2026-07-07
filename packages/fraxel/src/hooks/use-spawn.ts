@@ -12,6 +12,9 @@ import type { NodeReference } from './use-node.js'
  *
  * @example
  * ```tsx
+ * import { useNode, useSpawn } from 'fraxel/hooks'
+ * import { PrimaryNode } from 'fraxel'
+ *
  * const container = useNode(PrimaryNode.Transform)
  * const spawn = useSpawn(container)
  *

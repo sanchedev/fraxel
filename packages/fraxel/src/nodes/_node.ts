@@ -301,7 +301,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   }
 
   /**
-   * Add child nodes to this node.
+   * The **`addChild`** method adds child nodes to this node.
    * @param children Nodes to add as children
    */
   addChild(...children: Node[]) {

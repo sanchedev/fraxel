@@ -4,6 +4,14 @@ import type { RigidBody } from '../../nodes/index.js'
 import type { Collider } from '../../nodes/node2d/collider.js'
 import type { CapsuleShape } from '../narrowphase/shapes.js'
 
+/**
+ * The **`resolveCollision`** function corrects overlap between two rigid bodies and applies impulse-based velocity changes.
+ * @param bodyA The first rigid body
+ * @param bodyB The second rigid body
+ * @param overlap The overlap vector from B to A
+ * @param normal The collision normal (from B to A)
+ * @returns The position correction applied to body A
+ */
 export function resolveCollision(
   bodyA: RigidBody,
   bodyB: RigidBody,
@@ -72,6 +80,13 @@ export function resolveCollision(
   return vector2(correctionA_x, correctionA_y)
 }
 
+/**
+ * The **`computeOverlap`** function computes the overlap and collision normal between two colliders.
+ * It dispatches to the appropriate shape-pair algorithm (rect-rect, circle-circle, rect-circle, etc.).
+ * @param colliderA The first collider
+ * @param colliderB The second collider
+ * @returns The overlap vector and collision normal, or `null` if no overlap
+ */
 export function computeOverlap(
   colliderA: Collider,
   colliderB: Collider,

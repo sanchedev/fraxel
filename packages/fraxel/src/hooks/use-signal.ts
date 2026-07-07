@@ -7,7 +7,7 @@ import { pushEffect } from './context.js'
  * The signal will notify subscribers when its value changes.
  *
  * @param initialValue The initial value of the signal
- * @returns A tuple to [get, set] the value.
+ * @returns A tuple of [`SignalGetter<T>`, `SignalSetter<T>`] to get and set the value
  *
  * @example
  * ```tsx

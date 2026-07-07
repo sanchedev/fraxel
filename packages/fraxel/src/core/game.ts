@@ -20,7 +20,7 @@ interface SetupOptions {
   root: HTMLElement
   /** The **`testOptions`** of the game. */
   testOptions?: Partial<TestOptions>
-  /** The defualt **`Theme`**. */
+  /** The default **`Theme`**. */
   theme?: Theme
 }
 
@@ -34,7 +34,7 @@ const onBlur = () => {
   if (isPaused) return
 
   Game.pause()
-  Game.blured.emit()
+  Game.blurred.emit()
   window.cancelAnimationFrame(handle)
 }
 
@@ -207,7 +207,7 @@ export class Game {
   }
 
   /**
-   * Detects whether the `Game` is **blured**
+   * Detects when the `Game` is **blurred**
    */
-  static blured = new Event('blur', () => {})
+  static blurred = new Event('blur', () => {})
 }

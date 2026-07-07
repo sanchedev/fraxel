@@ -111,19 +111,19 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
 
   // Events
   /**
-   * Detects whether `currentAnim` **change**
+   * Detects when `currentAnim` **changes**
    */
   animationChanged = new Event('animationChange', (_newAnim: string, _oldAnim: string | null) => {})
   /**
-   * Detects whether `stop` is **called**
+   * Detects when `stop` is **called**
    */
   animationStopped = new Event('animationStop', (_anim: string) => {})
   /**
-   * Detects whether this `index` **change**
+   * Detects when `index` **changes**
    */
   animationIndexChanged = new Event('animationIndexChange', (_index: number) => {})
   /**
-   * Detects whether the current animation **end**
+   * Detects when the current animation **ends**
    */
   animationEnded = new Event('animationEnd', (_anim: string) => {})
 
@@ -136,6 +136,9 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    *
    * @example
    * ```tsx
+   * import { useNode, useMount } from 'fraxel/hooks'
+   * import { keyframesFromSheet } from 'fraxel'
+   *
    * const sprite = useNode(PrimaryNode.Sprite)
    * const anim = useNode(PrimaryNode.AnimationPlayer)
    *

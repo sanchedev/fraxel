@@ -12,11 +12,11 @@ import { usePartialNode } from '../use-partial-node.js'
  * Returns the node reference and a reactive `hovered` boolean that tracks pointer hover state.
  *
  * @param clickable An optional existing `NodeReference` to the Clickable node
- * @returns An object with `ref` (NodeReference) and `hovered` (SignalGetter<boolean>)
+ * @returns An object with `ref` (NodeReference), `hovered` (SignalGetter<boolean>), and `position` (SignalGetter<Vector2>)
  *
  * @example
  * ```tsx
- * import { useClickable } from 'fraxel/hooks'
+ * import { useClickable, useComputed } from 'fraxel/hooks'
  *
  * function Button() {
  *   const clickable = useClickable()

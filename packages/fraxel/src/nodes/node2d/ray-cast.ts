@@ -117,6 +117,11 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
    *
    * @example
    * ```ts
+   * import { useEvent, useNode } from 'fraxel/hooks'
+   * import { PrimaryNode } from 'fraxel'
+   *
+   * const ray = useNode(PrimaryNode.RayCast)
+   *
    * useEvent(ray, 'colliderEnter', () => {
    *   const target = ray.node.getCollider()
    *   if (target) {

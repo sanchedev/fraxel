@@ -7,6 +7,7 @@ import type { TweenController } from './tween.js'
  * ```ts
  * import { tween, sequence } from 'fraxel'
  *
+ * // Assumes `sprite` is a Sprite node
  * sequence([
  *   tween({ target: sprite, prop: 'opacity', from: 0, to: 1, duration: 0.5 }),
  *   tween({ target: sprite, prop: 'position', from: 0, to: 100, duration: 1 }),
@@ -42,6 +43,7 @@ export function sequence(tweens: TweenController[]): void {
  * ```ts
  * import { tween, parallel } from 'fraxel'
  *
+ * // Assumes `sprite` is a Sprite node
  * parallel([
  *   tween({ target: sprite, prop: 'opacity', from: 0, to: 1, duration: 0.5 }),
  *   tween({ target: sprite, prop: 'position', from: 0, to: 100, duration: 1 }),

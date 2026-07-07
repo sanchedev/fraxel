@@ -5,17 +5,23 @@ import { vector2 } from '../math/vector2.js'
 import { pushEffect } from './context.js'
 
 /**
- * The **`useGame`** hooks gets the game controls.
+ * The **`useGame`** hook gets the game controls.
+ *
+ * @returns A `GameControls` object with play, pause, destroy, changeScene, preloadScene, and getSize methods
  *
  * @example
  * ```tsx
- * const game = useGame()
+ * import { useGame } from 'fraxel/hooks'
  *
- * const handleStart = () => {
- *   game.pause()
+ * function MyComponent() {
+ *   const game = useGame()
+ *
+ *   const handleStart = () => {
+ *     game.pause()
+ *   }
+ *
+ *   return <transform onStart={handleStart} />
  * }
- *
- * return <transform onStart={handleStart} />
  * ```
  */
 export function useGame(): GameControls {

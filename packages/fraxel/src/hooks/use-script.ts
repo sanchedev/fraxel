@@ -13,6 +13,9 @@ import { Signal } from '../reactivity'
  *
  * @example
  * ```tsx
+ * import { useNode, useScript } from 'fraxel/hooks'
+ * import { PrimaryNode, FraxelScript } from 'fraxel'
+ *
  * function Player() {
  *   const sprite = useNode(PrimaryNode.Sprite)
  *   const script = useScript<PlayerScript>(sprite)

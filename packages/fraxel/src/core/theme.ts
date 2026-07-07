@@ -1,4 +1,4 @@
-/** The **`Theme`** class add a Theme to the Game. */
+/** The **`Theme`** class adds a theme to the game. */
 export class Theme {
   constructor(
     /** Default text style */
