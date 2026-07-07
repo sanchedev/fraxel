@@ -1,4 +1,4 @@
-import { Vector2 } from '../../math/vector2.js'
+import { vector2, type Vector2 } from '../../math/vector2.js'
 import type { Collider } from '../../nodes/node2d/collider.js'
 import type { RigidBody } from '../../nodes/index.js'
 import { resolveCollision, computeOverlap } from './resolver.js'
@@ -8,14 +8,8 @@ interface BodyEntry {
   body: RigidBody
 }
 
-const GRAVITY = new Vector2(0, 980)
+const GRAVITY = vector2(0, 980)
 
-/**
- * The **`PhysicsSystem`** is a singleton that updates all physics bodies each frame.
- * It applies gravity, integrates velocity into position, and resolves collisions.
- *
- * Updated automatically after `CollisionSystem.update()` in the game loop.
- */
 export class PhysicsSystem {
   static #instance: PhysicsSystem
   #bodies: BodyEntry[] = []
@@ -28,34 +22,31 @@ export class PhysicsSystem {
     return PhysicsSystem.#instance
   }
 
-  /** The gravity vector applied to all non-static bodies. */
   static get gravity() {
     return PhysicsSystem.getInstance().#gravity
   }
-
   static set gravity(value: Vector2) {
     PhysicsSystem.getInstance().#gravity.x = value.x
     PhysicsSystem.getInstance().#gravity.y = value.y
   }
 
-  /** Registers a physics body with its associated collider. */
   static register(body: RigidBody) {
     PhysicsSystem.getInstance().#bodies.push({ body })
   }
-
-  /** Unregisters a physics body. */
   static unregister(body: RigidBody) {
     const instance = PhysicsSystem.getInstance()
     instance.#bodies = instance.#bodies.filter((e) => e.body !== body)
   }
 
-  /** Runs the physics update. Called by `Game.loop()` after `CollisionSystem.update()`. */
   static update(delta: number) {
     PhysicsSystem.getInstance().#updateInternal(delta)
   }
 
   #updateInternal(delta: number) {
-    // 1. Apply gravity and integrate
+    for (const entry of this.#bodies) {
+      entry.body.isGrounded = false
+    }
+
     for (const entry of this.#bodies) {
       const { body } = entry
       if (body.isStatic || !body.useGravity) continue
@@ -72,28 +63,43 @@ export class PhysicsSystem {
       body.position.y += body.velocity.y * effectiveDelta
     }
 
-    // 2. Resolve collisions between physics bodies using spatial hash
-    const resolved = new Set<string>()
+    const iterations = 4
 
-    for (const entry of this.#bodies) {
-      for (const collider of entry.body.colliders) {
-        const candidates = CollisionSystem.queryCandidates(collider)
+    for (let i = 0; i < iterations; i++) {
+      const resolvedColliders = new Set<string>()
 
-        for (const candidate of candidates) {
-          const otherEntry = this.#findBodyEntry(candidate)
-          if (otherEntry == null) continue
-          if (otherEntry.body === entry.body) continue
+      for (const entry of this.#bodies) {
+        for (const collider of entry.body.colliders) {
+          const candidates = CollisionSystem.queryCandidates(collider)
 
-          const pairKey = this.#pairKey(entry.body, otherEntry.body)
-          if (resolved.has(pairKey)) continue
+          for (const candidate of candidates) {
+            if (candidate === collider) continue
+            if (candidate.parent && collider.parent && candidate.parent === collider.parent)
+              continue
 
-          if (!this.#groupsMatch(collider, candidate)) continue
+            const otherEntry = this.#findBodyEntry(candidate)
+            if (!otherEntry) continue
 
-          const result = computeOverlap(collider, candidate)
-          if (result == null) continue
+            if (otherEntry.body === entry.body) continue
 
-          resolved.add(pairKey)
-          resolveCollision(entry.body, otherEntry.body, result.overlap, result.normal)
+            const colliderPairKey = this.#colliderPairKey(collider, candidate)
+            if (resolvedColliders.has(colliderPairKey)) continue
+
+            if (!this.#groupsMatch(collider, candidate)) continue
+
+            const result = computeOverlap(collider, candidate)
+            if (result == null) continue
+
+            resolvedColliders.add(colliderPairKey)
+            resolveCollision(entry.body, otherEntry.body, result.overlap, result.normal)
+
+            if (!entry.body.isStatic && result.normal.y < 0) {
+              entry.body.isGrounded = true
+            }
+            if (!otherEntry.body.isStatic && result.normal.y > 0) {
+              otherEntry.body.isGrounded = true
+            }
+          }
         }
       }
     }
@@ -106,7 +112,7 @@ export class PhysicsSystem {
     return undefined
   }
 
-  #pairKey(a: RigidBody, b: RigidBody): string {
+  #colliderPairKey(a: Collider, b: Collider): string {
     const aId = a.id.toString()
     const bId = b.id.toString()
     return aId < bId ? `${aId}:${bId}` : `${bId}:${aId}`

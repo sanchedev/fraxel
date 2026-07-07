@@ -5,7 +5,7 @@ export { CollisionEmitter } from './events/collision-emitter.js'
 export { Collider, type ColliderOptions } from '../nodes/node2d/collider.js'
 export { RayCast, type RayCastOptions } from '../nodes/node2d/ray-cast.js'
 export type { CollisionBounds } from './types.js'
-export type { Shape, RectangleShape, CircleShape } from './narrowphase/shapes.js'
+export type { Shape, RectangleShape, CircleShape, CapsuleShape } from './narrowphase/shapes.js'
 export { shapes } from './narrowphase/shapes.js'
 
 export { PhysicsSystem } from './physics/physics-system.js'

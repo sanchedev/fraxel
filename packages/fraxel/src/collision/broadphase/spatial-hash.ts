@@ -78,17 +78,33 @@ export class SpatialHash {
   }
 
   #getBounds(collider: Collider): CollisionBounds {
+    const pos = collider.globalPosition
+
     if (collider.shape.type === 'circle') {
-      const pos = collider.globalPosition
       const r = collider.shape.radius
       return {
         from: { x: pos.x - r, y: pos.y - r },
         to: { x: pos.x + r, y: pos.y + r },
       }
     }
+
+    if (collider.shape.type === 'capsule') {
+      const { length, radius, direction } = collider.shape
+      if (direction === 'vertical') {
+        return {
+          from: { x: pos.x, y: pos.y },
+          to: { x: pos.x + radius * 2, y: pos.y + length },
+        }
+      }
+      return {
+        from: { x: pos.x, y: pos.y },
+        to: { x: pos.x + length, y: pos.y + radius * 2 },
+      }
+    }
+
     return {
-      from: collider.globalPosition,
-      to: collider.globalPosition.toAdded(collider.shape.size),
+      from: pos.toJSON(),
+      to: pos.toAdded(collider.shape.size).toJSON(),
     }
   }
 

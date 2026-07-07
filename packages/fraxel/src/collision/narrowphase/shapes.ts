@@ -1,4 +1,4 @@
-import { Vector2 } from '../../math/vector2.js'
+import { vector2, type Vector2 } from '../../math/vector2.js'
 
 /**
  * The **`RectangleShape`** interface defines a rectangular collision shape.
@@ -33,8 +33,39 @@ export interface CircleShape {
 }
 
 /**
+ * The **`CapsuleShape`** interface defines a capsule (stadium) collision shape.
+ * A capsule is a rectangle with semicircular caps on two opposite ends.
+ *
+ * The `length` is the total tip-to-tip dimension (including caps).
+ * The `radius` is the radius of the semicircular caps.
+ * The `direction` controls orientation: `'vertical'` (default) or `'horizontal'`.
+ *
+ * Minimum constraint: `length >= radius * 2`. When `length === radius * 2`,
+ * the capsule degenerates to a circle.
+ *
+ * @example
+ * ```tsx
+ * // Vertical capsule (default)
+ * <collider shape={shapes.capsule(64, 12)} ... />
+ *
+ * // Horizontal capsule
+ * <collider shape={shapes.capsule(64, 12, 'horizontal')} ... />
+ * ```
+ */
+export interface CapsuleShape {
+  /** Discriminant identifier for capsule shapes. */
+  type: 'capsule'
+  /** Total tip-to-tip length (including caps). */
+  length: number
+  /** Radius of the semicircular caps. */
+  radius: number
+  /** Orientation of the capsule. `'vertical'` (default) or `'horizontal'`. */
+  direction: 'vertical' | 'horizontal'
+}
+
+/**
  * The **`Shape`** type represents all supported collision shapes.
- * Discriminate by checking `shape.type` (`'rectangle'` or `'circle'`).
+ * Discriminate by checking `shape.type` (`'rectangle'`, `'circle'`, or `'capsule'`).
  *
  * @example
  * ```ts
@@ -42,11 +73,16 @@ export interface CircleShape {
  *   if (shape.type === 'rectangle') {
  *     return shape.size.x * shape.size.y
  *   }
- *   return Math.PI * shape.radius * shape.radius
+ *   if (shape.type === 'circle') {
+ *     return Math.PI * shape.radius * shape.radius
+ *   }
+ *   // capsule
+ *   const bodyLen = shape.length - shape.radius * 2
+ *   return shape.radius * 2 * bodyLen + Math.PI * shape.radius * shape.radius
  * }
  * ```
  */
-export type Shape = RectangleShape | CircleShape
+export type Shape = RectangleShape | CircleShape | CapsuleShape
 
 /**
  * The **`shapes`** constant provides factory methods to create collision shapes.
@@ -60,6 +96,9 @@ export type Shape = RectangleShape | CircleShape
  *
  * // Circle
  * <collider shape={shapes.circle(16)} group={['projectile']} collidesWith={['zombie']} />
+ *
+ * // Capsule
+ * <collider shape={shapes.capsule(64, 12)} group={['player']} collidesWith={['obstacle']} />
  * ```
  */
 export const shapes = {
@@ -79,7 +118,7 @@ export const shapes = {
    */
   rectangle: (width: number, height: number): RectangleShape => ({
     type: 'rectangle',
-    size: new Vector2(width, height),
+    size: vector2(width, height),
   }),
 
   /**
@@ -98,4 +137,34 @@ export const shapes = {
     type: 'circle',
     radius,
   }),
+
+  /**
+   * Creates a `CapsuleShape` with the given length, radius, and optional direction.
+   * @param length Total tip-to-tip length (including caps). Must be >= radius * 2.
+   * @param radius Radius of the semicircular caps.
+   * @param direction Orientation: `'vertical'` (default) or `'horizontal'`.
+   * @returns A `CapsuleShape` object.
+   *
+   * @example
+   * ```ts
+   * const pill = shapes.capsule(64, 12)
+   * console.log(pill.type)       // 'capsule'
+   * console.log(pill.length)     // 64
+   * console.log(pill.radius)     // 12
+   * console.log(pill.direction)  // 'vertical'
+   *
+   * const horizontal = shapes.capsule(80, 8, 'horizontal')
+   * console.log(horizontal.direction)  // 'horizontal'
+   * ```
+   */
+  capsule: (
+    length: number,
+    radius: number,
+    direction: 'vertical' | 'horizontal' = 'vertical',
+  ): CapsuleShape => {
+    if (length < radius * 2) {
+      throw new Error(`Capsule length (${length}) must be >= radius * 2 (${radius * 2})`)
+    }
+    return { type: 'capsule', length, radius, direction }
+  },
 }

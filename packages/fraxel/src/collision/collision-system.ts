@@ -1,4 +1,5 @@
-import { Vector2 } from '../math/vector2.js'
+import { vector2, Vector2 } from '../math/vector2.js'
+import { clamp } from '../math/utils.js'
 import type { Collider } from '../nodes/node2d/collider.js'
 import type { RayCast } from '../nodes/node2d/ray-cast.js'
 import { SpatialHash } from './broadphase/spatial-hash.js'
@@ -260,6 +261,8 @@ export class CollisionSystem {
         return this.#raycastRectangle(raycast, collider)
       case 'circle':
         return this.#raycastCircle(raycast, collider)
+      case 'capsule':
+        return this.#raycastCapsule(raycast, collider)
       default:
         return -1
     }
@@ -302,7 +305,7 @@ export class CollisionSystem {
     if (dirLenSq === 0) return -1
 
     let t = (dx * rayDir.x + dy * rayDir.y) / dirLenSq
-    t = Math.max(0, Math.min(t, 1))
+    t = clamp(0, t, 1)
 
     const closestX = rayFrom.x + t * rayDir.x
     const closestY = rayFrom.y + t * rayDir.y
@@ -312,6 +315,91 @@ export class CollisionSystem {
     const distSq = distX * distX + distY * distY
 
     if (distSq > radius * radius) return -1
+
+    return t * Math.sqrt(dirLenSq)
+  }
+
+  #raycastCapsule(raycast: RayCast, collider: Collider): number {
+    if (collider.shape.type !== 'capsule') return -1
+
+    const pos = collider.globalPosition
+    const { length, radius, direction } = collider.shape
+    const bone =
+      direction === 'vertical'
+        ? {
+            a: { x: pos.x + radius, y: pos.y + radius },
+            b: { x: pos.x + radius, y: pos.y + length - radius },
+          }
+        : {
+            a: { x: pos.x + radius, y: pos.y + radius },
+            b: { x: pos.x + length - radius, y: pos.y + radius },
+          }
+
+    const rayFrom = raycast.globalPosition
+    const rayDir = raycast.direction
+    const dirLenSq = rayDir.x * rayDir.x + rayDir.y * rayDir.y
+    if (dirLenSq === 0) return -1
+
+    // Find closest point on ray to each capsule bone endpoint, then to the bone segment
+    const dx = bone.b.x - bone.a.x
+    const dy = bone.b.y - bone.a.y
+    const boneLenSq = dx * dx + dy * dy
+
+    if (boneLenSq === 0) {
+      // Degenerate capsule (circle) — use circle raycast logic
+      const cDx = bone.a.x - rayFrom.x
+      const cDy = bone.a.y - rayFrom.y
+      let t = (cDx * rayDir.x + cDy * rayDir.y) / dirLenSq
+      t = clamp(0, t, 1)
+      const cx = rayFrom.x + t * rayDir.x
+      const cy = rayFrom.y + t * rayDir.y
+      const ddx = bone.a.x - cx
+      const ddy = bone.a.y - cy
+      if (ddx * ddx + ddy * ddy > radius * radius) return -1
+      return t * Math.sqrt(dirLenSq)
+    }
+
+    // Parametric ray: R(t) = rayFrom + t * rayDir, t in [0, 1]
+    // Parametric bone: B(s) = bone.a + s * (bone.b - bone.a), s in [0, 1]
+    // Minimize |R(t) - B(s)|^2
+    const rx = rayFrom.x - bone.a.x
+    const ry = rayFrom.y - bone.a.y
+    const a = dirLenSq
+    const b = rayDir.x * dx + rayDir.y * dy
+    const e = dx * dx + dy * dy
+    const c = rayDir.x * rx + rayDir.y * ry
+    const f = dx * rx + dy * ry
+
+    const denom = a * e - b * b
+    let s: number
+    let t: number
+
+    if (denom !== 0) {
+      s = (b * f - c * e) / denom
+      t = (a * f - b * c) / denom
+    } else {
+      s = 0
+      t = c / a
+    }
+
+    s = clamp(0, s, 1)
+    t = clamp(0, t, 1)
+
+    // Reclamp t given clamped s
+    t = (b * s + c) / a
+    t = clamp(0, t, 1)
+
+    // Closest point on ray
+    const rCx = rayFrom.x + t * rayDir.x
+    const rCy = rayFrom.y + t * rayDir.y
+
+    // Closest point on bone
+    const bCx = bone.a.x + s * dx
+    const bCy = bone.a.y + s * dy
+
+    const ddx = rCx - bCx
+    const ddy = rCy - bCy
+    if (ddx * ddx + ddy * ddy > radius * radius) return -1
 
     return t * Math.sqrt(dirLenSq)
   }
@@ -330,6 +418,17 @@ export class CollisionSystem {
         return {
           from: position.toSubtracted(shape.radius).toJSON(),
           to: position.toAdded(shape.radius).toJSON(),
+        }
+      case 'capsule':
+        if (shape.direction === 'vertical') {
+          return {
+            from: position.toJSON(),
+            to: vector2(position.x + shape.radius * 2, position.y + shape.length).toJSON(),
+          }
+        }
+        return {
+          from: position.toJSON(),
+          to: vector2(position.x + shape.length, position.y + shape.radius * 2).toJSON(),
         }
       default:
         return {

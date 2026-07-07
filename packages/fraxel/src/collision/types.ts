@@ -1,6 +1,6 @@
 import type { Position } from '../math/vector2.js'
 
-export type { RectangleShape, CircleShape, Shape } from './narrowphase/shapes.js'
+export type { RectangleShape, CircleShape, CapsuleShape, Shape } from './narrowphase/shapes.js'
 export { shapes } from './narrowphase/shapes.js'
 
 /**
