@@ -44,7 +44,7 @@ export interface TweenController {
  *
  * @example
  * ```ts
- * import { tween, easeOutQuad } from 'fraxel/animation'
+ * import { tween, easeOutQuad } from 'fraxel'
  *
  * const controller = tween({
  *   target: sprite,
@@ -126,7 +126,7 @@ export function tween<T>(options: TweenOptions<T>): TweenController {
  *
  * @example
  * ```ts
- * import { tweenValue } from 'fraxel/animation'
+ * import { tweenValue } from 'fraxel'
  *
  * tweenValue({
  *   from: 0,

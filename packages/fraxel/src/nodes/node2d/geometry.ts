@@ -68,7 +68,7 @@ export interface GeometryOptions extends Node2DOptions<PrimaryNode.Geometry> {
  * ```tsx
  * import { shapes } from 'fraxel'
  * import { useNode } from 'fraxel/hooks'
- * import { PrimaryNode } from 'fraxel/nodes/enum'
+ * import { PrimaryNode } from 'fraxel'
  *
  * function Player() {
  *   const ref = useNode(PrimaryNode.Geometry)

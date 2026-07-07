@@ -198,7 +198,7 @@ Plays audio buffers loaded with `loadSound()`:
 ```tsx
 import { useNode, useEvent } from 'fraxel/hooks'
 import { PrimaryNode } from 'fraxel'
-import { loadSound } from 'fraxel/assets'
+import { loadSound } from 'fraxel'
 
 const SHOOT = await loadSound('/assets/shoot.mp3')
 

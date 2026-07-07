@@ -3,7 +3,7 @@
 ## Loading Sounds
 
 ```tsx
-import { loadSound } from 'fraxel/assets'
+import { loadSound } from 'fraxel'
 
 const shootSound = await loadSound('/assets/sounds/shoot.mp3')
 const bgMusic = await loadSound('/assets/sounds/music.mp3')
@@ -16,7 +16,7 @@ const bgMusic = await loadSound('/assets/sounds/music.mp3')
 ```tsx
 import { useNode, useEvent } from 'fraxel/hooks'
 import { PrimaryNode } from 'fraxel'
-import { loadSound } from 'fraxel/assets'
+import { loadSound } from 'fraxel'
 
 const SHOOT = await loadSound('/assets/shoot.mp3')
 
@@ -89,7 +89,7 @@ function onFirstClick() {
 ```tsx
 import { useNode, useEvent, useMount } from 'fraxel/hooks'
 import { PrimaryNode } from 'fraxel'
-import { loadSound } from 'fraxel/assets'
+import { loadSound } from 'fraxel'
 import { getAudioContext } from 'fraxel/audio'
 
 const BG_MUSIC = await loadSound('/assets/music.mp3')

@@ -39,7 +39,7 @@ Create a `main.tsx` file:
 
 ```tsx
 import { createGame, Game, Scene } from 'fraxel/jsx'
-import { loadTexture } from 'fraxel/assets'
+import { loadTexture } from 'fraxel'
 
 const BG = await loadTexture('/assets/background.png')
 const PLAYER = await loadTexture('/assets/player.png')
@@ -111,13 +111,13 @@ import { useNode, useEvent, useSignal, useEffect } from 'fraxel/hooks'
 import { Game, Scene, List, Fragment } from 'fraxel/jsx'
 
 // Assets
-import { loadTexture, loadBatch } from 'fraxel/assets'
+import { loadTexture, loadBatch } from 'fraxel'
 
 // Audio
-import { loadSound } from 'fraxel/assets'
+import { loadSound } from 'fraxel'
 
 // Animation & tweening
-import { tween, easeOutQuad, animationFromSheet } from 'fraxel/animation'
+import { tween, easeOutQuad, animationFromSheet } from 'fraxel'
 ```
 
 ## Next Steps

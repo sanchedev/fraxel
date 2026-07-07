@@ -40,7 +40,7 @@ export interface TimerOptions extends NodeOptions<PrimaryNode.Timer> {
  * @example
  * ```tsx
  * import { useNode, useEvent } from 'fraxel/hooks'
- * import { PrimaryNode } from 'fraxel/nodes/enum'
+ * import { PrimaryNode } from 'fraxel'
  *
  * function CooldownTimer() {
  *   const timer = useNode(PrimaryNode.Timer)

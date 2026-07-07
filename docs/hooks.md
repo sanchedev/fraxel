@@ -23,17 +23,18 @@
 
 ## Derived Hooks (Summary)
 
-| Hook                           | Description                                      |
-| ------------------------------ | ------------------------------------------------ |
-| `useCondition(node, on, off)`  | Reactive boolean toggled by two opposing events  |
-| `useMatch(signal, record)`     | Maps signal value to record (like switch)        |
-| `useWhen(signal, true, false)` | Ternary expression for signals                   |
-| `useClickable(ref?)`           | Clickable node with reactive `hovered` state     |
-| `useTimer(ref?)`               | Timer node with `time`, `progress`, and controls |
-| `useRayCast(ref?)`             | RayCast node with reactive `detected` state      |
-| `useCollider(ref?)`            | Collider node with reactive `colliding` state    |
-| `useAnimation(ref?)`           | AnimationPlayer with reactive frame state        |
-| `useAudio(ref?)`               | AudioPlayer with reactive `playing` state        |
+| Hook                           | Description                                         |
+| ------------------------------ | --------------------------------------------------- |
+| `useCondition(node, on, off)`  | Reactive boolean toggled by two opposing events     |
+| `useMatch(signal, record)`     | Maps signal value to record (like switch)           |
+| `useWhen(signal, true, false)` | Ternary expression for signals                      |
+| `useClickable(ref?)`           | Clickable node with reactive `hovered` state        |
+| `useTimer(ref?)`               | Timer node with `time`, `progress`, and controls    |
+| `useRayCast(ref?)`             | RayCast node with reactive `detected` state         |
+| `useCollider(ref?)`            | Collider node with reactive `colliding` state       |
+| `useAnimation(ref?)`           | AnimationPlayer with reactive frame state           |
+| `useAudio(ref?)`               | AudioPlayer with reactive `playing` state           |
+| `useRigidBody(ref?)`           | RigidBody with reactive `velocity` and `isGrounded` |
 
 ## useNode
 
@@ -104,8 +105,8 @@ function Player() {
 Reactive axis value from two opposing actions. Returns a `SignalGetter<number>` (-1, 0, or 1):
 
 ```tsx
-import { Input } from 'fraxel'
-import { useActionAxis, useEvent } from 'fraxel/hooks'
+import { Input, PrimaryNode } from 'fraxel'
+import { useNode, useActionAxis, useEvent } from 'fraxel/hooks'
 
 const Left = Input.createAction({ key: 'a' })
 const Right = Input.createAction({ key: 'd' })

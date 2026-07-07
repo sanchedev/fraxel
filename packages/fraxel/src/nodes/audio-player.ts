@@ -59,7 +59,7 @@ export interface AudioPlayerOptions extends NodeOptions<PrimaryNode.AudioPlayer>
  * @example
  * ```tsx
  * import { useNode, useEvent } from 'fraxel/hooks'
- * import { PrimaryNode } from 'fraxel/nodes/enum'
+ * import { PrimaryNode } from 'fraxel'
  *
  * function Gun() {
  *   const audio = useNode(PrimaryNode.AudioPlayer)

@@ -115,7 +115,7 @@ The `viewPosition` is a smoothed version of `globalPosition`. When the camera or
 
 ```tsx
 import { useNode, useRigidBody } from 'fraxel/hooks'
-import { PrimaryNode, bounds } from 'fraxel'
+import { PrimaryNode, bounds, shapes } from 'fraxel'
 
 function Platformer() {
   const body = useRigidBody()

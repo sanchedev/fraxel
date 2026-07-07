@@ -37,7 +37,7 @@ Add the custom JSX runtime to your `tsconfig.json`:
 ## Quick Start
 
 ```tsx
-import { createGame, Game, Scene } from 'fraxel'
+import { createGame, Game, Scene } from 'fraxel/jsx'
 import { loadTexture } from 'fraxel/assets'
 
 const BG = await loadTexture('/assets/background.png')

@@ -104,8 +104,9 @@ switches animations automatically when the signal value changes.
 Interpolate numeric properties over time:
 
 ```tsx
-import { useMount } from 'fraxel/hooks'
-import { tween, easeOutQuad } from 'fraxel/animation'
+import { useNode, useMount } from 'fraxel/hooks'
+import { PrimaryNode } from 'fraxel'
+import { tween, easeOutQuad } from 'fraxel'
 
 function FadeIn() {
   const sprite = useNode(PrimaryNode.Sprite)
@@ -165,7 +166,7 @@ tweenValue({
 ## Easing Functions
 
 ```tsx
-import { linear, easeOutQuad, easeOutBounce, easeOutElastic } from 'fraxel/animation'
+import { linear, easeOutQuad, easeOutBounce, easeOutElastic } from 'fraxel'
 ```
 
 | Function         | Description                   |
@@ -190,7 +191,7 @@ See [Tweening](tweening.md) for full documentation.
 Run tweens in sequence or parallel:
 
 ```tsx
-import { tween, sequence, parallel } from 'fraxel/animation'
+import { tween, sequence, parallel } from 'fraxel'
 
 // One after another
 sequence([

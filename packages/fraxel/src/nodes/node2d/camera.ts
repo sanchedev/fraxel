@@ -61,7 +61,7 @@ export interface CameraOptions extends Node2DOptions<PrimaryNode.Camera> {
  * @example
  * ```tsx
  * import { useNode } from 'fraxel/hooks'
- * import { PrimaryNode } from 'fraxel/nodes/enum'
+ * import { PrimaryNode } from 'fraxel'
  *
  * function GameScene() {
  *   const camera = useNode(PrimaryNode.Camera)

@@ -5,7 +5,7 @@
  * @example
  * ```tsx
  * import { useNode } from 'fraxel/hooks'
- * import { PrimaryNode } from 'fraxel/nodes/enum'
+ * import { PrimaryNode } from 'fraxel'
  *
  * const sprite = useNode(PrimaryNode.Sprite)
  * return <sprite ref={sprite} textureId={PLAYER} />

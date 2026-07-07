@@ -45,7 +45,7 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
  * @example
  * ```tsx
  * import { useNode, useEvent } from 'fraxel/hooks'
- * import { PrimaryNode } from 'fraxel/nodes/enum'
+ * import { PrimaryNode } from 'fraxel'
  *
  * function Gun() {
  *   const ray = useNode(PrimaryNode.RayCast)

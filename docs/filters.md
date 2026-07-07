@@ -30,4 +30,4 @@ const orange: Color = [1, 0.5, 0, 1]
 const transparentBlue: Color = [0, 0, 1, 0.5]
 ```
 
-Used by `Sprite.modulate` and `Rectangle.fillColor`/`strokeColor`.
+Used by `Sprite.modulate` and `Geometry.fillColor`/`strokeColor`.

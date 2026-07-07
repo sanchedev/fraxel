@@ -3,7 +3,7 @@
 ## Loading Textures
 
 ```tsx
-import { loadTexture } from 'fraxel/assets'
+import { loadTexture } from 'fraxel'
 
 const playerTex = await loadTexture('/assets/sprites/player.png')
 const bgTex = await loadTexture('/assets/background.png')
@@ -14,7 +14,7 @@ const bgTex = await loadTexture('/assets/background.png')
 ## Loading Sounds
 
 ```tsx
-import { loadSound } from 'fraxel/assets'
+import { loadSound } from 'fraxel'
 
 const shootSound = await loadSound('/assets/sounds/shoot.mp3')
 ```
@@ -26,7 +26,7 @@ See [Audio](audio.md) for playback with `<audio-player>`.
 `loadBatch` loads multiple assets in parallel with progress tracking:
 
 ```tsx
-import { loadBatch, loadTexture, loadSound } from 'fraxel/assets'
+import { loadBatch, loadTexture, loadSound } from 'fraxel'
 
 const [bg, player, shoot] = await loadBatch(
   [
@@ -45,7 +45,7 @@ const [bg, player, shoot] = await loadBatch(
 `loadBatchAsset` is a typed variant for loading multiple assets of the same type:
 
 ```tsx
-import { loadBatchAsset } from 'fraxel/assets'
+import { loadBatchAsset } from 'fraxel'
 
 const [bg, player, enemy] = await loadBatchAsset('texture', [
   '/assets/bg.png',
@@ -76,7 +76,7 @@ const [bg, player, enemy] = await loadBatchAsset('texture', [
 Free memory when assets are no longer needed:
 
 ```tsx
-import { unloadTexture, unloadSound } from 'fraxel/assets'
+import { unloadTexture, unloadSound } from 'fraxel'
 
 unloadTexture(PLAYER)
 unloadSound(SHOOT)
@@ -98,7 +98,7 @@ const ENEMY = await loadTexture('/assets/enemy.png')
 Load all assets before starting the game:
 
 ```tsx
-import { loadBatch, loadTexture, loadSound } from 'fraxel/assets'
+import { loadBatch, loadTexture, loadSound } from 'fraxel'
 
 async function preload() {
   await loadBatch(
@@ -126,7 +126,7 @@ await preload()
 Load scene-specific assets when the scene loads:
 
 ```tsx
-import { loadBatchAsset } from 'fraxel/assets'
+import { loadBatchAsset } from 'fraxel'
 
 async function level1() {
   const [bg, enemies] = await loadBatchAsset('texture', [

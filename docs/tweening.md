@@ -5,7 +5,7 @@
 Creates a tween that interpolates a numeric property over time:
 
 ```tsx
-import { tween, easeOutQuad } from 'fraxel/animation'
+import { tween, easeOutQuad } from 'fraxel'
 
 const controller = tween({
   target: sprite,
@@ -49,7 +49,7 @@ t.progress     // number — 0 to 1
 Animates a value without a target object:
 
 ```tsx
-import { tweenValue } from 'fraxel/animation'
+import { tweenValue } from 'fraxel'
 
 tweenValue({
   from: 0,
@@ -77,7 +77,7 @@ import {
   easeOutBounce,
   easeInBounce,
   easeOutElastic,
-} from 'fraxel/animation'
+} from 'fraxel'
 ```
 
 | Function         | Description                   |
@@ -102,7 +102,7 @@ import {
 Runs tweens one after another:
 
 ```tsx
-import { tween, sequence } from 'fraxel/animation'
+import { tween, sequence } from 'fraxel'
 
 sequence([
   tween({ target: sprite, prop: 'opacity', from: 0, to: 1, duration: 0.5 }),
@@ -115,7 +115,7 @@ sequence([
 Runs tweens simultaneously:
 
 ```tsx
-import { tween, parallel } from 'fraxel/animation'
+import { tween, parallel } from 'fraxel'
 
 parallel([
   tween({ target: sprite, prop: 'opacity', from: 0, to: 1, duration: 0.5 }),
@@ -126,8 +126,9 @@ parallel([
 ## Using with Hooks
 
 ```tsx
-import { useMount } from 'fraxel/hooks'
-import { tween, easeOutBounce } from 'fraxel/animation'
+import { useNode, useMount } from 'fraxel/hooks'
+import { PrimaryNode } from 'fraxel'
+import { tween, easeOutBounce } from 'fraxel'
 
 function DropIn() {
   const sprite = useNode(PrimaryNode.Sprite)
