@@ -32,11 +32,7 @@ export class Signal<T> {
     this.#value = initialValue
 
     // setter & getter
-    this.getter = (() => {
-      SignalRegister.register(this)
-      return this.value
-    }) as SignalGetter<T>
-    this.getter.value = () => this.value
+    this.getter = createSignalGetter(this)
 
     this.setter = ((value) => {
       this.value = value
@@ -158,4 +154,28 @@ export class Signal<T> {
   clearSubs() {
     this.#listeners.clear()
   }
+}
+
+const SignalSymbol = Symbol('Signal')
+function createSignalGetter<T>(signal: Signal<T>): SignalGetter<T> {
+  const fn: SignalGetter<T> = (() => {
+    SignalRegister.register(signal)
+    return signal.value
+  }) as SignalGetter<T>
+  fn.value = () => signal.value
+  fn.signal = signal
+  // @ts-expect-error we change the getter with an id to know if a fn is a symbol getter
+  fn[SignalSymbol] = SignalSymbol
+  return fn
+}
+
+export function isSignalGetter<T>(fn: (...args: any[]) => T): fn is SignalGetter<T> {
+  if (typeof fn !== 'function') return false
+  if (!('value' in fn)) return false
+  if (typeof fn.value !== 'function') return false
+  if (!('signal' in fn)) return false
+  if (!(fn.signal instanceof Signal)) return false
+  if (!(SignalSymbol in fn)) return false
+  if (fn[SignalSymbol] !== SignalSymbol) return false
+  return true
 }

@@ -1,3 +1,5 @@
+import type { Signal } from './signal.js'
+
 /**
  * A getter function that returns the current value.
  * Calling it as a function (`getter()`) registers the signal as a dependency
@@ -7,6 +9,7 @@
 export interface SignalGetter<T> {
   (): T
   value(): T
+  signal: Signal<T>
 }
 
 /**
