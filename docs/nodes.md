@@ -11,7 +11,7 @@ Every game object is built from **nodes** — JSX elements that map to engine cl
 | `Collider`        | `<collider>`         | Detects overlaps with other colliders      |
 | `RayCast`         | `<ray-cast>`         | Projects a ray to detect colliders         |
 | `Clickable`       | `<clickable>`        | Detects click/hover pointer events         |
-| `Rectangle`       | `<rectangle>`        | Renders a filled/stroked rectangle         |
+| `Geometry`        | `<geometry>`         | Renders rectangles, circles, or capsules   |
 | `Timer`           | `<timer>`            | Counts up and fires events                 |
 | `Text`            | `<text>`             | Renders text on the canvas                 |
 | `AudioPlayer`     | `<audio-player>`     | Plays audio buffers                        |
@@ -120,19 +120,24 @@ function Detector() {
 }
 ```
 
-## Rectangle
+## Geometry
+
+Renders rectangles, circles, or capsules using the same `shapes` factory as colliders:
 
 ```tsx
-<rectangle
-  ref={bar}
-  size={[128, 24]}
-  fillColor={[0.2, 0.8, 0.2, 1]}
-  strokeColor={[0, 0, 0, 1]}
-  strokeWidth={2}
-/>
+import { shapes } from 'fraxel'
+
+// Rectangle
+<geometry shape={shapes.rectangle(128, 24)} fillColor={[0.2, 0.8, 0.2, 1]} />
+
+// Circle
+<geometry shape={shapes.circle(16)} fillColor={[1, 0, 0, 1]} />
+
+// Capsule
+<geometry shape={shapes.capsule(60, 20)} fillColor={[0.5, 0.5, 1, 1]} />
 ```
 
-- `size` — dimensions of the rectangle (required). Accepts `VectorLike`.
+- `shape` — collision shape from `shapes` factory (required).
 - `fillColor` — RGBA fill color (optional).
 - `strokeColor` — RGBA border color (optional).
 - `strokeWidth` — border width in pixels (optional).
@@ -226,29 +231,27 @@ See [Audio](audio.md) for full documentation.
 Controls the viewport — what part of the game world is visible:
 
 ```tsx
-import { useNode, useMount } from 'fraxel/hooks'
-import { PrimaryNode } from 'fraxel'
+import { useNode } from 'fraxel/hooks'
+import { PrimaryNode, shapes } from 'fraxel'
 
 function GameScene() {
   const camera = useNode(PrimaryNode.Camera)
-  const player = useNode(PrimaryNode.Sprite)
-
-  useMount(() => {
-    camera.follow(player)
-  })
 
   return (
-    <camera ref={camera} zoom={2}>
-      <sprite ref={player} textureId={PLAYER} />
+    <transform>
+      <camera ref={camera} current smoothing={5} offset={[0, -30]} />
+      <sprite textureId={PLAYER} position={[100, 200]} />
       <sprite textureId={BG} />
-    </camera>
+    </transform>
   )
 }
 ```
 
-- `zoom` — viewport scale (default `1`).
-- `position` — camera position in world space.
-- Methods: `follow(target)`, `follow(undefined)`.
+- `current` — marks this camera as the active one.
+- `smoothing` — view position easing (0 = instant, higher = smoother).
+- `offset` — screen-space offset.
+- `limit` — world-space bounds.
+- Methods: `shake()`, `screenToWorld()`, `worldToScreen()`.
 
 See [Camera](camera.md) for full documentation.
 

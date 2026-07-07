@@ -2,22 +2,24 @@
 
 ## Native Hooks
 
-| Hook                              | Description                                               |
-| --------------------------------- | --------------------------------------------------------- |
-| `useNode(type)`                   | Creates a typed reference to pass as `ref`                |
-| `useEvent(node, event, callback)` | Type-safe event subscription with auto-cleanup            |
-| `useEffect(fn)`                   | Runs effect on mount and when signals change (batched)    |
-| `useSignal(initial)`              | Creates reactive state that triggers re-renders           |
-| `useComputed(fn)`                 | Creates a derived signal that recomputes when deps change |
-| `useMount(fn)`                    | Runs once on mount, cleanup on destroy                    |
-| `useSpawn(node)`                  | Returns a function to dynamically spawn children          |
-| `useGame()`                       | Access game controls (play, pause, changeScene)           |
-| `useChild(path, type)`            | Gets a reference to a child node by path                  |
-| `useScript(ref)`                  | Retrieves the FraxelScript attached to a node             |
-| `useTrigger(trigger, callback)`   | Pub/sub for cross-component communication                 |
-| `createContext(default)`          | Creates a context with `Provider` component               |
-| `useContext(context)`             | Retrieves the current context value                       |
-| `useRef(value)`                   | Mutable reference that persists across renders            |
+| Hook                              | Description                                                 |
+| --------------------------------- | ----------------------------------------------------------- |
+| `useNode(type)`                   | Creates a typed reference to pass as `ref`                  |
+| `useEvent(node, event, callback)` | Type-safe event subscription with auto-cleanup              |
+| `useEffect(fn)`                   | Runs effect on mount and when signals change (batched)      |
+| `useSignal(initial)`              | Creates reactive state that triggers re-renders             |
+| `useComputed(fn)`                 | Creates a derived signal that recomputes when deps change   |
+| `useMount(fn)`                    | Runs once on mount, cleanup on destroy                      |
+| `useSpawn(node)`                  | Returns a function to dynamically spawn children            |
+| `useGame()`                       | Access game controls (play, pause, changeScene)             |
+| `useChild(path, type)`            | Gets a reference to a child node by path                    |
+| `useScript(ref)`                  | Retrieves the FraxelScript attached to a node               |
+| `useAction(action)`               | Reactive action state (pressed, justPressed, justUnpressed) |
+| `useActionAxis(neg, pos)`         | Reactive axis from two opposing actions (-1, 0, or 1)       |
+| `useTrigger(trigger, callback)`   | Pub/sub for cross-component communication                   |
+| `createContext(default)`          | Creates a context with `Provider` component                 |
+| `useContext(context)`             | Retrieves the current context value                         |
+| `useRef(value)`                   | Mutable reference that persists across renders              |
 
 ## Derived Hooks (Summary)
 
@@ -71,6 +73,52 @@ function Enemy() {
       collidesWith={['projectile']}
     />
   )
+}
+```
+
+## useAction
+
+Reactive state for an input action. Returns `{ pressed, justPressed, justUnpressed }`:
+
+```tsx
+import { Input } from 'fraxel'
+import { useAction } from 'fraxel/hooks'
+
+const Jump = Input.createAction({ key: ' ' })
+
+function Player() {
+  const jump = useAction(Jump)
+
+  useEffect(() => {
+    if (jump.justPressed()) {
+      body.applyImpulse([0, -400])
+    }
+  })
+
+  return <rigid-body>...</rigid-body>
+}
+```
+
+## useActionAxis
+
+Reactive axis value from two opposing actions. Returns a `SignalGetter<number>` (-1, 0, or 1):
+
+```tsx
+import { Input } from 'fraxel'
+import { useActionAxis, useEvent } from 'fraxel/hooks'
+
+const Left = Input.createAction({ key: 'a' })
+const Right = Input.createAction({ key: 'd' })
+
+function Player() {
+  const body = useNode(PrimaryNode.RigidBody)
+  const direction = useActionAxis(Left, Right)
+
+  useEvent(body, 'updated', () => {
+    body.node.velocity.x = direction() * 120
+  })
+
+  return <rigid-body>...</rigid-body>
 }
 ```
 
@@ -184,7 +232,7 @@ function Cooldown() {
   return (
     <transform>
       <timer ref={ref} duration={3} autoPlay />
-      <rectangle size={[100, 10]} fillColor={[1 - progress(), progress(), 0, 1]} />
+      <geometry shape={shapes.rectangle(100, 10)} fillColor={[1 - progress(), progress(), 0, 1]} />
     </transform>
   )
 }

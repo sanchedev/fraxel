@@ -9,13 +9,16 @@ import { shapes } from 'fraxel'
 
 <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy']} />
 <collider shape={shapes.circle(16)} group={['projectile']} collidesWith={['zombie']} />
+<collider shape={shapes.capsule(60, 20)} group={['player']} collidesWith={['ground']} />
 ```
 
-Types: `Shape = RectangleShape | CircleShape`, discriminant: `shape.type === 'rectangle' | 'circle'`
+Types: `Shape = RectangleShape | CircleShape | CapsuleShape`
+
+Capsule shapes have a `length` (total tip-to-tip including caps), `radius`, and optional `direction` (`'vertical'` default or `'horizontal'`).
 
 ## Narrowphase Detection
 
-- `Narrowphase.detect(a, b)` dispatches all 4 combinations: rectangle↔rectangle, circle↔circle, rectangle↔circle, circle↔rectangle.
+- `Narrowphase.detect(a, b)` dispatches all 9 combinations: rectangle↔rectangle, circle↔circle, capsule↔capsule, rectangle↔circle, circle↔rectangle, rectangle↔capsule, capsule↔rectangle, circle↔capsule, capsule↔circle.
 - Each shape has its own overlap algorithm.
 
 ## Groups & Events
@@ -74,7 +77,7 @@ function Detector() {
 
 ## Spatial Hash
 
-- `#getBounds()` handles both shapes: rectangle uses `position` to `position + size`, circle uses `center ± radius`.
+- `#getBounds()` handles all shapes: rectangle uses `position` to `position + size`, circle uses `center ± radius`, capsule uses bounding box based on direction.
 - Raycasts query candidates directly from `#colliderGroups` (not the spatial hash).
 - The spatial hash is only used for collider-vs-collider broadphase.
 
