@@ -1,4 +1,5 @@
-import { vector2, type Vector2, type VectorLike } from '../math/index.js'
+import type { Color } from '../math/color.js'
+import { color, vector2, type ColorLike, type Vector2, type VectorLike } from '../math/index.js'
 import type { Node } from '../nodes/_node.js'
 import { reactive, subReactive, type Reactive, type SignalGetterLike } from '../reactivity'
 
@@ -57,4 +58,13 @@ export function applySignal<T, K>(prop: Reactive<T>, changer: (value: T) => K): 
  */
 export function signalVector(vector: Reactive<VectorLike>): Reactive<Vector2> {
   return applySignal(vector, (v) => vector2(v))
+}
+
+/**
+ * The **`signalColor`** function converts a reactive `ColorLike` value to a reactive `Color`.
+ * @param colorLike A reactive or static `ColorLike` value
+ * @returns A reactive or static `Color` value
+ */
+export function signalColor(colorLike: Reactive<ColorLike>): Reactive<Color> {
+  return applySignal(colorLike, (v) => color(v))
 }

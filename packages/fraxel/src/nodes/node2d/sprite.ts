@@ -1,13 +1,12 @@
 import { getTexture, type Texture } from '../../assets/texture.js'
 import { GameConfig } from '../../core/game-config.js'
 import { Vector2, type VectorLike } from '../../math/vector2.js'
-import type { Color } from '../../math/types.js'
-
-import { ns, propSignal, signalVector } from '../../utils/ternaries.js'
+import { ns, propSignal, signalColor, signalVector } from '../../utils/ternaries.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { Nodes } from '../lib/registry.js'
 import type { Reactive } from '../../reactivity/types.js'
+import { Color, type ColorLike } from '../../math/color.js'
 
 export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
   /**
@@ -131,7 +130,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * <sprite textureId={TEX} modulate={[1, 1, 1, 0.5]} />
    * ```
    */
-  modulate?: Reactive<Color>
+  modulate?: Reactive<ColorLike>
   /**
    * The **`contrast`** filter adjusts the sprite's contrast.
    * `0` = no contrast, `1` = base, `2` = double contrast.
@@ -257,7 +256,7 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
 
   #brightness = 1
   #grayscale = 0
-  #modulate: Color = [1, 1, 1, 1]
+  #modulate: Color = Color.WHITE
   #contrast = 1
   #saturate = 1
   #hueRotate = 0
@@ -383,7 +382,11 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
     this.flipY = propSignal(this, 'flipY', options.flipY)
     this.brightness = propSignal(this, 'brightness', options.brightness)
     this.grayscale = propSignal(this, 'grayscale', options.grayscale)
-    this.modulate = propSignal(this, 'modulate', options.modulate)
+    this.modulate = ns(
+      options.modulate,
+      (c) => propSignal(this, 'modulate', signalColor(c)),
+      this.#modulate,
+    )
     this.contrast = propSignal(this, 'contrast', options.contrast)
     this.saturate = propSignal(this, 'saturate', options.saturate)
     this.hueRotate = propSignal(this, 'hueRotate', options.hueRotate)
@@ -428,17 +431,13 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
         displaySize: this.displaySize?.toMultiplied([this.flipX ? -1 : 1, this.flipY ? -1 : 1]),
       })
 
-      const isModulated =
-        this.#modulate[0] !== 1 ||
-        this.#modulate[1] !== 1 ||
-        this.#modulate[2] !== 1 ||
-        this.#modulate[3] !== 1
+      const isModulated = !this.#modulate.equals(Color.WHITE)
 
       if (isModulated) {
         ctx.filter = 'none'
         ctx.globalCompositeOperation = 'multiply'
 
-        ctx.fillStyle = `rgba(${this.#modulate[0] * 255}, ${this.#modulate[1] * 255}, ${this.#modulate[2] * 255}, ${this.#modulate[3]})`
+        ctx.fillStyle = this.#modulate.toCSS()
         ctx.fillRect(this.position.x, this.position.y, ds?.x ?? 0, ds?.y ?? 0)
 
         ctx.globalCompositeOperation = 'source-over'

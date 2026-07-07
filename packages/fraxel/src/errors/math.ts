@@ -41,6 +41,30 @@ export class InvalidBoundsLikeError extends MathError {
 }
 
 /**
+ * The **`InvalidColorLikeError`** error is thrown when a value is not a valid ColorLike.
+ * A ColorLike is a `Color` instance, `[red, green, blue]` tuple, `[red, green, blue, alpha]` tuple, or object with `red/green/blue` or `red/green/blue/alpha` properties.
+ * @example
+ * ```ts
+ * // When this happens:
+ * throw new InvalidColorLikeError(null)
+ * ```
+ */
+export class InvalidColorLikeError extends MathError {
+  constructor(received: unknown) {
+    const type =
+      received === null
+        ? 'null'
+        : received === undefined
+          ? 'undefined'
+          : (received?.constructor?.name ?? typeof received)
+
+    super(
+      `Expected a ColorLike but received ${type}. A ColorLike is a Color instance, [red, green, blue] tuple, [red, green, blue, alpha] tuple, or object with red/green/blue or red/green/blue/alpha properties`,
+    )
+  }
+}
+
+/**
  * The **`InvalidVectorLikeError`** error is thrown when a value is not a valid VectorLike (Vector2, {x, y} object, [x, y] tuple, or number).
  * @example
  * ```ts

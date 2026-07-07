@@ -1,12 +1,12 @@
 import { GameConfig } from '../../core/game-config.js'
 import type { Vector2 } from '../../math/vector2.js'
-import type { Color } from '../../math/types.js'
-import { propSignal } from '../../utils/ternaries.js'
+import { ns, propSignal, signalColor } from '../../utils/ternaries.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { Nodes } from '../lib/registry.js'
 import type { Reactive } from '../../reactivity/types.js'
 import type { Shape } from '../../collision/narrowphase/shapes.js'
+import { Color, type ColorLike } from '../../math/color.js'
 
 /**
  * Options for the `Geometry` node.
@@ -35,7 +35,7 @@ export interface GeometryOptions extends Node2DOptions<PrimaryNode.Geometry> {
    * <geometry shape={shapes.rectangle(64, 32)} fillColor={[1, 0, 0, 1]} />
    * ```
    */
-  fillColor?: Reactive<Color>
+  fillColor?: Reactive<ColorLike>
   /**
    * The **`strokeColor`** property defines the border color of the shape.
    * If not provided, no border is drawn.
@@ -45,7 +45,7 @@ export interface GeometryOptions extends Node2DOptions<PrimaryNode.Geometry> {
    * <geometry shape={shapes.rectangle(64, 32)} strokeColor={[0, 0, 0, 1]} strokeWidth={2} />
    * ```
    */
-  strokeColor?: Reactive<Color>
+  strokeColor?: Reactive<ColorLike>
   /**
    * The **`strokeWidth`** property defines the border width in pixels.
    *
@@ -81,15 +81,23 @@ export interface GeometryOptions extends Node2DOptions<PrimaryNode.Geometry> {
  */
 export class Geometry extends Node2D<PrimaryNode.Geometry> {
   shape: Shape
-  fillColor: Color
+  fillColor: Color = Color.WHITE
   strokeColor: Color | undefined
   strokeWidth: number
 
   constructor(options: GeometryOptions) {
     super(PrimaryNode.Geometry, options)
     this.shape = propSignal(this, 'shape', options.shape) as Shape
-    this.fillColor = propSignal(this, 'fillColor', options.fillColor) ?? [1, 1, 1, 1]
-    this.strokeColor = propSignal(this, 'strokeColor', options.strokeColor)
+    this.fillColor = ns(
+      options.fillColor,
+      (c) => propSignal(this, 'fillColor', signalColor(c)),
+      this.fillColor,
+    )
+    this.strokeColor = ns(
+      options.strokeColor,
+      (c) => propSignal(this, 'strokeColor', signalColor(c)),
+      this.strokeColor,
+    )
     this.strokeWidth = propSignal(this, 'strokeWidth', options.strokeWidth) ?? 1
   }
 
@@ -115,17 +123,14 @@ export class Geometry extends Node2D<PrimaryNode.Geometry> {
   /** @internal Draws the shape. */
   draw(delta: number): void {
     const ctx = GameConfig.ctx
-    const [r, g, b, a] = this.fillColor
-
     ctx.save()
-    ctx.fillStyle = `rgba(${r * 255}, ${g * 255}, ${b * 255}, ${a})`
+    ctx.fillStyle = this.fillColor.toCSS()
 
     if (this.shape.type === 'rectangle') {
       ctx.fillRect(this.position.x, this.position.y, this.shape.size.x, this.shape.size.y)
 
       if (this.strokeColor) {
-        const [sr, sg, sb, sa] = this.strokeColor
-        ctx.strokeStyle = `rgba(${sr * 255}, ${sg * 255}, ${sb * 255}, ${sa})`
+        ctx.strokeStyle = this.strokeColor.toCSS()
         ctx.lineWidth = this.strokeWidth
         ctx.strokeRect(this.position.x, this.position.y, this.shape.size.x, this.shape.size.y)
       }
@@ -135,8 +140,7 @@ export class Geometry extends Node2D<PrimaryNode.Geometry> {
       ctx.fill()
 
       if (this.strokeColor) {
-        const [sr, sg, sb, sa] = this.strokeColor
-        ctx.strokeStyle = `rgba(${sr * 255}, ${sg * 255}, ${sb * 255}, ${sa})`
+        ctx.strokeStyle = this.strokeColor.toCSS()
         ctx.lineWidth = this.strokeWidth
         ctx.stroke()
       }
@@ -155,7 +159,6 @@ export class Geometry extends Node2D<PrimaryNode.Geometry> {
     const ctx = GameConfig.ctx
     const px = this.position.x
     const py = this.position.y
-    const [r, g, b, a] = this.fillColor
 
     ctx.beginPath()
 
@@ -180,12 +183,11 @@ export class Geometry extends Node2D<PrimaryNode.Geometry> {
     }
 
     ctx.closePath()
-    ctx.fillStyle = `rgba(${r * 255}, ${g * 255}, ${b * 255}, ${a})`
+    ctx.fillStyle = this.fillColor.toCSS()
     ctx.fill()
 
     if (this.strokeColor) {
-      const [sr, sg, sb, sa] = this.strokeColor
-      ctx.strokeStyle = `rgba(${sr * 255}, ${sg * 255}, ${sb * 255}, ${sa})`
+      ctx.strokeStyle = this.strokeColor.toCSS()
       ctx.lineWidth = this.strokeWidth
       ctx.stroke()
     }
