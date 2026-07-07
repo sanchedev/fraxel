@@ -50,6 +50,14 @@ export class Signal<T> {
    */
   set value(val) {
     if (val === this.#value) return
+    if (
+      typeof val === 'object' &&
+      val &&
+      'equals' in val &&
+      typeof val.equals === 'function' &&
+      val.equals(this.#value) === true
+    )
+      return
     this.#value = val
     const currentListeners = Array.from(this.#listeners)
     currentListeners.forEach((fn) => fn(val))
