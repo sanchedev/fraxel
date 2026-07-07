@@ -1,4 +1,4 @@
-import { tween, easeOutQuad, type VectorLike } from 'fraxel'
+import { tween, easeOutQuad, type VectorLike, shapes } from 'fraxel'
 import {
   useComputed,
   useContext,
@@ -61,14 +61,14 @@ export function Grid({ position }: { position: VectorLike }) {
 
   return (
     <clickable ref={clickable.ref} position={position} size={cellSize.toMultiplied(cellsCount)}>
-      <rectangle
+      <geometry
         position={() => [pos().x * cellSize.x, 0]}
-        size={[cellSize.x, cellSize.y * cellsCount.y]}
+        shape={shapes.rectangle(cellSize.x, cellSize.y * cellsCount.y)}
         fillColor={() => [0.9, 0.9, 0.9, transparency()]}
       />
-      <rectangle
+      <geometry
         position={() => [0, pos().y * cellSize.y]}
-        size={[cellSize.x * cellsCount.x, cellSize.y]}
+        shape={shapes.rectangle(cellSize.x * cellsCount.x, cellSize.y)}
         fillColor={() => [0.8, 0.8, 0.8, transparency()]}
       />
     </clickable>

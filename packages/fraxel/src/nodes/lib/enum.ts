@@ -28,8 +28,8 @@ export enum PrimaryNode {
   Clickable = 'clickable',
   /** A node for use time functions. */
   Timer = 'timer',
-  /** A node that renders a filled/stroked rectangle. */
-  Rectangle = 'rectangle',
+  /** A node that renders a shape (rectangle, circle, or capsule). */
+  Geometry = 'geometry',
   /** A node that renders text on the canvas. */
   Text = 'text',
   /** A node that plays audio buffers. */

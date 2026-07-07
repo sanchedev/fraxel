@@ -1,4 +1,4 @@
-import { Vector2, loadSound, PrimaryNode, type VectorLike } from 'fraxel'
+import { loadSound, PrimaryNode, type VectorLike, vector2 } from 'fraxel'
 import { Row } from './row.js'
 import { BoardCtx } from '../../contexts/board.js'
 import { useRef, useSignal, useNode } from 'fraxel/hooks'
@@ -28,8 +28,8 @@ export function Board({ position, cellsCount, cellSize }: BoardProps) {
   const plantAudio = useNode(PrimaryNode.AudioPlayer)
 
   const cell = {
-    size: Vector2.vectorize(cellSize),
-    count: Vector2.vectorize(cellsCount),
+    size: vector2(cellSize),
+    count: vector2(cellsCount),
   }
 
   return (
@@ -61,7 +61,7 @@ export function Board({ position, cellsCount, cellSize }: BoardProps) {
           </transform>
           <transform position={position}>
             <List
-              array={Array.from({ length: Vector2.vectorize(cellsCount).y }, (_, i) => i)}
+              array={Array.from({ length: vector2(cellsCount).y }, (_, i) => i)}
               itemKey={(i) => `row-${i}`}
             >
               {(rowIndex) => (

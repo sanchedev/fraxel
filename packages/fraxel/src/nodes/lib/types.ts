@@ -9,7 +9,7 @@ import type { EventName } from '../../events/types.js'
 import type { PrimaryNode } from './enum.js'
 import type { Clickable, ClickableOptions } from '../node2d/clickable.js'
 import type { Timer, TimerOptions } from '../timer.js'
-import type { Rectangle, RectangleOptions } from '../node2d/rectangle.js'
+import type { Geometry, GeometryOptions } from '../node2d/geometry.js'
 import type { Text, TextOptions } from '../node2d/text.js'
 import type { AudioPlayer, AudioPlayerOptions } from '../audio-player.js'
 import type { Camera, CameraOptions } from '../node2d/camera.js'
@@ -29,7 +29,7 @@ export interface NodeClasses {
   [PrimaryNode.RayCast]: typeof RayCast
   [PrimaryNode.Clickable]: typeof Clickable
   [PrimaryNode.Timer]: typeof Timer
-  [PrimaryNode.Rectangle]: typeof Rectangle
+  [PrimaryNode.Geometry]: typeof Geometry
   [PrimaryNode.Text]: typeof Text
   [PrimaryNode.AudioPlayer]: typeof AudioPlayer
   [PrimaryNode.Camera]: typeof Camera
@@ -49,7 +49,7 @@ export interface NodesOptions {
   [PrimaryNode.RayCast]: RayCastOptions
   [PrimaryNode.Clickable]: ClickableOptions
   [PrimaryNode.Timer]: TimerOptions
-  [PrimaryNode.Rectangle]: RectangleOptions
+  [PrimaryNode.Geometry]: GeometryOptions
   [PrimaryNode.Text]: TextOptions
   [PrimaryNode.AudioPlayer]: AudioPlayerOptions
   [PrimaryNode.Camera]: CameraOptions
