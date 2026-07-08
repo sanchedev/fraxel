@@ -4,6 +4,9 @@ import { Node2D, type Node2DOptions } from './_node2d.js'
 import { PhysicsSystem } from '../../collision/physics/physics-system.js'
 import type { Collider } from './collider.js'
 import { Vector2 } from '../../math/vector2.js'
+import type { Reactive } from '../../reactivity/types.js'
+import { propSignal } from '../../utils/ternaries.js'
+import { warnNestedColliders } from '../../warn/index.js'
 
 /**
  * Options for the `RigidBody` node.
@@ -28,7 +31,7 @@ export interface RigidBodyOptions extends Node2DOptions<PrimaryNode.RigidBody> {
    * If true, the body does not move.
    * @default false
    */
-  isStatic?: boolean
+  isStatic?: Reactive<boolean>
   /**
    * If false, gravity is not applied.
    * @default true
@@ -83,7 +86,7 @@ export class RigidBody extends Node2D<PrimaryNode.RigidBody> {
     this.mass = options.mass ?? 1
     this.friction = options.friction ?? 0.1
     this.bounce = options.bounce ?? 0
-    this.isStatic = options.isStatic ?? false
+    this.isStatic = propSignal(this, 'isStatic', options.isStatic)
     this.useGravity = options.useGravity ?? true
   }
 
@@ -117,6 +120,8 @@ export class RigidBody extends Node2D<PrimaryNode.RigidBody> {
     this.colliders = new Set(
       this._children.filter((c): c is Collider => c.type === PrimaryNode.Collider),
     )
+
+    warnNestedColliders(this)
 
     PhysicsSystem.register(this)
 
