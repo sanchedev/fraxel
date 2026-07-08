@@ -1,4 +1,4 @@
-import { Signal } from './signal'
+import { Signal } from './signal.js'
 
 /**
  * The **`SignalRegister`** class provides automatic dependency tracking for the reactivity system.

@@ -1,5 +1,5 @@
-import { SignalRegister } from './register'
-import type { SignalGetter, SignalSetter } from './types'
+import { SignalRegister } from './register.js'
+import type { SignalGetter, SignalSetter } from './types.js'
 
 /**
  * The **`Signal`** class is a reactive primitive that holds a value and notifies subscribers when it changes.

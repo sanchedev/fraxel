@@ -1,4 +1,4 @@
-import { pushEffect } from './context'
+import { pushEffect } from './context.js'
 
 /**
  * The **`Reference`** class holds a mutable value that persists across renders.

@@ -1,4 +1,4 @@
-import type { Event } from './event'
+import type { Event } from './event.js'
 
 /**
  * The **`Fun`** type represents a function with the given parameter types.
