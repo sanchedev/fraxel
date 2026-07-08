@@ -3,7 +3,7 @@
 > A lightning-fast JSX runtime for building 2D games in the browser — declarative, reactive, zero React.
 
 [![CI](https://github.com/sanchedev/fraxel/actions/workflows/ci.yml/badge.svg)](https://github.com/sanchedev/fraxel/actions)
-[![npm version](https://img.shields.io/badge/version-0.1.0--alpha.2-blue)](https://github.com/sanchedev/fraxel)
+[![npm version](https://img.shields.io/badge/version-0.1.0--alpha.4-blue)](https://github.com/sanchedev/fraxel)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Built with TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
@@ -81,7 +81,7 @@ Dive into the official documentation to master the engine:
 
 - [Getting Started](docs/getting-started.md) — Installation, setup, and first game
 - [Nodes Reference](docs/nodes.md) — `<transform>`, `<sprite>`, `<text>`, `<camera>`, `<collider>`, `<rigid-body>`
-- [Hooks API](docs/hooks.md) — useSignal, useComputed, useEffect, useNode, useEvent, useSpawn
+- [Hooks API](docs/hooks.md) — useSignal, useComputed, useEffect, useSprite, useCollider
 - [Collisions](docs/collision.md) — Shapes, filtering groups, events, and raycasting
 - [Physics](docs/physics.md) — Gravity, rigid bodies, forces, and collision response
 - [Camera](docs/camera.md) — Viewport control, scrolling, and target following

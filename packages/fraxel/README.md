@@ -1,12 +1,64 @@
 # fraxel
 
-> A lightning-fast JSX runtime for building 2D games in the browser — declarative, reactive, zero React.
+> Build 2D games with JSX — no React, no virtual DOM, no re-renders.
 
 [![CI](https://github.com/sanchedev/fraxel/actions/workflows/ci.yml/badge.svg)](https://github.com/sanchedev/fraxel/actions)
 [![npm version](https://img.shields.io/badge/version-0.1.0--alpha.3-blue)](https://github.com/sanchedev/fraxel)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**fraxel** lets you build 2D games using JSX syntax with a custom runtime — **no React, no DOM overhead, no bundle bloat.** Write your game logic using hooks, signals, and component architecture that frontend developers already know and love, rendered directly to `<canvas>` at 60FPS.
+**fraxel** is a custom JSX runtime for building 2D games in the browser. JSX compiles directly to a declarative scene graph rendered to `<canvas>` — no reconciliation, no diffing, just signals driving properties.
+
+## Example
+
+A player that moves and jumps with physics, input, and collisions — all in ~35 lines:
+
+```tsx
+import { createGame, Game, Scene } from 'fraxel/jsx'
+import { loadTexture, Input, shapes } from 'fraxel'
+import { useRigidBody, useAction, useActionAxis, useEffect } from 'fraxel/hooks'
+
+const PLAYER = await loadTexture('/assets/player.png') // waits for image load
+
+const Jump = Input.createAction({ key: ' ' })
+const Left = Input.createAction({ key: 'a' })
+const Right = Input.createAction({ key: 'd' })
+
+function Player() {
+  const rb = useRigidBody()
+  const jump = useAction(Jump)
+  const dir = useActionAxis(Left, Right)
+
+  useEffect(() => {
+    if (jump.justPressed() && rb.isGrounded()) rb.applyImpulse([0, -400])
+    rb.setVelocity([dir() * 120, rb.velocity().y])
+  })
+
+  return (
+    <rigid-body ref={rb} position={[80, 50]}>
+      <sprite textureId={PLAYER} />
+      <collider shape={shapes.rectangle(16, 16)} group={['player']} collidesWith={['ground']} />
+    </rigid-body>
+  )
+}
+
+const scene = () => (
+  <transform>
+    <Player />
+    <rigid-body position={[0, 200]} isStatic>
+      <collider shape={shapes.rectangle(300, 16)} group={['ground']} collidesWith={['player']} />
+    </rigid-body>
+  </transform>
+)
+
+const game = createGame(
+  <Game width={300} height={220} defaultScene="main">
+    <Scene name="main" component={scene} />
+  </Game>,
+  document.querySelector('#root')!,
+)
+
+game.play()
+```
 
 ## Install
 
@@ -34,169 +86,90 @@ Add the custom JSX runtime to your `tsconfig.json`:
 }
 ```
 
-## Quick Start
+## Why fraxel?
+
+### Custom JSX Runtime
+
+fraxel ships its own JSX runtime. JSX is not React — it's a language feature. fraxel uses it to build a declarative scene graph that compiles directly to canvas draw calls.
 
 ```tsx
-import { createGame, Game, Scene } from 'fraxel/jsx'
-import { loadTexture } from 'fraxel/assets'
+// This JSX...
+<sprite textureId={PLAYER} position={[80, 50]} />
 
-const BG = await loadTexture('/assets/background.png')
-const PLAYER = await loadTexture('/assets/player.png')
-
-const scene = () => (
-  <transform>
-    <sprite textureId={BG} />
-    <sprite textureId={PLAYER} position={[80, 50]} />
-  </transform>
-)
-
-const game = createGame(
-  <Game width={192} height={112} defaultScene="main">
-    <Scene name="main" component={scene} />
-  </Game>,
-  document.querySelector('#root')!,
-)
-
-game.play()
+// ...becomes a Sprite node in the scene graph
 ```
 
-## Reactivity
+### Fine-grained Reactivity
 
-Fine-grained signals with automatic dependency tracking — no virtual DOM diffing.
+Properties accept signals directly. When a signal changes, only the affected property updates — no virtual DOM diffing, no re-renders.
 
 ```tsx
-import { useSignal, useComputed, useEffect } from 'fraxel/hooks'
+// Signals drive properties directly — no useEffect needed
+const brightness = useComputed(() => (health() > 50 ? 1.2 : 0.5))
+return <sprite textureId={PLAYER} brightness={brightness} />
+```
 
+### Typed Node References
+
+Hooks like `useSprite()` or `useRigidBody()` return typed references with reactive state, event triggers, and imperative methods — all in one place.
+
+```tsx
 function Player() {
-  const [health, setHealth] = useSignal(100)
-  const isDead = useComputed(() => health() <= 0)
+  const rb = useRigidBody()
 
   useEffect(() => {
-    console.log('Health:', health())
-    return () => console.log('Cleanup')
+    rb.applyImpulse([0, -400]) // imperative
   })
 
-  return (
-    <sprite
-      textureId={PLAYER}
-      grayscale={() => (isDead() ? 1 : 0)}
-      brightness={() => 0.5 + health() / 200}
-    >
-      <clickable size={[32, 32]} onClick={() => setHealth(health() - 10)} />
-    </sprite>
-  )
+  return <rigid-body ref={rb} /> // declarative — connects to node
 }
 ```
 
-## Nodes
+### Everything is a Node
 
-JSX elements that map to engine classes:
+Sprites, cameras, rigid bodies, timers, animations, audio, text — everything is a node in the same scene graph. Same lifecycle, same hooks, same patterns.
 
-| Node              | Tag                  | Description                                |
-| ----------------- | -------------------- | ------------------------------------------ |
-| `Transform`       | `<transform>`        | Positioning container for child nodes      |
-| `Group`           | `<group>`            | Logical container (no spatial positioning) |
-| `Sprite`          | `<sprite>`           | Displays a texture with optional filters   |
-| `AnimationPlayer` | `<animation-player>` | Plays frame-based animations               |
-| `Collider`        | `<collider>`         | Detects overlaps with other colliders      |
-| `RayCast`         | `<ray-cast>`         | Projects a ray to detect colliders         |
-| `Clickable`       | `<clickable>`        | Detects click/hover pointer events         |
-| `Geometry`        | `<geometry>`         | Renders rectangles, circles, or capsules   |
-| `Timer`           | `<timer>`            | Counts up and fires events                 |
-| `Text`            | `<text>`             | Renders text on the canvas                 |
-| `AudioPlayer`     | `<audio-player>`     | Plays audio buffers                        |
-| `Camera`          | `<camera>`           | Controls the viewport                      |
-| `RigidBody`       | `<rigid-body>`       | Adds physics simulation                    |
-
-## Hooks
-
-### Core Hooks
-
-| Hook                              | Description                                                 |
-| --------------------------------- | ----------------------------------------------------------- |
-| `useNode(type)`                   | Creates a typed reference to pass as `ref`                  |
-| `useEvent(node, event, callback)` | Type-safe event subscription with auto-cleanup              |
-| `useEffect(fn)`                   | Runs effect on mount and when signals change (batched)      |
-| `useSignal(initial)`              | Creates reactive state that triggers re-renders             |
-| `useComputed(fn)`                 | Creates a derived signal that recomputes when deps change   |
-| `useMount(fn)`                    | Runs once on mount, cleanup on destroy                      |
-| `useSpawn(node)`                  | Returns a function to dynamically spawn children            |
-| `useGame()`                       | Access game controls (play, pause, changeScene)             |
-| `useChild(path, type)`            | Gets a reference to a child node by path                    |
-| `useScript(ref)`                  | Retrieves the FraxelScript attached to a node               |
-| `useAction(action)`               | Reactive action state (pressed, justPressed, justUnpressed) |
-| `useActionAxis(neg, pos)`         | Reactive axis from two opposing actions (-1, 0, or 1)       |
-| `useTrigger(trigger, callback)`   | Pub/sub for cross-component communication                   |
-| `createContext(default)`          | Creates a context with `Provider` component                 |
-| `useContext(context)`             | Retrieves the current context value                         |
-| `useRef(value)`                   | Mutable reference that persists across renders              |
-
-### Derived Hooks
-
-| Hook                           | Description                                      |
-| ------------------------------ | ------------------------------------------------ |
-| `useCondition(node, on, off)`  | Reactive boolean toggled by two opposing events  |
-| `useMatch(signal, record)`     | Maps signal value to record (like switch)        |
-| `useWhen(signal, true, false)` | Ternary expression for signals                   |
-| `useClickable(ref?)`           | Clickable node with reactive `hovered` state     |
-| `useTimer(ref?)`               | Timer node with `time`, `progress`, and controls |
-| `useRayCast(ref?)`             | RayCast node with reactive `detected` state      |
-| `useCollider(ref?)`            | Collider node with reactive `colliding` state    |
-| `useAnimation(ref?)`           | AnimationPlayer with reactive frame state        |
-| `useAudio(ref?)`               | AudioPlayer with reactive `playing` state        |
-
-## Collision System
-
-Built-in rectangle, circle, and capsule shapes with spatial hash broadphase and raycast support:
-
-```tsx
-import { shapes } from 'fraxel'
-
-<collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy']} />
-<collider shape={shapes.circle(16)} group={['projectile']} collidesWith={['zombie']} />
-<collider shape={shapes.capsule(60, 20)} group={['player']} collidesWith={['ground']} />
+```
+<sprite>  ─┐
+<collider> ─┤
+<camera>   ─┼→ Scene Graph → Node Lifecycle → canvas
+<timer>    ─┤
+<audio>    ─┘
 ```
 
-## Physics
+## Core Concepts
 
-Gravity, rigid bodies, forces, impulses, and collision response:
+**Nodes** represent game entities. Each has a lifecycle (`start → update → destroy`) and participates in the scene graph.
 
-```tsx
-<rigid-body mass={2} bounce={0.6} useGravity />
-```
+**Hooks** connect to nodes declaratively. Native hooks (`useSprite`, `useCollider`, etc.) return typed references with reactive state and events.
 
-## Sprite Filters
+**Signals** power the reactivity system. Properties accept `SignalGetter` functions that update automatically when dependencies change.
 
-CSS-like visual filters applied via canvas:
+## Features
 
-```tsx
-<sprite
-  textureId={TEX}
-  brightness={1.2}
-  grayscale={0.5}
-  modulate={[1, 0.5, 0, 1]}
-  contrast={1.5}
-  opacity={0.8}
-/>
-```
+- **Custom JSX Runtime** — own runtime, not React
+- **Declarative Scene Graph** — JSX maps to nodes
+- **Typed Node References** — reactive state + events + methods
+- **Fine-grained Reactivity** — signals, not re-renders
+- **Physics & Collision Detection** — rigid bodies, spatial hash, raycasts
+- **Camera System** — zoom, offset, smoothing, shake
+- **Audio Playback** — sound loading and playback
+- **Animation & Tweening** — sprite sheets, easing, sequences
+- **Asset Loading** — batch loading with progress
+- **Input System** — actions, keyboard, pointer
+- **TypeScript-first** — strict, fully typed
 
 ## Import Paths
 
 ```tsx
-// Main entry — nodes, math, collision, core, reactivity
-import { PrimaryNode, Vector2, shapes } from 'fraxel'
+// Main entry — nodes, math, collision, input, assets, animation
+import { Input, shapes, loadTexture, Vector2 } from 'fraxel'
 
 // Hooks
-import { useNode, useEvent, useSignal, useEffect } from 'fraxel/hooks'
+import { useSprite, useRigidBody, useEffect } from 'fraxel/hooks'
 
 // JSX components
 import { Game, Scene, List, Fragment } from 'fraxel/jsx'
-
-// Assets
-import { loadTexture, loadBatch, loadSound } from 'fraxel/assets'
-
-// Animation & tweening
-import { tween, easeOutQuad, animationFromSheet } from 'fraxel/animation'
 ```
 
 ## Documentation
