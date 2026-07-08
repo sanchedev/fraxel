@@ -26,13 +26,12 @@ Capsule shapes have a `length` (total tip-to-tip including caps), `radius`, and 
 Colliders use groups for filtering. Events fire on both colliders:
 
 ```tsx
-import { useEvent, useNode } from 'fraxel/hooks'
-import { PrimaryNode, shapes } from 'fraxel'
+import { useCollider, useTrigger } from 'fraxel/hooks'
 
 function Projectile() {
-  const collider = useNode(PrimaryNode.Collider)
+  const collider = useCollider()
 
-  useEvent(collider, 'colliderEntered', (enemyCollider) => {
+  useTrigger(collider.colliderEntered, (enemyCollider) => {
     enemyCollider.parent.script.applyDamage(20)
   })
 
@@ -49,30 +48,29 @@ function Projectile() {
 
 - `Collider` node requires `shape` prop.
 - `group` and `collidesWith` are private with getters (immutable after construction).
-- Events (baseNames): `colliderEntered`, `collided`, `colliderExited`.
+- Triggers: `colliderEntered`, `colliderExited`.
 
 ## RayCast
 
 Project rays to detect colliders along a direction:
 
 ```tsx
-import { useNode, useEvent } from 'fraxel/hooks'
-import { PrimaryNode } from 'fraxel'
+import { useRayCast, useTrigger } from 'fraxel/hooks'
 
 function Detector() {
-  const ray = useNode(PrimaryNode.RayCast)
+  const raycast = useRayCast()
 
-  useEvent(ray, 'colliderEntered', (collider) => {
+  useTrigger(raycast.colliderEntered, (collider) => {
     console.log('Detected:', collider)
   })
 
-  return <ray-cast ref={ray} direction={[100, 0]} collidesWith={['enemy']} />
+  return <ray-cast ref={raycast} direction={[100, 0]} collidesWith={['enemy']} />
 }
 ```
 
 - `RayCast` node has `direction` (Vector2) and `collidesWith` (string[]).
 - `getCollider()` returns the currently detected collider or null.
-- Events (baseNames): `colliderEntered`, `colliderExited`.
+- Triggers: `colliderEntered`, `colliderExited`.
 - Events emit on both the detected collider AND the raycast itself.
 
 ## Spatial Hash
@@ -115,13 +113,13 @@ PhysicsSystem.gravity = vector2(0, 980) // default
 ### Forces & Impulses
 
 ```tsx
-const body = useNode(PrimaryNode.RigidBody)
+const body = useRigidBody()
 
 // Continuous force (thrust, wind)
-body.node.physicsBody.applyForce(vector2(100, 0))
+body.applyForce([100, 0])
 
 // Instant impulse (jump, explosion)
-body.node.physicsBody.applyImpulse(vector2(0, -400))
+body.applyImpulse([0, -400])
 ```
 
 See [Physics](physics.md) for full documentation.

@@ -74,18 +74,21 @@ game.play()
 Use hooks to add state, events, and reactivity:
 
 ```tsx
-import { useNode, useEvent, useSignal } from 'fraxel/hooks'
-import { PrimaryNode } from 'fraxel'
+import { useTransform, useUpdate, useSignal } from 'fraxel/hooks'
 
 function Player() {
-  const sprite = useNode(PrimaryNode.Sprite)
+  const transform = useTransform()
   const [health, setHealth] = useSignal(100)
 
-  useEvent(sprite, 'updated', (delta) => {
-    sprite.node.position.x += delta * 50
+  useUpdate((delta) => {
+    transform.setPosition([transform.position().x + delta * 50, transform.position().y])
   })
 
-  return <sprite ref={sprite} textureId={PLAYER} grayscale={() => (health() <= 0 ? 1 : 0)} />
+  return (
+    <transform ref={transform}>
+      <sprite textureId={PLAYER} grayscale={() => (health() <= 0 ? 1 : 0)} />
+    </transform>
+  )
 }
 ```
 
@@ -105,7 +108,7 @@ fraxel/
 import { PrimaryNode, Vector2, shapes } from 'fraxel'
 
 // Hooks
-import { useNode, useEvent, useSignal, useEffect } from 'fraxel/hooks'
+import { useSprite, useCollider, useSignal, useEffect } from 'fraxel/hooks'
 
 // JSX components
 import { Game, Scene, List, Fragment } from 'fraxel/jsx'

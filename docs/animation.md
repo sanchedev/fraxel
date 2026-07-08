@@ -104,12 +104,11 @@ switches animations automatically when the signal value changes.
 Interpolate numeric properties over time:
 
 ```tsx
-import { useNode, useMount } from 'fraxel/hooks'
-import { PrimaryNode } from 'fraxel'
+import { useSprite, useMount } from 'fraxel/hooks'
 import { tween, easeOutQuad } from 'fraxel'
 
 function FadeIn() {
-  const sprite = useNode(PrimaryNode.Sprite)
+  const sprite = useSprite()
 
   useMount(() => {
     tween({

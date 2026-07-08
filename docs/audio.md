@@ -9,27 +9,27 @@ const shootSound = await loadSound('/assets/sounds/shoot.mp3')
 const bgMusic = await loadSound('/assets/sounds/music.mp3')
 ```
 
-`loadSound()` fetches the audio file, decodes it with `AudioContext`, and returns a `symbol` ID. Duplicate URLs are cached automatically.
+`loadSound()` fetches the audio file, decodes it with `AudioContext`, and returns a `symbol` ID. Each call creates a new instance (no deduplication).
 
 ## AudioPlayer Node
 
 ```tsx
-import { useNode, useEvent } from 'fraxel/hooks'
-import { PrimaryNode } from 'fraxel'
+import { useAudio, useClickable, useTrigger } from 'fraxel/hooks'
 import { loadSound } from 'fraxel'
 
 const SHOOT = await loadSound('/assets/shoot.mp3')
 
 function Gun() {
-  const audio = useNode(PrimaryNode.AudioPlayer)
-  const clickable = useNode(PrimaryNode.Clickable)
+  const audio = useAudio()
+  const clickable = useClickable()
 
-  useEvent(clickable, 'clicked', () => {
-    audio.node.play()
+  useTrigger(clickable.clicked, () => {
+    audio.play()
   })
 
   return (
-    <sprite ref={clickable} textureId={GUN_TEX}>
+    <sprite textureId={GUN_TEX}>
+      <clickable ref={clickable} size={[32, 32]} />
       <audio-player ref={audio} soundId={SHOOT} volume={0.8} />
     </sprite>
   )
@@ -73,7 +73,7 @@ function Gun() {
 The `AudioContext` is created lazily on first use. Browsers require a user gesture before audio can play:
 
 ```tsx
-import { getAudioContext } from 'fraxel/audio'
+import { getAudioContext } from 'fraxel'
 
 // Call this after a click/tap to resume the context
 function onFirstClick() {
@@ -87,24 +87,22 @@ function onFirstClick() {
 ## Complete Example
 
 ```tsx
-import { useNode, useEvent, useMount } from 'fraxel/hooks'
-import { PrimaryNode } from 'fraxel'
-import { loadSound } from 'fraxel'
-import { getAudioContext } from 'fraxel/audio'
+import { useAudio, useMount } from 'fraxel/hooks'
+import { loadSound, getAudioContext } from 'fraxel'
 
 const BG_MUSIC = await loadSound('/assets/music.mp3')
 const SHOOT = await loadSound('/assets/shoot.mp3')
 
 function GameAudio() {
-  const music = useNode(PrimaryNode.AudioPlayer)
-  const sfx = useNode(PrimaryNode.AudioPlayer)
+  const music = useAudio()
+  const sfx = useAudio()
 
   useMount(() => {
     // Resume audio context after first interaction
     const ctx = getAudioContext()
     if (ctx.state === 'suspended') ctx.resume()
 
-    music.node.play()
+    music.play()
   })
 
   return (

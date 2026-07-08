@@ -7,11 +7,10 @@ The `<camera>` node controls the viewport — what part of the game world is vis
 Place the camera at the root of your scene and mark it as `current`:
 
 ```tsx
-import { useNode } from 'fraxel/hooks'
-import { PrimaryNode } from 'fraxel'
+import { useCamera } from 'fraxel/hooks'
 
 function GameScene() {
-  const camera = useNode(PrimaryNode.Camera)
+  const camera = useCamera()
 
   return (
     <transform>
@@ -74,10 +73,10 @@ Limits are enforced on the smoothed view position, not the raw global position.
 Trigger a screen shake effect with `shake()`:
 
 ```tsx
-const camera = useNode(PrimaryNode.Camera)
+const camera = useCamera()
 
 // Shake for 0.3 seconds with 8px strength
-camera.node.shake({ duration: 0.3, strength: 8 })
+camera.shake({ duration: 0.3, strength: 8 })
 ```
 
 The shake applies a random offset on top of the view position with linear decay.
@@ -87,13 +86,13 @@ The shake applies a random offset on top of the view position with linear decay.
 Convert between screen-space and world-space coordinates:
 
 ```tsx
-const camera = useNode(PrimaryNode.Camera)
+const camera = useCamera()
 
 // Screen to world (e.g., click position to world position)
-const worldPos = camera.node.screenToWorld(pointerPosition)
+const worldPos = camera.screenToWorld(pointerPosition)
 
 // World to screen (e.g., enemy position to UI position)
-const screenPos = camera.node.worldToScreen(enemyPosition)
+const screenPos = camera.worldToScreen(enemyPosition)
 ```
 
 Both methods account for zoom, offset, and the smoothed view position.
@@ -114,15 +113,15 @@ The `viewPosition` is a smoothed version of `globalPosition`. When the camera or
 ## Example: Platformer Camera
 
 ```tsx
-import { useNode, useRigidBody } from 'fraxel/hooks'
-import { PrimaryNode, bounds, shapes } from 'fraxel'
+import { useRigidBody } from 'fraxel/hooks'
+import { bounds, shapes } from 'fraxel'
 
 function Platformer() {
   const body = useRigidBody()
 
   return (
     <transform>
-      <rigid-body ref={body.ref} position={[100, 200]}>
+      <rigid-body ref={body} position={[100, 200]}>
         <camera current smoothing={5} offset={[0, -30]} limit={bounds(0, 0, 1600, 480)} />
         <sprite textureId={PLAYER} />
         <collider shape={shapes.rectangle(16, 16)} group={['player']} collidesWith={['ground']} />

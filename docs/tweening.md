@@ -126,12 +126,11 @@ parallel([
 ## Using with Hooks
 
 ```tsx
-import { useNode, useMount } from 'fraxel/hooks'
-import { PrimaryNode } from 'fraxel'
+import { useSprite, useMount } from 'fraxel/hooks'
 import { tween, easeOutBounce } from 'fraxel'
 
 function DropIn() {
-  const sprite = useNode(PrimaryNode.Sprite)
+  const sprite = useSprite()
 
   useMount(() => {
     tween({

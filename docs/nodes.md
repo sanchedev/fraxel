@@ -36,7 +36,7 @@ Every game object is built from **nodes** — JSX elements that map to engine cl
 ```
 
 - Logical container without spatial positioning (unlike `<transform>` which has a `position`).
-- Used internally by the `<List>` component as an anchor for keyed reconciliation.
+- Used internally by the `<List>` component as a hidden `<transform>` anchor for keyed reconciliation.
 
 ## Sprite
 
@@ -55,41 +55,60 @@ See [Sprite Filters](filters.md) for all available filter props.
 ## Clickable
 
 ```tsx
-<sprite ref={sprite} textureId={btnTexture}>
-  <clickable
-    size={[64, 32]}
-    onClick={() => console.log('clicked')}
-    onMouseEnter={() => console.log('hover in')}
-    onMouseExit={() => console.log('hover out')}
-  />
-</sprite>
+import { useClickable, useTrigger, useEffect } from 'fraxel/hooks'
+
+function Button() {
+  const clickable = useClickable()
+
+  useTrigger(clickable.clicked, (pos) => {
+    console.log('Clicked at:', pos)
+  })
+
+  useEffect(() => {
+    if (clickable.hovered()) {
+      console.log('Hovering')
+    }
+  })
+
+  return (
+    <sprite textureId={btnTexture}>
+      <clickable ref={clickable} size={[64, 32]} />
+    </sprite>
+  )
+}
 ```
 
 - `size` is required (no default hit area). Accepts `VectorLike`.
 - `disabled` prop disables all interaction.
-- Events: `click`, `mouseEnter`, `mouseExit`, `mouseOver` (useEvent names: `clicked`, `mouseEntered`, `mouseExited`, `mouseOver`)
-- `mouseOver` fires every frame while the pointer is inside the clickable area. Callback receives local position (`Vector2`) relative to the node.
-- Set `gameConfig.testOptions.showClickables = true` to visualize areas
+- Triggers: `clicked`, `mouseEntered`, `mouseExited`.
+- The node also has a `mouseOver` event (fires every frame while the pointer is inside the clickable area), but it is not exposed via the `useClickable` reference to avoid noise.
+- `clicked` trigger fires with local position (`Vector2`) relative to the node.
+- Set `GameConfig.testOptions.showClickables = true` to visualize areas
 
 ## Timer
 
 ```tsx
-const timer = useNode(PrimaryNode.Timer)
+import { useTimer, useTrigger, useEffect } from 'fraxel/hooks'
 
-useEvent(timer, 'timeout', () => {
-  console.log('done')
-})
+function Cooldown() {
+  const timer = useTimer()
 
-useEvent(timer, 'timeChanged', (elapsed) => {
-  console.log(elapsed) // current elapsed time in seconds
-})
+  useTrigger(timer.timeout, () => {
+    console.log('done')
+  })
 
-return <timer ref={timer} duration={3} autoPlay />
+  useEffect(() => {
+    console.log(timer.time()) // current elapsed time in seconds
+  })
+
+  return <timer ref={timer} duration={3} autoPlay />
+}
 ```
 
 - `duration` is in seconds (reactive via `SignalGetter`)
 - `autoPlay` starts the timer immediately
 - Timer increments each frame by `delta` (seconds)
+- Triggers: `timeout`, `timeChanged`
 - Methods: `play(from?)`, `pause()`, `stop()`
 
 ## Collider
@@ -106,17 +125,16 @@ See [Collision System](collision.md) for shapes, groups, and events.
 ## RayCast
 
 ```tsx
-import { useNode, useEvent } from 'fraxel/hooks'
-import { PrimaryNode, Vector2 } from 'fraxel'
+import { useRayCast, useTrigger } from 'fraxel/hooks'
 
 function Detector() {
-  const ray = useNode(PrimaryNode.RayCast)
+  const raycast = useRayCast()
 
-  useEvent(ray, 'colliderEntered', (collider) => {
+  useTrigger(raycast.colliderEntered, (collider) => {
     console.log('Detected:', collider)
   })
 
-  return <ray-cast ref={ray} direction={[100, 0]} collidesWith={['enemy']} />
+  return <ray-cast ref={raycast} direction={[100, 0]} collidesWith={['enemy']} />
 }
 ```
 
@@ -168,11 +186,10 @@ See [Animation](animation.md) for sprite sheet keyframes and reactive animation 
 Renders text on the canvas using `ctx.fillText()`:
 
 ```tsx
-import { useNode, useSignal } from 'fraxel/hooks'
-import { PrimaryNode } from 'fraxel'
+import { useText, useSignal } from 'fraxel/hooks'
 
 function ScoreLabel() {
-  const label = useNode(PrimaryNode.Text)
+  const label = useText()
   const [score] = useSignal(0)
 
   return (
@@ -196,22 +213,22 @@ See `TextStyle` in `src/core/theme.ts` for available style properties.
 Plays audio buffers loaded with `loadSound()`:
 
 ```tsx
-import { useNode, useEvent } from 'fraxel/hooks'
-import { PrimaryNode } from 'fraxel'
+import { useAudio, useClickable, useTrigger } from 'fraxel/hooks'
 import { loadSound } from 'fraxel'
 
 const SHOOT = await loadSound('/assets/shoot.mp3')
 
 function Gun() {
-  const audio = useNode(PrimaryNode.AudioPlayer)
-  const clickable = useNode(PrimaryNode.Clickable)
+  const audio = useAudio()
+  const clickable = useClickable()
 
-  useEvent(clickable, 'clicked', () => {
-    audio.node.play()
+  useTrigger(clickable.clicked, () => {
+    audio.play()
   })
 
   return (
-    <sprite ref={clickable} textureId={GUN}>
+    <sprite textureId={GUN}>
+      <clickable ref={clickable} size={[32, 32]} />
       <audio-player ref={audio} soundId={SHOOT} volume={0.8} />
     </sprite>
   )
@@ -222,7 +239,7 @@ function Gun() {
 - `loop`, `volume`, `playbackRate` — playback options.
 - `persistUntilEnd` — defers node destruction until sound finishes (useful for one-shot sounds).
 - Methods: `play(offset?)`, `pause()`, `stop()`.
-- Events: `ended`, `error`.
+- Triggers: `ended`, `error`.
 
 See [Audio](audio.md) for full documentation.
 
@@ -231,11 +248,10 @@ See [Audio](audio.md) for full documentation.
 Controls the viewport — what part of the game world is visible:
 
 ```tsx
-import { useNode } from 'fraxel/hooks'
-import { PrimaryNode, shapes } from 'fraxel'
+import { useCamera } from 'fraxel/hooks'
 
 function GameScene() {
-  const camera = useNode(PrimaryNode.Camera)
+  const camera = useCamera()
 
   return (
     <transform>

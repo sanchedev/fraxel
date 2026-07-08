@@ -1,81 +1,46 @@
 # Hooks
 
-## Native Hooks
+## Core Hooks
 
-| Hook                              | Description                                                 |
-| --------------------------------- | ----------------------------------------------------------- |
-| `useNode(type)`                   | Creates a typed reference to pass as `ref`                  |
-| `useEvent(node, event, callback)` | Type-safe event subscription with auto-cleanup              |
-| `useEffect(fn)`                   | Runs effect on mount and when signals change (batched)      |
-| `useSignal(initial)`              | Creates reactive state that triggers re-renders             |
-| `useComputed(fn)`                 | Creates a derived signal that recomputes when deps change   |
-| `useMount(fn)`                    | Runs once on mount, cleanup on destroy                      |
-| `useSpawn(node)`                  | Returns a function to dynamically spawn children            |
-| `useGame()`                       | Access game controls (play, pause, changeScene)             |
-| `useChild(path, type)`            | Gets a reference to a child node by path                    |
-| `useScript(ref)`                  | Retrieves the FraxelScript attached to a node               |
-| `useAction(action)`               | Reactive action state (pressed, justPressed, justUnpressed) |
-| `useActionAxis(neg, pos)`         | Reactive axis from two opposing actions (-1, 0, or 1)       |
-| `useTrigger(trigger, callback)`   | Pub/sub for cross-component communication                   |
-| `createContext(default)`          | Creates a context with `Provider` component                 |
-| `useContext(context)`             | Retrieves the current context value                         |
-| `useRef(value)`                   | Mutable reference that persists across renders              |
+| Hook                            | Description                                                 |
+| ------------------------------- | ----------------------------------------------------------- |
+| `useEffect(fn)`                 | Runs effect on mount and when signals change (batched)      |
+| `useSignal(initial)`            | Creates reactive state that triggers re-renders             |
+| `useComputed(fn)`               | Creates a derived signal that recomputes when deps change   |
+| `useMount(fn)`                  | Runs once on mount, cleanup on destroy                      |
+| `useGame()`                     | Access game controls (play, pause, changeScene)             |
+| `useAction(action)`             | Reactive action state (pressed, justPressed, justUnpressed) |
+| `useActionAxis(neg, pos)`       | Reactive axis from two opposing actions (-1, 0, or 1)       |
+| `useTrigger(trigger, callback)` | Pub/sub for cross-component communication                   |
+| `createContext(default)`        | Creates a context with `Provider` component                 |
+| `useContext(context)`           | Retrieves the current context value                         |
+| `useRef(value)`                 | Mutable reference that persists across renders              |
 
-## Derived Hooks (Summary)
+## Native Hooks (Node References)
 
-| Hook                           | Description                                         |
-| ------------------------------ | --------------------------------------------------- |
-| `useCondition(node, on, off)`  | Reactive boolean toggled by two opposing events     |
-| `useMatch(signal, record)`     | Maps signal value to record (like switch)           |
-| `useWhen(signal, true, false)` | Ternary expression for signals                      |
-| `useClickable(ref?)`           | Clickable node with reactive `hovered` state        |
-| `useTimer(ref?)`               | Timer node with `time`, `progress`, and controls    |
-| `useRayCast(ref?)`             | RayCast node with reactive `detected` state         |
-| `useCollider(ref?)`            | Collider node with reactive `colliding` state       |
-| `useAnimation(ref?)`           | AnimationPlayer with reactive frame state           |
-| `useAudio(ref?)`               | AudioPlayer with reactive `playing` state           |
-| `useRigidBody(ref?)`           | RigidBody with reactive `velocity` and `isGrounded` |
+| Hook             | Description                                    |
+| ---------------- | ---------------------------------------------- |
+| `useSprite()`    | Sprite with flip, filter, modulate, opacity    |
+| `useCollider()`  | Collider with collision state and events       |
+| `useRayCast()`   | RayCast with detection state and events        |
+| `useClickable()` | Clickable with hover state and click events    |
+| `useAnimation()` | AnimationPlayer with frame state and playback  |
+| `useAudio()`     | AudioPlayer with playback state and control    |
+| `useTimer()`     | Timer with time tracking and control           |
+| `useRigidBody()` | RigidBody with physics state and forces        |
+| `useCamera()`    | Camera with zoom, offset, and viewport control |
+| `useGeometry()`  | Geometry with shape, color, and size           |
+| `useText()`      | Text with reactive content                     |
+| `useTransform()` | Transform with position                        |
+| `useGroup()`     | Group container reference                      |
 
-## useNode
+## Derived Hooks
 
-```tsx
-import { useNode } from 'fraxel/hooks'
-import { PrimaryNode } from 'fraxel'
-
-function Player() {
-  const sprite = useNode(PrimaryNode.Sprite)
-
-  return (
-    <transform>
-      <sprite ref={sprite} textureId={playerTexture} />
-    </transform>
-  )
-}
-```
-
-## useEvent
-
-```tsx
-import { useEvent, useNode } from 'fraxel/hooks'
-import { PrimaryNode, shapes } from 'fraxel'
-
-function Enemy() {
-  const collider = useNode(PrimaryNode.Collider)
-
-  useEvent(collider, 'colliderEntered', (other) => {
-    console.log('Hit:', other)
-  })
-
-  return (
-    <collider
-      ref={collider}
-      shape={shapes.circle(8)}
-      group={['enemy']}
-      collidesWith={['projectile']}
-    />
-  )
-}
-```
+| Hook                           | Description                               |
+| ------------------------------ | ----------------------------------------- |
+| `useCondition(on, off)`        | Reactive boolean toggled by two Triggers  |
+| `useMatch(signal, record)`     | Maps signal value to record (like switch) |
+| `useWhen(signal, true, false)` | Ternary expression for signals            |
 
 ## useAction
 
@@ -83,7 +48,7 @@ Reactive state for an input action. Returns `{ pressed, justPressed, justUnpress
 
 ```tsx
 import { Input } from 'fraxel'
-import { useAction } from 'fraxel/hooks'
+import { useAction, useEffect } from 'fraxel/hooks'
 
 const Jump = Input.createAction({ key: ' ' })
 
@@ -105,35 +70,38 @@ function Player() {
 Reactive axis value from two opposing actions. Returns a `SignalGetter<number>` (-1, 0, or 1):
 
 ```tsx
-import { Input, PrimaryNode } from 'fraxel'
-import { useNode, useActionAxis, useEvent } from 'fraxel/hooks'
+import { Input } from 'fraxel'
+import { useActionAxis, useRigidBody, useEffect } from 'fraxel/hooks'
 
 const Left = Input.createAction({ key: 'a' })
 const Right = Input.createAction({ key: 'd' })
 
 function Player() {
-  const body = useNode(PrimaryNode.RigidBody)
+  const body = useRigidBody()
   const direction = useActionAxis(Left, Right)
 
-  useEvent(body, 'updated', () => {
-    body.node.velocity.x = direction() * 120
+  useEffect(() => {
+    body.setVelocity([direction() * 120, body.velocity().y])
   })
 
-  return <rigid-body>...</rigid-body>
+  return <rigid-body ref={body}>...</rigid-body>
 }
 ```
 
 ## useCondition
 
+Creates a reactive boolean that toggles based on two `Trigger` instances:
+
 ```tsx
-import { useCondition, useComputed, useNode } from 'fraxel/hooks'
-import { PrimaryNode } from 'fraxel'
+import { useCondition, useComputed, useRayCast, useEffect } from 'fraxel/hooks'
 
 function Enemy() {
-  const raycast = useNode(PrimaryNode.RayCast)
-  const isDetected = useCondition(raycast, 'colliderEntered', 'colliderExited')
+  const raycast = useRayCast()
+  const isDetected = useCondition(raycast.colliderEntered, raycast.colliderExited)
 
-  const brightness = useComputed(() => (isDetected() ? 1.2 : 1))
+  useEffect(() => {
+    console.log('Detected:', isDetected())
+  })
 
   return <ray-cast ref={raycast} direction={[100, 0]} collidesWith={['enemy']} />
 }
@@ -187,149 +155,346 @@ function CooldownSprite() {
 }
 ```
 
-## Derived Hooks
+## Native Hooks
 
-Derived hooks are composed from native hooks to provide domain-specific abstractions. They don't introduce unique functionality — they simplify common patterns.
+### useSprite
 
-### useCondition
-
-`useCondition` creates a reactive boolean that toggles based on two opposing events on a node.
+Creates a reference to a `Sprite` node with reactive access to all visual properties.
 
 ```tsx
-const isDetected = useCondition(raycast, 'colliderEntered', 'colliderExited')
-```
+import { useSprite, useEffect } from 'fraxel/hooks'
 
-It composes `useEvent` + `useSignal` internally. Use it when the raw `useNode` + `useEvent` + `useSignal` combination becomes verbose for toggle patterns.
+function Player() {
+  const sprite = useSprite()
 
-### useClickable
+  useEffect(() => {
+    sprite.setModulate([1, 0.5, 0.5, 1]) // tint red
+    sprite.setOpacity(0.8)
+  })
 
-`useClickable` is a node-specific derived hook for the `Clickable` node. It returns the node reference and a reactive `hovered` boolean.
-
-```tsx
-import { useClickable } from 'fraxel/hooks'
-
-function Button() {
-  const { ref, hovered } = useClickable()
-  const brightness = useComputed(() => (hovered() ? 1.1 : 1))
-
-  return (
-    <sprite ref={ref} textureId={BTN} brightness={brightness}>
-      <clickable size={[64, 32]} onClick={handleClick} />
-    </sprite>
-  )
+  return <sprite ref={sprite} textureId={PLAYER} />
 }
 ```
 
-### useTimer
-
-`useTimer` is a node-specific derived hook for the `Timer` node. It returns the node reference, reactive time/progress, and control methods.
-
-```tsx
-import { useTimer } from 'fraxel/hooks'
-
-function Cooldown() {
-  const { ref, time, progress, play, pause, stop } = useTimer()
-
-  return (
-    <transform>
-      <timer ref={ref} duration={3} autoPlay />
-      <geometry shape={shapes.rectangle(100, 10)} fillColor={[1 - progress(), progress(), 0, 1]} />
-    </transform>
-  )
-}
-```
-
-- `time`: `SignalGetter<number>` — current elapsed time
-- `progress`: `SignalGetter<number>` — 0 to 1 based on duration
-- `play()`, `pause()`, `stop()`: control methods
-
-### useRayCast
-
-`useRayCast` is a node-specific derived hook for the `RayCast` node. It returns the node reference, a reactive `detected` boolean, and the currently detected collider.
-
-```tsx
-import { useRayCast, useComputed } from 'fraxel/hooks'
-
-function EnemyDetector() {
-  const { ref, detected, collider } = useRayCast()
-  const name = useComputed(() => collider()?.node.name ?? 'none')
-
-  return <ray-cast ref={ref} direction={[100, 0]} collidesWith={['enemy']} />
-}
-```
-
-- `detected`: `SignalGetter<boolean>` — true while a collider is detected
-- `collider`: `SignalGetter<Collider | null>` — the detected collider
+- Reactive properties: `flipX`, `flipY`, `brightness`, `grayscale`, `modulate`, `contrast`, `saturate`, `hueRotate`, `invert`, `opacity`
+- Setters: `setFlipX()`, `setFlipY()`, `setBrightness()`, `setGrayscale()`, `setModulate()`, etc.
 
 ### useCollider
 
-`useCollider` is a node-specific derived hook for the `Collider` node. It returns the node reference, a reactive `colliding` boolean, and the other collider in the pair.
+Creates a reference to a `Collider` node with reactive collision state and event triggers.
 
 ```tsx
-import { useCollider, useComputed } from 'fraxel/hooks'
-
-function Player() {
-  const { ref, colliding, other } = useCollider()
-  const tag = useComputed(() => other()?.node.tag ?? 'none')
-
-  return (
-    <collider ref={ref} shape={shapes.circle(16)} group={['player']} collidesWith={['enemy']} />
-  )
-}
-```
-
-- `colliding`: `SignalGetter<boolean>` — true while colliding with another collider
-- `other`: `SignalGetter<Collider | null>` — the other collider in the pair
-
-### useAnimation
-
-`useAnimation` is a node-specific derived hook for the `AnimationPlayer` node. It returns the node reference, reactive animation state, and control methods.
-
-```tsx
-import { useAnimation, useComputed } from 'fraxel/hooks'
+import { useCollider, useTrigger, useEffect } from 'fraxel/hooks'
 
 function Enemy() {
-  const { ref, animName, frameIndex, ended, play, setNext } = useAnimation()
+  const collider = useCollider()
 
-  const frameColor = useComputed(() => (ended() ? [1, 0, 0, 1] : [1, 1, 1, 1]))
+  useTrigger(collider.colliderEntered, (other) => {
+    console.log('Hit by:', other)
+  })
+
+  useEffect(() => {
+    if (collider.colliding()) {
+      console.log('Colliding with', collider.detectedColliders().size, 'objects')
+    }
+  })
 
   return (
-    <animation-player
-      ref={ref}
-      animations={() => ({ idle: idleFrames, attack: attackFrames })}
-      currentAnim="idle"
+    <collider
+      ref={collider}
+      shape={shapes.rectangle(32, 32)}
+      group={['enemy']}
+      collidesWith={['player', 'projectile']}
     />
   )
 }
 ```
 
-- `animName`: `SignalGetter<string>` — current animation name
-- `frameIndex`: `SignalGetter<number>` — current frame index
-- `ended`: `SignalGetter<boolean>` — true when the current animation ends
-- `play(animName?)`, `setNext(animName?)`: control methods
+- Reactive properties: `colliding` (boolean), `detectedColliders` (Set)
+- Triggers: `colliderEntered`, `colliderExited`
 
-### useAudio
+### useRayCast
 
-`useAudio` is a node-specific derived hook for the `AudioPlayer` node. It returns the node reference, reactive `playing` state, and control methods.
+Creates a reference to a `RayCast` node with reactive detection state and event triggers.
 
 ```tsx
-import { useAudio, useClickable } from 'fraxel/hooks'
+import { useRayCast, useTrigger, useEffect } from 'fraxel/hooks'
 
-function SoundEffect() {
-  const { ref, playing, play, pause, stop } = useAudio()
-  const { ref: btn } = useClickable()
+function Peashooter() {
+  const raycast = useRayCast()
+
+  useTrigger(raycast.colliderEntered, (collider) => {
+    console.log('Detected:', collider)
+  })
+
+  useEffect(() => {
+    if (raycast.detected()) {
+      console.log('Zombie ahead:', raycast.collider())
+    }
+  })
+
+  return <ray-cast ref={raycast} direction={[100, 0]} collidesWith={['zombie']} />
+}
+```
+
+- Reactive properties: `direction`, `collider` (Collider | null), `detected` (boolean)
+- Triggers: `colliderEntered`, `colliderExited`
+- Method: `getCollider()` — returns the currently detected collider or null
+
+### useClickable
+
+Creates a reference to a `Clickable` node with reactive hover state and click event triggers.
+
+```tsx
+import { useClickable, useTrigger, useEffect } from 'fraxel/hooks'
+
+function Button() {
+  const clickable = useClickable()
+
+  useTrigger(clickable.clicked, (pos) => {
+    console.log('Clicked at:', pos)
+  })
+
+  useEffect(() => {
+    if (clickable.hovered()) {
+      console.log('Hovering')
+    }
+  })
 
   return (
-    <sprite ref={btn}>
-      <clickable size={[32, 32]} onClick={() => (playing() ? pause() : play())} />
-      <audio-player ref={ref} soundId={SOUND} />
+    <sprite textureId={BTN}>
+      <clickable ref={clickable} size={[64, 32]} />
     </sprite>
   )
 }
 ```
 
-- `playing`: `SignalGetter<boolean>` — true while audio is playing
-- `play()`, `pause()`, `stop()`: control methods
+- Reactive properties: `hovered` (boolean), `disabled` (boolean), `mousePosition` (Vector2)
+- Triggers: `clicked`, `mouseEntered`, `mouseExited`
+- Note: The underlying node also has a `mouseOver` event (fires every frame while pointer is inside), but it is not exposed via the reference to avoid noise.
+
+### useAnimation
+
+Creates a reference to an `AnimationPlayer` node with reactive animation state and imperative control.
+
+```tsx
+import { useAnimation, useTrigger, useEffect } from 'fraxel/hooks'
+
+function Character() {
+  const anim = useAnimation()
+
+  useTrigger(anim.animationEnded, (name) => {
+    console.log('Animation finished:', name)
+  })
+
+  useEffect(() => {
+    anim.play('walk')
+  })
+
+  return (
+    <animation-player
+      ref={anim}
+      animations={() => ({
+        idle: { keyframes: idleFrames, fps: 8 },
+        walk: { keyframes: walkFrames, fps: 8, loop: true },
+      })}
+    />
+  )
+}
+```
+
+- Reactive properties: `animName` (string | null), `frameIndex` (number), `ended` (boolean)
+- Triggers: `animationChanged`, `animationStopped`, `animationIndexChanged`, `animationEnded`
+- Methods: `play(name, index?)`, `stop()`, `setNext(name)`
+
+### useAudio
+
+Creates a reference to an `AudioPlayer` node with reactive playback state and imperative control.
+
+```tsx
+import { useAudio, useTrigger } from 'fraxel/hooks'
+
+function SoundEffect() {
+  const audio = useAudio()
+
+  useTrigger(audio.ended, () => {
+    console.log('Sound finished')
+  })
+
+  return (
+    <audio-player ref={audio} soundId={SFX}>
+      <clickable onClick={() => audio.play()} size={[64, 32]} />
+    </audio-player>
+  )
+}
+```
+
+- Reactive properties: `playing` (boolean)
+- Triggers: `ended`, `error`
+- Methods: `play(offset?)`, `pause()`, `stop()`
+
+### useTimer
+
+Creates a reference to a `Timer` node with reactive time tracking and imperative control.
+
+```tsx
+import { useTimer, useTrigger, useEffect } from 'fraxel/hooks'
+
+function Cooldown() {
+  const timer = useTimer()
+
+  useTrigger(timer.timeout, () => {
+    console.log('Cooldown finished!')
+  })
+
+  useEffect(() => {
+    console.log(`Progress: ${(timer.progress() * 100).toFixed(0)}%`)
+  })
+
+  return <timer ref={timer} duration={3} autoPlay />
+}
+```
+
+- Reactive properties: `time` (number), `duration` (number), `progress` (0–1)
+- Triggers: `timeout`, `timeChanged`
+- Methods: `play(from?)`, `pause()`, `stop()`
+
+### useRigidBody
+
+Creates a reference to a `RigidBody` node with reactive physics state and imperative force/impulse methods.
+
+```tsx
+import { useRigidBody, useEffect, useAction } from 'fraxel/hooks'
+import { Input } from 'fraxel'
+
+const Jump = Input.createAction({ key: ' ' })
+
+function Player() {
+  const rb = useRigidBody()
+
+  useEffect(() => {
+    if (Input.isActionPressed(Jump) && rb.isGrounded()) {
+      rb.applyImpulse([0, -400])
+    }
+  })
+
+  return (
+    <rigid-body ref={rb} mass={1}>
+      <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['ground']} />
+    </rigid-body>
+  )
+}
+```
+
+- Reactive properties: `velocity`, `isGrounded`, `mass`, `friction`, `bounce`, `isStatic`, `useGravity`
+- Methods: `applyForce(VectorLike)`, `applyImpulse(VectorLike)`, `setVelocity(VectorLike)`
+
+### useCamera
+
+Creates a reference to a `Camera` node with reactive zoom, offset, and smoothing properties.
+
+```tsx
+import { useCamera, useEffect } from 'fraxel/hooks'
+
+function MainCamera() {
+  const camera = useCamera()
+
+  useEffect(() => {
+    camera.makeCurrent()
+    camera.shake({ duration: 0.5, strength: 10 })
+  })
+
+  return <camera ref={camera} />
+}
+```
+
+- Reactive properties: `zoom` (Vector2), `offset` (Vector2), `smoothing` (number), `limit` (Bounds | null)
+- Methods: `makeCurrent()`, `shake({ duration, strength })`, `screenToWorld(pos)`, `worldToScreen(pos)`
+
+### useGeometry
+
+Creates a reference to a `Geometry` node with reactive shape, color, and size properties.
+
+```tsx
+import { useGeometry, useEffect } from 'fraxel/hooks'
+
+function Hitbox() {
+  const geo = useGeometry()
+
+  useEffect(() => {
+    geo.setFillColor([1, 0, 0, 0.5]) // semi-transparent red
+  })
+
+  return <geometry ref={geo} shape={shapes.rectangle(32, 32)} />
+}
+```
+
+- Reactive properties: `shape`, `fillColor`, `strokeColor`, `strokeWidth`, `size`
+
+### useText
+
+Creates a reference to a `Text` node with reactive text content.
+
+```tsx
+import { useText, useEffect } from 'fraxel/hooks'
+
+function ScoreDisplay() {
+  const text = useText()
+
+  useEffect(() => {
+    text.setText(`Score: ${score()}`)
+  })
+
+  return <text ref={text} text="Score: 0" />
+}
+```
+
+- Reactive properties: `text` (string)
+
+### useTransform
+
+Creates a reference to a `Transform` node. Use to access position and lifecycle events.
+
+```tsx
+import { useTransform, useEffect } from 'fraxel/hooks'
+
+function Platform() {
+  const transform = useTransform()
+
+  useEffect(() => {
+    console.log('Position:', transform.position())
+  })
+
+  return (
+    <transform ref={transform} position={[100, 200]}>
+      <sprite textureId={PLATFORM} />
+    </transform>
+  )
+}
+```
+
+- Reactive properties: `position` (Vector2)
+- Setter: `setPosition(VectorLike)`
+
+### useGroup
+
+Creates a reference to a `Group` node. Groups are containers for organizing child nodes.
+
+```tsx
+import { useGroup } from 'fraxel/hooks'
+
+function Container() {
+  const group = useGroup()
+
+  return (
+    <group ref={group}>
+      <clickable onClick={() => group.spawn(<Enemy />)} size={[32, 32]} />
+    </group>
+  )
+}
+```
+
+## Derived Hooks
 
 ### useMatch
 
@@ -352,7 +517,7 @@ return <animation-player currentAnim={animation} />
 `useWhen` creates a computed value that toggles between two values based on a boolean signal.
 
 ```tsx
-const isHovered = useCondition(clickable, 'mouseEntered', 'mouseExited')
+const isHovered = useCondition(clickable.mouseEntered, clickable.mouseExited)
 const brightness = useWhen(isHovered, 1.2, 1.0)
 
 return <sprite brightness={brightness} />
@@ -397,26 +562,6 @@ function Provider() {
 function Child() {
   const { score } = useContext(GameCtx)
   return <transform />
-}
-```
-
-## useSpawn
-
-```tsx
-import { useNode, useSpawn } from 'fraxel/hooks'
-import { PrimaryNode } from 'fraxel'
-
-function Spawner() {
-  const container = useNode(PrimaryNode.Transform)
-  const spawn = useSpawn(container)
-
-  return (
-    <transform ref={container}>
-      <clickable onClick={() => spawn(<Enemy />)}>
-        <sprite textureId={BUTTON} />
-      </clickable>
-    </transform>
-  )
 }
 ```
 
@@ -470,7 +615,7 @@ function EnemyList() {
 }
 ```
 
-- `array`: reactive `SignalGetter<T[]>` — the data array
+- `array`: `Reactive<T[]>` — reactive array signal or static array.
 - `itemKey`: `(value, index, arr) => string | symbol` — unique key for each item
 - `empty`: optional fallback when array is empty
 - `children`: `(value, index, arr) => Node` — render function for each item

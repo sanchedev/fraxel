@@ -24,7 +24,7 @@ Input.destroy() // removes all event listeners
 All pointer events emit `position` (game coords `Vector2`).
 
 ```ts
-Input.pointerPress.on((position) => {
+Input.pointerPressed.on((position) => {
   console.log('Clicked at:', position)
 })
 ```
@@ -69,15 +69,10 @@ For direct key access without actions:
 | `Input.getKeyAxis(positiveKey, negativeKey)`         | Returns -1, 0, or 1 based on key state |
 
 ```ts
-const horizontal = Input.getKeyAxis('ArrowLeft', 'ArrowRight')
+const horizontal = Input.getKeyAxis('ArrowRight', 'ArrowLeft')
 // Returns: -1 (left), 0 (none), or 1 (right)
 ```
 
 ## Options
 
-By default, `preventDefault()` is called on keyboard events to block browser shortcuts. Only keys bound to actions trigger `preventDefault()`.
-
-```ts
-// preventKeyDefaults is true by default
-Game.setup({ width: 480, height: 480, root })
-```
+`preventDefault()` is called on keyboard events for keys that are registered as actions, blocking browser shortcuts for those keys.

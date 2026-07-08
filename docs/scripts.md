@@ -50,10 +50,10 @@ listeners, initialize state, or set up subscriptions.
 
 ## Game.destroy
 
-Call `game.destroy()` to clean up the game loop, input listeners, and child node listeners:
+Call `Game.destroy()` to clean up the game loop, input listeners, and child node listeners:
 
 ```ts
-const game = new Game(canvas, config)
+Game.setup({ width: 160, height: 90, root })
 // ... later
-game.destroy() // stops loop, removes all listeners
+Game.destroy() // stops loop, removes all listeners
 ```

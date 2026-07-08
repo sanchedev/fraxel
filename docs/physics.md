@@ -52,16 +52,16 @@ The `useRigidBody` hook provides a declarative API for physics bodies:
 import { useRigidBody } from 'fraxel/hooks'
 
 function Player() {
-  const { ref, velocity, isGrounded, applyImpulse } = useRigidBody()
+  const rb = useRigidBody()
 
   const jump = () => {
-    if (isGrounded()) {
-      applyImpulse([0, -400])
+    if (rb.isGrounded()) {
+      rb.applyImpulse([0, -400])
     }
   }
 
   return (
-    <rigid-body ref={ref}>
+    <rigid-body ref={rb}>
       <sprite textureId={PLAYER} />
       <collider shape={shapes.rectangle(16, 16)} group={['player']} collidesWith={['ground']} />
     </rigid-body>
@@ -71,9 +71,10 @@ function Player() {
 
 ### Return Value
 
+The hook returns a `RigidBodyReference` instance — pass it directly to `<rigid-body ref={...}>`:
+
 | Property       | Type                                     | Description                          |
 | -------------- | ---------------------------------------- | ------------------------------------ |
-| `ref`          | `NodeReference<PrimaryNode.RigidBody>`   | Pass to `<rigid-body ref={ref}>`     |
 | `velocity`     | `SignalGetter<{ x: number, y: number }>` | Reactive velocity in px/s            |
 | `isGrounded`   | `SignalGetter<boolean>`                  | Reactive grounded state              |
 | `applyForce`   | `(force: VectorLike) => void`            | Apply continuous force (px/s²)       |
@@ -96,27 +97,26 @@ PhysicsSystem.gravity = vector2(0, 160)
 
 ## Forces & Impulses
 
-Access the physics body through the `useRigidBody` hook or directly via `useNode`:
+Access the physics body through the `useRigidBody` hook:
 
 ```tsx
-import { useNode, useEvent } from 'fraxel/hooks'
-import { PrimaryNode, vector2 } from 'fraxel'
+import { useRigidBody, useEffect } from 'fraxel/hooks'
 
 function Player() {
-  const body = useNode(PrimaryNode.RigidBody)
+  const rb = useRigidBody()
 
-  useEvent(body, 'updated', (delta) => {
+  useEffect(() => {
     // Apply a continuous force (like thrust)
-    body.node.applyForce(vector2(100 * delta, 0))
+    rb.applyForce([100, 0])
   })
 
   // Apply an instant impulse (like a jump)
   const jump = () => {
-    body.node.applyImpulse(vector2(0, -400))
+    rb.applyImpulse([0, -400])
   }
 
   return (
-    <rigid-body ref={body}>
+    <rigid-body ref={rb}>
       <sprite textureId={PLAYER} />
       <collider shape={shapes.rectangle(16, 16)} group={['player']} collidesWith={['ground']} />
     </rigid-body>
@@ -124,15 +124,15 @@ function Player() {
 }
 ```
 
-### `applyForce(force: Vector2)`
+### `applyForce(force: VectorLike)`
 
 Applies a continuous force (pixels/second²). Forces are accumulated and applied during physics integration. Use for thrust, wind, or persistent effects.
 
-### `applyImpulse(impulse: Vector2)`
+### `applyImpulse(impulse: VectorLike)`
 
 Applies an instant velocity change (pixels/second). Use for jumps, explosions, or knockback.
 
-### `setVelocity(v: Vector2)`
+### `setVelocity(v: VectorLike)`
 
 Sets the velocity directly, replacing the current value.
 
@@ -191,7 +191,7 @@ function GameScene() {
       <sprite textureId={BG} />
 
       {/* Player */}
-      <rigid-body ref={player.ref} position={[50, 50]}>
+      <rigid-body ref={player} position={[50, 50]}>
         <sprite textureId={PLAYER} />
         <collider shape={shapes.rectangle(16, 16)} group={['player']} collidesWith={['ground']} />
       </rigid-body>
