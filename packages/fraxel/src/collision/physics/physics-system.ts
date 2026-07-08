@@ -42,6 +42,16 @@ export class PhysicsSystem {
     instance.#bodies = instance.#bodies.filter((e) => e.body !== body)
   }
 
+  /**
+   * Checks if rigid body node should participate in physics simulation
+   * based on its effective game mode.
+   * @param body The rigid body to check.
+   * @returns `true` if the body is active.
+   */
+  static #isBodyActive(body: RigidBody): boolean {
+    return body.shouldUpdate()
+  }
+
   static update(delta: number) {
     PhysicsSystem.getInstance().#updateInternal(delta)
   }
@@ -52,6 +62,8 @@ export class PhysicsSystem {
     }
 
     for (const entry of this.#bodies) {
+      if (!PhysicsSystem.#isBodyActive(entry.body)) continue
+
       const { body } = entry
       if (body.isStatic || !body.useGravity) continue
 
@@ -73,6 +85,8 @@ export class PhysicsSystem {
       const resolvedColliders = new Set<string>()
 
       for (const entry of this.#bodies) {
+        if (!PhysicsSystem.#isBodyActive(entry.body)) continue
+
         for (const collider of entry.body.colliders) {
           const candidates = CollisionSystem.queryCandidates(collider)
 
@@ -83,6 +97,8 @@ export class PhysicsSystem {
 
             const otherEntry = this.#findBodyEntry(candidate)
             if (!otherEntry) continue
+
+            if (!PhysicsSystem.#isBodyActive(otherEntry.body)) continue
 
             if (otherEntry.body === entry.body) continue
 

@@ -466,8 +466,8 @@ function computeCircleCapsuleOverlap(
   const rCapsule = capsule.shape.radius
 
   const closest = closestPointOnSegment(bone.ax, bone.ay, bone.bx, bone.by, cx, cy)
-  const dx = cx - closest.x
-  const dy = cy - closest.y
+  const dx = closest.x - cx
+  const dy = closest.y - cy
   const distSq = dx * dx + dy * dy
   const radiiSum = rCircle + rCapsule
 

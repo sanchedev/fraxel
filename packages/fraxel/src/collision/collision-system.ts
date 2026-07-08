@@ -34,6 +34,16 @@ export class CollisionSystem {
   }
 
   /**
+   * Checks if collider node should participate in collision detection
+   * based on its effective game mode.
+   * @param collider The collider to check.
+   * @returns `true` if the collider is active.
+   */
+  static #isColliderActive(collider: Collider): boolean {
+    return collider.shouldUpdate()
+  }
+
+  /**
    * The **`register`** method adds a collider to the collision system.
    * Called automatically when a `Collider` node starts.
    * @param collider The collider to register.
@@ -165,9 +175,12 @@ export class CollisionSystem {
   }
 
   #processColliderCollisions(collider: Collider, candidates: Set<Collider>) {
+    if (!CollisionSystem.#isColliderActive(collider)) return
+
     const detected = new Set<Collider>()
 
     for (const candidate of candidates) {
+      if (!CollisionSystem.#isColliderActive(candidate)) continue
       if (!this.#groupsMatch(collider, candidate)) continue
       if (!Narrowphase.detect(collider, candidate)) continue
 
@@ -210,10 +223,14 @@ export class CollisionSystem {
   }
 
   #processRaycastCollisions(raycast: RayCast, candidates: Collider[]) {
+    const raycastParent = raycast.parent
+    if (raycastParent != null && !raycastParent.shouldUpdate()) return
+
     let nearest: { collider: Collider; distance: number } | undefined
 
     for (const candidate of candidates) {
       if (!this.#raycastGroupsMatch(raycast, candidate)) continue
+      if (!CollisionSystem.#isColliderActive(candidate)) continue
 
       const distance = this.#getRaycastDistance(raycast, candidate)
       if (distance === -1) continue
