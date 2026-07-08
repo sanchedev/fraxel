@@ -9,8 +9,11 @@ import {
 import { getNodeName } from './lib/utils.js'
 import { Nodes } from './lib/registry.js'
 import type { Fun } from '../events/types.js'
-import { PrimaryNode } from './lib/enum.js'
+import { GameMode, PrimaryNode } from './lib/enum.js'
 import type { FraxelScript } from '../scripts/script.js'
+import { isPaused } from '../core/paused.js'
+import type { Reactive } from '../reactivity/index.js'
+import { propSignal } from '../utils/ternaries.js'
 
 export interface NodeOptions<T extends PrimaryNode> {
   /**
@@ -71,6 +74,27 @@ export interface NodeOptions<T extends PrimaryNode> {
    * ```
    */
   deltaIncrease?: number
+  /**
+   * The **`gameMode`** property controls how the node behaves relative to the game's pause state.
+   * Accepts a static `GameMode` value or a reactive getter.
+   *
+   * @example
+   * ```tsx
+   * import { GameMode } from 'fraxel'
+   *
+   * // Static
+   * <transform gameMode={GameMode.ALWAYS}>
+   *   <PauseMenu />
+   * </transform>
+   *
+   * // Reactive
+   * const [mode, setMode] = useSignal(GameMode.PLAYING)
+   * <transform gameMode={mode}>
+   *   <Enemy />
+   * </transform>
+   * ```
+   */
+  gameMode?: Reactive<GameMode>
   /** Optional script to attach to this node */
   script?: FraxelScript<T>
   /** Child nodes to add */
@@ -98,6 +122,21 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    */
   deltaIncrease: number = 1
   script?: FraxelScript<T>
+  /**
+   * The **`gameMode`** property controls how the node behaves relative to the game's pause state.
+   * Defaults to `GameMode.INHERIT`, which follows the parent's effective game mode.
+   *
+   * @example
+   * ```tsx
+   * import { GameMode } from 'fraxel'
+   *
+   * // This node always updates, even when the game is paused
+   * <transform gameMode={GameMode.ALWAYS}>
+   *   <PauseMenu />
+   * </transform>
+   * ```
+   */
+  gameMode: GameMode = GameMode.INHERIT
   // States
   /**
    * The **`isStarted`** property of the node indicates whether the node is started.
@@ -108,7 +147,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    */
   isDestroyed: boolean = false
 
-  constructor(type: T, { id, zIndex, deltaIncrease, script, children }: NodeOptions<T>) {
+  constructor(type: T, { id, zIndex, deltaIncrease, gameMode, script, children }: NodeOptions<T>) {
     this.type = type
 
     if (typeof id === 'string') {
@@ -129,6 +168,8 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
 
     this.#zIndex = zIndex ?? this.#zIndex
     this.deltaIncrease = deltaIncrease ?? this.deltaIncrease
+
+    this.gameMode = propSignal(this, 'gameMode', gameMode)
 
     this.addChild(...(children ?? []))
   }
@@ -246,6 +287,49 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   get globalDeltaIncrease(): number {
     if (this._parent == null) return this.deltaIncrease
     return this.deltaIncrease * this._parent.globalDeltaIncrease
+  }
+
+  /**
+   * Returns the effective game mode by resolving the `INHERIT` chain up to the root.
+   * If all ancestors are `INHERIT`, defaults to `PLAYING`.
+   *
+   * @returns The resolved `GameMode`
+   *
+   * @example
+   * ```ts
+   * const mode = node.getEffectiveGameMode()
+   * if (mode === GameMode.ALWAYS) {
+   *   // This node always runs
+   * }
+   * ```
+   */
+  getEffectiveGameMode(): GameMode {
+    if (this.gameMode !== GameMode.INHERIT) return this.gameMode
+    return this._parent?.getEffectiveGameMode() ?? GameMode.PLAYING
+  }
+
+  /**
+   * Determines whether this node should update based on its effective game mode
+   * and the current game pause state.
+   *
+   * @returns `true` if the node should run its update logic
+   *
+   * @example
+   * ```ts
+   * if (node.shouldUpdate()) {
+   *   // Node will update this frame
+   * }
+   * ```
+   */
+  shouldUpdate(): boolean {
+    const mode = this.getEffectiveGameMode()
+    const gamePaused = isPaused()
+
+    if (mode === GameMode.NEVER) return false
+    if (mode === GameMode.ALWAYS) return true
+    if (mode === GameMode.PLAYING) return !gamePaused
+    if (mode === GameMode.PAUSED) return gamePaused
+    return !gamePaused
   }
 
   // Methods
@@ -393,9 +477,12 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   }
   /**
    * The **`update`** method is called each frame to update the node and its children.
+   * Respects the node's effective game mode — skips if the node should not update.
    * @param delta The time elapsed since the last frame in seconds.
    */
   update(delta: number): void {
+    if (!this.shouldUpdate()) return
+
     this.updated.emit(delta)
     for (const node of this._children) {
       node.update(delta * node.deltaIncrease)
@@ -404,9 +491,13 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   /**
    * The **`draw`** method is called each frame to render the node and its children.
    * It applies position translation for proper rendering hierarchy.
+   * Only skips drawing if the effective game mode is `NEVER`.
    * @param delta The time elapsed since the last frame in seconds.
    */
   draw(delta: number): void {
+    const mode = this.getEffectiveGameMode()
+    if (mode === GameMode.NEVER) return
+
     for (const node of this._children) {
       node.draw(delta * node.deltaIncrease)
     }

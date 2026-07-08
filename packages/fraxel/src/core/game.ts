@@ -10,37 +10,58 @@ import { vector2 } from '../math/vector2.js'
 import { CollisionSystem } from '../collision/collision-system.js'
 import { PhysicsSystem } from '../collision/physics/physics-system.js'
 import { Camera } from '../nodes/node2d/camera.js'
+import { getPaused, setPaused } from './paused.js'
+import type { SignalGetter } from '../reactivity/types.js'
 
-interface SetupOptions {
+export interface SetupOptions {
   /** The **`width`** of the canvas. */
   width: number
   /** The **`height`** of the canvas. */
   height: number
   /** The **`root element`**. It will be the parent of the canvas. */
   root: HTMLElement
+  /** When `true`, the game pauses on blur and requires manual play to resume. Defaults to `false`. */
+  pauseOnBlur?: boolean
   /** The **`testOptions`** of the game. */
   testOptions?: Partial<TestOptions>
   /** The default **`Theme`**. */
   theme?: Theme
 }
 
-let isPaused = false
 let lastTime = 0
 let wakeLock: WakeLockSentinel
 let handle = 0
 let setuped = false
+let pauseOnBlur = false
 
 const onBlur = () => {
-  if (isPaused) return
-
-  Game.pause()
-  Game.blurred.emit()
   window.cancelAnimationFrame(handle)
+  if (pauseOnBlur) {
+    Game.paused = true
+  }
+  Game.blurred.emit()
 }
 
 export class Game {
   /** The read-only **`sceneManager`** property represents the manager of all the scenes. */
   static readonly sceneManager = new SceneManager()
+
+  /**
+   * The **`paused`** property indicates whether the game is paused.
+   * It is a reactive signal — use `Game.paused()` to read the value.
+   */
+  static get paused(): SignalGetter<boolean> {
+    return getPaused()
+  }
+  static set paused(value: boolean) {
+    setPaused(value)
+  }
+
+  static #onFocus = () => {
+    if (!Game.paused()) {
+      window.requestAnimationFrame(this.#transition)
+    }
+  }
 
   /**
    * The **`setup`** method setups the `Game`.
@@ -61,6 +82,8 @@ export class Game {
    */
   static setup(options: SetupOptions) {
     if (setuped) return
+
+    pauseOnBlur = options.pauseOnBlur ?? false
 
     const canvas = document.createElement('canvas')
 
@@ -136,7 +159,7 @@ export class Game {
    * The **`pause`** method pauses the `Game`. To `resume` use **`play`** method.
    */
   static pause() {
-    isPaused = true
+    this.paused = true
     wakeLock?.release()
   }
 
@@ -148,21 +171,22 @@ export class Game {
 
     window.cancelAnimationFrame(handle)
     window.removeEventListener('blur', onBlur)
+    window.removeEventListener('focus', this.#onFocus)
 
     Input.destroy()
     this.sceneManager.setScene(null)
 
     wakeLock?.release()
     setuped = false
-    isPaused = false
+    this.paused = false
   }
 
   static #transition = (time: number) => {
-    isPaused = false
     lastTime = time
     window.navigator.wakeLock.request('screen').then((w) => (wakeLock = w))
 
     window.addEventListener('blur', onBlur)
+    window.addEventListener('focus', this.#onFocus)
 
     handle = window.requestAnimationFrame(this.#update)
   }
@@ -173,7 +197,7 @@ export class Game {
 
     Game.loop(delta)
 
-    if (isPaused) return
+    if (this.paused()) return
     handle = window.requestAnimationFrame(this.#update)
   }
 
@@ -192,9 +216,11 @@ export class Game {
         node.start()
       }
 
-      node.update(delta)
-      CollisionSystem.update(delta)
-      PhysicsSystem.update(delta)
+      if (!this.paused()) {
+        node.update(delta)
+        CollisionSystem.update(delta)
+        PhysicsSystem.update(delta)
+      }
 
       const camera = Camera.getCurrent()
       GameConfig.ctx.save()
