@@ -35,10 +35,53 @@ export function useSignal<T>(initialValue: T): [getter: SignalGetter<T>, setter:
   return [signal.getter, signal.setter]
 }
 
+/**
+ * The **`createSignal`** function creates a reactive signal outside of hooks,
+ * typically used in `FraxelScript` classes. Returns a `SignalGetter<T>` that
+ * can be called as a function to read the value, or use `.signal` to access
+ * the underlying `Signal` instance.
+ *
+ * @param defaultValue The initial value of the signal
+ * @returns A `SignalGetter<T>` to read the signal value
+ *
+ * @example
+ * ```ts
+ * import { createSignal } from 'fraxel/hooks'
+ *
+ * class PlayerScript extends FraxelScript<PrimaryNode.Transform> {
+ *   health = createSignal(100)
+ *
+ *   applyDamage(amount: number) {
+ *     this.health.setter(this.health() - amount)
+ *   }
+ * }
+ * ```
+ */
 export function createSignal<T>(defaultValue: T): SignalGetter<T> {
   return new Signal(defaultValue).getter
 }
 
+/**
+ * The **`signalSetterFrom`** function extracts a `SignalSetter<T>` from a `SignalGetter<T>`,
+ * typically used in `FraxelScript` classes to create a separate setter reference.
+ *
+ * @param signalGetter The signal getter to extract the setter from
+ * @returns A `SignalSetter<T>` to write the signal value
+ *
+ * @example
+ * ```ts
+ * import { createSignal, signalSetterFrom } from 'fraxel/hooks'
+ *
+ * class PlayerScript extends FraxelScript<PrimaryNode.Transform> {
+ *   health = createSignal(100)
+ *   setHealth = signalSetterFrom(this.health)
+ *
+ *   applyDamage(amount: number) {
+ *     this.setHealth(this.health() - amount)
+ *   }
+ * }
+ * ```
+ */
 export function signalSetterFrom<T>(signalGetter: SignalGetter<T>): SignalSetter<T> {
   return signalGetter.signal.setter
 }
