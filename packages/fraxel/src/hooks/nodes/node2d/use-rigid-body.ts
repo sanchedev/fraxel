@@ -1,0 +1,102 @@
+import { PrimaryNode } from '../../../nodes/index.js'
+import { Signal } from '../../../reactivity/signal.js'
+import { pushEffect } from '../../context.js'
+import { Node2DReference } from './reference.js'
+import { Vector2, vector2, type VectorLike } from '../../../math/vector2.js'
+
+/**
+ * The **`useRigidBody`** hook creates a reference to a `RigidBody` node with reactive
+ * physics state and imperative force/impulse methods.
+ *
+ * @returns A `RigidBodyReference` with reactive physics properties and control methods
+ *
+ * @example
+ * ```tsx
+ * import { useRigidBody, useEffect, useAction } from 'fraxel/hooks'
+ * import { Input, InputKey } from 'fraxel'
+ *
+ * const Jump = Input.createAction(InputKey.Space)
+ *
+ * function Player() {
+ *   const { ref, velocity, isGrounded, applyImpulse } = useRigidBody()
+ *
+ *   useEffect(() => {
+ *     if (Input.isActionPressed(Jump) && isGrounded()) {
+ *       applyImpulse([0, -400])
+ *     }
+ *   })
+ *
+ *   return (
+ *     <rigid-body ref={ref} mass={1}>
+ *       <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['ground']} />
+ *     </rigid-body>
+ *   )
+ * }
+ * ```
+ */
+export function useRigidBody() {
+  pushEffect('useRigidBody', () => {})
+  return new RigidBodyReference()
+}
+
+export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
+  /** Reactive velocity vector, updated every physics frame. */
+  velocity = new Signal<Vector2>(Vector2.ZERO).getter
+  /** Reactive `true` when the body is grounded (colliding below). */
+  isGrounded = new Signal(false).getter
+  /** Reactive mass value. */
+  mass = new Signal(1).getter
+  /** Reactive friction coefficient. */
+  friction = new Signal(0.1).getter
+  /** Reactive bounce coefficient (0 = no bounce, 1 = perfect bounce). */
+  bounce = new Signal(0).getter
+  /** Reactive `true` if the body is static (unaffected by forces). */
+  isStatic = new Signal(false).getter
+  /** Reactive `true` if gravity is applied to this body. */
+  useGravity = new Signal(true).getter
+
+  /** Applies a continuous force to the body. */
+  applyForce: (force: VectorLike) => void = () => {}
+  /** Applies an instantaneous impulse to the body. */
+  applyImpulse: (impulse: VectorLike) => void = () => {}
+  /** Sets the body's velocity directly. */
+  setVelocity: (v: VectorLike) => void = () => {}
+
+  constructor() {
+    let unsub = () => {}
+    super(
+      PrimaryNode.RigidBody,
+      (node) => {
+        const sets = [
+          () => {
+            this.velocity.signal.setter(node.velocity)
+            this.isGrounded.signal.setter(node.isGrounded)
+            this.mass.signal.setter(node.mass)
+            this.friction.signal.setter(node.friction)
+            this.bounce.signal.setter(node.bounce)
+            this.isStatic.signal.setter(node.isStatic)
+            this.useGravity.signal.setter(node.useGravity)
+          },
+        ]
+        sets.forEach((set) => set())
+        unsub = node.updated.on(() => {
+          sets.forEach((set) => set())
+        })
+
+        this.applyForce = (force) => node.applyForce(vector2(force))
+        this.applyImpulse = (impulse) => node.applyImpulse(vector2(impulse))
+        this.setVelocity = (v) => node.setVelocity(vector2(v))
+      },
+      () => {
+        this.velocity.signal.clearSubs()
+        this.isGrounded.signal.clearSubs()
+        this.mass.signal.clearSubs()
+        this.friction.signal.clearSubs()
+        this.bounce.signal.clearSubs()
+        this.isStatic.signal.clearSubs()
+        this.useGravity.signal.clearSubs()
+        unsub()
+      },
+    )
+  }
+}

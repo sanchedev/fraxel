@@ -18,11 +18,10 @@ import { useComputed } from '../use-computed.js'
  *
  * @example
  * ```tsx
- * import { useCondition, useWhen, useNode } from 'fraxel/hooks'
- * import { PrimaryNode } from 'fraxel'
+ * import { useCondition, useWhen, useClickable } from 'fraxel/hooks'
  *
- * const clickable = useNode(PrimaryNode.Clickable)
- * const isHovered = useCondition(clickable, 'mouseEntered', 'mouseExited')
+ * const clickable = useClickable()
+ * const isHovered = useCondition(clickable.mouseEntered, clickable.mouseExited)
  * const brightness = useWhen(isHovered, 1.2, 1.0)
  *
  * return <sprite brightness={brightness} />
@@ -30,11 +29,10 @@ import { useComputed } from '../use-computed.js'
  *
  * @example
  * ```tsx
- * import { useCondition, useWhen, useNode } from 'fraxel/hooks'
- * import { PrimaryNode } from 'fraxel'
+ * import { useCondition, useWhen, useRayCast } from 'fraxel/hooks'
  *
- * const raycast = useNode(PrimaryNode.RayCast)
- * const isZombieDetected = useCondition(raycast, 'colliderEntered', 'colliderExited')
+ * const raycast = useRayCast()
+ * const isZombieDetected = useCondition(raycast.colliderEntered, raycast.colliderExited)
  * const animName = useWhen(isZombieDetected, 'shoot', 'idle')
  *
  * return <animation-player currentAnim={animName} />

@@ -40,7 +40,7 @@ export class InvalidRefAttributeError extends JSXError {
       received instanceof Node ? 'Node instance' : received === null ? 'null' : typeof received
 
     super(
-      `Invalid value for "ref" attribute. Expected a proxy returned by useNode(), but received ${type}.`,
+      `Invalid value for "ref" attribute. Expected a NodeReference returned by a native hook (useSprite, useCollider, etc.), but received ${type}.`,
     )
   }
 }

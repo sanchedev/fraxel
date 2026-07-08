@@ -73,7 +73,7 @@ export type NodeToOptions<T extends typeof Node> = ConstructorParameters<T>[0]
 
 /**
  * The **`NodeEvents`** type maps each node type to its available events.
- * Used by `useEvent` to provide type-safe event subscriptions.
+ * Used internally for type-safe event subscriptions.
  */
 export type NodeEvents = {
   [P in NodeName]: {

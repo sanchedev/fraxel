@@ -1,14 +1,13 @@
 /**
  * The **`PrimaryNode`** enum defines all built-in node types available in the engine.
- * Use these values when creating nodes with `useNode` or `useChild`.
+ * Use these values for scripts or external packages that add new node types.
  *
  * @example
  * ```tsx
- * import { useNode } from 'fraxel/hooks'
  * import { PrimaryNode } from 'fraxel'
  *
- * const sprite = useNode(PrimaryNode.Sprite)
- * return <sprite ref={sprite} textureId={PLAYER} />
+ * // Used internally by native hooks like useSprite(), useCollider(), etc.
+ * // Also used for custom scripts that need to reference node types.
  * ```
  */
 export enum PrimaryNode {

@@ -44,17 +44,3 @@ export class HookRequiresNodeRootError extends HookError {
     )
   }
 }
-
-/**
- * The **`InvalidEventInHookError`** error is thrown when the `useEvent` hook's `getEvent()` callback does not return a valid Event instance.
- * @example
- * ```ts
- * // When this happens:
- * throw new InvalidEventInHookError('useEvent', 'myEvent')
- * ```
- */
-export class InvalidEventInHookError extends HookError {
-  constructor(hookName: string, eventName: string) {
-    super(`${hookName} expected the event ${eventName} to be a valid Event instance`)
-  }
-}

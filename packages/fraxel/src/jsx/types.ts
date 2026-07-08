@@ -1,5 +1,5 @@
 import type { Event } from '../events/event.js'
-import type { NodeReference } from '../hooks/use-node.js'
+import type { NodeReference } from '../hooks/index.js'
 import type { PrimaryNode } from '../nodes/lib/enum.js'
 import type { NodeEvents, NodesOptions } from '../nodes/lib/types.js'
 
@@ -33,10 +33,10 @@ export namespace Fraxel {
 
 // Intrinsic Elements
 export type IntrinsicElement<T extends PrimaryNode> = {
-  /** The **`ref`** property can be used with the `useNode` hook.
+  /** The **`ref`** property accepts a NodeReference from a native hook.
    * @example
    * ```tsx
-   * const sprite = useNode(PrimaryNode.Sprite)
+   * const sprite = useSprite()
    *
    * return <sprite ref={sprite} />
    * ```

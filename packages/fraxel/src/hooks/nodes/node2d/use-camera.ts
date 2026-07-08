@@ -1,0 +1,94 @@
+import { PrimaryNode } from '../../../nodes/index.js'
+import { Signal } from '../../../reactivity/signal.js'
+import { pushEffect } from '../../context.js'
+import { Node2DReference } from './reference.js'
+import { Vector2, vector2, type VectorLike } from '../../../math/vector2.js'
+import type { Bounds } from '../../../math/bounds.js'
+
+/**
+ * The **`useCamera`** hook creates a reference to a `Camera` node with reactive
+ * zoom, offset, and smoothing properties, plus imperative control methods.
+ *
+ * @returns A `CameraReference` with reactive properties and control methods
+ *
+ * @example
+ * ```tsx
+ * import { useCamera, useEffect } from 'fraxel/hooks'
+ *
+ * function MainCamera() {
+ *   const camera = useCamera()
+ *
+ *   useEffect(() => {
+ *     camera.makeCurrent()
+ *     camera.setZoom(vector2(2))
+ *   })
+ *
+ *   return <camera ref={camera} />
+ * }
+ * ```
+ */
+export function useCamera() {
+  pushEffect('useCamera', () => {})
+  return new CameraReference()
+}
+
+export class CameraReference extends Node2DReference<PrimaryNode.Camera> {
+  /** Reactive zoom level as a Vector2 (1 = normal, 2 = zoomed in). */
+  zoom = new Signal<Vector2>(vector2(1)).getter
+  /** Reactive camera offset from the target position. */
+  offset = new Signal<Vector2>(Vector2.ZERO.clone()).getter
+  /** Reactive smoothing factor (0 = instant, higher = smoother). */
+  smoothing = new Signal(0).getter
+  /** Reactive camera bounds limit, or `null` for no limit. */
+  limit = new Signal<Bounds | null>(null).getter
+
+  /** Makes this camera the active camera for the scene. */
+  makeCurrent: () => void = () => {}
+  /** Triggers a camera shake effect. */
+  shake: (options: { duration: number; strength: number }) => void = () => {}
+  /** Converts screen coordinates to world coordinates. */
+  screenToWorld: (screenPos: VectorLike) => Vector2 = (pos) => vectorize(pos)
+  /** Converts world coordinates to screen coordinates. */
+  worldToScreen: (worldPos: VectorLike) => Vector2 = (pos) => vectorize(pos)
+
+  constructor() {
+    let unsub = () => {}
+    super(
+      PrimaryNode.Camera,
+      (node) => {
+        const sets = [
+          () => {
+            this.zoom.signal.setter(node.zoom)
+            this.offset.signal.setter(node.offset)
+            this.smoothing.signal.setter(node.smoothing)
+            this.limit.signal.setter(node.limit)
+          },
+        ]
+        sets.forEach((set) => set())
+        unsub = node.updated.on(() => {
+          sets.forEach((set) => set())
+        })
+
+        this.makeCurrent = () => node.makeCurrent()
+        this.shake = (opts) => node.shake(opts)
+        this.screenToWorld = (pos) => node.screenToWorld(vectorize(pos))
+        this.worldToScreen = (pos) => node.worldToScreen(vectorize(pos))
+      },
+      () => {
+        this.zoom.signal.clearSubs()
+        this.offset.signal.clearSubs()
+        this.smoothing.signal.clearSubs()
+        this.limit.signal.clearSubs()
+        unsub()
+      },
+    )
+  }
+}
+
+function vectorize(value: VectorLike): Vector2 {
+  if (value instanceof Vector2) return value
+  if (Array.isArray(value)) return new Vector2(value[0], value[1])
+  if (typeof value === 'object' && 'x' in value && 'y' in value)
+    return new Vector2(value.x, value.y)
+  return new Vector2(value, value)
+}

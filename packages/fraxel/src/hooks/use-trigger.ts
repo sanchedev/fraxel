@@ -32,7 +32,7 @@ export function createTrigger<T extends any[] = any[]>() {
  * })
  * ```
  */
-export function useTrigger<T extends any[]>(trigger: Trigger<T>, fn: Fun<T>) {
+export function useTrigger<T extends Trigger<any[]>>(trigger: T, fn: Parameters<T['connect']>[0]) {
   pushEffect('useTrigger', ([node]) => {
     if (node == null) return
 
@@ -58,14 +58,18 @@ export function useTrigger<T extends any[]>(trigger: Trigger<T>, fn: Fun<T>) {
 export class Trigger<T extends any[]> {
   #listeners = new Set<Fun<T>>()
 
-  connect(cb: Fun<T>) {
+  connect = (cb: Fun<T>) => {
     this.#listeners.add(cb)
   }
-  disconnect(cb: Fun<T>) {
+  disconnect = (cb: Fun<T>) => {
     this.#listeners.delete(cb)
   }
 
-  emit(...args: T) {
+  clear = () => {
+    this.#listeners.clear()
+  }
+
+  emit = (...args: T) => {
     for (const cb of Array.from(this.#listeners)) {
       cb(...args)
     }
