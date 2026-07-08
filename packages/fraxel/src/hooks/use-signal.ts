@@ -24,7 +24,7 @@ import { pushEffect } from './context.js'
  * return <clickable onClick={handleClick} />
  * ```
  */
-export function useSignal<T>(initialValue: T): [SignalGetter<T>, SignalSetter<T>] {
+export function useSignal<T>(initialValue: T): [getter: SignalGetter<T>, setter: SignalSetter<T>] {
   pushEffect('useSignal', ([node]) => {
     if (node == null) return
     node.destroyed.on(() => signal.clearSubs())
@@ -33,4 +33,12 @@ export function useSignal<T>(initialValue: T): [SignalGetter<T>, SignalSetter<T>
   const signal = new Signal(initialValue)
 
   return [signal.getter, signal.setter]
+}
+
+export function createSignal<T>(defaultValue: T): SignalGetter<T> {
+  return new Signal(defaultValue).getter
+}
+
+export function signalSetterFrom<T>(signalGetter: SignalGetter<T>): SignalSetter<T> {
+  return signalGetter.signal.setter
 }
