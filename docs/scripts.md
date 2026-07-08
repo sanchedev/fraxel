@@ -5,9 +5,11 @@ Separate game logic from rendering with `FraxelScript`:
 ```tsx
 import { FraxelScript } from 'fraxel/scripts'
 import { PrimaryNode } from 'fraxel'
+import { createSignal, signalSetterFrom } from 'fraxel/hooks'
 
 class PlayerScript extends FraxelScript<PrimaryNode.Transform> {
-  health = 100
+  health = createSignal(100)
+  setHealth = signalSetterFrom(this.health)
 
   setup() {
     this.connect('started', () => {
@@ -15,13 +17,14 @@ class PlayerScript extends FraxelScript<PrimaryNode.Transform> {
     })
 
     this.connect('destroyed', () => {
-      console.log('Player destroyed!')
+      this.health.signal.clearSubs()
     })
   }
 
   applyDamage(amount: number) {
-    this.health -= amount
-    if (this.health <= 0) {
+    const newHealth = this.health() - amount
+    this.setHealth(newHealth)
+    if (newHealth <= 0) {
       this.me.destroy()
     }
   }
@@ -30,6 +33,32 @@ class PlayerScript extends FraxelScript<PrimaryNode.Transform> {
 // Use in JSX
 ;<transform script={new PlayerScript()} />
 ```
+
+## Reactive State with Signals
+
+Scripts use `createSignal` and `signalSetterFrom` for reactive state:
+
+```ts
+import { createSignal, signalSetterFrom } from 'fraxel/hooks'
+
+class EnemyScript extends FraxelScript<PrimaryNode.Transform> {
+  health = createSignal(100)
+  setHealth = signalSetterFrom(this.health)
+  isAlive = createSignal(true)
+
+  applyDamage(amount: number) {
+    this.setHealth(this.health() - amount)
+    if (this.health() <= 0) {
+      this.isAlive.setter(false)
+      this.me.destroy()
+    }
+  }
+}
+```
+
+- `createSignal(value)` — Creates a `SignalGetter<T>` (read with `signal()`)
+- `signalSetterFrom(getter)` — Extracts a `SignalSetter<T>` (write with `setter(value)`)
+- Clean up with `signal.clearSubs()` in `destroyed` event
 
 ## API
 

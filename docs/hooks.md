@@ -16,6 +16,27 @@
 | `useContext(context)`           | Retrieves the current context value                         |
 | `useRef(value)`                 | Mutable reference that persists across renders              |
 
+## Script Utilities
+
+| Function                   | Description                                              |
+| -------------------------- | -------------------------------------------------------- |
+| `createSignal(initial)`    | Creates a reactive signal outside of hooks (for scripts) |
+| `signalSetterFrom(getter)` | Extracts a setter from a signal getter                   |
+
+```ts
+import { FraxelScript, PrimaryNode } from 'fraxel'
+import { createSignal, signalSetterFrom } from 'fraxel/hooks'
+
+class PlayerScript extends FraxelScript<PrimaryNode.Transform> {
+  health = createSignal(100)
+  setHealth = signalSetterFrom(this.health)
+
+  applyDamage(amount: number) {
+    this.setHealth(this.health() - amount)
+  }
+}
+```
+
 ## Native Hooks (Node References)
 
 | Hook             | Description                                    |
