@@ -1,13 +1,6 @@
-import { useContext, useEvent, useGame, useNode, useEffect, useComputed } from 'fraxel/hooks'
-import { useCollider } from 'fraxel/hooks'
-import {
-  getParentScript,
-  loadSound,
-  loadTexture,
-  PrimaryNode,
-  shapes,
-  type VectorLike,
-} from 'fraxel'
+import { useContext, useGame, useEffect, useComputed, useUpdate } from 'fraxel/hooks'
+import { useCollider, useTransform, useAudio } from 'fraxel/hooks'
+import { getParentScript, loadSound, loadTexture, shapes, type VectorLike } from 'fraxel'
 import { RowCtx } from '../../../contexts/row'
 import { ZombieScript } from '../../../scripts/zombie/zombie'
 import { BoardCtx } from '../../../contexts/board'
@@ -21,9 +14,9 @@ export function Pea({ position }: { position: VectorLike }) {
   const { projectilesLayer, zombiesLayer } = useContext(RowCtx)
   const { cellSize } = useContext(BoardCtx)
 
-  const pea = useNode(PrimaryNode.Transform)
+  const pea = useTransform()
   const collider = useCollider()
-  const audio = useNode(PrimaryNode.AudioPlayer)
+  const audio = useAudio()
 
   const zombie = useComputed(() => {
     const colliders = collider.detectedColliders()
@@ -36,13 +29,13 @@ export function Pea({ position }: { position: VectorLike }) {
   useEffect(() => {
     if (zombie() == null) return
     zombie()!.applyDamage(PEA_DAMAGE)
-    audio.node.play()
+    audio.play()
     pea.node.destroy()
   })
 
   const width = useGame().getSize().x
 
-  useEvent(pea, 'updated', (delta) => {
+  useUpdate((delta) => {
     pea.node.position.x += delta * 4.5 * cellSize.x
     if (pea.node.position.x >= width) pea.node.destroy()
   })
@@ -51,7 +44,7 @@ export function Pea({ position }: { position: VectorLike }) {
     <transform ref={pea} position={position}>
       <sprite textureId={PEA}>
         <collider
-          ref={collider.ref}
+          ref={collider}
           shape={shapes.circle(2)}
           group={[projectilesLayer]}
           collidesWith={[zombiesLayer]}

@@ -56,14 +56,14 @@ export function PlantSeed({ plant, position }: { plant: Plant; position?: Vector
         sourceSize={sourceSize}
       />
       <clickable
-        ref={clickable.ref}
+        ref={clickable}
         size={[18, 14]}
         position={[3, 1]}
         onClick={handleClick}
         disabled={disabled}
       />
       <timer
-        ref={timer.ref}
+        ref={timer}
         duration={plantsInfo[plant].seedCooldown}
         onTimeout={() => setLoaded(true)}
         autoPlay

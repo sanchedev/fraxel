@@ -1,5 +1,5 @@
-import { loadTexture, loadSound, tween, easeOutQuad, PrimaryNode, type VectorLike } from 'fraxel'
-import { useContext, useNode, useEffect } from 'fraxel/hooks'
+import { loadTexture, loadSound, tween, easeOutQuad, type VectorLike } from 'fraxel'
+import { useContext, useSprite, useAudio, useEffect } from 'fraxel/hooks'
 import { SunCountCtx } from '../../contexts/sun-count'
 
 const SUN_COUNTER = await loadTexture('/assets/sprites/ui/sun-counter.png')
@@ -7,8 +7,8 @@ const POINTS_SOUND = await loadSound('/assets/audios/points.ogg')
 
 export function SunCounter({ position }: { position: VectorLike }) {
   const [sunCount, setSunCount] = useContext(SunCountCtx)
-  const audio = useNode(PrimaryNode.AudioPlayer)
-  const sprite = useNode(PrimaryNode.Sprite)
+  const audio = useAudio()
+  const sprite = useSprite()
 
   useEffect(() => {
     sunCount()
@@ -33,7 +33,7 @@ export function SunCounter({ position }: { position: VectorLike }) {
         size={[4, 4]}
         onClick={() => {
           setSunCount(sunCount() + 1)
-          audio.node.play()
+          audio.play()
         }}
       />
       <audio-player ref={audio} soundId={POINTS_SOUND} />

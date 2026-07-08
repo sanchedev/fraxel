@@ -1,6 +1,6 @@
-import { animationFromSheet, loadTexture, PrimaryNode, shapes } from 'fraxel'
+import { animationFromSheet, loadTexture, shapes } from 'fraxel'
 import type { PlantProps } from '../../types'
-import { useContext, useNode, useSpawn, useTimer } from 'fraxel/hooks'
+import { useContext, useSprite, useTransform, useTimer } from 'fraxel/hooks'
 import { PlantScript } from '../../../scripts/plant/plant'
 import { Plant } from '../../../lib/enums/plants'
 import { RowCtx } from '../../../contexts/row'
@@ -11,9 +11,8 @@ const SUNFLOWER_IDLE = await loadTexture('/assets/sprites/entities/plants/sunflo
 export function Sunflower({ position, onDestroy }: PlantProps) {
   const { plantsLayer } = useContext(RowCtx)
 
-  const sprite = useNode(PrimaryNode.Sprite)
-  const sunContainer = useNode(PrimaryNode.Transform)
-  const spawnSun = useSpawn(sunContainer)
+  const sprite = useSprite()
+  const sunContainer = useTransform()
   const timer = useTimer()
 
   return (
@@ -32,11 +31,11 @@ export function Sunflower({ position, onDestroy }: PlantProps) {
       </sprite>
       <transform ref={sunContainer} />
       <timer
-        ref={timer.ref}
+        ref={timer}
         duration={8}
         autoPlay
         onTimeout={() => {
-          spawnSun(<Sun position={[0, -4]} />)
+          sunContainer.spawn(<Sun position={[0, -4]} />)
           timer.play()
         }}
       />

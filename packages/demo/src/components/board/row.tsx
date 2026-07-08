@@ -4,8 +4,8 @@ import {
   RowProjectileSpawnerCtx,
   RowZombieSpawnerCtx,
 } from '../../contexts/row.js'
-import { NodeReference, useContext, useNode, useSpawn } from 'fraxel/hooks'
-import { PrimaryNode } from 'fraxel'
+import { useContext, useTransform } from 'fraxel/hooks'
+import type { TransformReference } from 'fraxel/hooks'
 import { NormalZombie } from '../entities/zombies/normal-zombie.js'
 import { BoardCtx } from '../../contexts/board.js'
 import type { InRowProps } from '../types.js'
@@ -35,33 +35,29 @@ export function Row({ rowIndex, registerSpawners }: RowProps) {
 }
 
 function RowZombieSpawner(props: RowProps) {
-  const zombies = useNode(PrimaryNode.Transform)
-  const spawnZombie = useSpawn(zombies)
+  const zombies = useTransform()
 
   return (
-    <RowZombieSpawnerCtx.Provider value={spawnZombie}>
+    <RowZombieSpawnerCtx.Provider value={(jsx) => zombies.spawn(jsx)}>
       <RowProjectileSpawner {...props} z={zombies} />
     </RowZombieSpawnerCtx.Provider>
   )
 }
-type node = NodeReference<PrimaryNode.Transform>
-function RowProjectileSpawner(props: RowProps & { z: node }) {
-  const projectiles = useNode(PrimaryNode.Transform)
-  const spawnProjectile = useSpawn(projectiles)
+function RowProjectileSpawner(props: RowProps & { z: TransformReference }) {
+  const projectiles = useTransform()
 
   return (
-    <RowProjectileSpawnerCtx.Provider value={spawnProjectile}>
+    <RowProjectileSpawnerCtx.Provider value={(jsx) => projectiles.spawn(jsx)}>
       <RowPlantSpawner {...props} r={projectiles} />
     </RowProjectileSpawnerCtx.Provider>
   )
 }
 
-function RowPlantSpawner(props: RowProps & { z: node; r: node }) {
-  const plants = useNode(PrimaryNode.Transform)
-  const spawnPlant = useSpawn(plants)
+function RowPlantSpawner(props: RowProps & { z: TransformReference; r: TransformReference }) {
+  const plants = useTransform()
 
   return (
-    <RowPlantSpawnerCtx.Provider value={spawnPlant}>
+    <RowPlantSpawnerCtx.Provider value={(jsx) => plants.spawn(jsx)}>
       <RowContainers {...props} p={plants} />
     </RowPlantSpawnerCtx.Provider>
   )
@@ -73,7 +69,7 @@ function RowContainers({
   z,
   r,
   p,
-}: RowProps & { z: node; r: node; p: node }) {
+}: RowProps & { z: TransformReference; r: TransformReference; p: TransformReference }) {
   const { cellSize } = useContext(BoardCtx)
   const spawnPlant = useContext(RowPlantSpawnerCtx)
 

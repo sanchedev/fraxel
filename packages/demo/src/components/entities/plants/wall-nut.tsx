@@ -1,6 +1,6 @@
-import { animationFromSheet, loadTexture, PrimaryNode, shapes } from 'fraxel'
+import { animationFromSheet, loadTexture, shapes } from 'fraxel'
 import type { PlantProps } from '../../types'
-import { useComputed, useContext, useNode, useScript } from 'fraxel/hooks'
+import { useComputed, useContext, useSprite, useTransform } from 'fraxel/hooks'
 import { PlantScript } from '../../../scripts/plant/plant'
 import { Plant } from '../../../lib/enums/plants'
 import { RowCtx } from '../../../contexts/row'
@@ -14,15 +14,14 @@ const states = {
 export function WallNut({ position, onDestroy }: PlantProps) {
   const { plantsLayer } = useContext(RowCtx)
 
-  const sprite = useNode(PrimaryNode.Sprite)
+  const sprite = useSprite()
 
-  const wallNut = useNode(PrimaryNode.Transform)
-  const script = useScript<PlantScript>(wallNut)
+  const wallNut = useTransform()
+  const health = useComputed(() => wallNut.script(PlantScript)?.health.getter() ?? 4000)
 
   const currentState = useComputed(() => {
-    const health = script()?.health.getter() ?? 4000
-    if (health > 3000) return 0
-    if (health > 1500) return 1
+    if (health() > 3000) return 0
+    if (health() > 1500) return 1
     return 2
   })
 

@@ -2,11 +2,11 @@ import { tween, easeOutQuad, type VectorLike, shapes } from 'fraxel'
 import {
   useComputed,
   useContext,
-  useEvent,
   useRef,
   useClickable,
   useSignal,
   useEffect,
+  useTrigger,
 } from 'fraxel/hooks'
 import { BoardCtx } from '../../contexts/board'
 import { SeedCtx } from '../../contexts/seed'
@@ -21,7 +21,7 @@ export function Grid({ position }: { position: VectorLike }) {
 
   const clickable = useClickable()
   const pos = useComputed(() =>
-    clickable.position().apply((coord, axis) => Math.floor(coord / cellSize[axis])),
+    clickable.mousePosition().apply((coord, axis) => Math.floor(coord / cellSize[axis])),
   )
 
   const ableToPlant = useComputed(
@@ -47,7 +47,7 @@ export function Grid({ position }: { position: VectorLike }) {
     })
   })
 
-  useEvent(clickable.ref, 'clicked', () => {
+  useTrigger(clickable.clicked, () => {
     const c = current()
     if (c == null) return
     if (!ableToPlant()) return
@@ -60,7 +60,7 @@ export function Grid({ position }: { position: VectorLike }) {
   })
 
   return (
-    <clickable ref={clickable.ref} position={position} size={cellSize.toMultiplied(cellsCount)}>
+    <clickable ref={clickable} position={position} size={cellSize.toMultiplied(cellsCount)}>
       <geometry
         position={() => [pos().x * cellSize.x, 0]}
         shape={shapes.rectangle(cellSize.x, cellSize.y * cellsCount.y)}

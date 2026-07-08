@@ -1,14 +1,7 @@
-import {
-  animationFromSheet,
-  getGlobalPosition,
-  loadSound,
-  loadTexture,
-  PrimaryNode,
-  shapes,
-} from 'fraxel'
+import { animationFromSheet, getGlobalPosition, loadSound, loadTexture, shapes } from 'fraxel'
 import type { PlantProps } from '../../types.js'
-import { useContext, useGame, useNode, useEffect } from 'fraxel/hooks'
-import { useRayCast, useAnimation } from 'fraxel/hooks'
+import { useContext, useGame, useEffect } from 'fraxel/hooks'
+import { useRayCast, useAnimation, useSprite, useAudio } from 'fraxel/hooks'
 import { RowCtx, RowProjectileSpawnerCtx } from '../../../contexts/row.js'
 import { Pea } from '../projectiles/pea.js'
 import { PlantScript } from '../../../scripts/plant/plant.js'
@@ -22,24 +15,24 @@ export function Peashooter({ position, onDestroy }: PlantProps) {
   const { plantsLayer, zombiesLayer } = useContext(RowCtx)
   const spawnProjectile = useContext(RowProjectileSpawnerCtx)
 
-  const sprite = useNode(PrimaryNode.Sprite)
-  const { ref: anim, animName, frameIndex } = useAnimation()
-  const { ref: raycast, detected } = useRayCast()
-  const audio = useNode(PrimaryNode.AudioPlayer)
+  const sprite = useSprite()
+  const anim = useAnimation()
+  const raycast = useRayCast()
+  const audio = useAudio()
 
   const width = useGame().getSize().x
 
   useEffect(() => {
-    if (animName() !== 'shoot') return
-    if (frameIndex() === 1) shoot()
+    if (anim.animName() !== 'shoot') return
+    if (anim.frameIndex() === 1) shoot()
   })
 
   useEffect(() => {
-    anim.node.setNext(detected() ? 'shoot' : 'idle')
+    anim.node.setNext(raycast.detected() ? 'shoot' : 'idle')
   })
 
   const shoot = () => {
-    audio.node.play()
+    audio.play()
     spawnProjectile(
       <Pea
         position={sprite.node.globalPosition

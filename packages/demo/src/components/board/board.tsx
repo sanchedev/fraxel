@@ -1,7 +1,7 @@
-import { loadSound, PrimaryNode, type VectorLike, vector2 } from 'fraxel'
+import { loadSound, type VectorLike, vector2 } from 'fraxel'
 import { Row } from './row.js'
 import { BoardCtx } from '../../contexts/board.js'
-import { useRef, useSignal, useNode } from 'fraxel/hooks'
+import { useRef, useSignal, useAudio } from 'fraxel/hooks'
 import type { InRowProps } from '../types.js'
 import { SunCounter } from '../sun/sun-counter.js'
 import { SunCountCtx } from '../../contexts/sun-count.js'
@@ -25,7 +25,7 @@ export function Board({ position, cellsCount, cellSize }: BoardProps) {
   >([])
 
   const sunCounter = useSignal(1)
-  const plantAudio = useNode(PrimaryNode.AudioPlayer)
+  const plantAudio = useAudio()
 
   const cell = {
     size: vector2(cellSize),
@@ -42,7 +42,7 @@ export function Board({ position, cellsCount, cellSize }: BoardProps) {
         ),
         spawnPlant(rowIndex, colIndex, Comp) {
           plantSpawners.current[rowIndex]?.(colIndex, Comp)
-          plantAudio.node.play()
+          plantAudio.play()
         },
       }}
     >

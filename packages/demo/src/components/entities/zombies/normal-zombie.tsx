@@ -1,11 +1,4 @@
-import {
-  animationFromSheet,
-  getParentScript,
-  loadSound,
-  loadTexture,
-  PrimaryNode,
-  shapes,
-} from 'fraxel'
+import { animationFromSheet, getParentScript, loadSound, loadTexture, shapes } from 'fraxel'
 import type { InRowProps } from '../../types.js'
 import {
   useAnimation,
@@ -13,11 +6,11 @@ import {
   useComputed,
   useContext,
   useEffect,
-  useEvent,
   useMount,
-  useNode,
   useRayCast,
-  useScript,
+  useSprite,
+  useTransform,
+  useUpdate,
 } from 'fraxel/hooks'
 import { RowCtx } from '../../../contexts/row.js'
 import { PlantScript } from '../../../scripts/plant/plant.js'
@@ -56,19 +49,18 @@ export function NormalZombie({ position }: NormalZombieProps) {
   const { plantsLayer, zombiesLayer } = useContext(RowCtx)
   const { cellSize } = useContext(BoardCtx)
 
-  const zombie = useNode(PrimaryNode.Transform)
-  const sprite = useNode(PrimaryNode.Sprite)
+  const zombie = useTransform()
+  const sprite = useSprite()
   const anim = useAnimation()
   const raycast = useRayCast()
   const groanAudio = useAudio()
   const chompAudio = useAudio()
 
-  const script = useScript<ZombieScript>(zombie)
+  const health = useComputed(() => zombie.script(ZombieScript)?.health.getter() ?? 181)
 
   const currentPlant = useComputed(() => getParentScript(raycast.collider(), PlantScript) ?? null)
   const currentState = useComputed(() => {
-    const health = script()?.health.value ?? 181
-    if (health > 90) return 0
+    if (health() > 90) return 0
     return 1
   })
 
@@ -76,7 +68,7 @@ export function NormalZombie({ position }: NormalZombieProps) {
     groanAudio.play()
   })
 
-  useEvent(zombie, 'updated', (delta) => {
+  useUpdate((delta) => {
     if (currentPlant() != null) return
     zombie.node.position.x -= delta * (cellSize.x / 4.5)
     if (zombie.node.position.x <= 0) zombie.node.destroy()
@@ -118,7 +110,7 @@ export function NormalZombie({ position }: NormalZombieProps) {
     <transform ref={zombie} position={position} script={new ZombieScript(181)}>
       <sprite ref={sprite} textureId={NORMAL_ZOMBIE_WALK_0} sourceSize={[16, 16]}>
         <animation-player
-          ref={anim.ref}
+          ref={anim}
           animations={() => ({
             [states.walk[0]]: animationFromSheet(sprite, NORMAL_ZOMBIE_WALK_0, {
               columns: 4,
@@ -144,20 +136,15 @@ export function NormalZombie({ position }: NormalZombieProps) {
           currentAnim={currentAnim}
         />
       </sprite>
-      <ray-cast
-        ref={raycast.ref}
-        position={[4, 14]}
-        direction={[-2, 0]}
-        collidesWith={[plantsLayer]}
-      />
+      <ray-cast ref={raycast} position={[4, 14]} direction={[-2, 0]} collidesWith={[plantsLayer]} />
       <collider
         shape={shapes.rectangle(4, 12)}
         group={[zombiesLayer]}
         collidesWith={[]}
         position={[6, 4]}
       />
-      <audio-player ref={groanAudio.ref} soundId={GROAN_SOUND} />
-      <audio-player ref={chompAudio.ref} soundId={CHOMP_SOUND} />
+      <audio-player ref={groanAudio} soundId={GROAN_SOUND} />
+      <audio-player ref={chompAudio} soundId={CHOMP_SOUND} />
     </transform>
   )
 }

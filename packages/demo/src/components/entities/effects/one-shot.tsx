@@ -1,5 +1,5 @@
-import { animationFromSheet, PrimaryNode, type VectorLike } from 'fraxel'
-import { useNode } from 'fraxel/hooks'
+import { animationFromSheet, type VectorLike } from 'fraxel'
+import { useSprite } from 'fraxel/hooks'
 
 interface OneShotProps {
   textureId: symbol
@@ -16,7 +16,7 @@ export function OneShot({
   spriteCountY = 1,
   fps,
 }: OneShotProps) {
-  const sprite = useNode(PrimaryNode.Sprite)
+  const sprite = useSprite()
 
   const totalFrames = spriteCountX * spriteCountY
   const duration = totalFrames / fps

@@ -1,5 +1,5 @@
 import { Input, shapes, type Shape, type VectorLike } from 'fraxel'
-import { useAction, useActionAxis, useEffect, useEvent, useRigidBody } from 'fraxel/hooks'
+import { useAction, useActionAxis, useEffect, useRigidBody, useUpdate } from 'fraxel/hooks'
 
 const Left = Input.createAction({ key: 'a' })
 const Right = Input.createAction({ key: 'd' })
@@ -15,12 +15,12 @@ function Player() {
     body.applyImpulse([0, -400])
   })
 
-  useEvent(body.ref, 'updated', () => {
+  useUpdate(() => {
     body.setVelocity([direction() * 240, body.velocity().y])
   })
 
   return (
-    <rigid-body ref={body.ref} position={[220, 0]} mass={2}>
+    <rigid-body ref={body} position={[220, 0]} mass={2}>
       <camera current smoothing={5} offset={[-20, -30]} />
       <geometry shape={shapes.capsule(60, 20)} fillColor={[1, 0.1, 0.4, 1]} />
       <collider shape={shapes.capsule(60, 20)} group={['player']} collidesWith={['ground']} />
