@@ -44,13 +44,12 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
  *
  * @example
  * ```tsx
- * import { useNode, useEvent } from 'fraxel/hooks'
- * import { PrimaryNode } from 'fraxel'
+ * import { useRayCast, useTrigger } from 'fraxel/hooks'
  *
  * function Gun() {
- *   const ray = useNode(PrimaryNode.RayCast)
+ *   const ray = useRayCast()
  *
- *   useEvent(ray, 'colliderEnter', (collider) => {
+ *   useTrigger(ray.colliderEntered, (collider) => {
  *     console.log('Hit:', collider)
  *   })
  *
@@ -117,13 +116,12 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
    *
    * @example
    * ```ts
-   * import { useEvent, useNode } from 'fraxel/hooks'
-   * import { PrimaryNode } from 'fraxel'
+   * import { useRayCast, useTrigger } from 'fraxel/hooks'
    *
-   * const ray = useNode(PrimaryNode.RayCast)
+   * const ray = useRayCast()
    *
-   * useEvent(ray, 'colliderEnter', () => {
-   *   const target = ray.node.getCollider()
+   * useTrigger(ray.colliderEntered, () => {
+   *   const target = ray.getCollider()
    *   if (target) {
    *     console.log('Target found at:', target.globalPosition)
    *   }

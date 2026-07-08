@@ -51,11 +51,10 @@ export interface ClickableOptions extends Node2DOptions<PrimaryNode.Clickable> {
  *
  * @example
  * ```tsx
- * import { useNode } from 'fraxel/hooks'
- * import { PrimaryNode } from 'fraxel'
+ * import { useClickable } from 'fraxel/hooks'
  *
  * function Button() {
- *   const btn = useNode(PrimaryNode.Clickable)
+ *   const btn = useClickable()
  *
  *   const handleClick = (pos: Vector2) => {
  *     console.log('Clicked at', pos.x, pos.y)

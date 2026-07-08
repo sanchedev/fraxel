@@ -39,17 +39,16 @@ export interface TimerOptions extends NodeOptions<PrimaryNode.Timer> {
  *
  * @example
  * ```tsx
- * import { useNode, useEvent } from 'fraxel/hooks'
- * import { PrimaryNode } from 'fraxel'
+ * import { useTimer, useTrigger } from 'fraxel/hooks'
  *
  * function CooldownTimer() {
- *   const timer = useNode(PrimaryNode.Timer)
+ *   const timer = useTimer()
  *
- *   useEvent(timer, 'timeout', () => {
+ *   useTrigger(timer.timeout, () => {
  *     console.log('Cooldown finished!')
  *   })
  *
- *   useEvent(timer, 'timeChanged', (time) => {
+ *   useTrigger(timer.timeChanged, (time) => {
  *     console.log('Time:', time)
  *   })
  *

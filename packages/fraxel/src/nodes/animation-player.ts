@@ -136,11 +136,11 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    *
    * @example
    * ```tsx
-   * import { useNode, useMount } from 'fraxel/hooks'
+   * import { useSprite, useAnimation, useMount } from 'fraxel/hooks'
    * import { keyframesFromSheet } from 'fraxel'
    *
-   * const sprite = useNode(PrimaryNode.Sprite)
-   * const anim = useNode(PrimaryNode.AnimationPlayer)
+   * const sprite = useSprite()
+   * const anim = useAnimation()
    *
    * useMount(() => {
    *   anim.node
@@ -175,8 +175,8 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    *
    * @example
    * ```tsx
-   * const sprite = useNode(PrimaryNode.Sprite)
-   * const anim = useNode(PrimaryNode.AnimationPlayer)
+   * const sprite = useSprite()
+   * const anim = useAnimation()
    *
    * useMount(() => {
    *   anim.node
@@ -220,7 +220,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    *
    * @example
    * ```tsx
-   * const anim = useNode(PrimaryNode.AnimationPlayer)
+   * const anim = useAnimation()
    *
    * useMount(() => {
    *   anim.node.play('idle')
@@ -245,10 +245,10 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    *
    * @example
    * ```tsx
-   * const anim = useNode(PrimaryNode.AnimationPlayer)
+   * const anim = useAnimation()
    *
-   * useEvent(anim, 'animationEnded', () => {
-   *   anim.node.setNext('idle')
+   * useTrigger(anim.animationEnded, () => {
+   *   anim.setNext('idle')
    * })
    * ```
    */

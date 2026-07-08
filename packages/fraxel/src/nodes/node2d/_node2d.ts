@@ -13,7 +13,9 @@ export interface Node2DOptions<T extends PrimaryNode> extends NodeOptions<T> {
    *
    * @example
    * ```tsx
-   * useEvent(transform, 'updated', (delta) => {
+   * const transform = useTransform()
+   *
+   * useUpdate((delta) => {
    *   transform.node.position.x += delta * 20
    * })
    *
@@ -34,9 +36,9 @@ export abstract class Node2D<T extends PrimaryNode = PrimaryNode> extends Node<T
    *
    * @example
    * ```tsx
-   * const transform = useNode(PrimaryNode.Transform)
+   * const transform = useTransform()
    *
-   * useEvent(transform, 'updated', (delta) => {
+   * useUpdate((delta) => {
    *   transform.node.position.x += delta * 20
    * })
    *

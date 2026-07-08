@@ -2,7 +2,6 @@ import '../../nodes/index.js'
 import { subReactive, type Reactive } from '../../reactivity/index.js'
 import { PrimaryNode } from '../../nodes/lib/enum.js'
 import { renderToNodes } from '../render/to-nodes.js'
-import { useNode } from '../../hooks/use-node.js'
 import { currentContext } from '../../hooks/context.js'
 import { jsx } from '../jsx.js'
 import type { Fraxel } from '../types.js'
@@ -10,6 +9,7 @@ import type { Node } from '../../nodes/_node.js'
 import { useMount } from '../../hooks/use-mount.js'
 import { useRef } from '../../hooks/use-ref.js'
 import { HookRequiresNodeRootError } from '../../errors/hook.js'
+import { useTransform } from '../../hooks/index.js'
 
 /**
  * The **`ListOptions`** interface defines the options for a `List` component.
@@ -97,7 +97,7 @@ export interface ListOptions<T> {
  */
 export function List<T>({ array, itemKey, empty, children }: ListOptions<T>): Fraxel.Element {
   const savedCtx = currentContext.slice()
-  const anchor = useNode(PrimaryNode.Transform)
+  const anchor = useTransform()
   const map = useRef(new Map<string | symbol, Node>())
   const emptyNode = useRef<Node | null>(null)
 

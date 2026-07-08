@@ -1,8 +1,7 @@
 import { getTexture } from '../assets/texture.js'
-import type { NodeReference } from '../hooks/use-node.js'
+import type { SpriteReference } from '../hooks/index.js'
 import { vector2 } from '../math/vector2.js'
 import type { Animation, AnimationKeyframe } from '../nodes/animation-player.js'
-import type { PrimaryNode } from '../nodes/index.js'
 import { Sprite } from '../nodes/node2d/sprite.js'
 import { multiKF } from './multiple.js'
 import { kfFromProp } from './properties.js'
@@ -113,8 +112,8 @@ export interface SpriteSheetAnimationOptions {
  *   loop: true,
  * })
  *
- * // Using a NodeReference (deferred)
- * const sprite = useNode(PrimaryNode.Sprite)
+ * // Using a SpriteReference (deferred)
+ * const sprite = useSprite()
  * const anim = animationFromSheet(sprite, TEXTURE, {
  *   columns: 4,
  *   duration: 1,
@@ -122,7 +121,7 @@ export interface SpriteSheetAnimationOptions {
  * ```
  */
 export function animationFromSheet(
-  sprite: Sprite | NodeReference<PrimaryNode.Sprite>,
+  sprite: Sprite | SpriteReference,
   textureId: symbol | null | undefined,
   options: SpriteSheetAnimationOptions,
 ): Animation {

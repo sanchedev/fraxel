@@ -202,12 +202,12 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
  * @example
  * ```tsx
  * import { loadTexture } from 'fraxel'
- * import { useNode } from 'fraxel/hooks'
+ * import { useSprite } from 'fraxel/hooks'
  *
  * const PLAYER_TEXTURE = await loadTexture('/assets/player.png')
  *
  * function Player() {
- *   const sprite = useNode(PrimaryNode.Sprite)
+ *   const sprite = useSprite()
  *
  *   return (
  *     <sprite

@@ -67,11 +67,10 @@ export interface GeometryOptions extends Node2DOptions<PrimaryNode.Geometry> {
  * @example
  * ```tsx
  * import { shapes } from 'fraxel'
- * import { useNode } from 'fraxel/hooks'
- * import { PrimaryNode } from 'fraxel'
+ * import { useGeometry } from 'fraxel/hooks'
  *
  * function Player() {
- *   const ref = useNode(PrimaryNode.Geometry)
+ *   const ref = useGeometry()
  *
  *   return (
  *     <geometry ref={ref} shape={shapes.rectangle(40, 40)} fillColor={[1, 0, 0, 1]} />

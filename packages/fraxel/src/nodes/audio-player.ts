@@ -58,15 +58,14 @@ export interface AudioPlayerOptions extends NodeOptions<PrimaryNode.AudioPlayer>
  *
  * @example
  * ```tsx
- * import { useNode, useEvent } from 'fraxel/hooks'
- * import { PrimaryNode } from 'fraxel'
+ * import { useClickable, useAudio, useTrigger } from 'fraxel/hooks'
  *
  * function Gun() {
- *   const audio = useNode(PrimaryNode.AudioPlayer)
- *   const clickable = useNode(PrimaryNode.Clickable)
+ *   const audio = useAudio()
+ *   const clickable = useClickable()
  *
- *   useEvent(clickable, 'click', () => {
- *     audio.node.play()
+ *   useTrigger(clickable.clicked, () => {
+ *     audio.play()
  *   })
  *
  *   return (
@@ -82,11 +81,11 @@ export interface AudioPlayerOptions extends NodeOptions<PrimaryNode.AudioPlayer>
  * @example
  * ```tsx
  * function Pea({ position }: { position: VectorLike }) {
- *   const audio = useNode(PrimaryNode.AudioPlayer)
- *   const collider = useNode(PrimaryNode.Collider)
+ *   const audio = useAudio()
+ *   const collider = useCollider()
  *
- *   useEvent(collider, 'colliderEntered', () => {
- *     audio.node.play()
+ *   useTrigger(collider.colliderEntered, () => {
+ *     audio.play()
  *     pea.node.destroy() // audio survives until sound finishes
  *   })
  *

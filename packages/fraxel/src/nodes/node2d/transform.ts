@@ -14,11 +14,10 @@ export interface TransformOptions extends Node2DOptions<PrimaryNode.Transform> {
  *
  * @example
  * ```tsx
- * import { useNode } from 'fraxel/hooks'
- * import { PrimaryNode } from 'fraxel'
+ * import { useTransform } from 'fraxel/hooks'
  *
  * function Player() {
- *   const body = useNode(PrimaryNode.Transform)
+ *   const body = useTransform()
  *
  *   return (
  *     <transform ref={body} position={[100, 200]}>
