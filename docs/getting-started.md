@@ -69,6 +69,26 @@ game.play()
 4. **`<Scene>`** — defines a scene with a name and component function
 5. **`game.play()`** — starts the `requestAnimationFrame` loop
 
+### Game Options
+
+The `<Game>` component accepts these props:
+
+| Prop           | Type      | Default | Description                                |
+| -------------- | --------- | ------- | ------------------------------------------ |
+| `width`        | `number`  | —       | Canvas width in pixels (required)          |
+| `height`       | `number`  | —       | Canvas height in pixels (required)         |
+| `defaultScene` | `string`  | —       | Name of the scene to load first (required) |
+| `pauseOnBlur`  | `boolean` | `false` | Pause game when window loses focus         |
+
+```tsx
+<Game width={192} height={112} defaultScene="main" pauseOnBlur>
+  <Scene name="main" component={scene} />
+</Game>
+```
+
+- `pauseOnBlur: true` — automatically pauses the game when the browser tab loses focus, and resumes when it regains focus.
+- The `requestAnimationFrame` loop always stops on blur; `pauseOnBlur` additionally sets `Game.paused = true`.
+
 ## Adding Interactivity
 
 Use hooks to add state, events, and reactivity:

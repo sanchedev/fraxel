@@ -293,3 +293,38 @@ function FallingRock() {
 - Access `physicsBody` for `applyForce()` and `applyImpulse()`.
 
 See [Physics](physics.md) for full documentation.
+
+## GameMode
+
+All nodes support a `gameMode` prop that controls their behavior relative to the game's pause state:
+
+```tsx
+import { GameMode } from 'fraxel'
+
+// This node updates even when the game is paused
+<transform gameMode={GameMode.ALWAYS}>
+  <text text="Pause Menu" />
+</transform>
+
+// This node only updates when the game is paused
+<transform gameMode={GameMode.PAUSED}>
+  <text text="Paused" />
+</transform>
+
+// This node never updates (but still draws)
+<transform gameMode={GameMode.NEVER}>
+  <sprite textureId={STATIC_BG} />
+</transform>
+```
+
+| Mode      | Updates when game plays | Updates when game pauses | Draws |
+| --------- | ----------------------- | ------------------------ | ----- |
+| `INHERIT` | Inherits from parent    | Inherits from parent     | Yes   |
+| `PLAYING` | Yes                     | No                       | Yes   |
+| `PAUSED`  | No                      | Yes                      | Yes   |
+| `ALWAYS`  | Yes                     | Yes                      | Yes   |
+| `NEVER`   | No                      | No                       | Yes   |
+
+- Default is `INHERIT` — resolves up the parent chain, defaulting to `PLAYING` at the root.
+- `gameMode` accepts `Reactive<GameMode>` for dynamic switching.
+- Collision and physics systems check the node's own `gameMode` to determine activity.

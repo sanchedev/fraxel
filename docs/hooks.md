@@ -8,7 +8,6 @@
 | `useSignal(initial)`            | Creates reactive state that triggers re-renders             |
 | `useComputed(fn)`               | Creates a derived signal that recomputes when deps change   |
 | `useMount(fn)`                  | Runs once on mount, cleanup on destroy                      |
-| `useGame()`                     | Access game controls (play, pause, changeScene)             |
 | `useAction(action)`             | Reactive action state (pressed, justPressed, justUnpressed) |
 | `useActionAxis(neg, pos)`       | Reactive axis from two opposing actions (-1, 0, or 1)       |
 | `useTrigger(trigger, callback)` | Pub/sub for cross-component communication                   |
@@ -57,11 +56,14 @@ class PlayerScript extends FraxelScript<PrimaryNode.Transform> {
 
 ## Derived Hooks
 
-| Hook                           | Description                               |
-| ------------------------------ | ----------------------------------------- |
-| `useCondition(on, off)`        | Reactive boolean toggled by two Triggers  |
-| `useMatch(signal, record)`     | Maps signal value to record (like switch) |
-| `useWhen(signal, true, false)` | Ternary expression for signals            |
+| Hook                           | Description                                |
+| ------------------------------ | ------------------------------------------ |
+| `useCondition(on, off)`        | Reactive boolean toggled by two Triggers   |
+| `useMatch(signal, record)`     | Maps signal value to record (like switch)  |
+| `useWhen(signal, true, false)` | Ternary expression for signals             |
+| `usePaused()`                  | Reactive pause state + play/pause controls |
+| `useSize()`                    | Game canvas dimensions as Vector2          |
+| `useScene()`                   | Scene manager access                       |
 
 ## useAction
 
@@ -543,6 +545,76 @@ const brightness = useWhen(isHovered, 1.2, 1.0)
 
 return <sprite brightness={brightness} />
 ```
+
+### usePaused
+
+Provides reactive access to the game's pause state and imperative controls to play or pause.
+
+```tsx
+import { usePaused, useEffect } from 'fraxel/hooks'
+import { Input } from 'fraxel'
+
+const Pause = Input.createAction({ key: 'p' })
+
+function PauseManager() {
+  const { paused, play, pause } = usePaused()
+
+  useEffect(() => {
+    if (Input.justActionPressed(Pause)) {
+      paused() ? play() : pause()
+    }
+  })
+
+  return null
+}
+```
+
+- `paused`: `SignalGetter<boolean>` — reactive pause state (read with `paused()`)
+- `play()`: unpauses the game
+- `pause()`: pauses the game
+
+### useSize
+
+Returns the game's canvas dimensions as a `Vector2`.
+
+```tsx
+import { useSize, useEffect } from 'fraxel/hooks'
+
+const size = useSize()
+
+useEffect(() => {
+  console.log(`Game size: ${size.x}x${size.y}`)
+})
+```
+
+- Returns `Vector2` with `x` (width) and `y` (height)
+
+### useScene
+
+Provides imperative access to the scene manager.
+
+```tsx
+import { useScene, useEffect } from 'fraxel/hooks'
+import { Input } from 'fraxel'
+
+const Restart = Input.createAction({ key: 'r' })
+
+function GameOver() {
+  const scene = useScene()
+
+  useEffect(() => {
+    if (Input.justActionPressed(Restart)) {
+      scene.change('game')
+    }
+  })
+
+  return <text text="Game Over" />
+}
+```
+
+- `current`: `string` — the current scene name
+- `change(name)`: switches to a different scene (pass `null` to unload)
+- `preload(name)`: preloads a scene, returns a cleanup function
 
 ## Signal
 
