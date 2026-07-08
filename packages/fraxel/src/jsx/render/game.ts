@@ -14,6 +14,7 @@ import {
 } from '../../errors/jsx.js'
 import { vector2, Vector2 } from '../../math/vector2.js'
 import { GameConfig } from '../../core/game-config.js'
+import type { SignalGetter } from '../../reactivity/types.js'
 
 /** The **`createGame`** function creates the game and returns an object with control methods that can be used to play, pause the game, change the scene, etc...
  *
@@ -68,6 +69,7 @@ export function createGame(jsx: Fraxel.Node, root: HTMLElement): GameControls {
   return {
     play: () => GameP.play(),
     pause: () => GameP.pause(),
+    paused: GameP.paused,
     destroy: () => GameP.destroy(),
     changeScene: (name) => {
       return GameP.sceneManager.setScene(name)
@@ -90,6 +92,11 @@ export interface GameControls {
    * The **`pause`** method pauses the game.
    */
   pause: () => void
+  /**
+   * The **`paused`** property indicates whether the game is currently paused.
+   * It is a reactive signal — read with `paused()`.
+   */
+  paused: SignalGetter<boolean>
   /**
    * The **`destroy`** method destroys the game.
    */
