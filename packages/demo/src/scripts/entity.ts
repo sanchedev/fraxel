@@ -1,15 +1,18 @@
-import { FraxelScript, PrimaryNode, Signal } from 'fraxel'
+import { FraxelScript, PrimaryNode } from 'fraxel'
+import { createSignal, signalSetterFrom } from 'fraxel/hooks'
 
 export abstract class EntityScript extends FraxelScript<PrimaryNode.Transform> {
-  abstract health: Signal<number>
+  health = createSignal(0)
+  setHealth = signalSetterFrom(this.health)
 
   setup(): void {
-    this.connect('destroyed', () => this.health.clearSubs())
+    this.connect('destroyed', () => this.health.signal.clearSubs())
   }
 
   applyDamage(damage: number) {
-    this.health.value -= damage
-    if (this.health.value <= 0) {
+    const newHealth = this.health() - damage
+    this.setHealth(newHealth)
+    if (newHealth <= 0) {
       this.me.destroy()
       return true
     }

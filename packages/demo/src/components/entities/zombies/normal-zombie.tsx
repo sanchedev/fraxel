@@ -56,7 +56,7 @@ export function NormalZombie({ position }: NormalZombieProps) {
   const groanAudio = useAudio()
   const chompAudio = useAudio()
 
-  const health = useComputed(() => zombie.script(ZombieScript)?.health.getter() ?? 181)
+  const health = useComputed(() => zombie.script(ZombieScript)?.health() ?? 181)
 
   const currentPlant = useComputed(() => getParentScript(raycast.collider(), PlantScript) ?? null)
   const currentState = useComputed(() => {

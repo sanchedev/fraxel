@@ -17,7 +17,7 @@ export function WallNut({ position, onDestroy }: PlantProps) {
   const sprite = useSprite()
 
   const wallNut = useTransform()
-  const health = useComputed(() => wallNut.script(PlantScript)?.health.getter() ?? 4000)
+  const health = useComputed(() => wallNut.script(PlantScript)?.health() ?? 4000)
 
   const currentState = useComputed(() => {
     if (health() > 3000) return 0
