@@ -1,4 +1,4 @@
-import { useContext, useGame, useEffect, useComputed, useUpdate } from 'fraxel/hooks'
+import { useContext, useEffect, useComputed, useUpdate, useSize } from 'fraxel/hooks'
 import { useCollider, useTransform, useAudio } from 'fraxel/hooks'
 import { getParentScript, loadSound, loadTexture, shapes, type VectorLike } from 'fraxel'
 import { RowCtx } from '../../../contexts/row'
@@ -33,7 +33,7 @@ export function Pea({ position }: { position: VectorLike }) {
     pea.node.destroy()
   })
 
-  const width = useGame().getSize().x
+  const { x: width } = useSize()
 
   useUpdate((delta) => {
     pea.node.position.x += delta * 4.5 * cellSize.x

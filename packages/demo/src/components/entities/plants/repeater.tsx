@@ -1,6 +1,6 @@
 import { animationFromSheet, getGlobalPosition, loadSound, loadTexture, shapes } from 'fraxel'
 import type { PlantProps } from '../../types.js'
-import { useContext, useGame, useEffect } from 'fraxel/hooks'
+import { useContext, useEffect, useSize } from 'fraxel/hooks'
 import { useRayCast, useAnimation, useSprite, useAudio } from 'fraxel/hooks'
 import { RowCtx, RowProjectileSpawnerCtx } from '../../../contexts/row.js'
 import { Pea } from '../projectiles/pea.js'
@@ -20,7 +20,7 @@ export function Repeater({ position, onDestroy }: PlantProps) {
   const raycast = useRayCast()
   const audio = useAudio()
 
-  const width = useGame().getSize().x
+  const { x: width } = useSize()
 
   useEffect(() => {
     if (anim.animName() !== 'shoot') return

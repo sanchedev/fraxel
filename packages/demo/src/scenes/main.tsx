@@ -28,9 +28,18 @@ function Player() {
   )
 }
 
+function Ball({ position }: { position: VectorLike }) {
+  return (
+    <rigid-body position={position} friction={0} bounce={1}>
+      <geometry shape={shapes.circle(10)} fillColor={[0.2, 1, 0.3, 1]} />
+      <collider shape={shapes.circle(10)} group={['ground']} collidesWith={['ground']} />
+    </rigid-body>
+  )
+}
+
 function Platform({ position, shape }: { position: VectorLike; shape: Shape }) {
   return (
-    <rigid-body isStatic position={position} friction={0}>
+    <rigid-body isStatic position={position} friction={0} bounce={1}>
       <geometry shape={shape} fillColor={[0.2, 0.3, 1, 1]} />
       <collider shape={shape} group={['ground']} collidesWith={['player']} />
     </rigid-body>
@@ -45,6 +54,7 @@ export default function Main() {
       <Platform position={[300, 300]} shape={shapes.rectangle(100, 20)} />
       <Platform position={[80, 220]} shape={shapes.rectangle(100, 20)} />
       <Platform position={[320, 140]} shape={shapes.rectangle(100, 20)} />
+      <Ball position={[10, 390]} />
       <Player />
     </transform>
   )
