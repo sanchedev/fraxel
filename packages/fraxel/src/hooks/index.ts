@@ -4,7 +4,6 @@ export * from './deriveds/index.js'
 export * from './nodes/index.js'
 
 export { useEffect } from './use-effect.js'
-export { useGame } from './use-game.js'
 export { useMount } from './use-mount.js'
 export { useRef } from './use-ref.js'
 export { useSignal, createSignal, signalSetterFrom } from './use-signal.js'
