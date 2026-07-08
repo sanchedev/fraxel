@@ -3,10 +3,24 @@
 > Build 2D games with JSX — no React, no virtual DOM, no re-renders.
 
 [![CI](https://github.com/sanchedev/fraxel/actions/workflows/ci.yml/badge.svg)](https://github.com/sanchedev/fraxel/actions)
-[![npm version](https://img.shields.io/badge/version-0.1.0--alpha.3-blue)](https://github.com/sanchedev/fraxel)
+[![npm version](https://img.shields.io/badge/version-0.1.0--alpha.4-blue)](https://github.com/sanchedev/fraxel)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 **fraxel** is a custom JSX runtime for building 2D games in the browser. JSX compiles directly to a declarative scene graph rendered to `<canvas>` — no reconciliation, no diffing, just signals driving properties.
+
+<p align="center">
+  <img src="https://github.com/sanchedev/fraxel/blob/main/docs/demo.gif" alt="Fraxel demo" width="700" />
+</p>
+
+## Install
+
+```bash
+npm install fraxel
+# or
+pnpm add fraxel
+# or
+yarn add fraxel
+```
 
 ## Example
 
@@ -34,7 +48,7 @@ function Player() {
   })
 
   return (
-    <rigid-body ref={rb} position={[80, 50]}>
+    <rigid-body ref={rb} position={[80, 50]} mass={1}>
       <sprite textureId={PLAYER} />
       <collider shape={shapes.rectangle(16, 16)} group={['player']} collidesWith={['ground']} />
     </rigid-body>
@@ -58,14 +72,6 @@ const game = createGame(
 )
 
 game.play()
-```
-
-## Install
-
-```bash
-pnpm add fraxel
-# or
-npm install fraxel
 ```
 
 ## Setup
@@ -121,13 +127,21 @@ function Player() {
     rb.applyImpulse([0, -400]) // imperative
   })
 
-  return <rigid-body ref={rb} /> // declarative — connects to node
+  return <rigid-body ref={rb} mass={1} /> // declarative — connects to node
 }
 ```
 
 ### Everything is a Node
 
 Sprites, cameras, rigid bodies, timers, animations, audio, text — everything is a node in the same scene graph. Same lifecycle, same hooks, same patterns.
+
+## Core Concepts
+
+Fraxel is built around three ideas:
+
+- **Nodes** describe your game. Sprites, cameras, rigid bodies, timers — everything is a node in the same scene graph with the same lifecycle (`start → update → destroy`).
+- **Hooks** interact with nodes. Native hooks (`useSprite`, `useCollider`, etc.) return typed references with reactive state and events.
+- **Signals** keep everything reactive. Properties accept `SignalGetter` functions that update automatically when dependencies change — no virtual DOM, no re-renders.
 
 ```
 <sprite>  ─┐
@@ -137,13 +151,7 @@ Sprites, cameras, rigid bodies, timers, animations, audio, text — everything i
 <audio>    ─┘
 ```
 
-## Core Concepts
-
-**Nodes** represent game entities. Each has a lifecycle (`start → update → destroy`) and participates in the scene graph.
-
-**Hooks** connect to nodes declaratively. Native hooks (`useSprite`, `useCollider`, etc.) return typed references with reactive state and events.
-
-**Signals** power the reactivity system. Properties accept `SignalGetter` functions that update automatically when dependencies change.
+JSX is the declarative language for building these scene graphs. Instead of manually synchronizing objects every frame, game state drives node properties directly through signals. The result is an API that feels familiar to frontend developers while remaining purpose-built for real-time rendering.
 
 ## Features
 
@@ -152,25 +160,13 @@ Sprites, cameras, rigid bodies, timers, animations, audio, text — everything i
 - **Typed Node References** — reactive state + events + methods
 - **Fine-grained Reactivity** — signals, not re-renders
 - **Physics & Collision Detection** — rigid bodies, spatial hash, raycasts
+- **GameMode** — per-node pause behavior (ALWAYS, PAUSED, INHERIT, etc.)
 - **Camera System** — zoom, offset, smoothing, shake
 - **Audio Playback** — sound loading and playback
 - **Animation & Tweening** — sprite sheets, easing, sequences
 - **Asset Loading** — batch loading with progress
 - **Input System** — actions, keyboard, pointer
 - **TypeScript-first** — strict, fully typed
-
-## Import Paths
-
-```tsx
-// Main entry — nodes, math, collision, input, assets, animation
-import { Input, shapes, loadTexture, Vector2 } from 'fraxel'
-
-// Hooks
-import { useSprite, useRigidBody, useEffect } from 'fraxel/hooks'
-
-// JSX components
-import { Game, Scene, List, Fragment } from 'fraxel/jsx'
-```
 
 ## Documentation
 
@@ -187,6 +183,19 @@ import { Game, Scene, List, Fragment } from 'fraxel/jsx'
 - [Input System](https://github.com/sanchedev/fraxel/blob/main/docs/input.md)
 - [Scripts](https://github.com/sanchedev/fraxel/blob/main/docs/scripts.md)
 - [Filters](https://github.com/sanchedev/fraxel/blob/main/docs/filters.md)
+
+## Package Exports
+
+```tsx
+// Main entry — nodes, math, collision, input, assets, animation
+import { Input, shapes, loadTexture, Vector2 } from 'fraxel'
+
+// Hooks
+import { useSprite, useRigidBody, useEffect } from 'fraxel/hooks'
+
+// JSX components
+import { Game, Scene, List, Fragment } from 'fraxel/jsx'
+```
 
 ## License
 
