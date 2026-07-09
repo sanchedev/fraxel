@@ -3,15 +3,17 @@ import type { Signal } from '../reactivity/signal.js'
 import { pushEffect } from './context.js'
 
 /**
- * The **`useEffect`** hook runs an effect function when the node starts and whenever any of the specified signals change.
- * Effect re-executions are batched — if multiple signals change synchronously,
- * the effect only runs once before the next frame.
+ * The **`useEffect`** hook runs an effect function when the node starts and whenever
+ * any of the specified signals change. Effect re-executions are batched — if multiple
+ * signals change synchronously, the effect only runs once before the next frame.
  * It also runs cleanup when the node is destroyed.
  *
  * @param fn The effect function. Can return a cleanup function.
  *
  * @example
  * ```tsx
+ * import { useSignal, useEffect } from 'fraxel/hooks'
+ *
  * const [count, setCount] = useSignal(0)
  *
  * useEffect(() => {

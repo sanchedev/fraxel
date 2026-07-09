@@ -1,11 +1,18 @@
 import { FraxelError } from './base.js'
 
 /**
- * The **`SceneError`** error is thrown when an error occurs during scene management, loading, or rendering.
+ * The **`SceneError`** class is the base error for all scene-related errors.
+ * Thrown when an error occurs during scene management, loading, or rendering.
+ *
  * @example
  * ```ts
- * // When this happens:
- * throw new SceneError('Scene operation failed')
+ * import { SceneError } from 'fraxel'
+ *
+ * try {
+ *   Game.changeScene('nonexistent')
+ * } catch (e) {
+ *   if (e instanceof SceneError) console.error('Scene issue:', e.message)
+ * }
  * ```
  */
 export class SceneError extends FraxelError {
@@ -16,11 +23,15 @@ export class SceneError extends FraxelError {
 }
 
 /**
- * The **`SceneNotFoundError`** error is thrown when attempting to access a scene that does not exist in the scene registry.
+ * The **`SceneNotFoundError`** class is thrown when attempting to access a scene
+ * that does not exist in the scene registry. This occurs when `Game.changeScene()`
+ * or `Game.preloadScene()` is called with a name that wasn't declared via `<Scene>`.
+ *
  * @example
  * ```ts
- * // When this happens:
- * throw new SceneNotFoundError('MainMenu')
+ * import { Game } from 'fraxel'
+ *
+ * Game.changeScene('MainMenu') // SceneNotFoundError: Scene "MainMenu" does not exist
  * ```
  */
 export class SceneNotFoundError extends SceneError {
@@ -30,11 +41,14 @@ export class SceneNotFoundError extends SceneError {
 }
 
 /**
- * The **`InvalidSceneRootError`** error is thrown when the root element of a scene is not a valid Node instance.
+ * The **`InvalidSceneRootError`** class is thrown when the root element returned by
+ * a scene's `component` function is not a valid Node instance. The component must
+ * return a single Node (e.g., `<transform>`, `<sprite>`).
+ *
  * @example
- * ```ts
- * // When this happens:
- * throw new InvalidSceneRootError()
+ * ```tsx
+ * // Thrown when scene component returns non-Node:
+ * const scene = () => null // InvalidSceneRootError
  * ```
  */
 export class InvalidSceneRootError extends SceneError {

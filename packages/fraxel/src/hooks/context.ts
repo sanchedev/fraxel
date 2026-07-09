@@ -3,7 +3,8 @@ import type { Node } from '../nodes/_node.js'
 import type { Context } from './use-context.js'
 
 /**
- * The **`HookContext`** interface represents the internal state of the hook system during a component render.
+ * The **`HookContext`** interface represents the internal state of the hook system
+ * during a component render. Tracks the current node, queued effects, and active context.
  */
 export interface HookContext {
   node: Node[] | null
@@ -18,6 +19,7 @@ export const currentContext: HookContext[] = []
 
 /**
  * The **`startHooks`** function initializes a new hook context for a component render.
+ * Must be called before any hooks are invoked.
  */
 export function startHooks() {
   currentContext.push({
@@ -27,7 +29,9 @@ export function startHooks() {
 }
 
 /**
- * The **`finishHooks`** function finalizes the hook context, executing all queued effects with the resolved nodes.
+ * The **`finishHooks`** function finalizes the hook context, executing all queued effects
+ * with the resolved nodes.
+ *
  * @param nodes The resolved node instances
  */
 export function finishHooks(node: Node[]) {
@@ -39,6 +43,7 @@ export function finishHooks(node: Node[]) {
 
 /**
  * The **`declareDerivedHook`** function validates that a derived hook is called inside a component.
+ *
  * @param hookName The name of the hook (for error reporting)
  */
 export function declareDerivedHook(hookName: string) {
@@ -49,6 +54,7 @@ export function declareDerivedHook(hookName: string) {
 
 /**
  * The **`pushEffect`** function queues an effect to be executed after hooks finish.
+ *
  * @param hookName The name of the hook (for error reporting)
  * @param effect The effect function to queue
  */

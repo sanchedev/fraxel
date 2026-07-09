@@ -8,7 +8,7 @@ import { FraxelScript } from '../../scripts/script.js'
 const nodeNamesMap = new Map<Node, PrimaryNode>()
 
 /**
- * Resolves a node instance to its `PrimaryNode` string key.
+ * The **`getNodeName`** function resolves a node instance to its `PrimaryNode` string key.
  * Used internally for descriptive error messages when node type mismatches occur.
  *
  * @param node The node instance to resolve
@@ -17,6 +17,8 @@ const nodeNamesMap = new Map<Node, PrimaryNode>()
  *
  * @example
  * ```ts
+ * import { getNodeName } from 'fraxel'
+ *
  * const name = getNodeName(mySpriteNode) // 'sprite'
  * ```
  */
@@ -40,7 +42,7 @@ export function getNodeName<T extends PrimaryNode>(node: NodeInstances[T]): T {
 }
 
 /**
- * Retrieves a parent's script if it matches the given class.
+ * The **`getParentScript`** function retrieves a parent's script if it matches the given class.
  * Walks up `node.parent?.script` and returns it if it's an instance of `scriptClass`.
  *
  * @param node The node whose parent to inspect
@@ -49,6 +51,8 @@ export function getNodeName<T extends PrimaryNode>(node: NodeInstances[T]): T {
  *
  * @example
  * ```ts
+ * import { getParentScript } from 'fraxel'
+ *
  * const plantScript = getParentScript(collider, PlantScript)
  * if (plantScript == null) return
  * plantScript.applyDamage(50)

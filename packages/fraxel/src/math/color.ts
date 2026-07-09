@@ -3,7 +3,8 @@ import { clamp } from './utils.js'
 
 /**
  * The **`Color`** class represents an RGBA color with channels in the `0`–`1` range.
- * All values are clamped on construction.
+ * All values are clamped on construction. Supports construction from tuples, objects,
+ * and individual channel values.
  *
  * @example
  * ```ts
@@ -104,17 +105,34 @@ export class Color {
   }
 
   /**
-   * Creates a copy of this color.
-   * @returns A new `Color` instance with the same RGBA values
+   * The **`clone`** method returns a new `Color` with the same RGBA values.
+   *
+   * @returns A new `Color` instance.
+   *
+   * @example
+   * ```ts
+   * const red = Color.RED
+   * const copy = red.clone()
+   * copy.r = 0
+   * console.log(red.r) // 1 (unchanged)
+   * ```
    */
   clone() {
     return new Color(this)
   }
 
   /**
-   * Checks equality with another color.
-   * @param colorLike The color to compare against
-   * @returns `true` if all RGBA channels match
+   * The **`equals`** method checks if this color has the same RGBA values as another.
+   *
+   * @param colorLike The color to compare against.
+   * @returns `true` if all RGBA channels match.
+   *
+   * @example
+   * ```ts
+   * const a = new Color(1, 0, 0)
+   * const b = new Color(1, 0, 0)
+   * a.equals(b) // true
+   * ```
    */
   equals(colorLike: ColorLike) {
     const color = new Color(colorLike)
@@ -122,16 +140,30 @@ export class Color {
   }
 
   /**
-   * Converts to a CSS `rgba()` string.
-   * @returns CSS color string, e.g. `"rgba(255, 0, 0, 1)"`
+   * The **`toCSS`** method converts this color to a CSS `rgba()` string.
+   *
+   * @returns CSS color string, e.g. `"rgba(255, 0, 0, 1)"`.
+   *
+   * @example
+   * ```ts
+   * const red = new Color(1, 0, 0)
+   * red.toCSS() // "rgba(255, 0, 0, 1)"
+   * ```
    */
   toCSS() {
     return `rgba(${this.r * 255}, ${this.g * 255}, ${this.b * 255}, ${this.a})`
   }
 
   /**
-   * Serializes to a plain object.
-   * @returns `{ r, g, b, a }` object with channel values
+   * The **`toJSON`** method serializes this color to a plain object.
+   *
+   * @returns `{ r, g, b, a }` object with channel values.
+   *
+   * @example
+   * ```ts
+   * const red = new Color(1, 0, 0)
+   * red.toJSON() // { r: 1, g: 0, b: 0, a: 1 }
+   * ```
    */
   toJSON() {
     return { r: this.r, g: this.g, b: this.b, a: this.a }
@@ -139,11 +171,13 @@ export class Color {
 }
 
 /**
- * A `ColorLike` value — anything that can be converted to a `Color`.
+ * The **`ColorLike`** type represents all accepted formats for color input.
+ * Can be a `Color` instance, `[r, g, b]` tuple, `[r, g, b, a]` tuple,
+ * `{ r, g, b }` object, or `{ r, g, b, a }` object.
  *
  * @example
  * ```ts
- * import { Color, color, type ColorLike } from 'fraxel'
+ * import { Color, type ColorLike } from 'fraxel'
  *
  * const a: ColorLike = new Color(1, 0, 0)       // Color instance
  * const b: ColorLike = [1, 0.5, 0]              // RGB tuple
@@ -160,7 +194,11 @@ export type ColorLike =
   | { r: number; g: number; b: number; a: number }
 
 /**
- * Creates a `Color` from a `ColorLike` value.
+ * The **`color`** function creates a `Color` from a `ColorLike` value.
+ * Convenience factory that delegates to the `Color` constructor.
+ *
+ * @param colorLike A `ColorLike` value to convert.
+ * @returns A new `Color` instance.
  *
  * @example
  * ```ts
@@ -171,8 +209,6 @@ export type ColorLike =
  * const fromArray = color([0.5, 0.5, 0.5])
  * const fromObject = color({ r: 1, g: 0.5, b: 0 })
  * ```
- *
- * @returns A new `Color` instance
  */
 export function color(colorLike: ColorLike): Color
 export function color(r: number, g: number, b: number): Color

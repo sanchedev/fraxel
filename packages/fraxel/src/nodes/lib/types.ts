@@ -19,6 +19,14 @@ import type { Group, GroupOptions } from '../group.js'
 /**
  * The **`NodeClasses`** interface maps each `PrimaryNode` to its class constructor.
  * Used internally by the node registry to instantiate nodes.
+ *
+ * @example
+ * ```ts
+ * import type { NodeClasses } from 'fraxel'
+ *
+ * // Access a node class from the registry
+ * const SpriteClass = Nodes[PrimaryNode.Sprite]
+ * ```
  */
 export interface NodeClasses {
   [PrimaryNode.Group]: typeof Group
@@ -39,6 +47,14 @@ export interface NodeClasses {
 /**
  * The **`NodesOptions`** interface maps each `PrimaryNode` to its options type.
  * Used to type-check constructor options when creating nodes.
+ *
+ * @example
+ * ```ts
+ * import type { NodesOptions } from 'fraxel'
+ *
+ * // Options are inferred from the node type
+ * type SpriteOpts = NodesOptions[PrimaryNode.Sprite]
+ * ```
  */
 export interface NodesOptions {
   [PrimaryNode.Group]: GroupOptions
@@ -61,6 +77,14 @@ type NodeName = keyof NodeClasses
 /**
  * The **`NodeInstances`** type maps each `PrimaryNode` to its class instance type.
  * Used to type node references and event subscriptions.
+ *
+ * @example
+ * ```ts
+ * import type { NodeInstances } from 'fraxel'
+ *
+ * // Instance type is inferred from the node type
+ * type SpriteInstance = NodeInstances[PrimaryNode.Sprite]
+ * ```
  */
 export type NodeInstances = {
   [P in NodeName]: InstanceType<NodeClasses[P]>
@@ -68,12 +92,28 @@ export type NodeInstances = {
 
 /**
  * The **`NodeToOptions`** type extracts the options type from a node class constructor.
+ *
+ * @example
+ * ```ts
+ * import type { NodeToOptions } from 'fraxel'
+ *
+ * // Extract options from a node class
+ * type SpriteOpts = NodeToOptions<typeof Sprite>
+ * ```
  */
 export type NodeToOptions<T extends typeof Node> = ConstructorParameters<T>[0]
 
 /**
  * The **`NodeEvents`** type maps each node type to its available events.
  * Used internally for type-safe event subscriptions.
+ *
+ * @example
+ * ```ts
+ * import type { NodeEvents } from 'fraxel'
+ *
+ * // Event map for a specific node type
+ * type SpriteEvents = NodeEvents[PrimaryNode.Sprite]
+ * ```
  */
 export type NodeEvents = {
   [P in NodeName]: {
@@ -91,6 +131,14 @@ type NodeEvent<T extends Node, K extends keyof T> =
 /**
  * The **`NodeEventListeners`** type maps each node event to its listener function type.
  * Used internally to type event callback parameters.
+ *
+ * @example
+ * ```ts
+ * import type { NodeEventListeners } from 'fraxel'
+ *
+ * // Listener type for a specific event
+ * type SpriteUpdated = NodeEventListeners[PrimaryNode.Sprite]['updated']
+ * ```
  */
 export type NodeEventListeners = {
   [P in keyof NodeEvents]: {

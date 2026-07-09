@@ -34,8 +34,8 @@ export interface TimerOptions extends NodeOptions<PrimaryNode.Timer> {
 }
 
 /**
- * The **`Timer`** node counts up to a duration and emits events when time changes or the timer completes.
- * It has no visual representation but can contain child nodes.
+ * The **`Timer`** node counts up to a duration and emits events when time changes
+ * or the timer completes. It has no visual representation but can contain child nodes.
  *
  * @example
  * ```tsx
@@ -62,10 +62,16 @@ export class Timer extends Node<PrimaryNode.Timer> {
   #counter = 0
   /**
    * The **`duration`** property defines the total duration of the timer in seconds.
+   * Accepts a reactive getter via the `duration` option.
    */
   duration: number
   #isPlaying = false
 
+  /**
+   * Creates a new `Timer` node.
+   *
+   * @param options Timer configuration options
+   */
   constructor(options: TimerOptions) {
     super(PrimaryNode.Timer, options)
     this.duration = propSignal(this, 'duration', options.duration)
@@ -85,6 +91,7 @@ export class Timer extends Node<PrimaryNode.Timer> {
 
   /**
    * The **`play`** method starts or resumes the timer.
+   *
    * @param from Optional time in seconds to start from. Clamped to `[0, duration]`.
    *
    * @example

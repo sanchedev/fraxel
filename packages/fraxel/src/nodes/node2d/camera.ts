@@ -9,11 +9,11 @@ import type { Bounds } from '../../math/bounds.js'
 import { clamp } from '../../math/utils.js'
 
 /**
- * Options for the `Camera` node.
+ * The **`CameraOptions`** interface defines the configuration for a `Camera` node.
  */
 export interface CameraOptions extends Node2DOptions<PrimaryNode.Camera> {
   /**
-   * Whether this camera is the active one controlling the viewport.
+   * The **`current`** property makes this camera the active one controlling the viewport.
    * Only one camera should be `current` at a time.
    *
    * @default false
@@ -21,7 +21,7 @@ export interface CameraOptions extends Node2DOptions<PrimaryNode.Camera> {
   current?: boolean
   /**
    * The **`zoom`** property scales the viewport.
-   * Accepts a number (uniform) or VectorLike for non-uniform zoom.
+   * Accepts a number (uniform) or `VectorLike` for non-uniform zoom.
    *
    * @default 1
    */
@@ -35,8 +35,7 @@ export interface CameraOptions extends Node2DOptions<PrimaryNode.Camera> {
   offset?: Reactive<VectorLike>
   /**
    * The **`smoothing`** property controls how fast the view position catches up
-   * to the camera's actual globalPosition. `0` = instant (no interpolation),
-   * higher values = smoother easing.
+   * to the camera's actual `globalPosition`. `0` = instant, higher values = smoother easing.
    * Uses exponential interpolation: `factor = 1 - Math.exp(-smoothing * delta)`.
    *
    * @default 0
@@ -50,24 +49,28 @@ export interface CameraOptions extends Node2DOptions<PrimaryNode.Camera> {
 }
 
 /**
- * The **`Camera`** node controls the viewport by applying a transform
- * before the scene tree is drawn. It supports position, zoom,
- * smoothed view position, world bounds, screen shake, and coordinate conversion.
+ * The **`Camera`** node controls the viewport by applying a transform before the scene tree is drawn.
+ * Supports position, zoom, smoothed view position, world bounds, screen shake, and coordinate conversion.
  *
- * Place the Camera in your scene and mark it as `current` to control the view.
+ * Place the `Camera` in your scene and mark it as `current` to control the view.
  * The view position can be smoothed for cinematic easing, and limits are enforced
  * on the smoothed view position.
  *
  * @example
  * ```tsx
- * import { useCamera } from 'fraxel/hooks'
+ * import { useCamera, useEffect } from 'fraxel/hooks'
  *
  * function GameScene() {
  *   const camera = useCamera()
  *
+ *   useEffect(() => {
+ *     camera.makeCurrent()
+ *     camera.shake({ duration: 0.5, strength: 10 })
+ *   })
+ *
  *   return (
  *     <>
- *       <camera ref={camera} current smoothing={8} offset={[0, -40]} />
+ *       <camera ref={camera} smoothing={8} offset={[0, -40]} />
  *       <transform position={[200, 300]}>
  *         <sprite textureId={playerTexture} />
  *       </transform>
@@ -80,7 +83,7 @@ export class Camera extends Node2D<PrimaryNode.Camera> {
   static #instances: Camera[] = []
   static #current: Camera | null = null
 
-  /** Returns the currently active camera, or `null` if none exists. */
+  /** The **`getCurrent`** method returns the currently active camera, or `null` if none exists. */
   static getCurrent(): Camera | null {
     return Camera.#current
   }
@@ -121,24 +124,24 @@ export class Camera extends Node2D<PrimaryNode.Camera> {
   }
 
   /**
-   * Makes this camera the active one controlling the viewport.
+   * The **`makeCurrent`** method makes this camera the active one controlling the viewport.
    * Automatically deactivates the previous current camera.
    */
   makeCurrent(): void {
     Camera.#current = this
   }
 
-  /** Gets the current zoom level as a Vector2. */
+  /** The **`zoom`** property gets or sets the viewport scale as a `Vector2`. */
   get zoom(): Vector2 {
     return this.#zoom
   }
 
-  /** Sets the zoom level. Accepts a Vector2. */
+  /** Sets the viewport scale. */
   set zoom(value: Vector2) {
     this.#zoom = value
   }
 
-  /** Gets the screen-space offset. */
+  /** The **`offset`** property gets or sets the screen-space offset. */
   get offset(): Vector2 {
     return this.#offset
   }
@@ -148,29 +151,29 @@ export class Camera extends Node2D<PrimaryNode.Camera> {
     this.#offset = value
   }
 
-  /** Gets the smoothing factor. */
+  /** The **`smoothing`** property gets or sets the view smoothing factor. */
   get smoothing(): number {
     return this.#smoothing
   }
 
-  /** Sets the smoothing factor. */
+  /** Sets the smoothing factor. `0` = instant, higher = smoother. */
   set smoothing(value: number) {
     this.#smoothing = value
   }
 
-  /** Gets the world-space limits. */
+  /** The **`limit`** property gets or sets the world-space bounds. */
   get limit(): Bounds | null {
     return this.#limit
   }
 
-  /** Sets the world-space limits. Pass null to remove limits. */
+  /** Sets the world-space bounds. Pass `null` to remove limits. */
   set limit(value: Bounds | null) {
     this.#limit = value
   }
 
   /**
-   * Triggers a screen shake effect.
-   * @param options Shake configuration.
+   * The **`shake`** method triggers a screen shake effect.
+   * @param options - Shake configuration with `duration` (seconds) and `strength` (pixels).
    */
   shake(options: { duration: number; strength: number }): void {
     this.#shakeDuration = options.duration
@@ -179,8 +182,8 @@ export class Camera extends Node2D<PrimaryNode.Camera> {
   }
 
   /**
-   * Converts a screen-space position to world-space.
-   * @param screenPos Position in screen coordinates.
+   * The **`screenToWorld`** method converts a screen-space position to world-space.
+   * @param screenPos - Position in screen coordinates.
    * @returns Position in world coordinates.
    */
   screenToWorld(screenPos: Vector2): Vector2 {
@@ -191,8 +194,8 @@ export class Camera extends Node2D<PrimaryNode.Camera> {
   }
 
   /**
-   * Converts a world-space position to screen-space.
-   * @param worldPos Position in world coordinates.
+   * The **`worldToScreen`** method converts a world-space position to screen-space.
+   * @param worldPos - Position in world coordinates.
    * @returns Position in screen coordinates.
    */
   worldToScreen(worldPos: Vector2): Vector2 {
@@ -203,8 +206,9 @@ export class Camera extends Node2D<PrimaryNode.Camera> {
   }
 
   /**
-   * Applies the camera transform to the canvas context.
+   * The **`apply`** method applies the camera transform to the canvas context.
    * Called by the Game loop before drawing the scene tree.
+   * @param ctx - The canvas rendering context.
    */
   apply(ctx: CanvasRenderingContext2D): void {
     const pos = this.#viewPosition

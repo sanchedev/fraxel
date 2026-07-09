@@ -59,11 +59,20 @@ export class AnimationReference extends NodeReference<PrimaryNode.AnimationPlaye
   /** Fires when the animation reaches the end. */
   animationEnded = new Trigger<[anim: string]>()
 
-  /** Plays an animation by name, optionally starting at a specific frame. */
+  /**
+   * Plays an animation by name, optionally starting at a specific frame.
+   *
+   * @param animName The name of the animation to play
+   * @param index Optional frame index to start from
+   */
   play: (animName: string, index?: number) => void = () => {}
   /** Stops the current animation. */
   stop: () => void = () => {}
-  /** Sets the next animation to play after the current one ends. Pass `null` to clear. */
+  /**
+   * Sets the next animation to play after the current one ends.
+   *
+   * @param animName The animation name, or `null` to clear the queue
+   */
   setNext: (animName: string | null) => void = () => {}
 
   constructor() {

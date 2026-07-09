@@ -44,11 +44,27 @@ export class CameraReference extends Node2DReference<PrimaryNode.Camera> {
 
   /** Makes this camera the active camera for the scene. */
   makeCurrent: () => void = () => {}
-  /** Triggers a camera shake effect. */
+  /**
+   * Triggers a camera shake effect.
+   *
+   * @param options The shake configuration
+   * @param options.duration Duration of the shake in seconds
+   * @param options.strength Maximum displacement in pixels
+   */
   shake: (options: { duration: number; strength: number }) => void = () => {}
-  /** Converts screen coordinates to world coordinates. */
+  /**
+   * Converts screen coordinates to world coordinates.
+   *
+   * @param screenPos The screen position to convert
+   * @returns The corresponding world position
+   */
   screenToWorld: (screenPos: VectorLike) => Vector2 = (pos) => vectorize(pos)
-  /** Converts world coordinates to screen coordinates. */
+  /**
+   * Converts world coordinates to screen coordinates.
+   *
+   * @param worldPos The world position to convert
+   * @returns The corresponding screen position
+   */
   worldToScreen: (worldPos: VectorLike) => Vector2 = (pos) => vectorize(pos)
 
   constructor() {

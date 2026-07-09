@@ -3,7 +3,8 @@ import { PrimaryNode } from './lib/enum.js'
 import { Nodes } from './lib/registry.js'
 
 /**
- * Options for the `Group` node.
+ * The **`GroupOptions`** interface defines the options for a `Group` node.
+ * Extends `NodeOptions` with `PrimaryNode.Group`.
  */
 export interface GroupOptions extends NodeOptions<PrimaryNode.Group> {}
 
@@ -51,6 +52,11 @@ export interface GroupOptions extends NodeOptions<PrimaryNode.Group> {}
  * ```
  */
 export class Group extends Node<PrimaryNode.Group> {
+  /**
+   * Creates a new `Group` node.
+   *
+   * @param options Group configuration options
+   */
   constructor(options: GroupOptions) {
     super(PrimaryNode.Group, options)
   }

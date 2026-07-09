@@ -1,11 +1,18 @@
 import { FraxelError } from './base.js'
 
 /**
- * The **`MathError`** error is thrown when an error occurs in math operations.
+ * The **`MathError`** class is the base error for all math-related errors.
+ * Thrown when an error occurs in math operations such as vector, color, or bounds construction.
+ *
  * @example
  * ```ts
- * // When this happens:
- * throw new MathError('Math operation failed')
+ * import { MathError } from 'fraxel'
+ *
+ * try {
+ *   vector2(invalidValue)
+ * } catch (e) {
+ *   if (e instanceof MathError) console.error('Math issue:', e.message)
+ * }
  * ```
  */
 export class MathError extends FraxelError {
@@ -16,13 +23,19 @@ export class MathError extends FraxelError {
 }
 
 /**
- * The **`InvalidBoundsLikeError`** error is thrown when a value is not a valid BoundsLike.
- * A BoundsLike is a `Bounds` instance, number, `[horizontal, vertical]` tuple,
- * `[left, top, right, bottom]` tuple, or object with `left/top/right/bottom` or `horizontal/vertical` properties.
+ * The **`InvalidBoundsLikeError`** class is thrown when a value passed to `bounds()` or
+ * a `Bounds` constructor is not a valid `BoundsLike`. Accepted formats: `Bounds` instance,
+ * `number`, `[horizontal, vertical]` tuple, `[left, top, right, bottom]` tuple, or
+ * `{ left, top, right, bottom }` / `{ horizontal, vertical }` object.
+ *
  * @example
  * ```ts
- * // When this happens:
- * throw new InvalidBoundsLikeError(null)
+ * import { bounds } from 'fraxel'
+ *
+ * bounds(null)      // throws InvalidBoundsLikeError
+ * bounds(undefined) // throws InvalidBoundsLikeError
+ * bounds([1, 2])    // works — [horizontal, vertical]
+ * bounds(10)        // works — uniform bounds
  * ```
  */
 export class InvalidBoundsLikeError extends MathError {
@@ -41,12 +54,18 @@ export class InvalidBoundsLikeError extends MathError {
 }
 
 /**
- * The **`InvalidColorLikeError`** error is thrown when a value is not a valid ColorLike.
- * A ColorLike is a `Color` instance, `[red, green, blue]` tuple, `[red, green, blue, alpha]` tuple, or object with `red/green/blue` or `red/green/blue/alpha` properties.
+ * The **`InvalidColorLikeError`** class is thrown when a value passed to `color()` or
+ * a `Color` constructor is not a valid `ColorLike`. Accepted formats: `Color` instance,
+ * `[red, green, blue]` tuple, `[red, green, blue, alpha]` tuple, or
+ * `{ r, g, b }` / `{ r, g, b, a }` object.
+ *
  * @example
  * ```ts
- * // When this happens:
- * throw new InvalidColorLikeError(null)
+ * import { color } from 'fraxel'
+ *
+ * color(null)      // throws InvalidColorLikeError
+ * color([1, 0, 0]) // works — red
+ * color(0.5)       // throws InvalidColorLikeError — number not accepted
  * ```
  */
 export class InvalidColorLikeError extends MathError {
@@ -65,11 +84,18 @@ export class InvalidColorLikeError extends MathError {
 }
 
 /**
- * The **`InvalidVectorLikeError`** error is thrown when a value is not a valid VectorLike (Vector2, {x, y} object, [x, y] tuple, or number).
+ * The **`InvalidVectorLikeError`** class is thrown when a value passed to `vector2()` or
+ * a `Vector2` constructor is not a valid `VectorLike`. Accepted formats: `Vector2` instance,
+ * `{ x, y }` object, `[x, y]` tuple, or a single `number` (sets both x and y).
+ *
  * @example
  * ```ts
- * // When this happens:
- * throw new InvalidVectorLikeError(null)
+ * import { vector2 } from 'fraxel'
+ *
+ * vector2(null)       // throws InvalidVectorLikeError
+ * vector2([1, 2])     // works — Vector2(1, 2)
+ * vector2({ x: 1 })  // throws InvalidVectorLikeError — missing y
+ * vector2(5)          // works — Vector2(5, 5)
  * ```
  */
 export class InvalidVectorLikeError extends MathError {

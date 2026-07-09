@@ -6,7 +6,7 @@ import { getAudioContext } from '../audio/audio-context.js'
 import { getSound } from '../assets/load-sound.js'
 
 /**
- * Options for the `AudioPlayer` node.
+ * The **`AudioPlayerOptions`** interface defines the options for an `AudioPlayer` node.
  */
 export interface AudioPlayerOptions extends NodeOptions<PrimaryNode.AudioPlayer> {
   /**
@@ -21,16 +21,19 @@ export interface AudioPlayerOptions extends NodeOptions<PrimaryNode.AudioPlayer>
   soundId: symbol
   /**
    * The **`loop`** property determines whether the sound loops.
+   *
    * @default false
    */
   loop?: boolean
   /**
    * The **`volume`** property sets the playback volume (0 to 1).
+   *
    * @default 1
    */
   volume?: number
   /**
    * The **`playbackRate`** property sets the playback speed.
+   *
    * @default 1
    */
   playbackRate?: number
@@ -112,6 +115,11 @@ export class AudioPlayer extends Node<PrimaryNode.AudioPlayer> {
   #pauseOffset = 0
   #isPlaying = false
 
+  /**
+   * Creates a new `AudioPlayer` node.
+   *
+   * @param options AudioPlayer configuration options
+   */
   constructor(options: AudioPlayerOptions) {
     super(PrimaryNode.AudioPlayer, options)
     this.#soundId = options.soundId
@@ -121,14 +129,20 @@ export class AudioPlayer extends Node<PrimaryNode.AudioPlayer> {
     this.#persistUntilEnd = options.persistUntilEnd ?? false
   }
 
-  /** The `ended` event fires when playback reaches the end (non-looping only). */
+  /**
+   * The **`ended`** event fires when playback reaches the end (non-looping only).
+   */
   ended = new Event('ended', () => {})
 
-  /** The `error` event fires if playback fails. */
+  /**
+   * The **`error`** event fires if playback fails.
+   * The callback receives the error that caused the failure.
+   */
   error = new Event('error', (_err: Error) => {})
 
   /**
-   * Starts or resumes playback.
+   * The **`play`** method starts or resumes playback.
+   *
    * @param offset Time in seconds to start from (default: 0 or pause position)
    */
   play(offset?: number): void {
@@ -169,7 +183,9 @@ export class AudioPlayer extends Node<PrimaryNode.AudioPlayer> {
     }
   }
 
-  /** Pauses playback without resetting position. */
+  /**
+   * The **`pause`** method pauses playback without resetting position.
+   */
   pause(): void {
     if (!this.#isPlaying || this.#source == null) return
     const ctx = getAudioContext()
@@ -177,7 +193,9 @@ export class AudioPlayer extends Node<PrimaryNode.AudioPlayer> {
     this.stop()
   }
 
-  /** Stops playback and resets position to 0. */
+  /**
+   * The **`stop`** method stops playback and resets position to 0.
+   */
   stop(): void {
     if (this.#source != null) {
       this.#source.onended = null
@@ -191,12 +209,16 @@ export class AudioPlayer extends Node<PrimaryNode.AudioPlayer> {
     this.#isPlaying = false
   }
 
-  /** Whether the sound is currently playing. */
+  /**
+   * The read-only **`isPlaying`** property returns whether the sound is currently playing.
+   */
   get isPlaying() {
     return this.#isPlaying
   }
 
-  /** Sets the volume (0 to 1). */
+  /**
+   * The **`volume`** property gets or sets the playback volume (0 to 1).
+   */
   set volume(value: number) {
     this.#volume = value
     if (this.#gainNode != null) {
@@ -204,12 +226,16 @@ export class AudioPlayer extends Node<PrimaryNode.AudioPlayer> {
     }
   }
 
-  /** Gets the current volume. */
+  /**
+   * The read-only **`volume`** property returns the current volume.
+   */
   get volume() {
     return this.#volume
   }
 
-  /** Sets the playback rate. */
+  /**
+   * The **`playbackRate`** property gets or sets the playback speed.
+   */
   set playbackRate(value: number) {
     this.#playbackRate = value
     if (this.#source != null) {
@@ -217,12 +243,14 @@ export class AudioPlayer extends Node<PrimaryNode.AudioPlayer> {
     }
   }
 
-  /** Gets the current playback rate. */
+  /**
+   * The read-only **`playbackRate`** property returns the current playback rate.
+   */
   get playbackRate() {
     return this.#playbackRate
   }
 
-  /** @internal Cleans up audio resources on destroy. */
+  /** @internal Cleans up audio resources on destroy. Respects `persistUntilEnd`. */
   destroy(): void {
     if (this.#persistUntilEnd && this.#isPlaying) {
       this.isDestroyed = true

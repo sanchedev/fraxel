@@ -2,34 +2,40 @@ import { loadTexture } from './load-texture.js'
 import { loadSound } from './load-sound.js'
 
 /**
- * Options for batch loading.
+ * The **`LoaderOptions`** interface configures batch loading behavior.
  */
 export interface LoaderOptions {
   /**
    * Callback invoked as assets finish loading.
-   * @param loaded Number of assets loaded so far
-   * @param total Total number of assets to load
+   *
+   * @param loaded Number of assets loaded so far.
+   * @param total Total number of assets to load.
    */
   onProgress?: (loaded: number, total: number) => void
 }
 
 /**
- * Asset type for `loadBatchAsset`.
+ * The **`AssetType`** type specifies the type of asset for `loadBatchAsset`.
+ * - `'texture'` — loads via `loadTexture`
+ * - `'sound'` — loads via `loadSound`
  */
 export type AssetType = 'texture' | 'sound'
 
 /**
- * Loads multiple assets in parallel with progress tracking.
- * Each loader is a function that returns a promise.
+ * The **`loadBatch`** function loads multiple assets in parallel with progress
+ * tracking. Each loader is a function that returns a promise.
  *
- * @param loaders Array of loader functions
- * @param options Loading options
- * @returns Array of results in the same order as the input loaders
+ * @param loaders Array of loader functions.
+ * @param options Optional loading options.
+ * @returns Array of results in the same order as the input loaders.
  *
  * @example
  * ```ts
- * const [bg, player] = await loadBatch([
+ * import { loadBatch, loadTexture, loadSound } from 'fraxel'
+ *
+ * const [bg, player, shoot] = await loadBatch([
  *   () => loadTexture('/assets/bg.png'),
+ *   () => loadTexture('/assets/player.png'),
  *   () => loadSound('/assets/shoot.ogg'),
  * ], {
  *   onProgress: (loaded, total) => console.log(`${loaded}/${total}`),
@@ -54,15 +60,18 @@ export async function loadBatch<T>(
 }
 
 /**
- * Loads multiple assets of the same type in parallel with progress tracking.
+ * The **`loadBatchAsset`** function loads multiple assets of the same type
+ * in parallel with progress tracking.
  *
- * @param type Asset type: `'texture'` or `'sound'`
- * @param urls Array of URLs to load
- * @param options Loading options
- * @returns Array of symbol IDs in the same order as the input URLs
+ * @param type Asset type: `'texture'` or `'sound'`.
+ * @param urls Array of URLs to load.
+ * @param options Optional loading options.
+ * @returns Array of symbol IDs in the same order as the input URLs.
  *
  * @example
  * ```ts
+ * import { loadBatchAsset } from 'fraxel'
+ *
  * const [bg, player] = await loadBatchAsset('texture', [
  *   '/assets/bg.png',
  *   '/assets/player.png',

@@ -3,8 +3,29 @@ import { PrimaryNode } from '../nodes/lib/enum.js'
 import type { Collider } from '../nodes/node2d/collider.js'
 
 /**
- * Warns if a RigidBody has collider descendants that are not direct children.
- * Colliders must be direct children of RigidBody to participate in physics.
+ * The **`warnNestedColliders`** function logs a console warning if a `RigidBody` node
+ * has `Collider` descendants that are not direct children. Colliders must be direct
+ * children of a `RigidBody` to participate in physics simulation. Nested colliders
+ * will not be detected by the physics system.
+ *
+ * @param node The root node to inspect for nested colliders.
+ *
+ * @example
+ * ```tsx
+ * import { warnNestedColliders } from 'fraxel'
+ *
+ * // This triggers a warning:
+ * <rigid-body>
+ *   <transform>
+ *     <collider shape={shapes.rectangle(32, 32)} /> // nested — won't work
+ *   </transform>
+ * </rigid-body>
+ *
+ * // This does NOT trigger a warning:
+ * <rigid-body>
+ *   <collider shape={shapes.rectangle(32, 32)} /> // direct child — works
+ * </rigid-body>
+ * ```
  */
 export function warnNestedColliders(node: Node): void {
   const directChildren = new Set(node.children)

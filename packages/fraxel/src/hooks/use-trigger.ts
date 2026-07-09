@@ -2,14 +2,16 @@ import type { Fun } from '../events/types.js'
 import { pushEffect } from './context.js'
 
 /**
- * The **`createTrigger`** function creates a new `Trigger` instance for pub/sub communication
- * between components without node events.
+ * The **`createTrigger`** function creates a new `Trigger` instance for pub/sub
+ * communication between components without node events.
  *
  * @typeParam T The argument types for the trigger callbacks
  * @returns A new `Trigger` instance
  *
  * @example
  * ```ts
+ * import { createTrigger } from 'fraxel/hooks'
+ *
  * const planted = createTrigger<[Plant]>()
  * ```
  */
@@ -25,6 +27,8 @@ export function createTrigger<T extends any[] = any[]>() {
  *
  * @example
  * ```tsx
+ * import { createTrigger, useTrigger } from 'fraxel/hooks'
+ *
  * const planted = createTrigger<[Plant]>()
  *
  * useTrigger(planted, (plant) => {
@@ -49,6 +53,8 @@ export function useTrigger<T extends Trigger<any[]>>(trigger: T, fn: Parameters<
  *
  * @example
  * ```ts
+ * import { createTrigger } from 'fraxel/hooks'
+ *
  * const trigger = createTrigger<[number]>()
  *
  * trigger.connect((value) => console.log(value))

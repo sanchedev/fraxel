@@ -3,7 +3,7 @@ import type { Fraxel } from '../jsx/types.js'
 import { currentContext, pushEffect } from './context.js'
 
 /**
- * The **`createContext`** hook creates a context with a default value.
+ * The **`createContext`** function creates a context with a default value.
  * Use the returned context's `Provider` to provide values to descendant nodes.
  *
  * @param defaultValue The default value for the context
@@ -11,6 +11,8 @@ import { currentContext, pushEffect } from './context.js'
  *
  * @example
  * ```tsx
+ * import { createContext, useContext } from 'fraxel/hooks'
+ *
  * const ThemeCtx = createContext('light')
  *
  * function App() {
@@ -39,6 +41,8 @@ export function createContext<T>(defaultValue: T) {
  *
  * @example
  * ```tsx
+ * import { createContext, useContext } from 'fraxel/hooks'
+ *
  * const ThemeCtx = createContext('light')
  *
  * function Child() {

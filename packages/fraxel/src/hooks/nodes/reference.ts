@@ -117,6 +117,26 @@ export class NodeReference<T extends PrimaryNode = PrimaryNode> {
     if (node.script instanceof scriptClass) return node.script as InstanceType<K>
   }
 
+  /**
+   * Spawns a JSX element as a child of the referenced node.
+   *
+   * @param jsx The JSX element to spawn as a child
+   *
+   * @example
+   * ```tsx
+   * import { useGroup, useTrigger } from 'fraxel/hooks'
+   *
+   * function Container() {
+   *   const group = useGroup()
+   *
+   *   useTrigger(spawnEnemy, () => {
+   *     group.spawn(<sprite textureId={ENEMY} position={[0, 0]} />)
+   *   })
+   *
+   *   return <group ref={group} />
+   * }
+   * ```
+   */
   spawn(jsx: Fraxel.Node) {
     const currentCtx = currentContext.slice()
 

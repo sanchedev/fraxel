@@ -1,31 +1,43 @@
 import type { Theme } from './theme.js'
 import { Vector2 } from '../math/vector2.js'
 
+/**
+ * The **`GameConfig`** class is a static singleton that holds the canvas, context,
+ * dimensions, theme, and test options for the game. Accessed internally by the
+ * rendering pipeline.
+ */
 export class GameConfig {
-  /** The `canvas` of the `Game` */
+  /** The game's `HTMLCanvasElement`. */
   static canvas: HTMLCanvasElement
-  /** The `context` of the `canvas` */
+  /** The canvas `CanvasRenderingContext2D`. */
   static ctx: CanvasRenderingContext2D
-  /** The `width` of the `canvas` */
+  /** The logical width of the canvas. */
   static width: number
-  /** The `height` of the `canvas` */
+  /** The logical height of the canvas. */
   static height: number
 
-  /** The `theme` of the `Game` */
+  /** The game's default `Theme`. */
   static theme: Theme
 
-  /** The `testOptions` of the `Game` */
+  /** Debug rendering options. */
   static testOptions: TestOptions
 
-  /** The `translate` represents the global translation of the `Game` */
+  /** The global translation offset used by the camera system. */
   static translate = Vector2.ZERO
 }
 
+/**
+ * The **`TestOptions`** interface configures debug visualization overlays.
+ */
 export interface TestOptions {
+  /** Show collider shapes overlaid on sprites. */
   showColliders: boolean
+  /** Show raycast lines. */
   showRayCasts: boolean
+  /** Show clickable hit areas. */
   showClickables: boolean
 }
+
 const defaultTestOptions: TestOptions = {
   showColliders: false,
   showRayCasts: false,

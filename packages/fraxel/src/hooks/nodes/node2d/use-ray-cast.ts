@@ -85,6 +85,29 @@ export class RayCastReference extends Node2DReference<PrimaryNode.RayCast> {
     )
   }
 
+  /**
+   * Returns the currently detected collider, or `null` if none is detected.
+   *
+   * @returns The detected `Collider` or `null`
+   *
+   * @example
+   * ```tsx
+   * import { useRayCast, useEffect } from 'fraxel/hooks'
+   *
+   * function Detector() {
+   *   const raycast = useRayCast()
+   *
+   *   useEffect(() => {
+   *     const hit = raycast.getCollider()
+   *     if (hit) {
+   *       console.log('Hit:', hit)
+   *     }
+   *   })
+   *
+   *   return <ray-cast ref={raycast} direction={[1, 0]} collidesWith={['enemy']} />
+   * }
+   * ```
+   */
   getCollider(): Collider | null {
     return this.node.getCollider()
   }

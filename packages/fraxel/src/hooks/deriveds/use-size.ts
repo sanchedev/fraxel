@@ -10,7 +10,7 @@ import { declareDerivedHook } from '../context'
  * @example
  * ```tsx
  * import { useSize, useEffect } from 'fraxel/hooks'
-
+ *
  * const size = useSize()
  *
  * useEffect(() => {

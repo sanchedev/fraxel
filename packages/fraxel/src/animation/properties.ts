@@ -2,30 +2,23 @@ import type { AnimationKeyframe } from '../nodes/animation-player.js'
 import type { Node } from '../nodes/_node.js'
 
 /**
- * The **`kfFromProp`** function returns a keyframe that sets a property in a `Node`.
- * @param node A instance of `Node`
- * @param property A key
- * @param value A value
- * @returns A keyframe
+ * The **`kfFromProp`** function creates a keyframe that sets a property on a `Node`.
+ * The property is assigned the given value when the keyframe is executed.
+ *
+ * @param node The node instance to modify.
+ * @param property The property name to set.
+ * @param value The value to assign.
+ * @returns A keyframe function.
  *
  * @example
  * ```ts
- * // Assumes `animPlayer` is an AnimationPlayer and `sprite` is a Sprite node
- * animPlayer
- *   .add('idle', {
- *     fps: 4,
- *     keyframes: [
- *       multiKF([
- *         kfFromProp(sprite, 'textureId', 'idle'),
- *         // () => sprite.margin.x = 0,
- *         kfFromProp(sprite, 'margin', vector2(0, 0)),
- *       ]),
- *       kfFromProp(sprite, 'margin', vector2(16, 0)),
- *       kfFromProp(sprite, 'margin', vector2(32, 0)),
- *       kfFromProp(sprite, 'margin', vector2(48, 0)),
- *     ],
- *     loop: true,
- *   })
+ * import { kfFromProp, multiKF } from 'fraxel'
+ *
+ * // Set texture and margin in the same frame
+ * multiKF([
+ *   kfFromProp(sprite, 'textureId', IDLE_TEXTURE),
+ *   kfFromProp(sprite, 'margin', vector2(0, 0)),
+ * ])
  * ```
  */
 export function kfFromProp<T extends Node, K extends keyof T>(

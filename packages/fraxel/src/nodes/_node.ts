@@ -111,6 +111,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   _children: Node[] = []
   /**
    * The **`deltaIncrease`** property changes the speed of the node and its children.
+   * A value of `0.5` halves speed; `2` doubles it.
    *
    * @example
    * ```tsx
@@ -139,11 +140,13 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   gameMode: GameMode = GameMode.INHERIT
   // States
   /**
-   * The **`isStarted`** property of the node indicates whether the node is started.
+   * The **`isStarted`** property indicates whether the node has completed its `start()` lifecycle.
+   * Returns `true` after `start()` has been called and event callbacks are attached.
    */
   isStarted: boolean = false
   /**
-   * The **`isDestroyed`** property of the node indicates whether the node is destroyed.
+   * The **`isDestroyed`** property indicates whether the node has been destroyed.
+   * Returns `true` after `destroy()` has been called.
    */
   isDestroyed: boolean = false
 
@@ -175,7 +178,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   }
 
   /**
-   * The read-only **`id`** property of a node represents the node's identifier.
+   * The read-only **`id`** property returns the node's unique identifier.
    * It can be used to retrieve this node via `child()`.
    * IDs can be non-unique and must match `([a-zA-Z][a-zA-Z0-9-_]*)`.
    *
@@ -256,7 +259,14 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   }
 
   /**
-   * Gets or sets the **`zIndex`** of the node.
+   * The **`zIndex`** property gets or sets the Z-order of the node within its parent.
+   * Higher values are drawn on top. Changing this value re-sorts the parent's children.
+   *
+   * @example
+   * ```ts
+   * node.zIndex = 10
+   * console.log(node.zIndex) // 10
+   * ```
    */
   set zIndex(value: number) {
     if (value === this.#zIndex) return
@@ -267,7 +277,14 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
     return this.#zIndex
   }
   /**
-   * Gets or sets the **`globalZIndex`** of the node.
+   * The **`globalZIndex`** property gets or sets the cumulative Z-order across the entire parent chain.
+   * Setting this value adjusts the local `zIndex` so the node's global Z-order matches.
+   *
+   * @example
+   * ```ts
+   * const globalZ = node.globalZIndex
+   * node.globalZIndex = 5
+   * ```
    */
   set globalZIndex(value) {
     if (this._parent == null) this.zIndex = value
@@ -278,7 +295,14 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
     return this.zIndex + this._parent.globalZIndex
   }
   /**
-   * Gets or sets the **`globalDeltaIncrease`** of the node.
+   * The **`globalDeltaIncrease`** property gets or sets the cumulative speed multiplier across the entire parent chain.
+   * Setting this value adjusts the local `deltaIncrease` so the node's global speed matches.
+   *
+   * @example
+   * ```ts
+   * const globalSpeed = node.globalDeltaIncrease
+   * node.globalDeltaIncrease = 2
+   * ```
    */
   set globalDeltaIncrease(value) {
     if (this._parent == null) this.deltaIncrease = value
@@ -386,7 +410,21 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
 
   /**
    * The **`addChild`** method adds child nodes to this node.
+   * If a child is already attached, it is re-ordered. If the parent is started,
+   * the child's `start()` is called immediately.
+   *
    * @param children Nodes to add as children
+   *
+   * @example
+   * ```tsx
+   * const transform = useTransform()
+   *
+   * useMount(() => {
+   *   const child = transform.node.addChild(getNode(PrimaryNode.Transform, {}))
+   * })
+   *
+   * return <transform ref={transform} />
+   * ```
    */
   addChild(...children: Node[]) {
     for (const child of children) {
@@ -424,6 +462,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   // Events
   /**
    * The **`zIndexChanged`** event fires when the node's `zIndex` value changes.
+   * The callback receives the new `zIndex` value.
    */
   zIndexChanged = new Event('zIndexChange', (_zIndex: number) => {})
 
@@ -434,11 +473,13 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
 
   /**
    * The **`drawed`** event fires each frame when the node is being drawn.
+   * The callback receives the frame `delta` in seconds.
    */
   drawed = new Event('draw', (_delta: number) => {})
 
   /**
    * The **`updated`** event fires each frame during the node's update cycle.
+   * The callback receives the frame `delta` in seconds.
    */
   updated = new Event('update', (_delta: number) => {})
 
@@ -478,6 +519,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   /**
    * The **`update`** method is called each frame to update the node and its children.
    * Respects the node's effective game mode — skips if the node should not update.
+   *
    * @param delta The time elapsed since the last frame in seconds.
    */
   update(delta: number): void {
@@ -490,8 +532,8 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   }
   /**
    * The **`draw`** method is called each frame to render the node and its children.
-   * It applies position translation for proper rendering hierarchy.
    * Only skips drawing if the effective game mode is `NEVER`.
+   *
    * @param delta The time elapsed since the last frame in seconds.
    */
   draw(delta: number): void {
@@ -506,6 +548,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
 
   /**
    * The **`destroy`** method destroys this node and all its children.
+   * Removes the node from its parent and emits the `destroyed` event.
    */
   destroy() {
     if (this.isDestroyed) return

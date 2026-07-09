@@ -4,24 +4,22 @@ import { pushEffect } from './context.js'
 
 /**
  * The **`useSignal`** hook creates a reactive signal with an initial value.
- * The signal will notify subscribers when its value changes.
+ * The signal notifies subscribers when its value changes.
  *
  * @param initialValue The initial value of the signal
  * @returns A tuple of [`SignalGetter<T>`, `SignalSetter<T>`] to get and set the value
  *
  * @example
  * ```tsx
- * const [count, setCount] = useSignal(0)
+ * import { useSignal, useEffect } from 'fraxel/hooks'
  *
- * const handleClick = () => {
- *   setCount(count() + 1)
- * }
+ * const [count, setCount] = useSignal(0)
  *
  * useEffect(() => {
  *   console.log('Count:', count())
  * })
  *
- * return <clickable onClick={handleClick} />
+ * return <clickable onClick={() => setCount(count() + 1)} />
  * ```
  */
 export function useSignal<T>(initialValue: T): [getter: SignalGetter<T>, setter: SignalSetter<T>] {

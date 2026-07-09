@@ -43,7 +43,11 @@ export class AudioReference extends NodeReference<PrimaryNode.AudioPlayer> {
   /** Fires when an audio error occurs. */
   error = new Trigger<[err: Error]>()
 
-  /** Starts or resumes playback. Optional `offset` sets the start position in seconds. */
+  /**
+   * Starts or resumes playback.
+   *
+   * @param offset Optional start position in seconds
+   */
   play: (offset?: number) => void = () => {}
   /** Pauses playback without resetting position. */
   pause: () => void = () => {}

@@ -7,6 +7,8 @@ import { InvalidBoundsLikeError } from '../errors/math.js'
  *
  * @example
  * ```ts
+ * import { Bounds } from 'fraxel'
+ *
  * // All edges equal
  * const a = new Bounds(10) // left=10, top=10, right=10, bottom=10
  *
@@ -136,10 +138,14 @@ export class Bounds {
 
 /**
  * The **`BoundsLike`** type represents all accepted formats for bounds input.
- * Can be a `Bounds` instance, number, tuple, or object with edge properties.
+ * Can be a `Bounds` instance, `number`, `[horizontal, vertical]` tuple,
+ * `[left, top, right]` tuple, `[left, top, right, bottom]` tuple, or
+ * object with edge properties.
  *
  * @example
  * ```ts
+ * import { type BoundsLike } from 'fraxel'
+ *
  * const a: BoundsLike = new Bounds(0, 0, 800, 600)
  * const b: BoundsLike = 10                           // all edges = 10
  * const c: BoundsLike = [100, 200]                   // horizontal, vertical
@@ -158,12 +164,15 @@ export type BoundsLike =
 
 /**
  * The **`isBoundsLike`** function checks if a value is a valid `BoundsLike` format.
- * Useful as a type guard before passing unknown data to bounds constructors.
+ * Type guard that verifies the structure before passing unknown data to bounds constructors.
+ *
  * @param object The value to check.
  * @returns `true` if the value is a valid `BoundsLike`.
  *
  * @example
  * ```ts
+ * import { isBoundsLike } from 'fraxel'
+ *
  * isBoundsLike(new Bounds(0, 0, 800, 600)) // true
  * isBoundsLike(10)                          // true
  * isBoundsLike([100, 200])                  // true
@@ -213,10 +222,14 @@ export function isBoundsLike(object: unknown): object is BoundsLike {
 
 /**
  * The **`bounds`** function creates a `Bounds` from various input formats.
+ * Convenience factory that delegates to the `Bounds` constructor.
+ *
  * @throws {InvalidBoundsLikeError} if the input is not a valid bounds format.
  *
  * @example
  * ```ts
+ * import { bounds } from 'fraxel'
+ *
  * const a = bounds(10)                       // all edges = 10
  * const b = bounds(100, 200)                 // horizontal=100, vertical=200
  * const c = bounds(0, 0, 800)               // left=0, top=0, right=800, bottom=0

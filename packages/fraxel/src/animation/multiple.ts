@@ -1,27 +1,21 @@
 import type { AnimationKeyframe } from '../nodes/animation-player.js'
 
 /**
- * The **`multiKF`** function returns a keyframe using multiple keyframes.
- * @param kfs The keyframes
- * @returns A keyframe
+ * The **`multiKF`** function combines multiple keyframes into a single keyframe.
+ * When executed, all provided keyframes run in order within the same animation frame.
+ *
+ * @param kfs Array of keyframe functions to combine.
+ * @returns A single keyframe function that executes all provided keyframes.
  *
  * @example
  * ```ts
- * // Assumes `animPlayer` is an AnimationPlayer and `sprite` is a Sprite node
- * animPlayer
- *   .add('idle', {
- *     fps: 4,
- *     keyframes: [
- *       multiKF([ // In the same frame `multiKF` executes both keyframes.
- *         () => sprite.textureId = 'idle',
- *         () => sprite.margin.x = 0,
- *       ]),
- *       () => sprite.margin.x = 16,
- *       () => sprite.margin.x = 32,
- *       () => sprite.margin.x = 48,
- *     ],
- *     loop: true,
- *   })
+ * import { multiKF, kfFromProp } from 'fraxel'
+ *
+ * // Both assignments happen in the same frame
+ * multiKF([
+ *   kfFromProp(sprite, 'textureId', IDLE_TEXTURE),
+ *   kfFromProp(sprite, 'margin', vector2(0, 0)),
+ * ])
  * ```
  */
 export function multiKF(kfs: AnimationKeyframe[]): AnimationKeyframe {

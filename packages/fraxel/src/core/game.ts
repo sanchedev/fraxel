@@ -13,18 +13,21 @@ import { Camera } from '../nodes/node2d/camera.js'
 import { getPaused, setPaused } from './paused.js'
 import type { SignalGetter } from '../reactivity/types.js'
 
+/**
+ * The **`SetupOptions`** interface configures the game canvas and engine initialization.
+ */
 export interface SetupOptions {
-  /** The **`width`** of the canvas. */
+  /** The logical width of the canvas. */
   width: number
-  /** The **`height`** of the canvas. */
+  /** The logical height of the canvas. */
   height: number
-  /** The **`root element`**. It will be the parent of the canvas. */
+  /** The root `HTMLElement` that will contain the canvas. */
   root: HTMLElement
-  /** When `true`, the game pauses on blur and requires manual play to resume. Defaults to `false`. */
+  /** When `true`, the game pauses when the browser tab loses focus. @default false */
   pauseOnBlur?: boolean
-  /** The **`testOptions`** of the game. */
+  /** Debug rendering options. */
   testOptions?: Partial<TestOptions>
-  /** The default **`Theme`**. */
+  /** The default `Theme` for text rendering. */
   theme?: Theme
 }
 
@@ -42,13 +45,37 @@ const onBlur = () => {
   Game.blurred.emit()
 }
 
+/**
+ * The **`Game`** class is a static singleton that manages the game loop, canvas setup,
+ * pause state, and scene lifecycle. All methods are static.
+ *
+ * @example
+ * ```ts
+ * import { Game } from 'fraxel'
+ *
+ * Game.setup({
+ *   width: 800,
+ *   height: 600,
+ *   root: document.querySelector('#root')!,
+ * })
+ *
+ * Game.play()
+ * ```
+ */
 export class Game {
-  /** The read-only **`sceneManager`** property represents the manager of all the scenes. */
+  /** The read-only **`sceneManager`** property returns the scene manager instance. */
   static readonly sceneManager = new SceneManager()
 
   /**
    * The **`paused`** property indicates whether the game is paused.
    * It is a reactive signal — use `Game.paused()` to read the value.
+   *
+   * @example
+   * ```ts
+   * const isPaused = Game.paused() // reactive boolean
+   * Game.paused = true             // pause the game
+   * Game.paused = false            // resume the game
+   * ```
    */
   static get paused(): SignalGetter<boolean> {
     return getPaused()
@@ -64,20 +91,22 @@ export class Game {
   }
 
   /**
-   * The **`setup`** method setups the `Game`.
-   * @param options Setup options
+   * The **`setup`** method initializes the game engine. Creates the canvas, sets up
+   * the rendering context, configures input, and applies theme/options. Throws
+   * `Context2DNotSupportedError` if the browser doesn't support Canvas 2D.
+   *
+   * @param options Setup options.
    *
    * @example
    * ```ts
-   * const root = document.querySelector<HTMLElement>('#root')
+   * import { Game } from 'fraxel'
    *
    * Game.setup({
    *   width: 160,
    *   height: 90,
-   *   root,
+   *   root: document.querySelector('#root')!,
+   *   pauseOnBlur: true,
    * })
-   *
-   * // ...
    * ```
    */
   static setup(options: SetupOptions) {
@@ -129,25 +158,20 @@ export class Game {
   }
 
   /**
-   * The **`play`** method plays the `Game`.
-   * This method only can called after **`setup`** method.
-   * The scenes can be created before or after this method called.
+   * The **`play`** method starts the game loop. Must be called after `setup()`.
+   * Scenes can be added before or after calling this method.
    *
    * @example
    * ```ts
-   * Game.setup({
-   *   // ...
-   * })
+   * Game.setup({ width: 800, height: 600, root })
    *
    * await Game.sceneManager.addScene(
    *   'main',
-   *   new Scene(
-   *     async () => (await import('../scenes/main.js')).default,
-   *   ),
-   *   true
+   *   new Scene(async () => (await import('./scenes/main.js')).default),
+   *   true,
    * )
    *
-   * Game.play() // The Game start
+   * Game.play()
    * ```
    */
   static play() {
@@ -156,7 +180,7 @@ export class Game {
   }
 
   /**
-   * The **`pause`** method pauses the `Game`. To `resume` use **`play`** method.
+   * The **`pause`** method pauses the game loop. To resume, call `play()`.
    */
   static pause() {
     this.paused = true
@@ -164,7 +188,8 @@ export class Game {
   }
 
   /**
-   * The **`destroy`** method stops the game loop and cleans up all resources.
+   * The **`destroy`** method stops the game loop, removes all event listeners,
+   * and cleans up resources. Must be called when the game is no longer needed.
    */
   static destroy() {
     if (!setuped) return
@@ -202,9 +227,13 @@ export class Game {
   }
 
   /**
-   * The **`loop`** method manage the game loop.
-   * **This method can not be used outside the `Game`.**
-   * @param delta Time between this frame and the last frame
+   * The **`loop`** method runs one frame of the game loop. Handles node lifecycle,
+   * collision detection, physics simulation, and camera rendering.
+   * **This method should not be called directly.**
+   *
+   * @param delta Time between this frame and the last frame in seconds.
+   *
+   * @internal
    */
   static loop(delta: number) {
     const node = this.sceneManager.currentNode
@@ -233,7 +262,8 @@ export class Game {
   }
 
   /**
-   * Detects when the `Game` is **blurred**
+   * The **`blurred`** event fires when the browser tab loses focus.
+   * If `pauseOnBlur` is enabled, the game is automatically paused before this event fires.
    */
   static blurred = new Event('blur', () => {})
 }

@@ -3,6 +3,18 @@ import { FraxelError } from './base.js'
 
 /**
  * The **`JSXError`** class is the base error for all JSX-related errors.
+ * Thrown when an error occurs during JSX element creation, rendering, or resolution.
+ *
+ * @example
+ * ```ts
+ * import { JSXError } from 'fraxel'
+ *
+ * try {
+ *   renderToNodes(myJsx)
+ * } catch (e) {
+ *   if (e instanceof JSXError) console.error('JSX issue:', e.message)
+ * }
+ * ```
  */
 export class JSXError extends FraxelError {
   constructor(message: string) {
@@ -12,7 +24,15 @@ export class JSXError extends FraxelError {
 }
 
 /**
- * The **`InvalidJSXElementTypeError`** class is thrown when a JSX element has an invalid type.
+ * The **`InvalidJSXElementTypeError`** class is thrown when a JSX element has a type
+ * that is not a valid Node constructor, intrinsic element, or component function.
+ * This occurs when `renderToNodes` encounters an unrecognized element type.
+ *
+ * @example
+ * ```ts
+ * // Thrown when JSX type is not a node, intrinsic element, or component:
+ * renderToNodes(42) // InvalidJSXElementTypeError
+ * ```
  */
 export class InvalidJSXElementTypeError extends JSXError {
   constructor(type: unknown) {
@@ -23,7 +43,15 @@ export class InvalidJSXElementTypeError extends JSXError {
 }
 
 /**
- * The **`UnknownIntrinsicElementError`** class is thrown when a JSX intrinsic element is not recognized.
+ * The **`UnknownIntrinsicElementError`** class is thrown when a JSX intrinsic element
+ * (lowercase tag like `<foo />`) is not recognized by the engine. Only registered node
+ * types (sprite, transform, collider, etc.) are valid intrinsic elements.
+ *
+ * @example
+ * ```tsx
+ * // Thrown when using an unregistered JSX tag:
+ * renderToNodes(<foo />) // UnknownIntrinsicElementError: Unknown intrinsic element "foo"
+ * ```
  */
 export class UnknownIntrinsicElementError extends JSXError {
   constructor(name: string) {
@@ -32,7 +60,17 @@ export class UnknownIntrinsicElementError extends JSXError {
 }
 
 /**
- * The **`InvalidRefAttributeError`** class is thrown when a `ref` attribute receives an invalid value.
+ * The **`InvalidRefAttributeError`** class is thrown when a `ref` attribute receives
+ * a value that is not a valid node reference. Refs must be created by native hooks
+ * like `useSprite()`, `useCollider()`, `useRigidBody()`, etc.
+ *
+ * @example
+ * ```tsx
+ * // Thrown when ref receives an invalid value:
+ * <sprite ref={null} />           // InvalidRefAttributeError
+ * <sprite ref={42} />             // InvalidRefAttributeError
+ * <sprite ref={useRef()} />       // useRef is deprecated — use native hooks for refs
+ * ```
  */
 export class InvalidRefAttributeError extends JSXError {
   constructor(received: unknown) {
@@ -46,7 +84,14 @@ export class InvalidRefAttributeError extends JSXError {
 }
 
 /**
- * The **`MissingGameRootError`** class is thrown when `createGame` is called without a valid root element.
+ * The **`MissingGameRootError`** class is thrown when `createGame` is called without
+ * a valid root HTMLElement. The root element must exist in the DOM.
+ *
+ * @example
+ * ```ts
+ * // Thrown when root is null or not an HTMLElement:
+ * createGame(<Game />, document.querySelector('#nonexistent'))
+ * ```
  */
 export class MissingGameRootError extends JSXError {
   constructor() {
@@ -55,7 +100,14 @@ export class MissingGameRootError extends JSXError {
 }
 
 /**
- * The **`InvalidGameElementError`** class is thrown when the JSX passed to `createGame` is not a Game component.
+ * The **`InvalidGameElementError`** class is thrown when the JSX passed to `createGame`
+ * is not a `<Game>` component. The first argument must be a `<Game>` element.
+ *
+ * @example
+ * ```tsx
+ * // Thrown when JSX is not a Game component:
+ * createGame(<sprite />, document.querySelector('#root')!) // InvalidGameElementError
+ * ```
  */
 export class InvalidGameElementError extends JSXError {
   constructor() {
@@ -64,7 +116,17 @@ export class InvalidGameElementError extends JSXError {
 }
 
 /**
- * The **`MissingSceneError`** class is thrown when a Game component has no Scene children.
+ * The **`MissingSceneError`** class is thrown when a `<Game>` component has no
+ * `<Scene>` children. At least one Scene must be declared inside Game.
+ *
+ * @example
+ * ```tsx
+ * // Thrown when Game has no Scene children:
+ * createGame(
+ *   <Game width={800} height={600} />,
+ *   document.querySelector('#root')!,
+ * ) // MissingSceneError
+ * ```
  */
 export class MissingSceneError extends JSXError {
   constructor() {
@@ -73,7 +135,15 @@ export class MissingSceneError extends JSXError {
 }
 
 /**
- * The **`InvalidSceneComponentError`** class is thrown when a Scene's `component` prop is not a valid function.
+ * The **`InvalidSceneComponentError`** class is thrown when a Scene's `component` prop
+ * is not a valid function. The component must be a sync or async function that returns
+ * a Node or a module with a default export.
+ *
+ * @example
+ * ```tsx
+ * // Thrown when component is not a function:
+ * <Scene name="main" component="not-a-function" /> // InvalidSceneComponentError
+ * ```
  */
 export class InvalidSceneComponentError extends JSXError {
   constructor() {

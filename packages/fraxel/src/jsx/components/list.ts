@@ -7,7 +7,6 @@ import { jsx } from '../jsx.js'
 import type { Fraxel } from '../types.js'
 import type { Node } from '../../nodes/_node.js'
 import { useMount } from '../../hooks/use-mount.js'
-import { useRef } from '../../hooks/use-ref.js'
 import { HookRequiresNodeRootError } from '../../errors/hook.js'
 import { useTransform } from '../../hooks/index.js'
 
@@ -98,21 +97,21 @@ export interface ListOptions<T> {
 export function List<T>({ array, itemKey, empty, children }: ListOptions<T>): Fraxel.Element {
   const savedCtx = currentContext.slice()
   const anchor = useTransform()
-  const map = useRef(new Map<string | symbol, Node>())
-  const emptyNode = useRef<Node | null>(null)
+  const map = new Map<string | symbol, Node>()
+  let emptyNode: Node | null = null
 
   const handleRegen = (arr: T[]) => {
     const prevCtx = currentContext.slice()
     currentContext.length = 0
     currentContext.push(...savedCtx)
 
-    if (emptyNode.current != null) {
-      emptyNode.current.destroy()
-      emptyNode.current = null
+    if (emptyNode != null) {
+      emptyNode.destroy()
+      emptyNode = null
     }
 
     const nodes: Node[] = []
-    const oldIds = new Set(map.current.keys())
+    const oldIds = new Set(map.keys())
     for (let i = 0; i < arr.length; i++) {
       const props = arr[i]!
       const id = itemKey(props, i, arr)
@@ -125,13 +124,13 @@ export function List<T>({ array, itemKey, empty, children }: ListOptions<T>): Fr
       const node = renderToNodes(children(props, i, arr))
       if (node.length !== 1) throw new HookRequiresNodeRootError('internal-hook-List')
 
-      map.current.set(id, node[0]!)
+      map.set(id, node[0]!)
       nodes.push(node[0]!)
     }
 
-    for (const [id, node] of map.current) {
+    for (const [id, node] of map) {
       if (!oldIds.has(id)) continue
-      map.current.delete(id)
+      map.delete(id)
       node.destroy()
     }
 
@@ -140,8 +139,8 @@ export function List<T>({ array, itemKey, empty, children }: ListOptions<T>): Fr
     if (anchor.node.children.length === 0) {
       const node = renderToNodes(empty)
       if (node.length !== 1) throw new HookRequiresNodeRootError('internal-hook-List')
-      emptyNode.current = node[0]!
-      anchor.node.addChild(emptyNode.current)
+      emptyNode = node[0]!
+      anchor.node.addChild(emptyNode)
     }
 
     currentContext.length = 0

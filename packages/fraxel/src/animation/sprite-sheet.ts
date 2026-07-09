@@ -10,15 +10,17 @@ import { kfFromProp } from './properties.js'
  * The **`keyframesFromSheet`** function generates keyframes from a sprite sheet texture.
  * It automatically calculates frame dimensions and margins based on the grid layout.
  *
- * @param sprite A sprite instance of `Sprite`
- * @param textureId A texture id. If it is null, the sprite texture will not change.
- * @param columns Count of sprites in horizontal.
- * @param rows Count of sprites in vertical.
- * @param range Optional `[from, to]` tuple (0-indexed, inclusive) to select a subset of frames from the sheet.
- * @returns A keyframes array
+ * @param sprite A `Sprite` instance.
+ * @param textureId A texture symbol ID, or `null` to keep the sprite's current texture.
+ * @param columns Number of columns in the sprite sheet grid. @default 1
+ * @param rows Number of rows in the sprite sheet grid. @default 1
+ * @param range Optional `[from, to]` tuple (0-indexed, inclusive) to select a subset of frames.
+ * @returns An array of `AnimationKeyframe` functions.
  *
  * @example
  * ```ts
+ * import { keyframesFromSheet } from 'fraxel'
+ *
  * // Full sprite sheet (all frames)
  * const allFrames = keyframesFromSheet(sprite, texture, 4, 2)
  *
@@ -68,7 +70,8 @@ export function keyframesFromSheet(
 }
 
 /**
- * Options for creating an animation from a sprite sheet.
+ * The **`SpriteSheetAnimationOptions`** interface configures an animation created
+ * from a sprite sheet via `animationFromSheet`.
  */
 export interface SpriteSheetAnimationOptions {
   /** Number of columns in the sprite sheet grid. @default 1 */
@@ -79,24 +82,25 @@ export interface SpriteSheetAnimationOptions {
   range?: [number, number]
   /** Total duration of the animation in seconds. FPS is calculated as `(columns * rows) / duration`. */
   duration: number
-  /** Whether the animation should loop. @default undefined */
+  /** Whether the animation should loop. @default false */
   loop?: boolean
 }
 
 /**
- * The **`animationFromSheet`** function creates a complete `Animation` object from a sprite sheet.
- * It combines `keyframesFromSheet` with automatic FPS calculation based on the total frame count
- * and desired duration.
+ * The **`animationFromSheet`** function creates a complete `Animation` object from
+ * a sprite sheet. Combines `keyframesFromSheet` with automatic FPS calculation
+ * based on total frame count and desired duration.
  *
- * @param sprite A `Sprite` instance or a `NodeReference` to a sprite node
- * @param textureId A texture id. If `null`, the sprite texture will not change. If `undefined`, uses the sprite's current texture.
- * @param options Animation options including grid dimensions, duration, and loop settings
- * @returns A complete `Animation` object ready for `AnimationPlayer`
+ * @param sprite A `Sprite` instance or a `SpriteReference` (from `useSprite()`).
+ * @param textureId A texture symbol ID, `null` to keep current texture, or `undefined` for default.
+ * @param options Animation options including grid dimensions, duration, and loop settings.
+ * @returns A complete `Animation` object ready for `AnimationPlayer`.
  *
  * @example
- * ```tsx
- * // Basic usage — 4-column sprite sheet, 1 second animation
- * // Assumes `sprite` is a Sprite node and `IDLE_TEXTURE` is a loaded texture ID
+ * ```ts
+ * import { animationFromSheet } from 'fraxel'
+ *
+ * // 4-column sprite sheet, 1 second animation
  * const idle = animationFromSheet(sprite, IDLE_TEXTURE, {
  *   columns: 4,
  *   duration: 1,
@@ -110,13 +114,6 @@ export interface SpriteSheetAnimationOptions {
  *   range: [0, 2],
  *   duration: 0.75,
  *   loop: true,
- * })
- *
- * // Using a SpriteReference (deferred)
- * const sprite = useSprite()
- * const anim = animationFromSheet(sprite, TEXTURE, {
- *   columns: 4,
- *   duration: 1,
  * })
  * ```
  */

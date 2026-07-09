@@ -1,11 +1,18 @@
 import { FraxelError } from './base.js'
 
 /**
- * The **`AssetError`** error is thrown when an error occurs during asset loading, management, or retrieval.
+ * The **`AssetError`** class is the base error for all asset-related errors.
+ * Thrown when an error occurs during asset loading, management, or retrieval.
+ *
  * @example
  * ```ts
- * // When this happens:
- * throw new AssetError('Failed to load asset')
+ * import { AssetError } from 'fraxel'
+ *
+ * try {
+ *   loadTexture('/broken/path.png')
+ * } catch (e) {
+ *   if (e instanceof AssetError) console.error('Asset failed:', e.message)
+ * }
  * ```
  */
 export class AssetError extends FraxelError {
@@ -16,11 +23,16 @@ export class AssetError extends FraxelError {
 }
 
 /**
- * The **`TextureNotFoundError`** error is thrown when attempting to access a texture that does not exist in the asset registry.
+ * The **`TextureNotFoundError`** class is thrown when attempting to access a texture
+ * by its symbol ID and no matching texture exists in the asset registry. This happens
+ * when `getTexture(id)` is called with an ID that was never loaded or has been unloaded.
+ *
  * @example
  * ```ts
- * // When this happens:
- * throw new TextureNotFoundError('my-texture-id')
+ * import { getTexture } from 'fraxel'
+ *
+ * const MISSING = Symbol('missing')
+ * getTexture(MISSING) // throws TextureNotFoundError: Texture "Symbol(missing)" does not exist
  * ```
  */
 export class TextureNotFoundError extends AssetError {
@@ -30,10 +42,16 @@ export class TextureNotFoundError extends AssetError {
 }
 
 /**
- * The **`SoundNotFoundError`** error is thrown when attempting to access a sound that does not exist in the audio registry.
+ * The **`SoundNotFoundError`** class is thrown when attempting to access a sound
+ * by its symbol ID and no matching sound exists in the audio registry. This happens
+ * when `getSound(id)` is called with an ID that was never loaded or has been unloaded.
+ *
  * @example
  * ```ts
- * throw new SoundNotFoundError('my-sound-id')
+ * import { getSound } from 'fraxel'
+ *
+ * const MISSING = Symbol('missing')
+ * getSound(MISSING) // throws SoundNotFoundError: Sound "Symbol(missing)" does not exist
  * ```
  */
 export class SoundNotFoundError extends AssetError {

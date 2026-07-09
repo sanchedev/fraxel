@@ -9,15 +9,17 @@ import type { Shape } from '../../collision/narrowphase/shapes.js'
 import { Color, type ColorLike } from '../../math/color.js'
 
 /**
- * Options for the `Geometry` node.
+ * The **`GeometryOptions`** interface defines the configuration for a `Geometry` node.
  */
 export interface GeometryOptions extends Node2DOptions<PrimaryNode.Geometry> {
   /**
-   * The **`shape`** property defines the collision shape to render.
-   * Uses the same `shapes` factory from the collision system.
+   * The **`shape`** property defines the shape to render.
+   * Uses the `shapes` factory from the collision system.
    *
    * @example
    * ```tsx
+   * import { shapes } from 'fraxel'
+   *
    * <geometry shape={shapes.rectangle(64, 32)} />
    * <geometry shape={shapes.circle(16)} />
    * <geometry shape={shapes.capsule(64, 12)} />
@@ -25,23 +27,27 @@ export interface GeometryOptions extends Node2DOptions<PrimaryNode.Geometry> {
    */
   shape: Reactive<Shape>
   /**
-   * The **`fillColor`** property defines the fill color of the shape.
+   * The **`fillColor`** property defines the fill color.
    * Each channel ranges from `0` to `1`.
    *
    * @default [1, 1, 1, 1]
    *
    * @example
    * ```tsx
+   * import { shapes } from 'fraxel'
+   *
    * <geometry shape={shapes.rectangle(64, 32)} fillColor={[1, 0, 0, 1]} />
    * ```
    */
   fillColor?: Reactive<ColorLike>
   /**
-   * The **`strokeColor`** property defines the border color of the shape.
+   * The **`strokeColor`** property defines the border color.
    * If not provided, no border is drawn.
    *
    * @example
    * ```tsx
+   * import { shapes } from 'fraxel'
+   *
    * <geometry shape={shapes.rectangle(64, 32)} strokeColor={[0, 0, 0, 1]} strokeWidth={2} />
    * ```
    */
@@ -53,6 +59,8 @@ export interface GeometryOptions extends Node2DOptions<PrimaryNode.Geometry> {
    *
    * @example
    * ```tsx
+   * import { shapes } from 'fraxel'
+   *
    * <geometry shape={shapes.rectangle(64, 32)} strokeColor={[0, 0, 0, 1]} strokeWidth={3} />
    * ```
    */
@@ -61,7 +69,7 @@ export interface GeometryOptions extends Node2DOptions<PrimaryNode.Geometry> {
 
 /**
  * The **`Geometry`** node renders a shape (rectangle, circle, or capsule) to the canvas.
- * It uses the same `shapes` factory as the collision system, making it easy to
+ * Uses the same `shapes` factory as the collision system, making it easy to
  * visualize physics bodies with matching shapes.
  *
  * @example
@@ -70,10 +78,14 @@ export interface GeometryOptions extends Node2DOptions<PrimaryNode.Geometry> {
  * import { useGeometry } from 'fraxel/hooks'
  *
  * function Player() {
- *   const ref = useGeometry()
+ *   const geo = useGeometry()
+ *
+ *   useEffect(() => {
+ *     geo.setFillColor([1, 0, 0, 1])
+ *   })
  *
  *   return (
- *     <geometry ref={ref} shape={shapes.rectangle(40, 40)} fillColor={[1, 0, 0, 1]} />
+ *     <geometry ref={geo} shape={shapes.rectangle(40, 40)} />
  *   )
  * }
  * ```

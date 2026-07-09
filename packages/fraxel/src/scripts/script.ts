@@ -6,12 +6,16 @@ import type { PrimaryNode } from '../nodes/lib/enum'
 /**
  * The **`FraxelScript`** abstract class separates game logic from rendering.
  * Attach a script to a node via the `script` prop to run logic independently
- * of the JSX component tree.
+ * of the JSX component tree. Scripts have access to the node instance, can
+ * subscribe to events, and maintain their own state.
  *
  * @typeParam T The `PrimaryNode` type this script is attached to.
  *
  * @example
  * ```ts
+ * import { FraxelScript } from 'fraxel'
+ * import type { PrimaryNode } from 'fraxel'
+ *
  * class PlayerScript extends FraxelScript<PrimaryNode.Transform> {
  *   health = 100
  *
@@ -33,7 +37,17 @@ export abstract class FraxelScript<T extends PrimaryNode> {
 
   /**
    * The read-only **`me`** property returns the node this script is attached to.
-   * Throws `NodeNotInitializedError` if accessed before `init()` is called.
+   * Throws `NodeNotInitializedError` if accessed before the node is initialized.
+   *
+   * @example
+   * ```ts
+   * setup() {
+   *   this.connect('updated', () => {
+   *     const pos = this.me.position
+   *     console.log('Position:', pos.x, pos.y)
+   *   })
+   * }
+   * ```
    */
   get me() {
     if (this.#me == null) throw new NodeNotInitializedError('fraxel-script-unknown')
@@ -43,6 +57,7 @@ export abstract class FraxelScript<T extends PrimaryNode> {
   /**
    * Initializes the script by binding it to a node.
    * Called automatically by the `Node` constructor when a `script` option is provided.
+   *
    * @param node The node instance to attach this script to.
    */
   init(node: NodeInstances[T]) {
@@ -58,18 +73,20 @@ export abstract class FraxelScript<T extends PrimaryNode> {
    *
    * @example
    * ```ts
-   * setup() {
-   *   this.connect('started', () => {
-   *     console.log('Node started!')
-   *   })
+   * class EnemyScript extends FraxelScript<PrimaryNode.Transform> {
+   *   setup() {
+   *     this.connect('started', () => {
+   *       console.log('Node started!')
+   *     })
    *
-   *   this.connect('destroyed', () => {
-   *     console.log('Node destroyed!')
-   *   })
+   *     this.connect('destroyed', () => {
+   *       console.log('Node destroyed!')
+   *     })
    *
-   *   this.connect('updated', (delta) => {
-   *     console.log('Delta:', delta)
-   *   })
+   *     this.connect('updated', (delta) => {
+   *       console.log('Delta:', delta)
+   *     })
+   *   }
    * }
    * ```
    */

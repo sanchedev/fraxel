@@ -9,24 +9,24 @@ import type { Shape } from '../../collision/narrowphase/shapes.js'
 
 export interface ColliderOptions extends Node2DOptions<PrimaryNode.Collider> {
   /**
-   * The **`shape`** property defines the collision shape of the collider.
+   * The **`shape`** property defines the collision shape.
+   * Uses the `shapes` factory from the collision system.
    *
    * @example
    * ```tsx
-   * // Rectangle
-   * <collider shape={shapes.rectangle(32, 32)} ... />
+   * import { shapes } from 'fraxel'
    *
-   * // Circle
-   * <collider shape={shapes.circle(16)} ... />
+   * <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy']} />
+   * <collider shape={shapes.circle(16)} group={['projectile']} collidesWith={['zombie']} />
    * ```
    */
   shape: Shape
   /**
-   * The **`group`** property defines the collision groups this collider belongs to.
+   * The **`group`** property defines which collision groups this collider belongs to.
    *
    * @example
    * ```tsx
-   * <collider shape={...} group={['player', 'character']} ... />
+   * <collider shape={shapes.rectangle(32, 32)} group={['player', 'character']} collidesWith={['enemy']} />
    * ```
    */
   group: string[]
@@ -35,25 +35,37 @@ export interface ColliderOptions extends Node2DOptions<PrimaryNode.Collider> {
    *
    * @example
    * ```tsx
-   * <collider shape={...} group={...} collidesWith={['enemy', 'obstacle']} ... />
+   * <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy', 'obstacle']} />
    * ```
    */
   collidesWith: string[]
 }
 
 /**
- * The **`Collider`** node detects collisions with other colliders based on shape, group, and collidesWith configuration.
- * It supports rectangle and circle shapes and emits events when collisions begin, continue, or end.
+ * The **`Collider`** node detects overlaps with other colliders based on shape, group, and `collidesWith` configuration.
+ * Supports rectangle, circle, and capsule shapes. Emits events when collisions begin, continue, or end.
  *
  * @example
  * ```tsx
  * import { shapes } from 'fraxel'
+ * import { useCollider, useTrigger } from 'fraxel/hooks'
  *
- * // Rectangle collider
- * <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy']} />
+ * function Player() {
+ *   const collider = useCollider()
  *
- * // Circle collider
- * <collider shape={shapes.circle(16)} group={['projectile']} collidesWith={['zombie']} />
+ *   useTrigger(collider.colliderEntered, (other) => {
+ *     console.log('Hit by:', other)
+ *   })
+ *
+ *   return (
+ *     <collider
+ *       ref={collider}
+ *       shape={shapes.rectangle(32, 32)}
+ *       group={['player']}
+ *       collidesWith={['enemy']}
+ *     />
+ *   )
+ * }
  * ```
  */
 export class Collider extends Node2D<PrimaryNode.Collider> {
@@ -66,7 +78,7 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
   #lastGlobalPosition: Vector2
 
   /**
-   * The read-only **`shape`** property returns the collision shape of this collider.
+   * The read-only **`shape`** property returns the collision shape.
    */
   get shape() {
     return this.#shape
@@ -88,8 +100,7 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
 
   /**
    * The read-only **`size`** property returns the bounding dimensions of the shape.
-   * For rectangles, returns the width and height. For circles, returns diameter x diameter.
-   * For capsules, returns the bounding box based on direction.
+   * For rectangles: width × height. For circles: diameter × diameter. For capsules: computed from direction.
    */
   get size(): Vector2 {
     if (this.#shape.type === 'rectangle') {

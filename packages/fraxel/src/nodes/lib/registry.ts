@@ -4,10 +4,20 @@ import type { NodeClasses, NodeInstances, NodesOptions } from './types.js'
 export const Nodes: NodeClasses = {} as NodeClasses
 
 /**
- * The **`getNode`** function is used to create an instance of a node based on its name and options. It retrieves the node class from the registry and creates an instance of it using the provided options.
- * @param type - The name of the node to create an instance of.
- * @param options - The options to pass to the node constructor when creating an instance of the node.
- * @returns An instance of the node corresponding to the provided node name and options.
+ * The **`getNode`** function creates an instance of a node based on its type and options.
+ * It retrieves the node class from the registry and instantiates it.
+ *
+ * @param type The `PrimaryNode` type to create
+ * @param options The options to pass to the node constructor
+ * @returns An instance of the node corresponding to the provided type
+ *
+ * @example
+ * ```ts
+ * import { getNode, PrimaryNode } from 'fraxel'
+ *
+ * const transform = getNode(PrimaryNode.Transform, { position: [100, 200] })
+ * const sprite = getNode(PrimaryNode.Sprite, { textureId: myTexture })
+ * ```
  */
 export function getNode<T extends PrimaryNode>(type: T, options: NodesOptions[T]) {
   const cls = Nodes[type] as new (option: NodesOptions[T]) => NodeInstances[T]
@@ -15,34 +25,18 @@ export function getNode<T extends PrimaryNode>(type: T, options: NodesOptions[T]
 }
 
 /**
- * The **`registerNode`** function is used to register a node class in the registry under a specific node name. This allows the node to be created later using the `getNode` function by referencing its name.
- * @param nodeName - The name under which to register the node class in the registry.
- * @param nodeClass - The class of the node to register.
+ * The **`registerNode`** function registers a node class in the registry under a specific node name.
+ * This allows the node to be created later using the `getNode` function by referencing its name.
+ *
+ * @param nodeName The name under which to register the node class
+ * @param nodeClass The class of the node to register
  *
  * @example
  * ```ts
- * // my-node.ts
- * interface MyNodeOptions extends NodeOptions {
- *   // Node options
- * }
+ * import { registerNode } from 'fraxel'
  *
- * class MyNode extends Node {
- *   constructor(options: MyNodeOptions) {
- *    super(options)
- *    // Node initialization
- *   }
- *   // Node implementation
- * }
- *
- * // registry.ts
- * declare module 'fraxel' {
- *   interface NodeClasses {
- *     entity: typeof MyNode
- *   }
- * }
- *
- * registerNode('myNode', MyNode)
- *
+ * // Register a custom node type
+ * registerNode('myNode' as PrimaryNode, MyNode)
  * ```
  */
 export function registerNode<T extends PrimaryNode>(nodeName: T, nodeClass: NodeClasses[T]) {

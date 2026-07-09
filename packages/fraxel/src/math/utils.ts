@@ -1,5 +1,7 @@
 /**
  * The **`clamp`** function restricts a value to lie within a given range.
+ * If `min >= max`, returns `min`.
+ *
  * @param min The minimum bound.
  * @param value The value to clamp.
  * @param max The maximum bound.
@@ -7,6 +9,8 @@
  *
  * @example
  * ```ts
+ * import { clamp } from 'fraxel'
+ *
  * clamp(0, 5, 10)    // 5
  * clamp(0, -3, 10)   // 0
  * clamp(0, 15, 10)   // 10

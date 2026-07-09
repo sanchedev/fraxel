@@ -49,7 +49,11 @@ export class TimerReference extends NodeReference<PrimaryNode.Timer> {
   /** Fires every frame with the current elapsed time. */
   timeChanged = new Trigger<[time: number]>()
 
-  /** Starts or resumes the timer. Optional `from` sets the start time. */
+  /**
+   * Starts or resumes the timer.
+   *
+   * @param from Optional start time in seconds
+   */
   play: (from?: number) => void = () => {}
   /** Pauses the timer without resetting. */
   pause: () => void = () => {}

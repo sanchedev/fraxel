@@ -9,39 +9,44 @@ import { propSignal } from '../../utils/ternaries.js'
 import { warnNestedColliders } from '../../warn/index.js'
 
 /**
- * Options for the `RigidBody` node.
+ * The **`RigidBodyOptions`** interface defines the configuration for a `RigidBody` node.
  */
 export interface RigidBodyOptions extends Node2DOptions<PrimaryNode.RigidBody> {
   /**
-   * Mass of the body. Higher values are heavier. `0` means infinite mass (static).
+   * The **`mass`** property defines the body's mass. Higher values are heavier. `0` means infinite mass (static).
+   *
    * @default 1
    */
   mass?: number
   /**
-   * Friction coefficient (0 to 1).
+   * The **`friction`** property defines the friction coefficient.
+   *
    * @default 0.1
    */
   friction?: number
   /**
-   * Restitution / bounce coefficient (0 to 1). `0` = no bounce, `1` = perfect bounce.
+   * The **`bounce`** property defines the restitution coefficient. `0` = no bounce, `1` = perfect bounce.
+   *
    * @default 0
    */
   bounce?: number
   /**
-   * If true, the body does not move.
+   * The **`isStatic`** property makes the body immovable when `true`.
+   *
    * @default false
    */
   isStatic?: Reactive<boolean>
   /**
-   * If false, gravity is not applied.
+   * The **`useGravity`** property controls whether gravity is applied.
+   *
    * @default true
    */
   useGravity?: boolean
 }
 
 /**
- * The **`RigidBody`** node adds physics simulation to a collider.
- * It must be parent of a `Collider` node to work.
+ * The **`RigidBody`** node adds physics simulation to its child colliders.
+ * Must contain at least one `Collider` child node to work.
  *
  * Gravity is applied by default (980 px/s² downward). The body integrates
  * velocity into position each frame and resolves collisions with other bodies.
@@ -61,24 +66,25 @@ export interface RigidBodyOptions extends Node2DOptions<PrimaryNode.RigidBody> {
  * ```
  */
 export class RigidBody extends Node2D<PrimaryNode.RigidBody> {
-  /** Current velocity in pixels per second. */
+  /** The **`velocity`** property holds the current velocity in pixels per second. */
   velocity = Vector2.ZERO
-  /** Accumulated force to apply this frame (reset after integration). */
+  /** @internal Accumulated force to apply this frame (reset after integration). */
   #acceleration = Vector2.ZERO
-  /** Mass — higher values are heavier. 0 means infinite mass (static). */
+  /** The **`mass`** property defines the body's mass. `0` = infinite mass (static). */
   mass: number
-  /** Friction coefficient (0 to 1). Applied on collision. */
+  /** The **`friction`** property defines the friction coefficient (0 to 1). */
   friction: number
-  /** Restitution / bounce coefficient (0 to 1). 0 = no bounce, 1 = perfect bounce. */
+  /** The **`bounce`** property defines the restitution coefficient (0 to 1). */
   bounce: number
-  /** If true, the body does not move. */
+  /** The **`isStatic`** property makes the body immovable when `true`. */
   isStatic: boolean
-  /** If false, gravity is not applied. */
+  /** The **`useGravity`** property controls whether gravity is applied. */
   useGravity: boolean
 
-  /** Whether this body is currently resting on a surface below it. Set automatically each frame. */
+  /** The **`isGrounded`** property is `true` when the body rests on a surface below it. Set automatically each frame. */
   isGrounded = false
 
+  /** The **`colliders`** property holds the set of child colliders. */
   colliders: Set<Collider> = new Set()
 
   constructor(options: RigidBodyOptions) {
@@ -90,18 +96,27 @@ export class RigidBody extends Node2D<PrimaryNode.RigidBody> {
     this.useGravity = options.useGravity ?? true
   }
 
-  /** Applies a force (in pixels/second²) to this body. */
+  /**
+   * The **`applyForce`** method applies a continuous force (pixels/second²) to this body.
+   * @param force - The force vector to apply.
+   */
   applyForce(force: Vector2): void {
     this.#acceleration.add(force)
   }
 
-  /** Applies an instantaneous impulse (in pixels/second) to this body. */
+  /**
+   * The **`applyImpulse`** method applies an instantaneous impulse (pixels/second) to this body.
+   * @param impulse - The impulse vector to apply.
+   */
   applyImpulse(impulse: Vector2): void {
     if (this.isStatic) return
     this.velocity.add(impulse)
   }
 
-  /** Sets the velocity directly. */
+  /**
+   * The **`setVelocity`** method sets the velocity directly.
+   * @param v - The new velocity vector.
+   */
   setVelocity(v: Vector2): void {
     this.velocity.x = v.x
     this.velocity.y = v.y

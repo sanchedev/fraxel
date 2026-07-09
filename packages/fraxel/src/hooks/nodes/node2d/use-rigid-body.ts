@@ -55,11 +55,23 @@ export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
   /** Reactive `true` if gravity is applied to this body. */
   useGravity = new Signal(true).getter
 
-  /** Applies a continuous force to the body. */
+  /**
+   * Applies a continuous force to the body.
+   *
+   * @param force The force vector to apply
+   */
   applyForce: (force: VectorLike) => void = () => {}
-  /** Applies an instantaneous impulse to the body. */
+  /**
+   * Applies an instantaneous impulse to the body.
+   *
+   * @param impulse The impulse vector to apply
+   */
   applyImpulse: (impulse: VectorLike) => void = () => {}
-  /** Sets the body's velocity directly. */
+  /**
+   * Sets the body's velocity directly.
+   *
+   * @param v The new velocity vector
+   */
   setVelocity: (v: VectorLike) => void = () => {}
 
   constructor() {

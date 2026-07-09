@@ -7,7 +7,7 @@ import { Node2D, type Node2DOptions } from './_node2d.js'
 import type { Reactive } from '../../reactivity/types.js'
 
 /**
- * Options for the `Text` node.
+ * The **`TextOptions`** interface defines the configuration for a `Text` node.
  */
 export interface TextOptions extends Node2DOptions<PrimaryNode.Text> {
   /**
@@ -28,6 +28,8 @@ export interface TextOptions extends Node2DOptions<PrimaryNode.Text> {
    *
    * @example
    * ```tsx
+   * import { FontWeight } from 'fraxel'
+   *
    * <text text="Bold" style={{ fontSize: 24, fontWeight: FontWeight.Bold }} />
    * ```
    */
@@ -36,20 +38,24 @@ export interface TextOptions extends Node2DOptions<PrimaryNode.Text> {
 
 /**
  * The **`Text`** node renders text on the canvas using `ctx.fillText()`.
- * It supports reactive text values and configurable styling via `TextStyle`.
+ * Supports reactive text values and configurable styling via `TextStyle`.
  *
  * @example
  * ```tsx
- * import { useText } from 'fraxel/hooks'
+ * import { useText, useEffect } from 'fraxel/hooks'
  *
  * function ScoreLabel() {
  *   const label = useText()
+ *
+ *   useEffect(() => {
+ *     label.setText(`Score: ${score()}`)
+ *   })
  *
  *   return (
  *     <text
  *       ref={label}
  *       position={[10, 20]}
- *       text={() => `Score: ${score()}`}
+ *       text="Score: 0"
  *       style={{ fontSize: 16, foregroundColor: '#ffffff' }}
  *     />
  *   )

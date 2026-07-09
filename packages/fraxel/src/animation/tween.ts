@@ -2,7 +2,9 @@ import type { EasingFn } from './easing.js'
 import { linear } from './easing.js'
 
 /**
- * Options for creating a tween.
+ * The **`TweenOptions`** interface configures a tween animation.
+ *
+ * @typeParam T The type of the target object.
  */
 export interface TweenOptions<T> {
   /** The object whose property will be interpolated. */
@@ -15,7 +17,7 @@ export interface TweenOptions<T> {
   to: number
   /** Duration in seconds. */
   duration: number
-  /** Easing function (default: linear). */
+  /** Easing function. @default linear */
   easing?: EasingFn
   /** Called every frame with the current interpolated value. */
   onUpdate?: (value: number) => void
@@ -24,7 +26,8 @@ export interface TweenOptions<T> {
 }
 
 /**
- * Controls a running tween.
+ * The **`TweenController`** interface controls a running tween.
+ * Returned by `tween()` and `tweenValue()`.
  */
 export interface TweenController {
   /** Whether the tween is currently playing. */
@@ -35,12 +38,16 @@ export interface TweenController {
   pause(): void
   /** Resumes the tween. */
   resume(): void
-  /** Stops the tween and resets progress. */
+  /** Stops the tween and resets progress to 0. */
   stop(): void
 }
 
 /**
- * Creates a tween that interpolates a numeric property on a target object.
+ * The **`tween`** function creates a tween that interpolates a numeric property
+ * on a target object over a given duration with optional easing.
+ *
+ * @param options Tween configuration.
+ * @returns A `TweenController` for pausing, resuming, or stopping the tween.
  *
  * @example
  * ```ts
@@ -56,9 +63,10 @@ export interface TweenController {
  *   onComplete: () => console.log('fade in done'),
  * })
  *
- * // Later:
+ * // Control the tween:
  * controller.pause()
  * controller.resume()
+ * controller.stop()
  * ```
  */
 export function tween<T>(options: TweenOptions<T>): TweenController {
@@ -121,8 +129,11 @@ export function tween<T>(options: TweenOptions<T>): TweenController {
 }
 
 /**
- * Creates a tween that updates a callback with interpolated values.
- * Useful for animating values without a target object.
+ * The **`tweenValue`** function creates a tween that updates a callback with
+ * interpolated values. Useful for animating values without a target object.
+ *
+ * @param options Tween configuration (without `target` and `prop`).
+ * @returns A `TweenController` for pausing, resuming, or stopping the tween.
  *
  * @example
  * ```ts

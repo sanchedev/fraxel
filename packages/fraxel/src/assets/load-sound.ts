@@ -4,9 +4,20 @@ import { SoundNotFoundError } from '../errors/assets.js'
 const sounds = new Map<symbol, AudioBuffer>()
 
 /**
- * The **`loadSound`** function loads an audio file and returns a symbol ID.
- * @param url Audio file URL
- * @returns A symbol ID referencing the loaded audio buffer
+ * The **`loadSound`** function loads an audio file from a URL and returns
+ * a symbol ID for referencing it. Unlike `loadTexture`, this does not
+ * deduplicate — each call creates a new entry.
+ *
+ * @param url Audio file URL to load.
+ * @returns A symbol ID referencing the loaded audio buffer.
+ *
+ * @example
+ * ```ts
+ * import { loadSound } from 'fraxel'
+ *
+ * const SHOOT = await loadSound('/assets/shoot.ogg')
+ * const HIT = await loadSound('/assets/hit.ogg')
+ * ```
  */
 export async function loadSound(url: string): Promise<symbol> {
   const ctx = getAudioContext()
@@ -21,8 +32,18 @@ export async function loadSound(url: string): Promise<symbol> {
 }
 
 /**
- * Returns an `AudioBuffer` by its symbol ID.
- * @param id The symbol ID returned by `loadSound`
+ * The **`getSound`** function returns an `AudioBuffer` by its symbol ID.
+ * Throws `SoundNotFoundError` if no sound exists for the given ID.
+ *
+ * @param id The symbol ID returned by `loadSound`.
+ * @returns The `AudioBuffer` for the sound.
+ *
+ * @example
+ * ```ts
+ * import { getSound } from 'fraxel'
+ *
+ * const buffer = getSound(SHOOT) // AudioBuffer
+ * ```
  */
 export function getSound(id: symbol): AudioBuffer {
   const buffer = sounds.get(id)
@@ -31,8 +52,17 @@ export function getSound(id: symbol): AudioBuffer {
 }
 
 /**
- * Unloads a sound from memory.
- * @param id The sound symbol ID to unload
+ * The **`unloadSound`** function removes a sound from memory by its symbol ID.
+ * The sound will no longer be accessible via `getSound`.
+ *
+ * @param id The sound symbol ID to unload.
+ *
+ * @example
+ * ```ts
+ * import { unloadSound } from 'fraxel'
+ *
+ * unloadSound(SHOOT) // frees the sound from memory
+ * ```
  */
 export function unloadSound(id: symbol): void {
   sounds.delete(id)

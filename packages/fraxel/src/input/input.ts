@@ -3,10 +3,11 @@ import { Event } from '../events/event.js'
 import { vector2, Vector2 } from '../math/vector2.js'
 
 /**
- * Defines a key binding for an input action.
+ * The **`InputKey`** interface defines a key binding for an input action.
+ * Used with `Input.createAction()` to register keyboard shortcuts.
  */
 export interface InputKey {
-  /** The key name (e.g. 'a', 'arrowleft', ' '). */
+  /** The key name (e.g., `'a'`, `' '`, `'ArrowLeft'`). */
   key: string
   /** Require Ctrl modifier. */
   ctrl?: boolean
@@ -17,8 +18,21 @@ export interface InputKey {
 }
 
 /**
- * The **`Input`** class is a singleton that manages all keyboard and pointer input.
- * All methods are static — access via `Input.methodName()`.
+ * The **`Input`** class is a static singleton that manages all keyboard and pointer input.
+ * All methods are static — access via `Input.methodName()`. Must be initialized with
+ * `Input.setup()` before use (called automatically by `Game.setup()`).
+ *
+ * @example
+ * ```ts
+ * import { Input } from 'fraxel'
+ *
+ * const Jump = Input.createAction({ key: ' ' })
+ *
+ * // In game loop:
+ * if (Input.justActionPressed(Jump)) {
+ *   console.log('Jump!')
+ * }
+ * ```
  */
 export class Input {
   static #instance: Input
@@ -48,6 +62,7 @@ export class Input {
 
   /**
    * The **`getInstance`** method returns the singleton instance of the `Input` class.
+   *
    * @returns The `Input` instance.
    */
   static getInstance(): Input {
@@ -59,7 +74,8 @@ export class Input {
 
   /**
    * The **`setup`** method initializes the input system with the game canvas.
-   * Called automatically by `Game.setup()`.
+   * Called automatically by `Game.setup()`. Registers all DOM event listeners.
+   *
    * @param canvas The game canvas element.
    * @param size The logical game dimensions (width, height).
    */
@@ -127,15 +143,20 @@ export class Input {
   // --- Actions ---
 
   /**
-   * The **`createAction`** method creates an input action from a key binding and returns a symbol identifier.
+   * The **`createAction`** method creates an input action from a key binding and
+   * returns a symbol identifier. Throws `DuplicateKeyError` if the key combo is
+   * already bound to another action.
+   *
    * @param options The key binding configuration.
    * @returns A unique symbol identifying the action.
-   * @throws {DuplicateKeyError} if the key combo is already bound to another action.
    *
    * @example
    * ```ts
+   * import { Input } from 'fraxel'
+   *
    * const Jump = Input.createAction({ key: ' ' })
    * const Dash = Input.createAction({ key: 'ShiftLeft', shift: true })
+   * const Fire = Input.createAction({ key: 'f', ctrl: true })
    * ```
    */
   static createAction(options: InputKey): symbol {
@@ -153,9 +174,16 @@ export class Input {
 
   /**
    * The **`getAction`** method returns the key binding for a registered action.
+   * Throws `ActionNotFoundError` if the action hasn't been registered.
+   *
    * @param action The action symbol to look up.
    * @returns The `InputKey` configuration for the action.
-   * @throws {ActionNotFoundError} if the action hasn't been registered.
+   *
+   * @example
+   * ```ts
+   * const config = Input.getAction(Jump)
+   * console.log(config.key) // ' '
+   * ```
    */
   static getAction(action: symbol): InputKey {
     const key = Input.#actions.get(action)
@@ -165,6 +193,7 @@ export class Input {
 
   /**
    * The **`isActionPressed`** method returns `true` while the action's key is held down.
+   *
    * @param action The action symbol to check.
    * @returns `true` if the action is currently pressed.
    */
@@ -176,6 +205,7 @@ export class Input {
 
   /**
    * The **`justActionPressed`** method returns `true` on the first frame the action's key is pressed.
+   *
    * @param action The action symbol to check.
    * @returns `true` if the action was just pressed.
    */
@@ -187,6 +217,7 @@ export class Input {
 
   /**
    * The **`justActionUnpressed`** method returns `true` on the first frame the action's key is released.
+   *
    * @param action The action symbol to check.
    * @returns `true` if the action was just released.
    */
@@ -217,6 +248,7 @@ export class Input {
 
   /**
    * The **`isJustKeyPressed`** method returns `true` on the first frame a key is pressed.
+   *
    * @param key The key name (e.g., `'a'`, `' '`, `'ArrowLeft'`).
    * @param ctrlKey Whether Ctrl is required (default `false`).
    * @param shiftKey Whether Shift is required (default `false`).
@@ -233,8 +265,10 @@ export class Input {
       }),
     )
   }
+
   /**
    * The **`isKeyPressed`** method returns `true` while a key is held down.
+   *
    * @param key The key name (e.g., `'a'`, `' '`, `'ArrowLeft'`).
    * @param ctrlKey Whether Ctrl is required (default `false`).
    * @param shiftKey Whether Shift is required (default `false`).
@@ -251,8 +285,10 @@ export class Input {
       }),
     )
   }
+
   /**
    * The **`isJustKeyUnpressed`** method returns `true` on the first frame a key is released.
+   *
    * @param key The key name (e.g., `'a'`, `' '`, `'ArrowLeft'`).
    * @param ctrlKey Whether Ctrl is required (default `false`).
    * @param shiftKey Whether Shift is required (default `false`).
@@ -272,12 +308,17 @@ export class Input {
 
   /**
    * The **`getKeyAxis`** method returns an axis value based on two opposing keys.
+   * Returns `-1` if only the negative key is held, `1` if only the positive key
+   * is held, or `0` if neither or both are held.
+   *
    * @param positiveKey The key that produces +1 (e.g., `'ArrowRight'`).
    * @param negativeKey The key that produces -1 (e.g., `'ArrowLeft'`).
    * @returns `-1`, `0`, or `1` based on which key is held.
    *
    * @example
    * ```ts
+   * import { Input } from 'fraxel'
+   *
    * const horizontal = Input.getKeyAxis('ArrowRight', 'ArrowLeft')
    * // Returns: -1 (left), 0 (none), or 1 (right)
    * ```
@@ -292,7 +333,8 @@ export class Input {
   // --- Pointer ---
 
   /**
-   * The read-only **`pointerPosition`** property returns the current pointer position.
+   * The read-only **`pointerPosition`** property returns the current pointer position
+   * in game coordinates (logical pixels).
    */
   static get pointerPosition(): Readonly<Vector2> {
     return Input.#pointer.position
@@ -306,19 +348,20 @@ export class Input {
   }
 
   /**
-   * The **`pointerMoved`** event fires when the pointer moves.
+   * The **`pointerMoved`** event fires when the pointer moves. The callback receives
+   * the pointer position in game coordinates.
    */
   static pointerMoved = new Event('pointerMove', (_position: Vector2) => {})
 
   /**
-   * The **`pointerPressed`** event fires when the pointer is pressed.
-   * The callback receives the pointer position.
+   * The **`pointerPressed`** event fires when the pointer is pressed. The callback
+   * receives the pointer position in game coordinates.
    */
   static pointerPressed = new Event('pointerPress', (_position: Vector2) => {})
 
   /**
-   * The **`pointerUnpressed`** event fires when the pointer is released.
-   * The callback receives the pointer position.
+   * The **`pointerUnpressed`** event fires when the pointer is released. The callback
+   * receives the pointer position in game coordinates.
    */
   static pointerUnpressed = new Event('pointerUnpress', (_position: Vector2) => {})
 
@@ -331,7 +374,9 @@ export class Input {
   }
 
   /**
-   * The **`destroy`** method removes all event listeners, clears actions, and revokes subscriptions.
+   * The **`destroy`** method removes all event listeners, clears actions, and
+   * revokes subscriptions. Must be called when the game is destroyed to prevent
+   * memory leaks.
    */
   static destroy() {
     window.removeEventListener('resize', Input.#handleResize)

@@ -10,80 +10,84 @@ import { Color, type ColorLike } from '../../math/color.js'
 
 export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
   /**
-   * The **`textureId`** property of `Sprite` represents the sprite's texture.
-   * The texture must be loaded with `loadTexture()` first.
+   * The **`textureId`** property identifies the sprite's texture.
+   * Must be a symbol returned by `loadTexture()`.
    *
    * @example
    * ```tsx
-   * const BALL_TEXTURE = await loadTexture('/assets/ball.png')
+   * import { loadTexture } from 'fraxel'
+   *
+   * const BALL = await loadTexture('/assets/ball.png')
    *
    * function Ball() {
-   *   return <sprite textureId={BALL_TEXTURE} />
+   *   return <sprite textureId={BALL} />
    * }
    * ```
    */
   textureId?: Reactive<symbol>
   /**
-   * The **`margin`** property of `Sprite` represents the texture offset.
+   * The **`margin`** property offsets the texture origin within the source image.
+   * Useful for selecting a frame from a sprite sheet.
    *
    * @example
    * ```tsx
-   * const IDLE_TEXTURE = await loadTexture('/assets/idle.png')
+   * import { loadTexture } from 'fraxel'
+   *
+   * const SHEET = await loadTexture('/assets/sheet.png')
    *
    * function Player() {
-   *   return (
-   *     <sprite textureId={IDLE_TEXTURE} margin={[16, 0]} />
-   *   )
+   *   return <sprite textureId={SHEET} margin={[16, 0]} sourceSize={[16, 16]} />
    * }
    * ```
    */
   margin?: Reactive<VectorLike>
   /**
-   * The **`sourceSize`** property of `Sprite` represents the source size to render.
+   * The **`sourceSize`** property defines the region of the texture to render.
+   * Defaults to the full texture size if not set.
    *
    * @default texture.size
    *
    * @example
    * ```tsx
-   * const IDLE_TEXTURE = await loadTexture('/assets/idle.png')
+   * import { loadTexture } from 'fraxel'
+   *
+   * const SHEET = await loadTexture('/assets/sheet.png')
    *
    * function Player() {
-   *   return (
-   *     <sprite
-   *       textureId={IDLE_TEXTURE}
-   *       margin={[16, 0]}
-   *       sourceSize={[16, 16]}
-   *     />
-   *   )
+   *   return <sprite textureId={SHEET} margin={[16, 0]} sourceSize={[16, 16]} />
    * }
    * ```
    */
   sourceSize?: Reactive<VectorLike>
   /**
-   * The **`displaySize`** property of `Sprite` represents the display size.
+   * The **`displaySize`** property scales the rendered output.
+   * Defaults to `sourceSize` if not set.
    *
-   * @default this.sourceSize
+   * @default sourceSize
    *
    * @example
    * ```tsx
-   * const IDLE_TEXTURE = await loadTexture('/assets/idle.png')
+   * import { loadTexture } from 'fraxel'
+   *
+   * const TEX = await loadTexture('/assets/sprite.png')
    *
    * function Player() {
-   *   return (
-   *     <sprite
-   *       textureId={IDLE_TEXTURE}
-   *       margin={[16, 0]}
-   *       sourceSize={[16, 16]}
-   *       displaySize={[32, 32]}
-   *     />
-   *   )
+   *   return <sprite textureId={TEX} sourceSize={[16, 16]} displaySize={[32, 32]} />
    * }
    * ```
    */
   displaySize?: Reactive<VectorLike>
-  /** Whether to flip the sprite horizontally */
+  /**
+   * The **`flipX`** property mirrors the sprite horizontally.
+   *
+   * @default false
+   */
   flipX?: Reactive<boolean>
-  /** Whether to flip the sprite vertically */
+  /**
+   * The **`flipY`** property mirrors the sprite vertically.
+   *
+   * @default false
+   */
   flipY?: Reactive<boolean>
 
   /**
@@ -94,7 +98,6 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    *
    * @example
    * ```tsx
-   * // Make sprite 50% brighter
    * <sprite textureId={TEX} brightness={1.5} />
    * ```
    */
@@ -107,7 +110,6 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    *
    * @example
    * ```tsx
-   * // Half grayscale
    * <sprite textureId={TEX} grayscale={0.5} />
    * ```
    */
@@ -120,14 +122,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    *
    * @example
    * ```tsx
-   * // Orange tint
    * <sprite textureId={TEX} modulate={[1, 0.5, 0, 1]} />
-   *
-   * // Red channel only
-   * <sprite textureId={TEX} modulate={[1, 0, 0, 1]} />
-   *
-   * // Semi-transparent
-   * <sprite textureId={TEX} modulate={[1, 1, 1, 0.5]} />
    * ```
    */
   modulate?: Reactive<ColorLike>
@@ -163,7 +158,6 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    *
    * @example
    * ```tsx
-   * // Rotate hue 90 degrees
    * <sprite textureId={TEX} hueRotate={90} />
    * ```
    */
@@ -181,14 +175,13 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    */
   invert?: Reactive<number>
   /**
-   * The **`opacity`** filter adjusts the sprite's opacity.
+   * The **`opacity`** filter adjusts the sprite's transparency.
    * `0` = fully transparent, `1` = fully opaque.
    *
    * @default 1
    *
    * @example
    * ```tsx
-   * // 50% transparent
    * <sprite textureId={TEX} opacity={0.5} />
    * ```
    */
@@ -196,15 +189,15 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
 }
 
 /**
- * The **`Sprite`** node displays a texture or sprite in the game world.
- * It supports texture atlases with margin/sourceSize, display scaling, flipping, and visual filters.
+ * The **`Sprite`** node displays a texture in the game world.
+ * Supports texture atlases via `margin`/`sourceSize`, display scaling, flipping, and visual filters.
  *
  * @example
  * ```tsx
  * import { loadTexture } from 'fraxel'
  * import { useSprite } from 'fraxel/hooks'
  *
- * const PLAYER_TEXTURE = await loadTexture('/assets/player.png')
+ * const PLAYER = await loadTexture('/assets/player.png')
  *
  * function Player() {
  *   const sprite = useSprite()
@@ -212,7 +205,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
  *   return (
  *     <sprite
  *       ref={sprite}
- *       textureId={PLAYER_TEXTURE}
+ *       textureId={PLAYER}
  *       sourceSize={[32, 32]}
  *       displaySize={[64, 64]}
  *       brightness={1.2}
@@ -227,8 +220,8 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
   #texture?: Texture | undefined
 
   /**
-   * The **`margin`** property defines the texture offset within the source image.
-   * Useful for sprite sheets where each frame has a different position.
+   * The **`margin`** property offsets the texture origin within the source image.
+   * Useful for selecting a frame from a sprite sheet.
    */
   margin?: Vector2 | undefined
 
@@ -239,18 +232,18 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
   sourceSize?: Vector2 | undefined
 
   /**
-   * The **`displaySize`** property defines the rendered size of the sprite.
+   * The **`displaySize`** property scales the rendered output.
    * Defaults to `sourceSize` if not set.
    */
   displaySize?: Vector2 | undefined
 
   /**
-   * The **`flipX`** property controls horizontal mirroring of the sprite.
+   * The **`flipX`** property mirrors the sprite horizontally.
    */
   flipX = false
 
   /**
-   * The **`flipY`** property controls vertical mirroring of the sprite.
+   * The **`flipY`** property mirrors the sprite vertically.
    */
   flipY = false
 
@@ -264,8 +257,8 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
   #opacity = 1
 
   /**
-   * Gets or sets the `textureId` of this sprite.
-   * Setting a new texture updates the sprite's visual immediately.
+   * The **`textureId`** property identifies the sprite's texture.
+   * Setting a new ID updates the sprite's visual immediately.
    */
   get textureId() {
     return this.#textureId
@@ -286,7 +279,7 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
 
   /**
    * The **`getTexture`** method returns the current texture.
-   * @returns The current `Texture` or `undefined` if no texture is set
+   * @returns The current `Texture` or `undefined` if no texture is set.
    */
   getTexture() {
     return this.#texture
@@ -308,7 +301,7 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
     this.#grayscale = value
   }
 
-  /** The **`modulate`** filter color `[r, g, b, a]` with values `0`-`1`. */
+  /** The **`modulate`** filter RGBA color. Each channel `0`–`1`. */
   get modulate() {
     return this.#modulate
   }
@@ -332,7 +325,7 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
     this.#saturate = value
   }
 
-  /** The **`hueRotate`** filter value in degrees. `0` = no rotation, `360` = full. */
+  /** The **`hueRotate`** filter value in degrees. `0` = none, `360` = full rotation. */
   get hueRotate() {
     return this.#hueRotate
   }

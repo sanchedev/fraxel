@@ -1,11 +1,18 @@
 import { FraxelError } from './base.js'
 
 /**
- * The **`InputError`** error is thrown when an error occurs during action creating or management.
+ * The **`InputError`** class is the base error for all input-related errors.
+ * Thrown when an error occurs during action creation, key binding, or input queries.
+ *
  * @example
  * ```ts
- * // When this happens:
- * throw new InputError('Action does not exist')
+ * import { InputError } from 'fraxel'
+ *
+ * try {
+ *   Input.getAction(unknownAction)
+ * } catch (e) {
+ *   if (e instanceof InputError) console.error('Input issue:', e.message)
+ * }
  * ```
  */
 export class InputError extends FraxelError {
@@ -16,11 +23,16 @@ export class InputError extends FraxelError {
 }
 
 /**
- * The **`ActionNotFoundError`** error is thrown when trying to access an action that hasn't been registered.
+ * The **`ActionNotFoundError`** class is thrown when trying to access an action that
+ * hasn't been registered via `Input.createAction()`. This commonly happens when
+ * querying input state with an unregistered action symbol.
+ *
  * @example
  * ```ts
- * const action = Symbol('unknown')
- * Input.getAction(action) // throws ActionNotFoundError
+ * import { Input } from 'fraxel'
+ *
+ * const Unknown = Symbol('unknown')
+ * Input.isActionPressed(Unknown) // ActionNotFoundError: Did you call Input.createAction()?
  * ```
  */
 export class ActionNotFoundError extends InputError {
@@ -30,11 +42,16 @@ export class ActionNotFoundError extends InputError {
 }
 
 /**
- * The **`DuplicateKeyError`** error is thrown when trying to bind a key combo that's already used by another action.
+ * The **`DuplicateKeyError`** class is thrown when trying to bind a key combination
+ * that's already used by another action. Each key combo can only be bound to one action.
+ *
  * @example
  * ```ts
+ * import { Input } from 'fraxel'
+ *
  * const Jump = Input.createAction({ key: ' ' })
- * const DoubleJump = Input.createAction({ key: ' ' }) // throws DuplicateKeyError
+ * const DoubleJump = Input.createAction({ key: ' ' })
+ * // DuplicateKeyError: Key combo " " is already bound to Symbol(Jump)
  * ```
  */
 export class DuplicateKeyError extends InputError {

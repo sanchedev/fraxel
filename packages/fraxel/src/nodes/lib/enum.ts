@@ -64,7 +64,7 @@ export enum PrimaryNode {
   RayCast = 'ray-cast',
   /** A node that detects click events. */
   Clickable = 'clickable',
-  /** A node for use time functions. */
+  /** A node that tracks elapsed time and emits timeout events. */
   Timer = 'timer',
   /** A node that renders a shape (rectangle, circle, or capsule). */
   Geometry = 'geometry',

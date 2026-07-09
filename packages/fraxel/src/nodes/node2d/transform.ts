@@ -3,7 +3,7 @@ import { Node2D, type Node2DOptions } from './_node2d.js'
 import { Nodes } from '../lib/registry.js'
 
 /**
- * The **`TransformOptions`** interface defines the options for a `Transform` node.
+ * The **`TransformOptions`** interface defines the configuration for a `Transform` node.
  * Extends `Node2DOptions` with no additional properties.
  */
 export interface TransformOptions extends Node2DOptions<PrimaryNode.Transform> {}

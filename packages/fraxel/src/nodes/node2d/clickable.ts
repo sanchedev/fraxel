@@ -9,7 +9,7 @@ import { propSignal, signalVector } from '../../utils/ternaries.js'
 import { Input } from '../../input/input.js'
 
 /**
- * The **`ClickableOptions`** interface defines the options for a `Clickable` node.
+ * The **`ClickableOptions`** interface defines the configuration for a `Clickable` node.
  */
 export interface ClickableOptions extends Node2DOptions<PrimaryNode.Clickable> {
   /**
@@ -17,51 +17,42 @@ export interface ClickableOptions extends Node2DOptions<PrimaryNode.Clickable> {
    *
    * @example
    * ```tsx
-   * // As a [x, y] tuple
    * <clickable size={[64, 32]} />
-   *
-   * // As an {x, y} object
-   * <clickable size={{ x: 64, y: 32 }} />
-   *
-   * // As a single number (square area)
    * <clickable size={64} />
    * ```
    */
   size: Reactive<VectorLike>
   /**
-   * The **`disabled`** property disable the clickable area.
+   * The **`disabled`** property disables all pointer interactions.
+   *
+   * @default false
    *
    * @example
    * ```tsx
-   * const handleClick = () => {
-   *   console.log("Never")
-   * }
-   *
-   * <clickable size={12} disabled onClick={handleClick} />
+   * <clickable size={[64, 32]} disabled onClick={() => console.log('never')} />
    * ```
    */
   disabled?: Reactive<boolean>
 }
 
 /**
- * The **`Clickable`** node detects pointer interactions (click/tap) within its rectangular area.
- * It emits events when the pointer enters, exits, or completes a click inside the area.
- *
+ * The **`Clickable`** node detects pointer interactions within its rectangular area.
+ * Emits events when the pointer enters, exits, hovers, or completes a click inside the area.
  * The `clicked` event includes the local position relative to the node's top-left corner.
  *
  * @example
  * ```tsx
- * import { useClickable } from 'fraxel/hooks'
+ * import { useClickable, useTrigger } from 'fraxel/hooks'
  *
  * function Button() {
- *   const btn = useClickable()
+ *   const clickable = useClickable()
  *
- *   const handleClick = (pos: Vector2) => {
+ *   useTrigger(clickable.clicked, (pos) => {
  *     console.log('Clicked at', pos.x, pos.y)
- *   }
+ *   })
  *
  *   return (
- *     <clickable ref={btn} size={[64, 32]} onClick={handleClick}>
+ *     <clickable ref={clickable} size={[64, 32]}>
  *       <sprite textureId={BUTTON} />
  *     </clickable>
  *   )

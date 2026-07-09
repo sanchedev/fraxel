@@ -7,11 +7,11 @@ import type { Reactive } from '../reactivity/types.js'
 import { subReactive } from '../reactivity/reactive.js'
 
 /**
- * Options for the `AnimationPlayer` node.
+ * The **`AnimationPlayerOptions`** interface defines the options for an `AnimationPlayer` node.
  */
 export interface AnimationPlayerOptions extends NodeOptions<PrimaryNode.AnimationPlayer> {
   /**
-   * A function that returns a record of animation definitions.
+   * The **`animations`** property is a function that returns a record of animation definitions.
    * The function is called when the node starts (deferred), not at construction time.
    *
    * @example
@@ -26,8 +26,9 @@ export interface AnimationPlayerOptions extends NodeOptions<PrimaryNode.Animatio
    */
   animations?: Reactive<Record<string, Animation>>
   /**
-   * The animation to play initially. Accepts a static name or a reactive `Reactive`
-   * that automatically switches animations when the signal value changes.
+   * The **`currentAnim`** property defines the animation to play initially.
+   * Accepts a static name or a reactive getter that automatically switches
+   * animations when the signal value changes.
    *
    * @example
    * ```tsx
@@ -41,8 +42,8 @@ export interface AnimationPlayerOptions extends NodeOptions<PrimaryNode.Animatio
    */
   currentAnim?: Reactive<string>
   /**
-   * When `true`, the node is automatically destroyed when the current animation ends.
-   * Useful for one-shot effect animations.
+   * The **`destroyOnEnd`** property determines whether the node is automatically
+   * destroyed when the current animation ends. Useful for one-shot effect animations.
    *
    * @default false
    *
@@ -65,11 +66,17 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
   #index = 0
   #destroyOnEnd = false
 
-  /** The read-only **`currentAnim`** property returns the current animation name */
+  /**
+   * The read-only **`currentAnim`** property returns the current animation name,
+   * or `null` when no animation is playing.
+   */
   get currentAnim() {
     return this.#currentAnim
   }
-  /** The read-only **`index`** property returns the current index */
+  /**
+   * The read-only **`index`** property returns the current frame index
+   * within the active animation.
+   */
   get index() {
     return Math.floor(this.#index)
   }
@@ -111,25 +118,30 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
 
   // Events
   /**
-   * Detects when `currentAnim` **changes**
+   * The **`animationChanged`** event fires when the current animation changes.
+   * The callback receives the new animation name and the previous animation name.
    */
   animationChanged = new Event('animationChange', (_newAnim: string, _oldAnim: string | null) => {})
   /**
-   * Detects when `stop` is **called**
+   * The **`animationStopped`** event fires when `stop()` is called.
+   * The callback receives the animation name that was stopped.
    */
   animationStopped = new Event('animationStop', (_anim: string) => {})
   /**
-   * Detects when `index` **changes**
+   * The **`animationIndexChanged`** event fires when the frame index changes.
+   * The callback receives the new frame index.
    */
   animationIndexChanged = new Event('animationIndexChange', (_index: number) => {})
   /**
-   * Detects when the current animation **ends**
+   * The **`animationEnded`** event fires when the current animation reaches the end
+   * and is not set to loop.
    */
   animationEnded = new Event('animationEnd', (_anim: string) => {})
 
   // utils
   /**
    * The **`add`** method adds an animation with a key.
+   *
    * @param animName Animation identifier
    * @param animation Animation object
    * @returns This instance for chaining
@@ -169,7 +181,8 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
     return this
   }
   /**
-   * The **`define`** method adds multiple animations at once.
+   * The **`define`** method adds multiple animations at once from a record.
+   *
    * @param animations Record of animation names to animation objects
    * @returns This instance for chaining
    *
@@ -215,8 +228,10 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
 
   /**
    * The **`play`** method plays an animation by name.
+   * If the same animation with the same index is already playing, this method is a no-op.
+   *
    * @param animName Animation identifier
-   * @param index Index to start from (default `0`)
+   * @param index Optional index to start from (default `0`)
    *
    * @example
    * ```tsx
@@ -241,6 +256,8 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
   }
   /**
    * The **`setNext`** method sets the animation to play after the current one ends.
+   * Pass `null` to clear the next animation.
+   *
    * @param animName Animation to play next, or `null` to stop
    *
    * @example
@@ -257,7 +274,8 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
   }
 
   /**
-   * The **`stop`** method stops the current animation.
+   * The **`stop`** method stops the current animation and resets the frame index to 0.
+   * Emits `animationStopped` if an animation was playing.
    */
   stop() {
     if (this.#currentAnim == null) return
@@ -331,16 +349,16 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
 Nodes['animation-player'] = AnimationPlayer
 
 export interface Animation {
-  /** Frames per second */
+  /** The **`fps`** property defines the playback speed in frames per second. */
   fps: number
-  /** Frames in the `Animation` */
+  /** The **`keyframes`** property defines the frames in the animation. */
   keyframes: AnimationKeyframe[]
-  /** Whether the `Animation` should start over when it reaches the end. */
+  /** The **`loop`** property determines whether the animation restarts when it reaches the end. */
   loop?: boolean | undefined
 }
 
 /**
- * A keyframe function that receives the local time (0–1) within the frame
- * and applies the frame's visual state to the sprite.
+ * The **`AnimationKeyframe`** type is a function that receives the local time (0–1)
+ * within the frame and applies the frame's visual state to the sprite.
  */
 export type AnimationKeyframe = (time: number) => void

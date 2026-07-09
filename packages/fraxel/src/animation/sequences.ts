@@ -1,13 +1,16 @@
 import type { TweenController } from './tween.js'
 
 /**
- * Executes tweens sequentially — each tween starts after the previous one completes.
+ * The **`sequence`** function executes tweens sequentially — each tween starts
+ * after the previous one completes.
+ *
+ * @param tweens Array of `TweenController` instances to run in sequence.
  *
  * @example
  * ```ts
  * import { tween, sequence } from 'fraxel'
  *
- * // Assumes `sprite` is a Sprite node
+ * // Fade in, then move right
  * sequence([
  *   tween({ target: sprite, prop: 'opacity', from: 0, to: 1, duration: 0.5 }),
  *   tween({ target: sprite, prop: 'position', from: 0, to: 100, duration: 1 }),
@@ -37,13 +40,15 @@ export function sequence(tweens: TweenController[]): void {
 }
 
 /**
- * Executes tweens in parallel — all tweens start simultaneously.
+ * The **`parallel`** function executes tweens in parallel — all tweens start simultaneously.
+ *
+ * @param tweens Array of `TweenController` instances to run in parallel.
  *
  * @example
  * ```ts
  * import { tween, parallel } from 'fraxel'
  *
- * // Assumes `sprite` is a Sprite node
+ * // Fade in and move right at the same time
  * parallel([
  *   tween({ target: sprite, prop: 'opacity', from: 0, to: 1, duration: 0.5 }),
  *   tween({ target: sprite, prop: 'position', from: 0, to: 100, duration: 1 }),

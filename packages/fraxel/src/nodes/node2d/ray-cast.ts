@@ -11,36 +11,30 @@ import { propSignal, signalVector } from '../../utils/ternaries.js'
 
 export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
   /**
-   * The **`direction`** property defines the relative point from the raycast origin.
-   * The origin is the node's position in the game world.
+   * The **`direction`** property defines the relative endpoint of the ray from its origin.
+   * The origin is the node's world position.
    *
    * @example
    * ```tsx
-   * // 3 units to the right
-   * <ray-cast direction={[3, 0]} ... />
-   *
-   * // 2 units to the left
-   * <ray-cast direction={[-2, 0]} ... />
-   *
-   * // 3 units right and 3 units up (diagonal)
-   * <ray-cast direction={[3, 3]} ... />
+   * <ray-cast direction={[100, 0]} collidesWith={['enemy']} />
+   * <ray-cast direction={[0, -50]} collidesWith={['ceiling']} />
    * ```
    */
   direction: Reactive<VectorLike>
   /**
-   * The **`collidesWith`** property defines which groups this raycast can interact with.
+   * The **`collidesWith`** property defines which groups this raycast detects.
    *
    * @example
    * ```tsx
-   * <ray-cast direction={...} collidesWith={['enemy', 'obstacle']} ... />
+   * <ray-cast direction={[100, 0]} collidesWith={['enemy', 'obstacle']} />
    * ```
    */
   collidesWith: string[]
 }
 
 /**
- * The **`RayCast`** node projects a ray from its position in a direction and detects the first collider it hits.
- * It supports both rectangle and circle collider shapes and emits events when the detected collider changes.
+ * The **`RayCast`** node projects a ray from its position and detects the first collider it hits.
+ * Supports rectangle, circle, and capsule collider shapes. Emits events when the detected collider changes.
  *
  * @example
  * ```tsx
@@ -65,7 +59,7 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
  */
 export class RayCast extends Node2D<PrimaryNode.RayCast> {
   /**
-   * The **`direction`** property defines the relative endpoint of the raycast from its origin.
+   * The **`direction`** property defines the relative endpoint of the ray from its origin.
    */
   direction: Vector2
 
@@ -88,12 +82,11 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
   }
 
   /**
-   * The read-only **`length`** property returns the length of the raycast direction vector.
+   * The read-only **`length`** property returns the length of the direction vector.
    *
    * @example
    * ```ts
-   * // Ray pointing 5 units right, 12 units up
-   * const length = ray.length // 13
+   * const rayLength = ray.length
    * ```
    */
   get length(): number {
@@ -111,21 +104,25 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
   colliderExited = new Event('colliderExit', (_collider: Collider) => {})
 
   /**
-   * The **`getCollider`** method returns the currently detected collider, or `null` if none is in range.
-   * @returns The detected `Collider` or `null`.
+   * The **`getCollider`** method returns the currently detected collider.
+   * @returns The detected `Collider` or `null` if none is in range.
    *
    * @example
-   * ```ts
+   * ```tsx
    * import { useRayCast, useTrigger } from 'fraxel/hooks'
    *
-   * const ray = useRayCast()
+   * function Peashooter() {
+   *   const ray = useRayCast()
    *
-   * useTrigger(ray.colliderEntered, () => {
-   *   const target = ray.getCollider()
-   *   if (target) {
-   *     console.log('Target found at:', target.globalPosition)
-   *   }
-   * })
+   *   useTrigger(ray.colliderEntered, () => {
+   *     const target = ray.getCollider()
+   *     if (target) {
+   *       console.log('Target at:', target.globalPosition)
+   *     }
+   *   })
+   *
+   *   return <ray-cast ref={ray} direction={[100, 0]} collidesWith={['zombie']} />
+   * }
    * ```
    */
   getCollider(): Collider | null {
