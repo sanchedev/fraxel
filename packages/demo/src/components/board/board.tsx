@@ -1,7 +1,7 @@
 import { loadSound, type VectorLike, vector2 } from 'fraxel'
 import { Row } from './row.js'
 import { BoardCtx } from '../../contexts/board.js'
-import { useRef, useSignal, useAudio } from 'fraxel/hooks'
+import { useSignal, useAudio } from 'fraxel/hooks'
 import type { InRowProps } from '../types.js'
 import { SunCounter } from '../sun/sun-counter.js'
 import { SunCountCtx } from '../../contexts/sun-count.js'
@@ -20,9 +20,7 @@ interface BoardProps {
 }
 
 export function Board({ position, cellsCount, cellSize }: BoardProps) {
-  const plantSpawners = useRef<
-    ((colIndex: number, Comp: (props: InRowProps) => JSX.Element) => void)[]
-  >([])
+  const plantSpawners: ((colIndex: number, Comp: (props: InRowProps) => JSX.Element) => void)[] = []
 
   const sunCounter = useSignal(1)
   const plantAudio = useAudio()
@@ -41,7 +39,7 @@ export function Board({ position, cellsCount, cellSize }: BoardProps) {
           Array.from({ length: cell.count.x }, () => 'grass'),
         ),
         spawnPlant(rowIndex, colIndex, Comp) {
-          plantSpawners.current[rowIndex]?.(colIndex, Comp)
+          plantSpawners[rowIndex]?.(colIndex, Comp)
           plantAudio.play()
         },
       }}
@@ -67,7 +65,7 @@ export function Board({ position, cellsCount, cellSize }: BoardProps) {
               {(rowIndex) => (
                 <Row
                   registerSpawners={(plants) => {
-                    plantSpawners.current.push(plants)
+                    plantSpawners.push(plants)
                   }}
                   rowIndex={rowIndex}
                 />

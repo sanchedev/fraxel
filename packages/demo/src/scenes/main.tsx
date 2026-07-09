@@ -49,6 +49,11 @@ function Platform({ position, shape }: { position: VectorLike; shape: Shape }) {
 export default function Main() {
   return (
     <transform>
+      <geometry
+        position={-250}
+        shape={shapes.rectangle(1000, 1000)}
+        fillColor={[0.05, 0.05, 0.09, 1]}
+      />
       <Platform position={[-60, 460]} shape={shapes.rectangle(600, 20)} />
       <Platform position={[50, 380]} shape={shapes.rectangle(100, 20)} />
       <Platform position={[300, 300]} shape={shapes.rectangle(100, 20)} />

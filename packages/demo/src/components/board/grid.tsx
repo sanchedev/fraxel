@@ -2,7 +2,6 @@ import { tween, easeOutQuad, type VectorLike, shapes } from 'fraxel'
 import {
   useComputed,
   useContext,
-  useRef,
   useClickable,
   useSignal,
   useEffect,
@@ -15,8 +14,8 @@ export function Grid({ position }: { position: VectorLike }) {
   const { cellSize, cellsCount, floorTypeOnCells } = useContext(BoardCtx)
   const { current } = useContext(SeedCtx)
 
-  const plants = useRef<{ platform: boolean; plant: boolean }[][]>(
-    floorTypeOnCells.map((floors) => floors.map(() => ({ platform: false, plant: false }))),
+  const plants: { platform: boolean; plant: boolean }[][] = floorTypeOnCells.map((floors) =>
+    floors.map(() => ({ platform: false, plant: false })),
   )
 
   const clickable = useClickable()
@@ -25,18 +24,18 @@ export function Grid({ position }: { position: VectorLike }) {
   )
 
   const ableToPlant = useComputed(
-    () => current() != null && !plants.current[pos().y]![pos().x]!.plant && clickable.hovered(),
+    () => current() != null && !plants[pos().y]![pos().x]!.plant && clickable.hovered(),
   )
 
   const [transparency, setTransparency] = useSignal(0)
-  const tweenRef = useRef<ReturnType<typeof tween> | null>(null)
+  let tweenHandle: ReturnType<typeof tween> | null = null
 
   useEffect(() => {
-    tweenRef.current?.stop()
+    tweenHandle?.stop()
     const target = ableToPlant() ? 0.5 : 0
     const from = transparency()
     if (from === target) return
-    tweenRef.current = tween({
+    tweenHandle = tween({
       target: { v: from },
       prop: 'v',
       from,
@@ -53,9 +52,9 @@ export function Grid({ position }: { position: VectorLike }) {
     if (!ableToPlant()) return
 
     const { x, y } = pos()
-    plants.current[y]![x]!.plant = true
+    plants[y]![x]!.plant = true
     c.setPlant(pos(), () => {
-      plants.current[y]![x]!.plant = false
+      plants[y]![x]!.plant = false
     })
   })
 
