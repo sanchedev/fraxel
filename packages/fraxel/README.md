@@ -3,7 +3,7 @@
 > Build 2D games with JSX — no React, no virtual DOM, no re-renders.
 
 [![CI](https://github.com/sanchedev/fraxel/actions/workflows/ci.yml/badge.svg)](https://github.com/sanchedev/fraxel/actions)
-[![npm version](https://img.shields.io/badge/version-0.1.0--alpha.4-blue)](https://github.com/sanchedev/fraxel)
+[![npm version](https://img.shields.io/badge/version-0.1.0--alpha.4b-blue)](https://github.com/sanchedev/fraxel)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 **fraxel** is a custom JSX runtime for building 2D games in the browser. JSX compiles directly to a declarative scene graph rendered to `<canvas>` — no reconciliation, no diffing, just signals driving properties.
