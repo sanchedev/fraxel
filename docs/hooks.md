@@ -1,5 +1,11 @@
 # Hooks
 
+Hooks bridge declarative JSX and imperative game logic. They run during the render phase and auto-cleanup on node destroy.
+
+```ts
+import { useEffect, useSignal, useComputed } from 'fraxel/hooks'
+```
+
 ## Core Hooks
 
 | Hook                            | Description                                                 |
@@ -13,7 +19,25 @@
 | `useTrigger(trigger, callback)` | Pub/sub for cross-component communication                   |
 | `createContext(default)`        | Creates a context with `Provider` component                 |
 | `useContext(context)`           | Retrieves the current context value                         |
-| `useRef(value)`                 | Mutable reference that persists across renders              |
+| `useRef(value)`                 | **@deprecated** — use a plain `let` variable instead        |
+
+### Deprecation: useRef
+
+`useRef` is deprecated. Since component functions in fraxel execute only once (no re-render cycle), a plain `let` variable has the same behavior:
+
+```tsx
+// Before (deprecated)
+const count = useRef(0)
+count.current++
+console.log(count.current)
+
+// After — use a plain let
+let count = 0
+count++
+console.log(count)
+```
+
+All internal engine code has been migrated to use `let` variables.
 
 ## Script Utilities
 
@@ -335,10 +359,11 @@ function Character() {
 Creates a reference to an `AudioPlayer` node with reactive playback state and imperative control.
 
 ```tsx
-import { useAudio, useTrigger } from 'fraxel/hooks'
+import { useAudio, useTrigger, useClickable } from 'fraxel/hooks'
 
 function SoundEffect() {
   const audio = useAudio()
+  const clickable = useClickable()
 
   useTrigger(audio.ended, () => {
     console.log('Sound finished')
@@ -346,7 +371,7 @@ function SoundEffect() {
 
   return (
     <audio-player ref={audio} soundId={SFX}>
-      <clickable onClick={() => audio.play()} size={[64, 32]} />
+      <clickable ref={clickable} size={[64, 32]} />
     </audio-player>
   )
 }
@@ -504,14 +529,14 @@ function Platform() {
 Creates a reference to a `Group` node. Groups are containers for organizing child nodes.
 
 ```tsx
-import { useGroup } from 'fraxel/hooks'
+import { useGroup, useTrigger } from 'fraxel/hooks'
 
 function Container() {
   const group = useGroup()
 
   return (
     <group ref={group}>
-      <clickable onClick={() => group.spawn(<Enemy />)} size={[32, 32]} />
+      <timer duration={2} autoPlay onTimeout={() => group.spawn(<Enemy />)} />
     </group>
   )
 }
@@ -634,8 +659,7 @@ health.value = 50 // logs: "Health changed: 50"
 health.clearSubs() // removes all subscribers
 ```
 
-The `clearSubs()` method removes all subscribers from a signal. Useful for cleanup when
-a signal's owner is destroyed and no further notifications should be dispatched.
+The `clearSubs()` method removes all subscribers from a signal. Useful for cleanup when a signal's owner is destroyed and no further notifications should be dispatched.
 
 ## createContext / useContext
 
@@ -712,3 +736,10 @@ function EnemyList() {
 - `itemKey`: `(value, index, arr) => string | symbol` — unique key for each item
 - `empty`: optional fallback when array is empty
 - `children`: `(value, index, arr) => Node` — render function for each item
+
+## See Also
+
+- [Core](core.md) — `Game`, `SceneManager`, theming
+- [JSX](jsx.md) — `List`, `Fragment`, `Game`, `Scene` components
+- [Reactivity](reactivity.md) — `Signal`, `SignalRegister` internals
+- [Scripts](scripts.md) — `FraxelScript` and `createSignal` in scripts

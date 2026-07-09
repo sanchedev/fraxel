@@ -86,7 +86,7 @@ The `<Game>` component accepts these props:
 </Game>
 ```
 
-- `pauseOnBlur: true` — automatically pauses the game when the browser tab loses focus, and resumes when it regains focus.
+- `pauseOnBlur: true` — automatically pauses the game when the browser tab loses focus.
 - The `requestAnimationFrame` loop always stops on blur; `pauseOnBlur` additionally sets `Game.paused = true`.
 
 ## Adding Interactivity
@@ -112,16 +112,7 @@ function Player() {
 }
 ```
 
-## Project Structure
-
-```
-fraxel/
-├── packages/
-│   ├── fraxel/    # The engine library
-│   └── demo/           # Example game (Plants vs Zombies style)
-```
-
-### Import paths
+## Import Paths
 
 ```tsx
 // Main entry — nodes, math, collision, core, reactivity
@@ -147,9 +138,8 @@ import { tween, easeOutQuad, animationFromSheet } from 'fraxel'
 
 - [Nodes Reference](nodes.md) — all available JSX elements
 - [Hooks API](hooks.md) — state, effects, and lifecycle
-- [Collision System](collision.md) — shapes, groups, and events
-- [Physics](physics.md) — gravity, rigid bodies, and forces
+- [Collision System](collision.md) — shapes, groups, rigid bodies, and physics
 - [Camera](camera.md) — viewport control and scrolling
 - [Audio](audio.md) — sound loading and playback
-- [Tweening](tweening.md) — interpolation and easing
+- [Animation](animation.md) — animation player, sprite sheets, and tweening
 - [Asset Pipeline](assets.md) — batch loading and management

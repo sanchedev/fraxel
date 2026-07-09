@@ -1,23 +1,27 @@
-# Asset Pipeline
+# Assets
+
+The assets module handles loading, caching, and unloading of textures and sounds.
+
+```ts
+import { loadTexture, loadSound, loadBatch, unloadTexture, unloadSound } from 'fraxel'
+```
 
 ## Loading Textures
 
-```tsx
-import { loadTexture } from 'fraxel'
-
-const playerTex = await loadTexture('/assets/sprites/player.png')
-const bgTex = await loadTexture('/assets/background.png')
+```ts
+const PLAYER = await loadTexture('/assets/sprites/player.png')
+const BG = await loadTexture('/assets/background.png')
 ```
 
 `loadTexture()` loads an image and returns a `symbol` ID. Duplicate URLs are deduped automatically.
 
 ## Loading Sounds
 
-```tsx
-import { loadSound } from 'fraxel'
-
-const shootSound = await loadSound('/assets/sounds/shoot.mp3')
+```ts
+const SHOOT = await loadSound('/assets/sounds/shoot.mp3')
 ```
+
+`loadSound()` loads an audio buffer and returns a `symbol` ID. Each call creates a new instance (no deduplication).
 
 See [Audio](audio.md) for playback with `<audio-player>`.
 
@@ -25,7 +29,7 @@ See [Audio](audio.md) for playback with `<audio-player>`.
 
 `loadBatch` loads multiple assets in parallel with progress tracking:
 
-```tsx
+```ts
 import { loadBatch, loadTexture, loadSound } from 'fraxel'
 
 const [bg, player, shoot] = await loadBatch(
@@ -44,7 +48,7 @@ const [bg, player, shoot] = await loadBatch(
 
 `loadBatchAsset` is a typed variant for loading multiple assets of the same type:
 
-```tsx
+```ts
 import { loadBatchAsset } from 'fraxel'
 
 const [bg, player, enemy] = await loadBatchAsset('texture', [
@@ -56,26 +60,26 @@ const [bg, player, enemy] = await loadBatchAsset('texture', [
 
 ### API
 
-| Function                               | Description                                |
-| -------------------------------------- | ------------------------------------------ |
-| `loadTexture(url)`                     | Loads an image, returns a symbol ID        |
-| `loadSound(url)`                       | Loads an audio buffer, returns a symbol ID |
-| `loadBatch(loaders, options?)`         | Loads multiple assets in parallel          |
-| `loadBatchAsset(type, urls, options?)` | Typed variant for same-type assets         |
-| `unloadTexture(id)`                    | Frees texture memory                       |
-| `unloadSound(id)`                      | Frees sound memory                         |
+| Function                               | Description                                 |
+| -------------------------------------- | ------------------------------------------- |
+| `loadTexture(url)`                     | Loads an image, returns a symbol ID.        |
+| `loadSound(url)`                       | Loads an audio buffer, returns a symbol ID. |
+| `loadBatch(loaders, options?)`         | Loads multiple assets in parallel.          |
+| `loadBatchAsset(type, urls, options?)` | Typed variant for same-type assets.         |
+| `unloadTexture(id)`                    | Frees texture memory.                       |
+| `unloadSound(id)`                      | Frees sound memory.                         |
 
 ### Options
 
-| Property     | Type                                      | Description                |
-| ------------ | ----------------------------------------- | -------------------------- |
-| `onProgress` | `(loaded: number, total: number) => void` | Called as each asset loads |
+| Property     | Type                                      | Description                 |
+| ------------ | ----------------------------------------- | --------------------------- |
+| `onProgress` | `(loaded: number, total: number) => void` | Called as each asset loads. |
 
 ## Unloading Assets
 
 Free memory when assets are no longer needed:
 
-```tsx
+```ts
 import { unloadTexture, unloadSound } from 'fraxel'
 
 unloadTexture(PLAYER)
@@ -88,7 +92,7 @@ unloadSound(SHOOT)
 
 Load assets as needed, typically at module top level:
 
-```tsx
+```ts
 const PLAYER = await loadTexture('/assets/player.png')
 const ENEMY = await loadTexture('/assets/enemy.png')
 ```
@@ -97,7 +101,7 @@ const ENEMY = await loadTexture('/assets/enemy.png')
 
 Load all assets before starting the game:
 
-```tsx
+```ts
 import { loadBatch, loadTexture, loadSound } from 'fraxel'
 
 async function preload() {
@@ -125,7 +129,7 @@ await preload()
 
 Load scene-specific assets when the scene loads:
 
-```tsx
+```ts
 import { loadBatchAsset } from 'fraxel'
 
 async function level1() {
@@ -142,3 +146,8 @@ async function level1() {
   )
 }
 ```
+
+## See Also
+
+- [Audio](./audio.md) — AudioPlayer node and sound playback
+- [Getting Started](./getting-started.md) — Asset loading basics

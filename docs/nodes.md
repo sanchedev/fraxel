@@ -26,6 +26,8 @@ Every game object is built from **nodes** — JSX elements that map to engine cl
 </transform>
 ```
 
+Positioning container for child nodes. Accepts a `position` prop (`VectorLike`). Supports reactive position values.
+
 ## Group
 
 ```tsx
@@ -35,8 +37,7 @@ Every game object is built from **nodes** — JSX elements that map to engine cl
 </group>
 ```
 
-- Logical container without spatial positioning (unlike `<transform>` which has a `position`).
-- Used internally by the `<List>` component as a hidden `<transform>` anchor for keyed reconciliation.
+Logical container without spatial positioning (unlike `<transform>` which has a `position`). Used internally by the `<List>` component as a hidden anchor for keyed reconciliation.
 
 ## Sprite
 
@@ -50,7 +51,7 @@ Every game object is built from **nodes** — JSX elements that map to engine cl
 />
 ```
 
-See [Sprite Filters](filters.md) for all available filter props.
+Displays a texture with optional filters. See [Filters](filters.md) for all available filter props.
 
 ## Clickable
 
@@ -81,9 +82,9 @@ function Button() {
 - `size` is required (no default hit area). Accepts `VectorLike`.
 - `disabled` prop disables all interaction.
 - Triggers: `clicked`, `mouseEntered`, `mouseExited`.
-- The node also has a `mouseOver` event (fires every frame while the pointer is inside the clickable area), but it is not exposed via the `useClickable` reference to avoid noise.
+- The node also has a `mouseOver` event (fires every frame while the pointer is inside), but it is not exposed via the `useClickable` reference to avoid noise.
 - `clicked` trigger fires with local position (`Vector2`) relative to the node.
-- Set `GameConfig.testOptions.showClickables = true` to visualize areas
+- Set `GameConfig.testOptions.showClickables = true` to visualize areas.
 
 ## Timer
 
@@ -138,6 +139,8 @@ function Detector() {
 }
 ```
 
+See [Collision System](collision.md) for raycast detection and events.
+
 ## Geometry
 
 Renders rectangles, circles, or capsules using the same `shapes` factory as colliders:
@@ -173,10 +176,8 @@ import { shapes } from 'fraxel'
 />
 ```
 
-- `animations` is a function called when the node starts (deferred). This allows referencing
-  sprite nodes that may not be available at construction time.
-- `currentAnim` accepts a static string or a reactive `SignalGetter<string>` for automatic
-  animation switching.
+- `animations` is a function called when the node starts (deferred). This allows referencing sprite nodes that may not be available at construction time.
+- `currentAnim` accepts a static string or a reactive `SignalGetter<string>` for automatic animation switching.
 - `destroyOnEnd` destroys the node when the animation ends (after `animationEnded` fires and no next animation is queued).
 
 See [Animation](animation.md) for sprite sheet keyframes and reactive animation examples.
@@ -206,7 +207,7 @@ function ScoreLabel() {
 - `text` — string to render (reactive via `SignalGetter`).
 - `style` — partial `TextStyle` with `foregroundColor`, `fontSize`, `fontFamily`, `fontWeight`, `textAlign`.
 
-See `TextStyle` in `src/core/theme.ts` for available style properties.
+See [Core](core.md) for `TextStyle` properties.
 
 ## AudioPlayer
 
@@ -292,7 +293,7 @@ function FallingRock() {
 - Must be parent of a `<collider>`.
 - Access `physicsBody` for `applyForce()` and `applyImpulse()`.
 
-See [Physics](physics.md) for full documentation.
+See [Collision System](collision.md) for full documentation.
 
 ## GameMode
 
@@ -328,3 +329,12 @@ import { GameMode } from 'fraxel'
 - Default is `INHERIT` — resolves up the parent chain, defaulting to `PLAYING` at the root.
 - `gameMode` accepts `Reactive<GameMode>` for dynamic switching.
 - Collision and physics systems check the node's own `gameMode` to determine activity.
+
+## See Also
+
+- [Filters](filters.md) — sprite filter props
+- [Collision](collision.md) — colliders, rigid bodies, and physics
+- [Animation](animation.md) — animation player and tweening
+- [Camera](camera.md) — viewport control
+- [Audio](audio.md) — audio player
+- [Core](core.md) — TextStyle and theming

@@ -1,42 +1,59 @@
-# Sprite Filters
+# Filters
 
-Sprites support CSS-like visual filters via props:
+The filters module provides CSS-like visual filter props for sprites and the `Color` class for RGBA color manipulation.
+
+## Sprite Filter Props
+
+Filters are applied via `ctx.filter` in the canvas rendering pipeline. All filter props accept reactive values.
 
 ```tsx
 <sprite
-  textureId={TEX}
-  brightness={1.2} // 0=black, 1=base, 2=white
-  grayscale={0.5} // 0=color, 1=grayscale
-  modulate={[1, 0.5, 0, 1]} // RGBA tint [r, g, b, a] 0-1
-  contrast={1.5} // 0=no contrast, 1=base
-  saturate={0.8} // 0=desaturated, 1=base
-  hueRotate={90} // degrees
-  invert={0.5} // 0=normal, 1=inverted
-  opacity={0.8} // 0=transparent, 1=opaque
+  textureId={PLAYER}
+  brightness={1.2}
+  grayscale={0.5}
+  modulate={[1, 0.5, 0, 1]}
+  contrast={1.5}
+  saturate={0.8}
+  hueRotate={90}
+  invert={0.5}
+  opacity={0.8}
 />
 ```
 
-Filters are applied via `ctx.filter` in the canvas rendering pipeline. `modulate` uses `globalCompositeOperation: 'multiply'` with a fill color.
+### Filter Props
+
+| Prop         | Type        | Range   | Description                                   |
+| ------------ | ----------- | ------- | --------------------------------------------- |
+| `brightness` | `number`    | `0`–`2` | `0`=black, `1`=base, `2`=white.               |
+| `grayscale`  | `number`    | `0`–`1` | `0`=color, `1`=grayscale.                     |
+| `modulate`   | `ColorLike` | `0`–`1` | RGBA tint multiplied with the texture.        |
+| `contrast`   | `number`    | `0`–`2` | `0`=no contrast, `1`=base, `2`=high contrast. |
+| `saturate`   | `number`    | `0`–`2` | `0`=desaturated, `1`=base, `2`=oversaturated. |
+| `hueRotate`  | `number`    | degrees | Rotates the hue by the given degrees.         |
+| `invert`     | `number`    | `0`–`1` | `0`=normal, `1`=inverted.                     |
+| `opacity`    | `number`    | `0`–`1` | `0`=transparent, `1`=opaque.                  |
+
+### Rendering Mechanism
+
+- `brightness`, `grayscale`, `contrast`, `saturate`, `hueRotate`, `invert` — applied via `ctx.filter` (CSS filter string).
+- `modulate` — uses `globalCompositeOperation: 'multiply'` with a fill color.
+- `opacity` — uses `globalAlpha`.
 
 ## Color
 
-`Color` is an RGBA color class with channels in `0`–`1` range. All values are clamped on construction.
+RGBA color with channels in `0`–`1` range. Used by `Sprite.modulate` and `Geometry.fillColor`/`strokeColor`.
 
 ```ts
 import { Color, color } from 'fraxel'
 
-// From components
 const red = new Color(1, 0, 0)
 const transparent = new Color(1, 1, 1, 0)
 
-// From tuple
+// From tuple or object
 const blue = new Color([0, 0, 1])
-const green = new Color([0, 1, 0, 0.5])
-
-// From object
 const orange = new Color({ r: 1, g: 0.5, b: 0 })
 
-// Factory function (same overloads)
+// Factory function
 const fromFactory = color(1, 0, 0)
 ```
 
@@ -51,35 +68,62 @@ const fromFactory = color(1, 0, 0)
 | `Color.BLUE`        | `(0, 0, 1, 1)` |
 | `Color.TRANSPARENT` | `(1, 1, 1, 0)` |
 
+### Constructor
+
+```ts
+new Color(r: number, g: number, b: number, a?: number)
+new Color(colorLike: ColorLike)
+```
+
+### Properties
+
+| Property | Type     | Range   | Description    |
+| -------- | -------- | ------- | -------------- |
+| `r`      | `number` | `0`–`1` | Red channel.   |
+| `g`      | `number` | `0`–`1` | Green channel. |
+| `b`      | `number` | `0`–`1` | Blue channel.  |
+| `a`      | `number` | `0`–`1` | Alpha channel. |
+
 ### Methods
 
-- `clone()` — returns a copy of the color
-- `equals(colorLike)` — checks equality with another color
-- `toCSS()` — converts to CSS `rgba()` string
-- `toJSON()` — serializes to `{ r, g, b, a }` object
+| Method      | Returns   | Description                               |
+| ----------- | --------- | ----------------------------------------- |
+| `clone()`   | `Color`   | Returns a new Color with the same values. |
+| `equals(c)` | `boolean` | Checks equality with another color.       |
+| `toCSS()`   | `string`  | Converts to CSS `rgba()` string.          |
+| `toJSON()`  | `object`  | Returns `{ r, g, b, a }` object.          |
 
 ### ColorLike
 
-`ColorLike` is a union type accepted wherever a `Color` is expected:
+All accepted formats:
 
 ```ts
-import type { ColorLike } from 'fraxel'
-
-const a: ColorLike = new Color(1, 0, 0) // Color instance
-const b: ColorLike = [1, 0.5, 0] // RGB tuple
-const c: ColorLike = [0, 1, 0, 0.5] // RGBA tuple
-const d: ColorLike = { r: 0, g: 0, b: 1 } // RGB object
-const e: ColorLike = { r: 1, g: 0, b: 0, a: 0.5 } // RGBA object
+type ColorLike =
+  | Color
+  | [r: number, g: number, b: number]
+  | [r: number, g: number, b: number, a: number]
+  | { r: number; g: number; b: number }
+  | { r: number; g: number; b: number; a: number }
 ```
 
-### Reactive Colors
+### Example
 
-Use `signalColor` to convert a reactive `ColorLike` to a reactive `Color`:
+```tsx
+import { useSprite, useEffect } from 'fraxel/hooks'
 
-```ts
-import { signalColor } from 'fraxel'
+function Player() {
+  const sprite = useSprite()
 
-const modulate = signalColor(colorProp) // Reactive<Color>
+  useEffect(() => {
+    sprite.setModulate([1, 0.5, 0.5, 1]) // tint red
+    sprite.setOpacity(0.8)
+  })
+
+  return <sprite ref={sprite} textureId={PLAYER} />
+}
 ```
 
-Used by `Sprite.modulate` and `Geometry.fillColor`/`strokeColor`.
+## See Also
+
+- [Math](./math.md) — Color class reference
+- [Nodes](./nodes.md) — Sprite node filter props

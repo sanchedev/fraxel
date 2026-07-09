@@ -26,14 +26,14 @@ Only one camera should be `current` at a time.
 
 ## Props
 
-| Prop        | Type                   | Default  | Description                                           |
-| ----------- | ---------------------- | -------- | ----------------------------------------------------- |
-| `current`   | `boolean`              | `false`  | Whether this camera controls the viewport             |
-| `zoom`      | `Reactive<VectorLike>` | `1`      | Viewport scale (2 = twice as large)                   |
-| `offset`    | `Reactive<VectorLike>` | `[0, 0]` | Screen-space offset added to the view                 |
-| `smoothing` | `Reactive<number>`     | `0`      | View position easing (0 = instant, higher = smoother) |
-| `limit`     | `Bounds`               | `null`   | World-space bounds the camera cannot exceed           |
-| `position`  | `VectorLike`           | `[0, 0]` | Camera position in world space                        |
+| Prop        | Type                   | Default  | Description                                            |
+| ----------- | ---------------------- | -------- | ------------------------------------------------------ |
+| `current`   | `boolean`              | `false`  | Whether this camera controls the viewport.             |
+| `zoom`      | `Reactive<VectorLike>` | `1`      | Viewport scale (2 = twice as large).                   |
+| `offset`    | `Reactive<VectorLike>` | `[0, 0]` | Screen-space offset added to the view.                 |
+| `smoothing` | `Reactive<number>`     | `0`      | View position easing (0 = instant, higher = smoother). |
+| `limit`     | `Bounds`               | `null`   | World-space bounds the camera cannot exceed.           |
+| `position`  | `VectorLike`           | `[0, 0]` | Camera position in world space.                        |
 
 ## Smoothing
 
@@ -132,3 +132,8 @@ function Platformer() {
 ```
 
 The camera follows the player via the parent `rigid-body`, with smooth easing, a vertical offset to see more sky, and world limits to prevent scrolling past the level edges.
+
+## See Also
+
+- [Nodes](./nodes.md) — Camera node reference
+- [Hooks API](./hooks.md) — `useCamera`

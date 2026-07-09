@@ -1,25 +1,41 @@
-# Audio System
+# Audio
+
+The audio module provides sound loading, playback, and the `<audio-player>` node for integrating audio into your game.
+
+```ts
+import { loadSound, getAudioContext } from 'fraxel'
+```
 
 ## Loading Sounds
 
-```tsx
-import { loadSound } from 'fraxel'
+### loadSound
 
-const shootSound = await loadSound('/assets/sounds/shoot.mp3')
-const bgMusic = await loadSound('/assets/sounds/music.mp3')
+Loads an audio file and returns a symbol ID for referencing it.
+
+```ts
+const SHOOT = await loadSound('/assets/shoot.ogg')
+const HIT = await loadSound('/assets/hit.ogg')
 ```
 
-`loadSound()` fetches the audio file, decodes it with `AudioContext`, and returns a `symbol` ID. Each call creates a new instance (no deduplication).
+### getAudioContext
+
+Returns the shared `AudioContext` instance (creates lazily). The context starts in `suspended` state and must be resumed after a user gesture.
+
+```ts
+const audioCtx = getAudioContext()
+if (audioCtx.state === 'suspended') {
+  await audioCtx.resume()
+}
+```
 
 ## AudioPlayer Node
 
+The `<audio-player>` node plays audio buffers with full control over playback.
+
 ```tsx
-import { useAudio, useClickable, useTrigger } from 'fraxel/hooks'
-import { loadSound } from 'fraxel'
+import { useAudio, useTrigger, useClickable } from 'fraxel/hooks'
 
-const SHOOT = await loadSound('/assets/shoot.mp3')
-
-function Gun() {
+function SoundEffect() {
   const audio = useAudio()
   const clickable = useClickable()
 
@@ -27,89 +43,107 @@ function Gun() {
     audio.play()
   })
 
+  useTrigger(audio.ended, () => {
+    console.log('Sound finished')
+  })
+
   return (
-    <sprite textureId={GUN_TEX}>
-      <clickable ref={clickable} size={[32, 32]} />
-      <audio-player ref={audio} soundId={SHOOT} volume={0.8} />
-    </sprite>
+    <audio-player ref={audio} soundId={SHOOT}>
+      <clickable ref={clickable} size={[64, 32]} />
+    </audio-player>
   )
 }
 ```
 
 ### Props
 
-| Prop           | Type      | Default | Description                            |
-| -------------- | --------- | ------- | -------------------------------------- |
-| `soundId`      | `symbol`  | —       | Sound ID from `loadSound()` (required) |
-| `loop`         | `boolean` | `false` | Loop the sound                         |
-| `volume`       | `number`  | `1`     | Playback volume (0 to 1)               |
-| `playbackRate` | `number`  | `1`     | Playback speed                         |
+| Prop              | Type      | Default | Description                              |
+| ----------------- | --------- | ------- | ---------------------------------------- |
+| `soundId`         | `symbol`  | —       | The sound ID returned by `loadSound`.    |
+| `loop`            | `boolean` | `false` | Whether the sound loops.                 |
+| `volume`          | `number`  | `1`     | Playback volume (0–1).                   |
+| `playbackRate`    | `number`  | `1`     | Playback speed multiplier.               |
+| `persistUntilEnd` | `boolean` | `false` | Keep the node alive until playback ends. |
 
 ### Methods
 
-| Method          | Description                                               |
-| --------------- | --------------------------------------------------------- |
-| `play(offset?)` | Start or resume playback (optional start time in seconds) |
-| `pause()`       | Pause without resetting position                          |
-| `stop()`        | Stop and reset position to 0                              |
+| Method          | Description                                  |
+| --------------- | -------------------------------------------- |
+| `play(offset?)` | Starts playback. Optional offset in seconds. |
+| `pause()`       | Pauses playback.                             |
+| `stop()`        | Stops playback and resets to start.          |
 
-### Getters/Setters
+### Getters
 
-| Property       | Access  | Description                  |
-| -------------- | ------- | ---------------------------- |
-| `isPlaying`    | get     | Whether the sound is playing |
-| `volume`       | get/set | Current volume (0–1)         |
-| `playbackRate` | get/set | Current playback speed       |
+| Getter      | Returns   | Description                         |
+| ----------- | --------- | ----------------------------------- |
+| `isPlaying` | `boolean` | Whether audio is currently playing. |
+
+### Setters
+
+| Property       | Type     | Description              |
+| -------------- | -------- | ------------------------ |
+| `volume`       | `number` | Get/set playback volume. |
+| `playbackRate` | `number` | Get/set playback speed.  |
 
 ### Events
 
-| Event   | Callback      | Description                                            |
-| ------- | ------------- | ------------------------------------------------------ |
-| `ended` | `() => {}`    | Fires when playback reaches the end (non-looping only) |
-| `error` | `(err) => {}` | Fires if playback fails                                |
-
-## AudioContext
-
-The `AudioContext` is created lazily on first use. Browsers require a user gesture before audio can play:
-
-```tsx
-import { getAudioContext } from 'fraxel'
-
-// Call this after a click/tap to resume the context
-function onFirstClick() {
-  const ctx = getAudioContext()
-  if (ctx.state === 'suspended') {
-    ctx.resume()
-  }
-}
-```
+| Event   | Callback                 | Description                          |
+| ------- | ------------------------ | ------------------------------------ |
+| `ended` | `() => void`             | Fires when playback reaches the end. |
+| `error` | `(error: Error) => void` | Fires when an audio error occurs.    |
 
 ## Complete Example
 
 ```tsx
-import { useAudio, useMount } from 'fraxel/hooks'
-import { loadSound, getAudioContext } from 'fraxel'
+import { loadSound } from 'fraxel'
+import { useAudio, useTrigger, useClickable, useEffect } from 'fraxel/hooks'
 
-const BG_MUSIC = await loadSound('/assets/music.mp3')
-const SHOOT = await loadSound('/assets/shoot.mp3')
+const SHOOT = await loadSound('/assets/shoot.ogg')
 
-function GameAudio() {
-  const music = useAudio()
-  const sfx = useAudio()
+function Player() {
+  const audio = useAudio()
+  const clickable = useClickable()
 
-  useMount(() => {
-    // Resume audio context after first interaction
-    const ctx = getAudioContext()
-    if (ctx.state === 'suspended') ctx.resume()
-
-    music.play()
+  useTrigger(audio.ended, () => {
+    console.log('Sound finished')
   })
 
   return (
-    <transform>
-      <audio-player ref={music} soundId={BG_MUSIC} loop volume={0.3} />
-      <audio-player ref={sfx} soundId={SHOOT} />
-    </transform>
+    <audio-player ref={audio} soundId={SHOOT}>
+      <clickable ref={clickable} size={[32, 32]} />
+    </audio-player>
   )
 }
 ```
+
+## Browser Audio Context
+
+Browsers require a user gesture before playing audio. The `AudioContext` starts in `suspended` state and must be resumed on user interaction:
+
+```tsx
+import { getAudioContext } from 'fraxel'
+import { useClickable, useTrigger } from 'fraxel/hooks'
+
+function ResumeAudio() {
+  const clickable = useClickable()
+
+  useTrigger(clickable.clicked, async () => {
+    const ctx = getAudioContext()
+    if (ctx.state === 'suspended') {
+      await ctx.resume()
+    }
+  })
+
+  return (
+    <sprite textureId={BTN}>
+      <clickable ref={clickable} size={[64, 32]} />
+    </sprite>
+  )
+}
+```
+
+## See Also
+
+- [Assets](./assets.md) — Loading and managing assets
+- [Nodes](./nodes.md) — AudioPlayer node reference
