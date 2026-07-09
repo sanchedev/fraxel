@@ -3,6 +3,7 @@ import { warnUseRef } from '../warn/use-ref.js'
 
 /**
  * The **`Reference`** class holds a mutable value that persists across renders.
+ * @deprecated Use a plain `let` variable instead.
  */
 export class Reference<T> {
   constructor(value: T) {
