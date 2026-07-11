@@ -15,6 +15,7 @@ import type { AudioPlayer, AudioPlayerOptions } from '../audio-player.js'
 import type { Camera, CameraOptions } from '../node2d/camera.js'
 import type { RigidBody, RigidBodyOptions } from '../node2d/rigid-body.js'
 import type { Group, GroupOptions } from '../group.js'
+import type { TileMap, TileMapOptions } from '../node2d/tilemap.js'
 
 /**
  * The **`NodeClasses`** interface maps each `PrimaryNode` to its class constructor.
@@ -32,6 +33,7 @@ export interface NodeClasses {
   [PrimaryNode.Group]: typeof Group
   [PrimaryNode.Transform]: typeof Transform
   [PrimaryNode.Sprite]: typeof Sprite
+  [PrimaryNode.TileMap]: typeof TileMap
   [PrimaryNode.AnimationPlayer]: typeof AnimationPlayer
   [PrimaryNode.Collider]: typeof Collider
   [PrimaryNode.RayCast]: typeof RayCast
@@ -60,6 +62,7 @@ export interface NodesOptions {
   [PrimaryNode.Group]: GroupOptions
   [PrimaryNode.Transform]: TransformOptions
   [PrimaryNode.Sprite]: SpriteOptions
+  [PrimaryNode.TileMap]: TileMapOptions
   [PrimaryNode.AnimationPlayer]: AnimationPlayerOptions
   [PrimaryNode.Collider]: ColliderOptions
   [PrimaryNode.RayCast]: RayCastOptions

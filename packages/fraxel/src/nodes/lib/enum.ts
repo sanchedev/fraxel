@@ -56,6 +56,8 @@ export enum PrimaryNode {
   Transform = 'transform',
   /** A node that displays a texture or sprite. */
   Sprite = 'sprite',
+  /** A node that displays a tilemap. */
+  TileMap = 'tilemap',
   /** A node that plays frame-based animations. */
   AnimationPlayer = 'animation-player',
   /** A node that detects collisions with other colliders. */
