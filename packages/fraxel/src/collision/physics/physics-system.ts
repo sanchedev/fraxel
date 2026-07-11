@@ -58,10 +58,6 @@ export class PhysicsSystem {
 
   #updateInternal(delta: number) {
     for (const entry of this.#bodies) {
-      entry.body.isGrounded = false
-    }
-
-    for (const entry of this.#bodies) {
       if (!PhysicsSystem.#isBodyActive(entry.body)) continue
 
       const { body } = entry
@@ -112,13 +108,6 @@ export class PhysicsSystem {
 
             resolvedColliders.add(colliderPairKey)
             resolveCollision(entry.body, otherEntry.body, result.overlap, result.normal)
-
-            if (!entry.body.isStatic && result.normal.y < 0) {
-              entry.body.isGrounded = true
-            }
-            if (!otherEntry.body.isStatic && result.normal.y > 0) {
-              otherEntry.body.isGrounded = true
-            }
           }
         }
       }

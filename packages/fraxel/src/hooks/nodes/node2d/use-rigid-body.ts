@@ -42,8 +42,6 @@ export function useRigidBody() {
 export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
   /** Reactive velocity vector, updated every physics frame. */
   velocity = new Signal<Vector2>(Vector2.ZERO).getter
-  /** Reactive `true` when the body is grounded (colliding below). */
-  isGrounded = new Signal(false).getter
   /** Reactive mass value. */
   mass = new Signal(1).getter
   /** Reactive friction coefficient. */
@@ -82,7 +80,6 @@ export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
         const sets = [
           () => {
             this.velocity.signal.setter(node.velocity)
-            this.isGrounded.signal.setter(node.isGrounded)
             this.mass.signal.setter(node.mass)
             this.friction.signal.setter(node.friction)
             this.bounce.signal.setter(node.bounce)
@@ -101,7 +98,6 @@ export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
       },
       () => {
         this.velocity.signal.clearSubs()
-        this.isGrounded.signal.clearSubs()
         this.mass.signal.clearSubs()
         this.friction.signal.clearSubs()
         this.bounce.signal.clearSubs()

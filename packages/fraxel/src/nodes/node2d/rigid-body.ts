@@ -81,9 +81,6 @@ export class RigidBody extends Node2D<PrimaryNode.RigidBody> {
   /** The **`useGravity`** property controls whether gravity is applied. */
   useGravity: boolean
 
-  /** The **`isGrounded`** property is `true` when the body rests on a surface below it. Set automatically each frame. */
-  isGrounded = false
-
   /** The **`colliders`** property holds the set of child colliders. */
   colliders: Set<Collider> = new Set()
 
