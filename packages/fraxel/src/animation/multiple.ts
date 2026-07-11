@@ -1,4 +1,4 @@
-import type { AnimationKeyframe } from '../nodes/animation-player.js'
+import type { AnimationKeyframe } from './types.js'
 
 /**
  * The **`multiKF`** function combines multiple keyframes into a single keyframe.
