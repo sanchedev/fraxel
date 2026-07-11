@@ -1,7 +1,7 @@
 import { Event } from '../events/event.js'
 import { PrimaryNode } from './lib/enum.js'
 import { Node, type NodeOptions } from './_node.js'
-import { Nodes } from './lib/registry.js'
+import { registerNode } from './lib/registry.js'
 import { getAudioContext } from '../audio/audio-context.js'
 import { getSound } from '../assets/load-sound.js'
 
@@ -261,4 +261,4 @@ export class AudioPlayer extends Node<PrimaryNode.AudioPlayer> {
   }
 }
 
-Nodes['audio-player'] = AudioPlayer
+registerNode(PrimaryNode.AudioPlayer, AudioPlayer)

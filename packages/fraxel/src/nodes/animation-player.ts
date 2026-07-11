@@ -2,7 +2,7 @@ import { KeyframeNotFoundError } from '../errors/animation.js'
 import { Event } from '../events/event.js'
 import { PrimaryNode } from './lib/enum.js'
 import { Node, type NodeOptions } from './_node.js'
-import { Nodes } from './lib/registry.js'
+import { registerNode } from './lib/registry.js'
 import type { Reactive } from '../reactivity/types.js'
 import { subReactive } from '../reactivity/reactive.js'
 
@@ -346,7 +346,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
   }
 }
 
-Nodes['animation-player'] = AnimationPlayer
+registerNode(PrimaryNode.AnimationPlayer, AnimationPlayer)
 
 export interface Animation {
   /** The **`fps`** property defines the playback speed in frames per second. */

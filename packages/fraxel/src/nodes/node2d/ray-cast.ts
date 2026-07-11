@@ -3,7 +3,7 @@ import { Event } from '../../events/event.js'
 import { Vector2, type VectorLike } from '../../math/vector2.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
-import { Nodes } from '../lib/registry.js'
+import { registerNode } from '../lib/registry.js'
 import { CollisionSystem } from '../../collision/collision-system.js'
 import type { Collider } from './collider.js'
 import type { Reactive } from '../../reactivity/types.js'
@@ -182,4 +182,4 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
   }
 }
 
-Nodes['ray-cast'] = RayCast
+registerNode(PrimaryNode.RayCast, RayCast)

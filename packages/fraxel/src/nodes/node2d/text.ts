@@ -2,7 +2,7 @@ import { GameConfig } from '../../core/game-config.js'
 import { TextStyle } from '../../core/theme.js'
 import { propSignal } from '../../utils/ternaries.js'
 import { PrimaryNode } from '../lib/enum.js'
-import { Nodes } from '../lib/registry.js'
+import { registerNode } from '../lib/registry.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import type { Reactive } from '../../reactivity/types.js'
 
@@ -91,4 +91,4 @@ export class Text extends Node2D<PrimaryNode.Text> {
   }
 }
 
-Nodes.text = Text
+registerNode(PrimaryNode.Text, Text)

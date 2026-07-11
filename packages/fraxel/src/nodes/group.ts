@@ -1,6 +1,6 @@
 import { Node, type NodeOptions } from './_node.js'
 import { PrimaryNode } from './lib/enum.js'
-import { Nodes } from './lib/registry.js'
+import { registerNode } from './lib/registry.js'
 
 /**
  * The **`GroupOptions`** interface defines the options for a `Group` node.
@@ -62,4 +62,4 @@ export class Group extends Node<PrimaryNode.Group> {
   }
 }
 
-Nodes.group = Group
+registerNode(PrimaryNode.Group, Group)

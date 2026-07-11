@@ -3,7 +3,7 @@ import type { Vector2 } from '../../math/vector2.js'
 import { ns, propSignal, signalColor } from '../../utils/ternaries.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
-import { Nodes } from '../lib/registry.js'
+import { registerNode } from '../lib/registry.js'
 import type { Reactive } from '../../reactivity/types.js'
 import type { Shape } from '../../collision/narrowphase/shapes.js'
 import { Color, type ColorLike } from '../../math/color.js'
@@ -205,4 +205,4 @@ export class Geometry extends Node2D<PrimaryNode.Geometry> {
   }
 }
 
-Nodes.geometry = Geometry
+registerNode(PrimaryNode.Geometry, Geometry)

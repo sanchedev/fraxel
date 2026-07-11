@@ -1,7 +1,7 @@
 import { Event } from '../events/event.js'
 import { PrimaryNode } from './lib/enum.js'
 import { Node, type NodeOptions } from './_node.js'
-import { Nodes } from './lib/registry.js'
+import { registerNode } from './lib/registry.js'
 import type { Reactive } from '../reactivity/types.js'
 import { propSignal } from '../utils/ternaries.js'
 
@@ -147,4 +147,4 @@ export class Timer extends Node<PrimaryNode.Timer> {
   }
 }
 
-Nodes.timer = Timer
+registerNode(PrimaryNode.Timer, Timer)

@@ -1,6 +1,6 @@
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
-import { Nodes } from '../lib/registry.js'
+import { registerNode } from '../lib/registry.js'
 
 /**
  * The **`TransformOptions`** interface defines the configuration for a `Transform` node.
@@ -33,4 +33,4 @@ export class Transform extends Node2D<PrimaryNode.Transform> {
   }
 }
 
-Nodes.transform = Transform
+registerNode(PrimaryNode.Transform, Transform)

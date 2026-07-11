@@ -3,7 +3,7 @@ import { Event } from '../../events/event.js'
 import type { Vector2 } from '../../math/vector2.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
-import { Nodes } from '../lib/registry.js'
+import { registerNode } from '../lib/registry.js'
 import { CollisionSystem } from '../../collision/collision-system.js'
 import type { Shape } from '../../collision/narrowphase/shapes.js'
 
@@ -232,4 +232,4 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
   }
 }
 
-Nodes.collider = Collider
+registerNode(PrimaryNode.Collider, Collider)

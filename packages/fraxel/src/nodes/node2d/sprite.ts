@@ -4,7 +4,7 @@ import { Vector2, type VectorLike } from '../../math/vector2.js'
 import { ns, propSignal, signalColor, signalVector } from '../../utils/ternaries.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
-import { Nodes } from '../lib/registry.js'
+import { registerNode } from '../lib/registry.js'
 import type { Reactive } from '../../reactivity/types.js'
 import { Color, type ColorLike } from '../../math/color.js'
 
@@ -443,4 +443,4 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
   }
 }
 
-Nodes.sprite = Sprite
+registerNode(PrimaryNode.Sprite, Sprite)

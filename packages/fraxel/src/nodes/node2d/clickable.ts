@@ -3,7 +3,7 @@ import { Event } from '../../events/event.js'
 import { type Vector2, type VectorLike } from '../../math/vector2.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
-import { Nodes } from '../lib/registry.js'
+import { registerNode } from '../lib/registry.js'
 import type { Reactive } from '../../reactivity/types.js'
 import { propSignal, signalVector } from '../../utils/ternaries.js'
 import { Input } from '../../input/input.js'
@@ -157,4 +157,4 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
   }
 }
 
-Nodes.clickable = Clickable
+registerNode(PrimaryNode.Clickable, Clickable)

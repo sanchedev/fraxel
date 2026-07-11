@@ -1,7 +1,7 @@
 import { GameConfig } from '../../core/game-config.js'
 import { ns, propSignal, signalVector } from '../../utils/ternaries.js'
 import { PrimaryNode } from '../lib/enum.js'
-import { Nodes } from '../lib/registry.js'
+import { registerNode } from '../lib/registry.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import type { Reactive } from '../../reactivity/types.js'
 import { vector2, Vector2, type VectorLike } from '../../math/vector2.js'
@@ -269,4 +269,4 @@ export class Camera extends Node2D<PrimaryNode.Camera> {
   }
 }
 
-Nodes.camera = Camera
+registerNode(PrimaryNode.Camera, Camera)

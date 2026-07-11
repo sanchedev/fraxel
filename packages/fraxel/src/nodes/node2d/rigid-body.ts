@@ -1,5 +1,5 @@
 import { PrimaryNode } from '../lib/enum.js'
-import { Nodes } from '../lib/registry.js'
+import { registerNode } from '../lib/registry.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { PhysicsSystem } from '../../collision/physics/physics-system.js'
 import type { Collider } from './collider.js'
@@ -147,4 +147,4 @@ export class RigidBody extends Node2D<PrimaryNode.RigidBody> {
   }
 }
 
-Nodes['rigid-body'] = RigidBody
+registerNode(PrimaryNode.RigidBody, RigidBody)
