@@ -11,7 +11,7 @@ import { pushEffect } from './context.js'
  *
  * @example
  * ```tsx
- * import { useSignal, useEffect } from 'fraxel/hooks'
+ * import { useSignal, useEffect } from 'fraxel'
  *
  * const [count, setCount] = useSignal(0)
  *
@@ -43,7 +43,7 @@ export function useSignal<T>(initialValue: T): [getter: SignalGetter<T>, setter:
  *
  * @example
  * ```ts
- * import { createSignal, clearSignal } from 'fraxel/hooks'
+ * import { createSignal, clearSignal } from 'fraxel'
  *
  * const [health, setHealth] = createSignal(100)
  *
@@ -69,7 +69,7 @@ export function createSignal<T>(
  *
  * @example
  * ```ts
- * import { createSignal, clearSignal } from 'fraxel/hooks'
+ * import { createSignal, clearSignal } from 'fraxel'
  *
  * const [count, setCount] = createSignal(0)
  *

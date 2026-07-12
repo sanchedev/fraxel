@@ -149,7 +149,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    *
    * @example
    * ```tsx
-   * import { useSprite, useAnimation, useMount } from 'fraxel/hooks'
+   * import { useSprite, useAnimation, useMount } from 'fraxel'
    * import { keyframesFromSheet } from 'fraxel'
    *
    * const sprite = useSprite()

@@ -10,7 +10,7 @@ import { Node2DReference } from './reference.js'
  *
  * @example
  * ```tsx
- * import { useTransform, useEffect } from 'fraxel/hooks'
+ * import { useTransform, useEffect } from 'fraxel'
  *
  * function Platform() {
  *   const transform = useTransform()

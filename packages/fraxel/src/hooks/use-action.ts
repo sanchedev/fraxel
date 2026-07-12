@@ -11,7 +11,7 @@ import { pushEffect } from './context.js'
  *
  * @example
  * ```tsx
- * import { useAction, useEffect } from 'fraxel/hooks'
+ * import { useAction, useEffect } from 'fraxel'
  * import { Input } from 'fraxel'
  *
  * const Jump = Input.createAction({ key: ' ' })
@@ -57,7 +57,7 @@ export function useAction(action: symbol) {
  *
  * @example
  * ```tsx
- * import { useActionAxis, useEffect } from 'fraxel/hooks'
+ * import { useActionAxis, useEffect } from 'fraxel'
  * import { Input } from 'fraxel'
  *
  * const MoveRight = Input.createAction({ key: 'd' })

@@ -12,7 +12,7 @@ import { pushEffect } from './context.js'
  *
  * @example
  * ```tsx
- * import { useSignal, useEffect } from 'fraxel/hooks'
+ * import { useSignal, useEffect } from 'fraxel'
  *
  * const [count, setCount] = useSignal(0)
  *

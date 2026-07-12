@@ -42,7 +42,7 @@ export interface TextOptions extends Node2DOptions<PrimaryNode.Text> {
  *
  * @example
  * ```tsx
- * import { useText, useEffect } from 'fraxel/hooks'
+ * import { useText, useEffect } from 'fraxel'
  *
  * function ScoreLabel() {
  *   const label = useText()

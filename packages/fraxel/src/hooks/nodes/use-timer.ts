@@ -12,7 +12,7 @@ import { NodeReference } from './reference.js'
  *
  * @example
  * ```tsx
- * import { useTimer, useTrigger, useEffect } from 'fraxel/hooks'
+ * import { useTimer, useTrigger, useEffect } from 'fraxel'
  *
  * function Cooldown() {
  *   const timer = useTimer()

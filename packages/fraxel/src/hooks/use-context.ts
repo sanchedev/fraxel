@@ -11,7 +11,7 @@ import { currentContext, pushEffect } from './context.js'
  *
  * @example
  * ```tsx
- * import { createContext, useContext } from 'fraxel/hooks'
+ * import { createContext, useContext } from 'fraxel'
  *
  * const ThemeCtx = createContext('light')
  *
@@ -41,7 +41,7 @@ export function createContext<T>(defaultValue: T) {
  *
  * @example
  * ```tsx
- * import { createContext, useContext } from 'fraxel/hooks'
+ * import { createContext, useContext } from 'fraxel'
  *
  * const ThemeCtx = createContext('light')
  *

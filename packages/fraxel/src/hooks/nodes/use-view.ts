@@ -10,7 +10,7 @@ import { NodeReference } from './reference.js'
  *
  * @example
  * ```tsx
- * import { useView, useText, useEffect } from 'fraxel/hooks'
+ * import { useView, useText, useEffect } from 'fraxel'
  *
  * function HUD() {
  *   const view = useView()

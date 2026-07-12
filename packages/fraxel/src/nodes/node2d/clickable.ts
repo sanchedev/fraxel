@@ -42,7 +42,7 @@ export interface ClickableOptions extends Node2DOptions<PrimaryNode.Clickable> {
  *
  * @example
  * ```tsx
- * import { useClickable, useTrigger } from 'fraxel/hooks'
+ * import { useClickable, useTrigger } from 'fraxel'
  *
  * function Button() {
  *   const clickable = useClickable()

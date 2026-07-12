@@ -10,7 +10,7 @@ import { pushEffect } from './context.js'
  *
  * @example
  * ```ts
- * import { createTrigger } from 'fraxel/hooks'
+ * import { createTrigger } from 'fraxel'
  *
  * const planted = createTrigger<[Plant]>()
  * ```
@@ -27,7 +27,7 @@ export function createTrigger<T extends any[] = any[]>() {
  *
  * @example
  * ```tsx
- * import { createTrigger, useTrigger } from 'fraxel/hooks'
+ * import { createTrigger, useTrigger } from 'fraxel'
  *
  * const planted = createTrigger<[Plant]>()
  *

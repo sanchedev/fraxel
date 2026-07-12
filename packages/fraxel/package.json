@@ -6,21 +6,17 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./jsx-runtime": "./dist/jsx-runtime.js",
-    "./jsx-dev-runtime": "./dist/jsx-dev-runtime.js",
-    "./jsx": "./dist/jsx/index.js",
-    "./jsx/*": "./dist/jsx/*",
-    "./hooks": "./dist/hooks/index.js",
-    "./hooks/*": "./dist/hooks/*",
-    "./*": "./dist/*"
+    ".": "./dist/index.mjs",
+    "./jsx-runtime": "./dist/jsx-runtime.mjs",
+    "./jsx-dev-runtime": "./dist/jsx-dev-runtime.mjs"
   },
   "scripts": {
-    "dev": "tsc --watch",
-    "build": "tsc",
+    "dev": "tsdown --watch",
+    "build": "tsdown",
     "prepublishOnly": "pnpm build && pnpm -w lint"
   },
   "devDependencies": {
+    "tsdown": "^0.22.5",
     "typescript": "^5.9.3"
   },
   "keywords": [

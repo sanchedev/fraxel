@@ -11,7 +11,7 @@ import { Node2DReference } from './reference.js'
  *
  * @example
  * ```tsx
- * import { useText, useEffect } from 'fraxel/hooks'
+ * import { useText, useEffect } from 'fraxel'
  *
  * function ScoreDisplay() {
  *   const text = useText()

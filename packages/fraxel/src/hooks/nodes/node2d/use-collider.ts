@@ -12,7 +12,7 @@ import { Node2DReference } from './reference.js'
  *
  * @example
  * ```tsx
- * import { useCollider, useTrigger, useEffect } from 'fraxel/hooks'
+ * import { useCollider, useTrigger, useEffect } from 'fraxel'
  *
  * function Enemy() {
  *   const collider = useCollider()

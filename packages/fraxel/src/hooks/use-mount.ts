@@ -9,7 +9,7 @@ import { pushEffect } from './context.js'
  *
  * @example
  * ```tsx
- * import { useMount } from 'fraxel/hooks'
+ * import { useMount } from 'fraxel'
  *
  * useMount(() => {
  *   console.log('Node mounted')

@@ -13,7 +13,7 @@ import type { Bounds } from '../../../math/bounds.js'
  *
  * @example
  * ```tsx
- * import { useCamera, useEffect } from 'fraxel/hooks'
+ * import { useCamera, useEffect } from 'fraxel'
  *
  * function MainCamera() {
  *   const camera = useCamera()

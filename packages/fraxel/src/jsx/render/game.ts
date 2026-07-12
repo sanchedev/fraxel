@@ -1,9 +1,9 @@
-import { Game, type GameOptions } from '../components/game.js'
+import { GameCreator, type GameOptions } from '../components/game.js'
 import { Game as GameP } from '../../core/game.js'
 import { Scene as SceneP } from '../../core/scene.js'
 import type { Fraxel } from '../types.js'
 import { getFraxelElementFromNode, getFraxelNodesFromNode } from '../utils.js'
-import { Scene, type SceneComponent, type SceneOptions } from '../components/scene.js'
+import { SceneDef, type SceneComponent, type SceneOptions } from '../components/scene.js'
 import { renderToNodes } from './to-nodes.js'
 import { Node } from '../../nodes/_node.js'
 import {
@@ -19,9 +19,9 @@ import { SceneManager } from '../../core/scene-manager.js'
  * @example
  * ```js
  * const game = createGame(
- *   <Game width={150} height={75} defaultScene='main'>
- *     <Scene name='main' component={() => import('./scenes/main.js')} />
- *   </Game>,
+ *   <GameCreator width={150} height={75} defaultScene='main'>
+ *     <SceneDef name='main' component={() => import('./scenes/main.js')} />
+ *   </GameCreator>,
  *   document.querySelector('#root')
  * )
  * ```
@@ -35,7 +35,7 @@ export function createGame(jsx: Fraxel.Node, root: HTMLElement): GameControls {
   }
 
   const jsxEl = getFraxelElementFromNode(jsx)
-  if (jsxEl == null || jsxEl.type !== Game) {
+  if (jsxEl == null || jsxEl.type !== GameCreator) {
     throw new InvalidGameElementError()
   }
   const { children, defaultScene, ...setupOptions } = jsxEl.props as GameOptions
@@ -49,7 +49,7 @@ export function createGame(jsx: Fraxel.Node, root: HTMLElement): GameControls {
 
   for (const scene of scenes) {
     const sceneEl = getFraxelElementFromNode(scene)
-    if (sceneEl?.type !== Scene) {
+    if (sceneEl?.type !== SceneDef) {
       throw new MissingSceneError()
     }
 

@@ -48,7 +48,7 @@ export interface ColliderOptions extends Node2DOptions<PrimaryNode.Collider> {
  * @example
  * ```tsx
  * import { shapes } from 'fraxel'
- * import { useCollider, useTrigger } from 'fraxel/hooks'
+ * import { useCollider, useTrigger } from 'fraxel'
  *
  * function Player() {
  *   const collider = useCollider()

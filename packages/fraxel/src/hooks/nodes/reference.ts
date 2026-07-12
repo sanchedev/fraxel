@@ -18,8 +18,8 @@ import { currentContext, type HookContext } from '../context.js'
  *
  * @example
  * ```tsx
- * import { useSprite } from 'fraxel/hooks'
- * import { useEffect } from 'fraxel/hooks'
+ * import { useSprite } from 'fraxel'
+ * import { useEffect } from 'fraxel'
  *
  * function Player() {
  *   const sprite = useSprite()
@@ -120,7 +120,7 @@ export class NodeReference<T extends PrimaryNode = PrimaryNode> {
    *
    * @example
    * ```tsx
-   * import { useGroup, useTrigger } from 'fraxel/hooks'
+   * import { useGroup, useTrigger } from 'fraxel'
    *
    * function Container() {
    *   const group = useGroup()

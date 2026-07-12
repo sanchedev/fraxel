@@ -18,7 +18,7 @@ interface SceneControllers {
  *
  * @example
  * ```tsx
- * import { useScene, useEffect } from 'fraxel/hooks'
+ * import { useScene, useEffect } from 'fraxel'
  * import { Input } from 'fraxel'
  *
  * const Restart = Input.createAction({ key: 'r' })

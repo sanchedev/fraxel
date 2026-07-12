@@ -27,9 +27,9 @@ yarn add fraxel
 A player that moves and jumps with physics, input, and collisions — all in ~35 lines:
 
 ```tsx
-import { createGame, Game, Scene } from 'fraxel/jsx'
+import { createGame, Game, Scene } from 'fraxel'
 import { loadTexture, Input, shapes } from 'fraxel'
-import { useRigidBody, useAction, useActionAxis, useEffect } from 'fraxel/hooks'
+import { useRigidBody, useAction, useActionAxis, useEffect } from 'fraxel'
 
 const PLAYER = await loadTexture('/assets/player.png') // waits for image load
 
@@ -65,9 +65,9 @@ const scene = () => (
 )
 
 const game = createGame(
-  <Game width={300} height={220} defaultScene="main">
-    <Scene name="main" component={scene} />
-  </Game>,
+  <GameCreator width={300} height={220} defaultScene="main">
+    <SceneDef name="main" component={scene} />
+  </GameCreator>,
   document.querySelector('#root')!,
 )
 
@@ -191,10 +191,10 @@ JSX is the declarative language for building these scene graphs. Instead of manu
 import { Input, shapes, loadTexture, Vector2 } from 'fraxel'
 
 // Hooks
-import { useSprite, useRigidBody, useEffect } from 'fraxel/hooks'
+import { useSprite, useRigidBody, useEffect } from 'fraxel'
 
 // JSX components
-import { Game, Scene, List, Fragment } from 'fraxel/jsx'
+import { Game, Scene, List, Fragment } from 'fraxel'
 ```
 
 ## License

@@ -12,7 +12,7 @@ import { NodeReference } from './reference.js'
  *
  * @example
  * ```tsx
- * import { useAnimation, useTrigger, useEffect } from 'fraxel/hooks'
+ * import { useAnimation, useTrigger, useEffect } from 'fraxel'
  *
  * function Character() {
  *   const anim = useAnimation()

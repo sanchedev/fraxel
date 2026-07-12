@@ -14,7 +14,7 @@ export interface TransformOptions extends Node2DOptions<PrimaryNode.Transform> {
  *
  * @example
  * ```tsx
- * import { useTransform } from 'fraxel/hooks'
+ * import { useTransform } from 'fraxel'
  *
  * function Player() {
  *   const body = useTransform()

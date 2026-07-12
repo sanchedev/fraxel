@@ -10,7 +10,7 @@ import { NodeReference } from './reference.js'
  *
  * @example
  * ```tsx
- * import { useGroup } from 'fraxel/hooks'
+ * import { useGroup } from 'fraxel'
  *
  * function Container() {
  *   const group = useGroup()

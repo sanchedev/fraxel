@@ -14,7 +14,7 @@ import { Color } from '../../../math/color.js'
  *
  * @example
  * ```tsx
- * import { useGeometry, useEffect } from 'fraxel/hooks'
+ * import { useGeometry, useEffect } from 'fraxel'
  *
  * function Hitbox() {
  *   const geo = useGeometry()

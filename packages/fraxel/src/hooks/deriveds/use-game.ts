@@ -25,7 +25,7 @@ interface GameControllers {
  *
  * @example
  * ```tsx
- * import { useGame, useTrigger, useEffect } from 'fraxel/hooks'
+ * import { useGame, useTrigger, useEffect } from 'fraxel'
  *
  * function GameController() {
  *   const { play, stop, blurred, focused } = useGame()

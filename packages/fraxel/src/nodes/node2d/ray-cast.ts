@@ -38,7 +38,7 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
  *
  * @example
  * ```tsx
- * import { useRayCast, useTrigger } from 'fraxel/hooks'
+ * import { useRayCast, useTrigger } from 'fraxel'
  *
  * function Gun() {
  *   const ray = useRayCast()
@@ -109,7 +109,7 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
    *
    * @example
    * ```tsx
-   * import { useRayCast, useTrigger } from 'fraxel/hooks'
+   * import { useRayCast, useTrigger } from 'fraxel'
    *
    * function Peashooter() {
    *   const ray = useRayCast()

@@ -12,7 +12,7 @@ import { NodeReference } from './reference.js'
  *
  * @example
  * ```tsx
- * import { useAudio, useTrigger } from 'fraxel/hooks'
+ * import { useAudio, useTrigger } from 'fraxel'
  *
  * function SoundEffect() {
  *   const audio = useAudio()

@@ -75,8 +75,8 @@ export interface ListOptions<T> {
  *
  * @example
  * ```tsx
- * import { List } from 'fraxel/jsx'
- * import { useSignal } from 'fraxel/hooks'
+ * import { List } from 'fraxel'
+ * import { useSignal } from 'fraxel'
  *
  * function EnemyList() {
  *   const [enemies] = useSignal([

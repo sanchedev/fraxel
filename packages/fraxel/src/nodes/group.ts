@@ -23,7 +23,7 @@ export interface GroupOptions extends NodeOptions<PrimaryNode.Group> {}
  *
  * @example
  * ```tsx
- * import { useGroup } from 'fraxel/hooks'
+ * import { useGroup } from 'fraxel'
  *
  * function EnemySpawner() {
  *   const enemies = useGroup()

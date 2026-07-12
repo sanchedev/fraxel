@@ -18,7 +18,7 @@ import { useComputed } from '../use-computed.js'
  *
  * @example
  * ```tsx
- * import { useCondition, useWhen, useClickable } from 'fraxel/hooks'
+ * import { useCondition, useWhen, useClickable } from 'fraxel'
  *
  * const clickable = useClickable()
  * const isHovered = useCondition(clickable.mouseEntered, clickable.mouseExited)
@@ -29,7 +29,7 @@ import { useComputed } from '../use-computed.js'
  *
  * @example
  * ```tsx
- * import { useCondition, useWhen, useRayCast } from 'fraxel/hooks'
+ * import { useCondition, useWhen, useRayCast } from 'fraxel'
  *
  * const raycast = useRayCast()
  * const isZombieDetected = useCondition(raycast.colliderEntered, raycast.colliderExited)

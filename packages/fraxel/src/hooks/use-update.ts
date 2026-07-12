@@ -9,7 +9,7 @@ import { pushEffect } from './context.js'
  *
  * @example
  * ```tsx
- * import { useUpdate } from 'fraxel/hooks'
+ * import { useUpdate } from 'fraxel'
  *
  * function Rotator() {
  *   useUpdate((delta) => {

@@ -58,7 +58,7 @@ export interface CameraOptions extends Node2DOptions<PrimaryNode.Camera> {
  *
  * @example
  * ```tsx
- * import { useCamera, useEffect } from 'fraxel/hooks'
+ * import { useCamera, useEffect } from 'fraxel'
  *
  * function GameScene() {
  *   const camera = useCamera()

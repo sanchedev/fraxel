@@ -14,7 +14,7 @@ import { useComputed } from '../use-computed.js'
  *
  * @example
  * ```tsx
- * import { useSignal, useMatch } from 'fraxel/hooks'
+ * import { useSignal, useMatch } from 'fraxel'
  *
  * const [state, setState] = useSignal<'idle' | 'walking' | 'jumping'>('idle')
  *

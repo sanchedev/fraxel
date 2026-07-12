@@ -19,7 +19,7 @@ interface PausedControllers {
  *
  * @example
  * ```tsx
- * import { usePaused, useEffect } from 'fraxel/hooks'
+ * import { usePaused, useEffect } from 'fraxel'
  * import { Input } from 'fraxel'
  *
  * const Pause = Input.createAction({ key: 'p' })

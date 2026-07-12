@@ -15,7 +15,7 @@ import { Trigger } from '../../events/trigger.js'
  *
  * @example
  * ```tsx
- * import { useCondition, useComputed, useClickable } from 'fraxel/hooks'
+ * import { useCondition, useComputed, useClickable } from 'fraxel'
  *
  * const clickable = useClickable()
  * const hover = useCondition(clickable.mouseEntered, clickable.mouseExited)
@@ -27,7 +27,7 @@ import { Trigger } from '../../events/trigger.js'
  *
  * @example
  * ```tsx
- * import { useCondition, useEffect, useRayCast } from 'fraxel/hooks'
+ * import { useCondition, useEffect, useRayCast } from 'fraxel'
  *
  * const raycast = useRayCast()
  * const isZombieDetected = useCondition(raycast.colliderEntered, raycast.colliderExited)

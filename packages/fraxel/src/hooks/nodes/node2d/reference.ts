@@ -17,8 +17,8 @@ type PrimaryNode2D = keyof {
  *
  * @example
  * ```tsx
- * import { useSprite } from 'fraxel/hooks'
- * import { useEffect } from 'fraxel/hooks'
+ * import { useSprite } from 'fraxel'
+ * import { useEffect } from 'fraxel'
  *
  * function Player() {
  *   const sprite = useSprite()

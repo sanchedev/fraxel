@@ -13,7 +13,7 @@ import { Node2DReference } from './reference.js'
  *
  * @example
  * ```tsx
- * import { useSprite, useEffect } from 'fraxel/hooks'
+ * import { useSprite, useEffect } from 'fraxel'
  *
  * function Player() {
  *   const sprite = useSprite()

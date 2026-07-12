@@ -13,7 +13,7 @@ import { Trigger } from '../../../events/trigger.js'
  *
  * @example
  * ```tsx
- * import { useClickable, useTrigger, useEffect } from 'fraxel/hooks'
+ * import { useClickable, useTrigger, useEffect } from 'fraxel'
  *
  * function Button() {
  *   const clickable = useClickable()

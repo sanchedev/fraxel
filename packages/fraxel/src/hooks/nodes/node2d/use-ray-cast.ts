@@ -12,7 +12,7 @@ import { Node2DReference } from './reference.js'
  *
  * @example
  * ```tsx
- * import { useRayCast, useTrigger, useEffect } from 'fraxel/hooks'
+ * import { useRayCast, useTrigger, useEffect } from 'fraxel'
  *
  * function Peashooter() {
  *   const raycast = useRayCast()
@@ -84,7 +84,7 @@ export class RayCastReference extends Node2DReference<PrimaryNode.RayCast> {
    *
    * @example
    * ```tsx
-   * import { useRayCast, useEffect } from 'fraxel/hooks'
+   * import { useRayCast, useEffect } from 'fraxel'
    *
    * function Detector() {
    *   const raycast = useRayCast()

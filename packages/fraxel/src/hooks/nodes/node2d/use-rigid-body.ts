@@ -12,7 +12,7 @@ import { Vector2, vector2, type VectorLike } from '../../../math/vector2.js'
  *
  * @example
  * ```tsx
- * import { useRigidBody, useEffect, useAction } from 'fraxel/hooks'
+ * import { useRigidBody, useEffect, useAction } from 'fraxel'
  * import { Input, InputKey } from 'fraxel'
  *
  * const Jump = Input.createAction(InputKey.Space)
