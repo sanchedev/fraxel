@@ -15,16 +15,16 @@ import type { Collider } from '../nodes/node2d/collider.js'
  * import { warnNestedColliders } from 'fraxel'
  *
  * // This triggers a warning:
- * <rigid-body>
+ * <body>
  *   <transform>
  *     <collider shape={shapes.rectangle(32, 32)} /> // nested — won't work
  *   </transform>
- * </rigid-body>
+ * </body>
  *
  * // This does NOT trigger a warning:
- * <rigid-body>
+ * <body>
  *   <collider shape={shapes.rectangle(32, 32)} /> // direct child — works
- * </rigid-body>
+ * </body>
  * ```
  */
 export function warnNestedColliders(node: Node): void {

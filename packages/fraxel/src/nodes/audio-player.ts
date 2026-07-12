@@ -3,7 +3,7 @@ import { PrimaryNode } from './lib/enum.js'
 import { Node, type NodeOptions } from './_node.js'
 import { registerNode } from './lib/registry.js'
 import { getAudioContext } from '../audio/audio-context.js'
-import { getSound } from '../assets/load-sound.js'
+import { getSound } from '../assets/load/load-sound.js'
 
 /**
  * The **`AudioPlayerOptions`** interface defines the options for an `AudioPlayer` node.
@@ -258,6 +258,13 @@ export class AudioPlayer extends Node<PrimaryNode.AudioPlayer> {
     }
     this.stop()
     super.destroy()
+  }
+
+  /** @internal Cleans up custom event listeners. */
+  cleanEvents(): void {
+    this.ended.clean()
+    this.error.clean()
+    super.cleanEvents()
   }
 }
 

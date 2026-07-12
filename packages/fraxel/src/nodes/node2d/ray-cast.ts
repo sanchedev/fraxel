@@ -16,8 +16,8 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
    *
    * @example
    * ```tsx
-   * <ray-cast direction={[100, 0]} collidesWith={['enemy']} />
-   * <ray-cast direction={[0, -50]} collidesWith={['ceiling']} />
+   * <raycast direction={[100, 0]} collidesWith={['enemy']} />
+   * <raycast direction={[0, -50]} collidesWith={['ceiling']} />
    * ```
    */
   direction: Reactive<VectorLike>
@@ -26,7 +26,7 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
    *
    * @example
    * ```tsx
-   * <ray-cast direction={[100, 0]} collidesWith={['enemy', 'obstacle']} />
+   * <raycast direction={[100, 0]} collidesWith={['enemy', 'obstacle']} />
    * ```
    */
   collidesWith: string[]
@@ -48,7 +48,7 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
  *   })
  *
  *   return (
- *     <ray-cast
+ *     <raycast
  *       ref={ray}
  *       direction={[100, 0]}
  *       collidesWith={['enemy']}
@@ -121,7 +121,7 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
    *     }
    *   })
    *
-   *   return <ray-cast ref={ray} direction={[100, 0]} collidesWith={['zombie']} />
+   *   return <raycast ref={ray} direction={[100, 0]} collidesWith={['zombie']} />
    * }
    * ```
    */
@@ -179,6 +179,13 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
   destroy(): void {
     CollisionSystem.unregisterRaycast(this)
     super.destroy()
+  }
+
+  /** @internal Cleans up custom event listeners. */
+  cleanEvents(): void {
+    this.colliderEntered.clean()
+    this.colliderExited.clean()
+    super.cleanEvents()
   }
 }
 

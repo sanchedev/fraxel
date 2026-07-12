@@ -59,11 +59,11 @@ export enum PrimaryNode {
   /** A node that displays a tilemap. */
   TileMap = 'tilemap',
   /** A node that plays frame-based animations. */
-  AnimationPlayer = 'animation-player',
+  AnimationPlayer = 'animator',
   /** A node that detects collisions with other colliders. */
   Collider = 'collider',
   /** A node that projects a ray to detect colliders along a direction. */
-  RayCast = 'ray-cast',
+  RayCast = 'raycast',
   /** A node that detects click events. */
   Clickable = 'clickable',
   /** A node that tracks elapsed time and emits timeout events. */
@@ -73,9 +73,11 @@ export enum PrimaryNode {
   /** A node that renders text on the canvas. */
   Text = 'text',
   /** A node that plays audio buffers. */
-  AudioPlayer = 'audio-player',
+  AudioPlayer = 'audio',
   /** A node that controls the viewport. */
   Camera = 'camera',
   /** A node that adds physics simulation to a collider. */
-  RigidBody = 'rigid-body',
+  RigidBody = 'body',
+  /** A UI container that renders children in screen space. */
+  View = 'view',
 }

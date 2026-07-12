@@ -57,10 +57,10 @@ export interface RigidBodyOptions extends Node2DOptions<PrimaryNode.RigidBody> {
  *
  * function FallingRock() {
  *   return (
- *     <rigid-body position={[100, 0]} mass={2} bounce={0.6}>
+ *     <body position={[100, 0]} mass={2} bounce={0.6}>
  *       <sprite textureId={ROCK} />
  *       <collider shape={shapes.circle(16)} group={['rock']} collidesWith={['ground']} />
- *     </rigid-body>
+ *     </body>
  *   )
  * }
  * ```
