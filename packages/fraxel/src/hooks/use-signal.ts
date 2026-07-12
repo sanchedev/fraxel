@@ -34,52 +34,49 @@ export function useSignal<T>(initialValue: T): [getter: SignalGetter<T>, setter:
 }
 
 /**
- * The **`createSignal`** function creates a reactive signal outside of hooks,
- * typically used in `FraxelScript` classes. Returns a `SignalGetter<T>` that
- * can be called as a function to read the value, or use `.signal` to access
- * the underlying `Signal` instance.
+ * The **`createSignal`** function creates a reactive signal outside of a component.
+ * Unlike `useSignal`, it does not auto-cleanup on node destroy — use `clearSignal`
+ * to manually unsubscribe when needed.
  *
  * @param defaultValue The initial value of the signal
- * @returns A `SignalGetter<T>` to read the signal value
+ * @returns A tuple of [`SignalGetter<T>`, `SignalSetter<T>`]
  *
  * @example
  * ```ts
- * import { createSignal } from 'fraxel/hooks'
+ * import { createSignal, clearSignal } from 'fraxel/hooks'
  *
- * class PlayerScript extends FraxelScript<PrimaryNode.Transform> {
- *   health = createSignal(100)
+ * const [health, setHealth] = createSignal(100)
  *
- *   applyDamage(amount: number) {
- *     this.health.setter(this.health() - amount)
- *   }
- * }
+ * health() // 100
+ * setHealth(50)
+ *
+ * // Clean up when no longer needed
+ * clearSignal(health)
  * ```
  */
-export function createSignal<T>(defaultValue: T): SignalGetter<T> {
-  return new Signal(defaultValue).getter
+export function createSignal<T>(
+  defaultValue: T,
+): [getter: SignalGetter<T>, setter: SignalSetter<T>] {
+  const signal = new Signal(defaultValue)
+  return [signal.getter, signal.setter]
 }
 
 /**
- * The **`signalSetterFrom`** function extracts a `SignalSetter<T>` from a `SignalGetter<T>`,
- * typically used in `FraxelScript` classes to create a separate setter reference.
+ * The **`clearSignal`** function removes all subscribers from a signal created
+ * with `useSignal` or `createSignal`. Useful for manual cleanup.
  *
- * @param signalGetter The signal getter to extract the setter from
- * @returns A `SignalSetter<T>` to write the signal value
+ * @param signal The signal getter to clear
  *
  * @example
  * ```ts
- * import { createSignal, signalSetterFrom } from 'fraxel/hooks'
+ * import { createSignal, clearSignal } from 'fraxel/hooks'
  *
- * class PlayerScript extends FraxelScript<PrimaryNode.Transform> {
- *   health = createSignal(100)
- *   setHealth = signalSetterFrom(this.health)
+ * const [count, setCount] = createSignal(0)
  *
- *   applyDamage(amount: number) {
- *     this.setHealth(this.health() - amount)
- *   }
- * }
+ * // Later, clean up all subscribers
+ * clearSignal(count)
  * ```
  */
-export function signalSetterFrom<T>(signalGetter: SignalGetter<T>): SignalSetter<T> {
-  return signalGetter.signal.setter
+export function clearSignal(signal: SignalGetter<any>) {
+  signal.signal.clearSubs()
 }
