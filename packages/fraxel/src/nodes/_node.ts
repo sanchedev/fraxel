@@ -11,9 +11,9 @@ import { Nodes } from './lib/registry.js'
 import type { Fun } from '../events/types.js'
 import { GameMode, PrimaryNode } from './lib/enum.js'
 import type { FraxelScript } from '../scripts/script.js'
-import { isPaused } from '../core/paused.js'
 import type { Reactive } from '../reactivity/index.js'
 import { propSignal } from '../utils/ternaries.js'
+import { paused } from '../core/game-state.js'
 
 export interface NodeOptions<T extends PrimaryNode> {
   /**
@@ -347,7 +347,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    */
   shouldUpdate(): boolean {
     const mode = this.getEffectiveGameMode()
-    const gamePaused = isPaused()
+    const gamePaused = paused.value()
 
     if (mode === GameMode.NEVER) return false
     if (mode === GameMode.ALWAYS) return true
@@ -523,7 +523,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    * @param delta The time elapsed since the last frame in seconds.
    */
   update(delta: number): void {
-    if (!this.shouldUpdate()) return
+    if (this.isDestroyed || !this.shouldUpdate()) return
 
     this.updated.emit(delta)
     for (const node of this._children) {
@@ -538,7 +538,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    */
   draw(delta: number): void {
     const mode = this.getEffectiveGameMode()
-    if (mode === GameMode.NEVER) return
+    if (mode === GameMode.NEVER || this.isDestroyed) return
 
     for (const node of this._children) {
       node.draw(delta * node.deltaIncrease)
@@ -553,11 +553,11 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   destroy() {
     if (this.isDestroyed) return
 
-    const q = this._parent != null ? this._parent._children : []
-
-    const index = q.indexOf(this)
-    if (index < 0) return
-    q.splice(index, 1)
+    if (this._parent != null) {
+      const q = this._parent._children
+      const index = q.indexOf(this)
+      if (index >= 0) q.splice(index, 1)
+    }
 
     this.isDestroyed = true
     this.destroyed.emit()
