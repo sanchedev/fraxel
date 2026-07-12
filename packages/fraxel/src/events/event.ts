@@ -1,3 +1,4 @@
+import { Trigger } from './trigger.js'
 import type { EventName, Fun } from './types.js'
 
 /**
@@ -93,6 +94,8 @@ export class Event<T extends any[], const K extends string> {
   emit(...params: T) {
     const listeners = [...this.#list]
     listeners.forEach((cb) => cb(...params))
+    const triggers = [...this.#triggers]
+    triggers.forEach((t) => t.emit(...params))
   }
 
   /**
@@ -107,6 +110,18 @@ export class Event<T extends any[], const K extends string> {
    */
   clean() {
     this.#list.length = 0
+    for (const trigger of this.#triggers) {
+      trigger.clear()
+    }
+    this.#triggers.clear()
+  }
+
+  #triggers = new Set<Trigger<T>>()
+  connect(trigger: Trigger<T>) {
+    this.#triggers.add(trigger)
+  }
+  disconnect(trigger: Trigger<T>) {
+    this.#triggers.delete(trigger)
   }
 
   #list: Fun<T>[] = []
