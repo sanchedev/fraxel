@@ -1,0 +1,45 @@
+{
+  "name": "@fraxel/vite-plugin",
+  "version": "0.1.0",
+  "description": "Official Vite plugin for Fraxel.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./client": "./client.d.ts"
+  },
+  "files": [
+    "dist",
+    "client.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
+  "keywords": [
+    "fraxel",
+    "vite",
+    "vite-plugin",
+    "game-engine",
+    "2d",
+    "canvas",
+    "jsx",
+    "typescript"
+  ],
+  "author": "José Sánchez",
+  "license": "MIT",
+  "packageManager": "pnpm@10.29.3",
+  "peerDependencies": {
+    "vite": "^8.0.0",
+    "fraxel": "^0.1.0-alpha.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "fraxel": "^0.1.0-alpha.5",
+    "typescript": "^5.9.3",
+    "vite": "^8.1.4"
+  }
+}
