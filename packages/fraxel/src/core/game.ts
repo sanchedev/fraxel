@@ -10,8 +10,7 @@ import { vector2 } from '../math/vector2.js'
 import { CollisionSystem } from '../collision/collision-system.js'
 import { PhysicsSystem } from '../collision/physics/physics-system.js'
 import { Camera } from '../nodes/node2d/camera.js'
-import { getPaused, setPaused } from './paused.js'
-import type { SignalGetter } from '../reactivity/types.js'
+import { paused, running } from './game-state.js'
 
 /**
  * The **`SetupOptions`** interface configures the game canvas and engine initialization.
@@ -34,83 +33,83 @@ export interface SetupOptions {
 let lastTime = 0
 let wakeLock: WakeLockSentinel
 let handle = 0
-let setuped = false
 let pauseOnBlur = false
 
+const onFocus = () => {
+  if (Game.isRunning.value()) return
+  Game.play()
+}
+
 const onBlur = () => {
-  window.cancelAnimationFrame(handle)
+  if (!Game.isRunning.value()) return
+  Game.stop()
   if (pauseOnBlur) {
-    Game.paused = true
+    Game.isPaused.signal.setter(true)
   }
   Game.blurred.emit()
 }
 
+let ratio = 1
+const onResize = () => {
+  ratio = getDPRFromCtx(GameConfig.ctx, GameConfig.width, GameConfig.height, ratio)
+  GameConfig.dprRatio = ratio * (window.devicePixelRatio ?? 1)
+  GameConfig.ctx.imageSmoothingEnabled = false
+}
+
 /**
- * The **`Game`** class is a static singleton that manages the game loop, canvas setup,
- * pause state, and scene lifecycle. All methods are static.
+ * The **`Game`** class is a static singleton that manages the canvas setup, game loop,
+ * pause state, and browser lifecycle events (focus/blur/resize).
+ *
+ * Game loop lifecycle (`play`/`stop`) is separate from pause state (`pause`/`resume`).
+ * The loop runs via `requestAnimationFrame`; pausing skips `update` and physics but
+ * still renders.
  *
  * @example
  * ```ts
- * import { Game } from 'fraxel'
+ * import { Game, SceneManager } from 'fraxel'
  *
- * Game.setup({
- *   width: 800,
- *   height: 600,
- *   root: document.querySelector('#root')!,
- * })
+ * Game.setup({ width: 800, height: 600, root: document.querySelector('#app')! })
  *
+ * await SceneManager.addScene('main', scene, true)
  * Game.play()
+ *
+ * Game.pause()
+ * Game.resume()
+ *
+ * Game.destroy()
  * ```
  */
 export class Game {
-  /** The read-only **`sceneManager`** property returns the scene manager instance. */
-  static readonly sceneManager = new SceneManager()
+  static #mounted = false
+
+  /** Whether `Game.setup()` has been called successfully. */
+  static get mounted() {
+    return this.#mounted
+  }
 
   /**
-   * The **`paused`** property indicates whether the game is paused.
-   * It is a reactive signal — use `Game.paused()` to read the value.
-   *
-   * @example
-   * ```ts
-   * const isPaused = Game.paused() // reactive boolean
-   * Game.paused = true             // pause the game
-   * Game.paused = false            // resume the game
-   * ```
+   * Whether the game loop is running (via `Game.play()`).
+   * Read reactively: `Game.isRunning()` returns `true` when the loop is active.
    */
-  static get paused(): SignalGetter<boolean> {
-    return getPaused()
-  }
-  static set paused(value: boolean) {
-    setPaused(value)
-  }
-
-  static #onFocus = () => {
-    if (!Game.paused()) {
-      window.requestAnimationFrame(this.#transition)
-    }
-  }
+  static isRunning = running
 
   /**
-   * The **`setup`** method initializes the game engine. Creates the canvas, sets up
-   * the rendering context, configures input, and applies theme/options. Throws
-   * `Context2DNotSupportedError` if the browser doesn't support Canvas 2D.
+   * Whether the game is paused. When paused, `update` and physics are skipped
+   * but rendering continues.
+   * Read reactively: `Game.isPaused()` returns `true` when paused.
+   */
+  static isPaused = paused
+
+  /**
+   * Initializes the canvas, attaches it to `root`, configures DPR scaling,
+   * and sets up input and scene management.
    *
-   * @param options Setup options.
+   * Does nothing if already mounted.
    *
-   * @example
-   * ```ts
-   * import { Game } from 'fraxel'
-   *
-   * Game.setup({
-   *   width: 160,
-   *   height: 90,
-   *   root: document.querySelector('#root')!,
-   *   pauseOnBlur: true,
-   * })
-   * ```
+   * @param options - Canvas and engine configuration.
    */
   static setup(options: SetupOptions) {
-    if (setuped) return
+    if (this.mounted) return
 
     pauseOnBlur = options.pauseOnBlur ?? false
 
@@ -122,7 +121,6 @@ export class Game {
 
     if (ctx == null) throw new Context2DNotSupportedError()
 
-    setuped = true
     _set_gc({
       canvas: canvas,
       ctx: ctx,
@@ -141,77 +139,83 @@ export class Game {
     options.root.style.setProperty('--width', width.toString())
     options.root.style.setProperty('--height', height.toString())
 
-    let ratio = 1
-    const handleResize = () => {
-      ratio = getDPRFromCtx(ctx, width, height, ratio)
-      ctx.imageSmoothingEnabled = false
-    }
-
-    window.addEventListener('resize', handleResize)
-    handleResize()
+    window.addEventListener('resize', onResize)
+    onResize()
 
     ctx.imageSmoothingEnabled = false
 
-    this.sceneManager.setScene(null)
+    SceneManager.setScene(null)
 
     Input.setup(canvas, vector2(width, height))
+    this.#mounted = true
   }
 
   /**
-   * The **`play`** method starts the game loop. Must be called after `setup()`.
-   * Scenes can be added before or after calling this method.
-   *
-   * @example
-   * ```ts
-   * Game.setup({ width: 800, height: 600, root })
-   *
-   * await Game.sceneManager.addScene(
-   *   'main',
-   *   new Scene(async () => (await import('./scenes/main.js')).default),
-   *   true,
-   * )
-   *
-   * Game.play()
-   * ```
+   * Starts the game loop. Registers blur/focus listeners and begins
+   * `requestAnimationFrame` cycle. Throws if not mounted.
    */
   static play() {
-    if (!setuped) throw new EngineNotSetupError()
+    if (!this.mounted) throw new EngineNotSetupError()
+    this.isRunning.signal.setter(true)
     window.requestAnimationFrame(this.#transition)
   }
 
   /**
-   * The **`pause`** method pauses the game loop. To resume, call `play()`.
+   * Unpauses the game. `update` and physics resume on the next frame.
+   * Throws if not mounted.
+   */
+  static resume() {
+    if (!this.mounted) throw new EngineNotSetupError()
+    this.isPaused.signal.setter(false)
+  }
+
+  /**
+   * Pauses the game. The loop continues rendering but skips `update`
+   * and physics. Throws if not mounted.
    */
   static pause() {
-    this.paused = true
+    if (!this.mounted) throw new EngineNotSetupError()
+    this.isPaused.signal.setter(true)
+  }
+
+  /**
+   * Stops the game loop entirely (without resetting pause state).
+   * The `requestAnimationFrame` cycle is cancelled. Throws if not mounted.
+   */
+  static stop() {
+    if (!this.mounted) throw new EngineNotSetupError()
+    window.cancelAnimationFrame(handle)
+    Game.isRunning.signal.setter(false)
     wakeLock?.release()
   }
 
   /**
-   * The **`destroy`** method stops the game loop, removes all event listeners,
-   * and cleans up resources. Must be called when the game is no longer needed.
+   * Stops the loop, removes all event listeners (blur/focus/resize),
+   * destroys the input system, unloads the current scene, and resets mount state.
+   * Throws if not mounted.
    */
   static destroy() {
-    if (!setuped) return
+    if (!this.mounted) throw new EngineNotSetupError()
 
-    window.cancelAnimationFrame(handle)
+    this.stop()
+
     window.removeEventListener('blur', onBlur)
-    window.removeEventListener('focus', this.#onFocus)
+    window.removeEventListener('focus', onFocus)
+    window.removeEventListener('resize', onResize)
 
     Input.destroy()
-    this.sceneManager.setScene(null)
+    SceneManager.setScene(null)
 
-    wakeLock?.release()
-    setuped = false
-    this.paused = false
+    this.#mounted = false
+    this.isPaused.signal.setter(false)
   }
 
   static #transition = (time: number) => {
     lastTime = time
-    window.navigator.wakeLock.request('screen').then((w) => (wakeLock = w))
+    window.navigator.wakeLock?.request('screen').then((w) => (wakeLock = w))
 
     window.addEventListener('blur', onBlur)
-    window.addEventListener('focus', this.#onFocus)
+    window.addEventListener('focus', onFocus)
 
     handle = window.requestAnimationFrame(this.#update)
   }
@@ -220,23 +224,14 @@ export class Game {
     const delta = (time - lastTime) / 1000
     lastTime = time
 
-    Game.loop(delta)
+    Game.#loop(delta)
 
-    if (this.paused()) return
+    if (!this.isRunning.value()) return
     handle = window.requestAnimationFrame(this.#update)
   }
 
-  /**
-   * The **`loop`** method runs one frame of the game loop. Handles node lifecycle,
-   * collision detection, physics simulation, and camera rendering.
-   * **This method should not be called directly.**
-   *
-   * @param delta Time between this frame and the last frame in seconds.
-   *
-   * @internal
-   */
-  static loop(delta: number) {
-    const node = this.sceneManager.currentNode
+  static #loop(delta: number) {
+    const node = SceneManager.currentNode
 
     if (node) {
       GameConfig.ctx.clearRect(0, 0, GameConfig.width, GameConfig.height)
@@ -245,7 +240,7 @@ export class Game {
         node.start()
       }
 
-      if (!this.paused()) {
+      if (!this.isPaused.value()) {
         node.update(delta)
         CollisionSystem.update(delta)
         PhysicsSystem.update(delta)
@@ -261,9 +256,8 @@ export class Game {
     Input.update()
   }
 
-  /**
-   * The **`blurred`** event fires when the browser tab loses focus.
-   * If `pauseOnBlur` is enabled, the game is automatically paused before this event fires.
-   */
+  /** Fires when the browser tab loses focus. */
   static blurred = new Event('blur', () => {})
+  /** Fires when the browser tab gains focus. */
+  static focused = new Event('focus', () => {})
 }

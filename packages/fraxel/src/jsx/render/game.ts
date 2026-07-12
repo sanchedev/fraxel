@@ -12,9 +12,7 @@ import {
   MissingGameRootError,
   MissingSceneError,
 } from '../../errors/jsx.js'
-import { vector2, Vector2 } from '../../math/vector2.js'
-import { GameConfig } from '../../core/game-config.js'
-import type { SignalGetter } from '../../reactivity/types.js'
+import { SceneManager } from '../../core/scene-manager.js'
 
 /** The **`createGame`** function creates the game and returns an object with control methods that can be used to play, pause the game, change the scene, etc...
  *
@@ -56,7 +54,7 @@ export function createGame(jsx: Fraxel.Node, root: HTMLElement): GameControls {
     }
 
     const { name, component } = sceneEl.props as SceneOptions
-    GameP.sceneManager.addScene(
+    SceneManager.addScene(
       name,
       new SceneP(async () => {
         return await SceneComponentToNode(component)
@@ -64,22 +62,12 @@ export function createGame(jsx: Fraxel.Node, root: HTMLElement): GameControls {
     )
   }
 
-  GameP.sceneManager.setScene(defaultScene)
+  SceneManager.setScene(defaultScene)
 
   return {
     play: () => GameP.play(),
     pause: () => GameP.pause(),
-    paused: GameP.paused,
     destroy: () => GameP.destroy(),
-    changeScene: (name) => {
-      return GameP.sceneManager.setScene(name)
-    },
-    preloadScene: (name) => {
-      return GameP.sceneManager.preloadScene(name)
-    },
-    getSize() {
-      return vector2(GameConfig.width, GameConfig.height)
-    },
   }
 }
 
@@ -93,26 +81,9 @@ export interface GameControls {
    */
   pause: () => void
   /**
-   * The **`paused`** property indicates whether the game is currently paused.
-   * It is a reactive signal — read with `paused()`.
-   */
-  paused: SignalGetter<boolean>
-  /**
    * The **`destroy`** method destroys the game.
    */
   destroy: () => void
-  /**
-   * The **`changeScene`** method sets and loads the scene.
-   */
-  changeScene: (name: string) => Promise<void>
-  /**
-   * The **`preloadScene`** method preloads the scene while the Game is running and returns a function to set this scene when it is loaded.
-   */
-  preloadScene: (name: string) => Promise<() => void>
-  /**
-   * The **`getSize`** method returns the size of the game screen as Vector2.
-   */
-  getSize: () => Vector2
 }
 
 async function SceneComponentToNode(component: SceneComponent): Promise<Node> {

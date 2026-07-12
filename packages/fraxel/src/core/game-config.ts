@@ -24,6 +24,9 @@ export class GameConfig {
 
   /** The global translation offset used by the camera system. */
   static translate = Vector2.ZERO
+
+  /** The DPR-corrected scale ratio (ratio * dpr). */
+  static dprRatio = 1
 }
 
 /**

@@ -1,9 +1,9 @@
-import { Game } from '../../core/game.js'
+import { SceneManager } from '../../core/scene-manager.js'
 import { declareDerivedHook } from '../context.js'
 
 interface SceneControllers {
   /** The current scene name. */
-  current: string
+  getCurrent: () => string
   /** Switches to a different scene. Pass `null` to unload the current scene. */
   change: (sceneName: string | null) => Promise<void>
   /** Preloads a scene and returns a cleanup function to free memory. */
@@ -13,8 +13,8 @@ interface SceneControllers {
 /**
  * The **`useScene`** derived hook provides imperative access to the scene manager.
  *
- * @returns A `SceneControllers` object with `current` scene name, `change` to switch scenes,
- *   and `preload` to preload scenes.
+ * @returns A `SceneControllers` object with `getCurrent` to get the current scene name,
+ *   `change` to switch scenes, and `preload` to preload scenes.
  *
  * @example
  * ```tsx
@@ -39,8 +39,8 @@ interface SceneControllers {
 export function useScene(): SceneControllers {
   declareDerivedHook('useScene')
   return {
-    current: Game.sceneManager.currentScene!,
-    change: (name) => Game.sceneManager.setScene(name),
-    preload: (name) => Game.sceneManager.preloadScene(name),
+    getCurrent: () => SceneManager.currentScene!,
+    change: (name) => SceneManager.setScene(name),
+    preload: (name) => SceneManager.preloadScene(name),
   }
 }

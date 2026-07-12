@@ -4,14 +4,25 @@ import type { Scene } from './scene.js'
 
 /**
  * The **`SceneManager`** class manages scene registration, loading, and switching.
- * Access via `Game.sceneManager`.
+ * It is a standalone singleton — import directly from `'fraxel'`.
+ *
+ * @example
+ * ```ts
+ * import { SceneManager, Scene, Game } from 'fraxel'
+ *
+ * await SceneManager.addScene('main', new Scene(async () => (await import('./main.js')).default), true)
+ * Game.play()
+ *
+ * await SceneManager.setScene('menu')
+ * await SceneManager.setScene(null) // unload
+ * ```
  */
 export class SceneManager {
-  #scenes = new Map<string, Scene>()
+  static #scenes = new Map<string, Scene>()
 
-  #currentScene: string | null = null
+  static #currentScene: string | null = null
 
-  #currentNode: Node | null = null
+  static #currentNode: Node | null = null
 
   /**
    * The **`addScene`** method registers a scene with the given name.
@@ -23,16 +34,16 @@ export class SceneManager {
    *
    * @example
    * ```ts
-   * import { Scene } from 'fraxel'
+   * import { SceneManager, Scene } from 'fraxel'
    *
-   * await Game.sceneManager.addScene(
+   * await SceneManager.addScene(
    *   'main',
    *   new Scene(async () => (await import('./scenes/main.js')).default),
-   *   true, // set as current scene
+   *   true,
    * )
    * ```
    */
-  async addScene(name: string, scene: Scene, setit = false) {
+  static async addScene(name: string, scene: Scene, setit = false) {
     this.#scenes.set(name, scene)
     if (setit) await this.setScene(name)
   }
@@ -46,12 +57,14 @@ export class SceneManager {
    *
    * @example
    * ```ts
-   * const setToGame = await Game.sceneManager.preloadScene('game')
+   * import { SceneManager } from 'fraxel'
+   *
+   * const setToGame = await SceneManager.preloadScene('game')
    * // Later, switch instantly:
    * setToGame()
    * ```
    */
-  async preloadScene(scene: string) {
+  static async preloadScene(scene: string) {
     if (!this.#scenes.has(scene)) {
       throw new SceneNotFoundError(scene)
     }
@@ -77,11 +90,13 @@ export class SceneManager {
    *
    * @example
    * ```ts
-   * await Game.sceneManager.setScene('menu')
-   * await Game.sceneManager.setScene(null) // unload current scene
+   * import { SceneManager } from 'fraxel'
+   *
+   * await SceneManager.setScene('menu')
+   * await SceneManager.setScene(null) // unload current scene
    * ```
    */
-  async setScene(scene: string | null) {
+  static async setScene(scene: string | null) {
     this.#currentNode?.destroy()
 
     this.#currentScene = null
@@ -102,12 +117,12 @@ export class SceneManager {
   }
 
   /** The read-only **`currentScene`** property returns the current scene name, or `null` if none is active. */
-  get currentScene() {
+  static get currentScene() {
     return this.#currentScene
   }
 
   /** The read-only **`currentNode`** property returns the current scene's root `Node`, or `null` if none is active. */
-  get currentNode() {
+  static get currentNode() {
     return this.#currentNode
   }
 }
