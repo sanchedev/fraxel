@@ -1,6 +1,7 @@
 import { GameConfig } from '../core/game-config.js'
 import { TextureNotFoundError } from '../errors/assets.js'
-import { type Vector2 } from '../math/vector2.js'
+import { region, type Region } from '../math/region.js'
+import { vector2, Vector2 } from '../math/vector2.js'
 
 /**
  * The **`Texture`** class wraps an `HTMLImageElement` and provides a `draw` method
@@ -27,46 +28,52 @@ export class Texture {
    * @param options Texture draw options.
    */
   draw(options: TextureDrawOptions) {
-    const width = options.sourceSize?.x ?? this.width
-    const height = options.sourceSize?.y ?? this.height
+    const display = region(
+      options.display.offset,
+      options.display.size.equals(Vector2.ZERO)
+        ? vector2(this.width, this.height)
+        : options.display.size,
+    )
+    const source =
+      options.source == null
+        ? region(0, display.size)
+        : region(
+            options.source.offset,
+            options.source.size.equals(Vector2.ZERO)
+              ? vector2(this.width, this.height)
+              : options.source.size,
+          )
 
-    const rWidth = options.displaySize?.x ?? width
-    const rHeight = options.displaySize?.y ?? height
-
-    const flipX = rWidth !== Math.abs(rWidth)
-    const flipY = rHeight !== Math.abs(rHeight)
+    const flipX = display.size.x !== Math.abs(display.size.x)
+    const flipY = display.size.y !== Math.abs(display.size.y)
 
     const scaleX = flipX ? -1 : 1
     const scaleY = flipY ? -1 : 1
 
-    const pos = options.position.toMultiplied([scaleX, scaleY])
+    display.offset.multiply([scaleX, scaleY])
 
     GameConfig.ctx.save()
     GameConfig.ctx.scale(scaleX, scaleY)
     GameConfig.ctx.drawImage(
       this.image,
-      options.margin?.x ?? 0,
-      options.margin?.y ?? 0,
-      width,
-      height,
-      pos.x,
-      pos.y,
-      rWidth,
-      rHeight,
+      source.offset.x,
+      source.offset.y,
+      source.size.x,
+      source.size.y,
+      display.offset.x,
+      display.offset.y,
+      display.size.x,
+      display.size.y,
     )
     GameConfig.ctx.restore()
   }
 }
 
 interface TextureDrawOptions {
-  /** Position to draw */
-  position: Vector2
-  /** Size of the texture */
-  sourceSize?: Vector2 | undefined
-  /** Size of the result texture */
-  displaySize?: Vector2 | undefined
-  /** Offset of the texture */
-  margin?: Vector2 | undefined
+  /** Display texture region (if `display.size.equals(Vector.ZERO)` then the default value is the texture size) */
+  display: Region
+  /** Source texture region */
+  source?: Region
 }
 
 export const textures = new Map<symbol, Texture>()

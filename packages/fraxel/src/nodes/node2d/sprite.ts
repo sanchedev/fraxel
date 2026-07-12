@@ -7,6 +7,7 @@ import { Node2D, type Node2DOptions } from './_node2d.js'
 import { registerNode } from '../lib/registry.js'
 import type { Reactive } from '../../reactivity/types.js'
 import { Color, type ColorLike } from '../../math/color.js'
+import { Region } from '../../math/region.js'
 
 export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
   /**
@@ -418,10 +419,12 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
       const ds = this.displaySize ?? this.sourceSize
 
       this.#texture.draw({
-        position: this.position,
-        margin: this.margin,
-        sourceSize: this.sourceSize,
-        displaySize: this.displaySize?.toMultiplied([this.flipX ? -1 : 1, this.flipY ? -1 : 1]),
+        display: new Region(this.position, this.sourceSize ?? Vector2.ZERO),
+        source: new Region(
+          this.margin ?? Vector2.ZERO,
+          this.displaySize?.toMultiplied([this.flipX ? -1 : 1, this.flipY ? -1 : 1]) ??
+            Vector2.ZERO,
+        ),
       })
 
       const isModulated = !this.#modulate.equals(Color.WHITE)

@@ -54,6 +54,18 @@ export class Vector2 {
     return new Vector2(arg1 as number, arg2!)
   }
 
+  static min(...vectors: Vector2[]): Vector2 {
+    const axisX = Math.min(...vectors.map((v) => v.x))
+    const axisY = Math.min(...vectors.map((v) => v.y))
+    return new Vector2(axisX, axisY)
+  }
+
+  static max(...vectors: Vector2[]): Vector2 {
+    const axisX = Math.max(...vectors.map((v) => v.x))
+    const axisY = Math.max(...vectors.map((v) => v.y))
+    return new Vector2(axisX, axisY)
+  }
+
   /** The x-coordinate of the vector. */
   x: number
   /** The y-coordinate of the vector. */
