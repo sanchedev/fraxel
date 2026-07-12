@@ -230,6 +230,14 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
     CollisionSystem.unregister(this)
     super.destroy()
   }
+
+  /** @internal Cleans up custom event listeners. */
+  cleanEvents(): void {
+    this.colliderEntered.clean()
+    this.collided.clean()
+    this.colliderExited.clean()
+    super.cleanEvents()
+  }
 }
 
 registerNode(PrimaryNode.Collider, Collider)

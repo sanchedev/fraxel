@@ -145,6 +145,13 @@ export class Timer extends Node<PrimaryNode.Timer> {
 
     super.update(delta)
   }
+
+  /** @internal Cleans up custom event listeners. */
+  cleanEvents(): void {
+    this.timeout.clean()
+    this.timeChanged.clean()
+    super.cleanEvents()
+  }
 }
 
 registerNode(PrimaryNode.Timer, Timer)
