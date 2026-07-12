@@ -1,6 +1,6 @@
 import { Vector2, type VectorLike } from '../../../math/index.js'
 import type { Node2D, NodeInstances, PrimaryNode } from '../../../nodes/index.js'
-import { type SignalGetter, type SignalSetter, Signal } from '../../../reactivity/index.js'
+import { type SignalSetter, Signal } from '../../../reactivity/index.js'
 import { NodeReference } from '../reference.js'
 
 type PrimaryNode2D = keyof {
@@ -35,25 +35,31 @@ type PrimaryNode2D = keyof {
  */
 export class Node2DReference<T extends PrimaryNode2D = PrimaryNode2D> extends NodeReference<T> {
   /** Reactive position getter. Updates every frame. */
-  position: SignalGetter<Vector2>
+  position = new Signal(Vector2.ZERO).getter
   /** Sets the node's position. Accepts any `VectorLike` value. */
-  setPosition: SignalSetter<VectorLike>
+  setPosition: SignalSetter<VectorLike> = (v) => (this.node.position = new Vector2(v))
+  /** Reactive rotation getter. Updates every frame. */
+  rotation = new Signal(0).getter
+  /** Sets the node's rotation. Accepts any `number` value. */
+  setRotation: SignalSetter<number> = (r) => (this.node.rotation = r)
 
   constructor(type: T, onStart?: (node: NodeInstances[T]) => void, onEnd?: () => void) {
     super(type)
 
-    this.position = new Signal(Vector2.ZERO).getter
-    this.setPosition = (vectorLike) => (this.node.position = new Vector2(vectorLike))
-
+    const setters = (node: Node2D) => {
+      this.position.signal.setter(node.position)
+      this.rotation.signal.setter(node.rotation)
+    }
     this.signal.signal.sub((node) => {
       if (node == null) {
         onEnd?.()
         this.position.signal.clearSubs()
+        this.rotation.signal.clearSubs()
       } else {
-        this.position.signal.setter(node.position)
+        setters(node)
         onStart?.(node)
         node.updated.on(() => {
-          this.position.signal.setter(node.position)
+          setters(node)
         })
       }
     })
