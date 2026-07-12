@@ -19,17 +19,19 @@ export function getDPRFromCtx(
 
   const dpr = window.devicePixelRatio ?? 1
 
-  const { width: w, height: h } = ctx.canvas.getBoundingClientRect()
+  const { width: displayWidth, height: displayHeight } = ctx.canvas.getBoundingClientRect()
 
-  const width = w * dpr
-  const height = h * dpr
+  const width = displayWidth * dpr
+  const height = displayHeight * dpr
 
-  const ratio = (width / originalWidth + height / originalHeight) / 2
+  if (ctx.canvas.width !== width || ctx.canvas.height !== height) {
+    ctx.canvas.width = width
+    ctx.canvas.height = height
+  }
 
-  ctx.canvas.width = width
-  ctx.canvas.height = height
+  const ratio = (displayWidth / originalWidth + displayHeight / originalHeight) / 2
 
-  ctx.scale(ratio, ratio)
+  ctx.scale(ratio * dpr, ratio * dpr)
 
   return ratio
 }
