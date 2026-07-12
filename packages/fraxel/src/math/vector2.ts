@@ -54,12 +54,32 @@ export class Vector2 {
     return new Vector2(arg1 as number, arg2!)
   }
 
+  /**
+   * The **`min`** static method takes the min axis in `vectors` and creates a new `Vector2` with they.
+   *
+   * @example
+   * ```ts
+   * const minVector = Vector2.min(Vector2.ZERO, new Vector(0, -10), new Vector(100, 3))
+   * minVector.x    // 0
+   * minVector.y    // -10
+   * ```
+   */
   static min(...vectors: Vector2[]): Vector2 {
     const axisX = Math.min(...vectors.map((v) => v.x))
     const axisY = Math.min(...vectors.map((v) => v.y))
     return new Vector2(axisX, axisY)
   }
 
+  /**
+   * The **`max`** static method takes the max axis in `vectors` and creates a new `Vector2` with they.
+   *
+   * @example
+   * ```ts
+   * const maxVector = Vector2.max(Vector2.ZERO, new Vector(20, -10), new Vector(1, -3))
+   * maxVector.x    // 20
+   * maxVector.y    // 0
+   * ```
+   */
   static max(...vectors: Vector2[]): Vector2 {
     const axisX = Math.max(...vectors.map((v) => v.x))
     const axisY = Math.max(...vectors.map((v) => v.y))
@@ -242,7 +262,7 @@ export class Vector2 {
    */
   divide(vectorLike: VectorLike): Vector2 {
     const vector = new Vector2(vectorLike)
-    return this.apply((coord, axis) => coord / vector[axis])
+    return this.apply((coord, axis) => (vector[axis] === 0 ? 0 : coord / vector[axis]))
   }
 
   /**
@@ -331,6 +351,42 @@ export class Vector2 {
   }
 
   /**
+   * The **`rotate`** method rotates the vector in `angle` degrees (mutating).
+   * @param angle The angle in hexadecimal.
+   * @returns This vector for chaining.
+   *
+   * @example
+   * ```ts
+   * const dir = new Vector2(5, 5)
+   * dir.rotate(180) // Vector2(-5, -5)
+   * ```
+   */
+  rotate(angle: number): Vector2 {
+    if (this.equals(Vector2.ZERO)) return this
+
+    const h = Math.sqrt(this.x ** 2 + this.y ** 2)
+    const a = ((this.getAngle() + angle) / 180) * Math.PI
+    this.x = Math.cos(a) * h
+    this.y = Math.sin(a) * h
+    return this
+  }
+
+  /**
+   * The **`rotate`** method rotates the vector in `angle` degrees.
+   * @param angle The angle in hexadecimal.
+   * @returns A new `Vector2` instance.
+   *
+   * @example
+   * ```ts
+   * const dir = new Vector2(5, 5)
+   * dir.toRotated(180) // Vector2(-5, -5)
+   * ```
+   */
+  toRotated(degree: number): Vector2 {
+    return this.clone().rotate(degree)
+  }
+
+  /**
    * The **`equals`** method checks if this vector has the same x and y values as another vector.
    * @param vectorLike The vector to compare with.
    * @returns `true` if both components are equal, `false` otherwise.
@@ -345,6 +401,10 @@ export class Vector2 {
   equals(vectorLike: VectorLike): boolean {
     const vector2 = new Vector2(vectorLike)
     return this.x === vector2.x && this.y === vector2.y
+  }
+
+  getAngle() {
+    return (Math.atan2(this.y, this.x) * 180) / Math.PI
   }
 
   /**
