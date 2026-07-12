@@ -48,19 +48,19 @@ function Player() {
   })
 
   return (
-    <rigid-body ref={rb} position={[80, 50]} mass={1}>
+    <body ref={rb} position={[80, 50]} mass={1}>
       <sprite textureId={PLAYER} />
       <collider shape={shapes.rectangle(16, 16)} group={['player']} collidesWith={['ground']} />
-    </rigid-body>
+    </body>
   )
 }
 
 const scene = () => (
   <transform>
     <Player />
-    <rigid-body position={[0, 200]} isStatic>
+    <body position={[0, 200]} isStatic>
       <collider shape={shapes.rectangle(300, 16)} group={['ground']} collidesWith={['player']} />
-    </rigid-body>
+    </body>
   </transform>
 )
 
@@ -127,7 +127,7 @@ function Player() {
     rb.applyImpulse([0, -400]) // imperative
   })
 
-  return <rigid-body ref={rb} mass={1} /> // declarative — connects to node
+  return <body ref={rb} mass={1} /> // declarative — connects to node
 }
 ```
 
