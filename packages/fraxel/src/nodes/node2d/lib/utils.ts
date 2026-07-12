@@ -18,3 +18,20 @@ export function getGlobalPosition(node: Node | undefined): Vector2 {
   }
   return pos
 }
+
+/**
+ * The **`getGlobalRotation`** function computes the world-space rotation of a node
+ * by summing rotations up the parent chain.
+ * @param node - The node to compute the global rotation for.
+ * @returns The computed global rotation as a `number`.
+ */
+export function getGlobalRotation(node: Node | undefined): number {
+  let rot = node instanceof Node2D ? node.rotation : 0
+  let parent = node?.parent
+  while (parent != null) {
+    if (!(parent instanceof Node2D)) continue
+    rot += parent.rotation
+    parent = parent.parent
+  }
+  return rot
+}

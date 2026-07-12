@@ -9,8 +9,9 @@ import { registerNode } from '../lib/registry.js'
 export interface TransformOptions extends Node2DOptions<PrimaryNode.Transform> {}
 
 /**
- * The **`Transform`** node is a container for positioning and organizing child nodes.
+ * The **`Transform`** node is a container for positioning, rotationing, and organizing child nodes.
  * It has no visual representation but provides a coordinate system for its children.
+ * It is recommended to use this node over nodes that draw like a sprite if you want easier rotation.
  *
  * @example
  * ```tsx

@@ -1,5 +1,4 @@
 import type { Theme } from './theme.js'
-import { Vector2 } from '../math/vector2.js'
 
 /**
  * The **`GameConfig`** class is a static singleton that holds the canvas, context,
@@ -21,9 +20,6 @@ export class GameConfig {
 
   /** Debug rendering options. */
   static testOptions: TestOptions
-
-  /** The global translation offset used by the camera system. */
-  static translate = Vector2.ZERO
 
   /** The DPR-corrected scale ratio (ratio * dpr). */
   static dprRatio = 1

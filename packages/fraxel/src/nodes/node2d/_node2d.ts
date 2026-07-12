@@ -3,7 +3,7 @@ import { Vector2, type VectorLike } from '../../math/vector2.js'
 import { ns, propSignal, signalVector } from '../../utils/ternaries.js'
 import type { PrimaryNode } from '../lib/enum.js'
 import { Node, type NodeOptions } from '../_node.js'
-import { getGlobalPosition } from './lib/utils.js'
+import { getGlobalPosition, getGlobalRotation } from './lib/utils.js'
 import type { Reactive } from '../../reactivity/index.js'
 
 export interface Node2DOptions<T extends PrimaryNode> extends NodeOptions<T> {
@@ -27,6 +27,26 @@ export interface Node2DOptions<T extends PrimaryNode> extends NodeOptions<T> {
    * ```
    */
   position?: Reactive<VectorLike>
+  /**
+   * The **`rotation`** property of a node.
+   * It represents the rotation in the plane.
+   *
+   * @example
+   * ```tsx
+   * const transform = useTransform()
+   *
+   * useUpdate((delta) => {
+   *   transform.node.rotation += delta * 180
+   * })
+   *
+   * return (
+   *   <transform ref={transform} origin={[-8, -8]}>
+   *     <sprite textureId={ROTATOR_TEXTURE} />
+   *   </transform>
+   * )
+   * ```
+   */
+  rotation?: Reactive<number>
 }
 
 export abstract class Node2D<T extends PrimaryNode = PrimaryNode> extends Node<T> {
@@ -50,6 +70,26 @@ export abstract class Node2D<T extends PrimaryNode = PrimaryNode> extends Node<T
    * ```
    */
   position: Vector2 = Vector2.ZERO
+  /**
+   * The **`rotation`** property of a node.
+   * It represents the rotation in the plane.
+   *
+   * @example
+   * ```tsx
+   * const transform = useTransform()
+   *
+   * useUpdate((delta) => {
+   *   transform.node.rotation += delta * 90
+   * })
+   *
+   * return (
+   *   <transform ref={transform} origin={[-8, -8]}>
+   *     <sprite textureId={ROTATOR_TEXTURE} />
+   *   </transform>
+   * )
+   * ```
+   */
+  rotation: number = 0
 
   constructor(type: T, options: Node2DOptions<T>) {
     super(type, options)
@@ -58,6 +98,7 @@ export abstract class Node2D<T extends PrimaryNode = PrimaryNode> extends Node<T
       (vector) => propSignal(this, 'position', signalVector(vector)),
       this.position,
     )
+    this.rotation = propSignal(this, 'rotation', options.rotation)
   }
 
   /**
@@ -71,12 +112,42 @@ export abstract class Node2D<T extends PrimaryNode = PrimaryNode> extends Node<T
    * ```
    */
   set globalPosition(value) {
-    const gp = getGlobalPosition(this).add(this.position).subtract(value)
+    const gp = getGlobalPosition(this).add(this.position)
 
-    this.position = gp.multiply(-1)
+    this.position = value.toSubtracted(gp)
   }
   get globalPosition(): Vector2 {
     return getGlobalPosition(this)
+  }
+
+  /**
+   * The **`globalRotation`** property gets or sets the cumulative rotation across the entire parent chain.
+   * Setting this value adjusts the local `rotation` so the node's world-space rotation matches.
+   *
+   * @example
+   * ```ts
+   * const worldPos = node.globalRotation
+   * node.globalRotation = 180
+   * ```
+   */
+  set globalRotation(value) {
+    const gr = getGlobalRotation(this) + this.rotation
+
+    this.rotation = value - gr
+  }
+  get globalRotation(): number {
+    return getGlobalRotation(this)
+  }
+
+  /**
+   * The **`lookAt`** method calculates the rotation of the node from an external position.
+   *
+   * @param position The position as `VectorLike` to look at.
+   */
+  lookAt(position: VectorLike): void {
+    const diff = new Vector2(position).subtract(this.globalPosition)
+    const angleRad = Math.atan2(diff.y, diff.x)
+    this.rotation = (angleRad / Math.PI) * 180
   }
 
   /**
@@ -87,11 +158,11 @@ export abstract class Node2D<T extends PrimaryNode = PrimaryNode> extends Node<T
    */
   draw(delta: number): void {
     for (const node of this._children) {
+      GameConfig.ctx.save()
       GameConfig.ctx.translate(this.position.x, this.position.y)
-      GameConfig.translate.add(this.position)
+      GameConfig.ctx.rotate((this.rotation * Math.PI) / 180)
       node.draw(delta * node.deltaIncrease)
-      GameConfig.translate.subtract(this.position)
-      GameConfig.ctx.translate(-this.position.x, -this.position.y)
+      GameConfig.ctx.restore()
     }
     this.drawed.emit(delta)
   }
