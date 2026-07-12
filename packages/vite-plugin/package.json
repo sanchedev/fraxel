@@ -1,6 +1,6 @@
 {
   "name": "@fraxel/vite-plugin",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.1",
   "description": "Official Vite plugin for Fraxel.",
   "type": "module",
   "main": "dist/index.js",
@@ -32,6 +32,17 @@
   "author": "José Sánchez",
   "license": "MIT",
   "packageManager": "pnpm@10.29.3",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sanchedev/fraxel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sanchedev/fraxel/issues"
+  },
+  "homepage": "https://github.com/sanchedev/fraxel#readme",
+  "engines": {
+    "node": ">=18"
+  },
   "peerDependencies": {
     "vite": "^8.0.0",
     "fraxel": "^0.1.0-alpha.5"
@@ -40,6 +51,6 @@
     "@types/node": "^26.1.1",
     "fraxel": "^0.1.0-alpha.5",
     "typescript": "^5.9.3",
-    "vite": "^8.1.4"
+    "vite": "^8.0.0"
   }
 }
