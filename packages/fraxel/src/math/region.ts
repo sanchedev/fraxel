@@ -1,0 +1,64 @@
+import { isVectorLike, Vector2, type VectorLike } from './vector2.js'
+
+/**
+ * The **`Region`** class represents a rectangular region by size in 2D space with
+ * `offset`, and `size`. Used for tilemaps, sprite regions, and spacial spaces.
+ *
+ * @example
+ * ```ts
+ * import { Region } from 'fraxel'
+ *
+ * // Using vector like
+ * const a = new Region(10, 20) // ofset=vector2(10, 10), size=vector2(20, 20)
+ *
+ * // Using numbers
+ * const b = new Region(10, 16, 32, 48) // ofset=vector2(10, 16), size=vector2(32, 48)
+ * ```
+ */
+export class Region {
+  /** The left edge of the bounds. */
+  offset = Vector2.ZERO
+  /** The bottom edge of the bounds. */
+  size = Vector2.ZERO
+
+  constructor(offset: VectorLike, size: VectorLike)
+  constructor(x: number, y: number, width: number, height: number)
+  constructor(...args: unknown[]) {
+    const [arg1, arg2, arg3, arg4] = args
+    if (arg1 != null && arg2 != null) {
+      if (
+        arg3 != null &&
+        arg4 != null &&
+        typeof arg1 === 'number' &&
+        typeof arg2 === 'number' &&
+        typeof arg3 === 'number' &&
+        typeof arg4 === 'number'
+      ) {
+        this.offset = new Vector2(arg1, arg2)
+        this.size = Vector2.max(Vector2.ZERO, new Vector2(arg3, arg4))
+      } else if (isVectorLike(arg1) && isVectorLike(arg2)) {
+        this.offset = new Vector2(arg1)
+        this.size = new Vector2(arg2)
+      }
+      this.size = Vector2.max(Vector2.ZERO, this.size)
+    }
+  }
+}
+
+/**
+ * The **`region`** function creates a `Region` from various input formats.
+ * Convenience factory that delegates to the `Region` constructor.
+ *
+ * @example
+ * ```ts
+ * import { region } from 'fraxel'
+ *
+ * const a = region(10, 20)            // offset=vector2(10, 10), size=vector2(20, 20)
+ * const b = region(16, 32, 32, 48)    // offset=vector2(16, 32), size=vector2(32, 48)
+ * ```
+ */
+export function region(offset: VectorLike, size: VectorLike): Region
+export function region(x: number, y: number, width: number, height: number): Region
+export function region(...args: unknown[]): Region {
+  return new Region(...(args as [number, number]))
+}
