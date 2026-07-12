@@ -16,6 +16,7 @@ import type { Camera, CameraOptions } from '../node2d/camera.js'
 import type { RigidBody, RigidBodyOptions } from '../node2d/rigid-body.js'
 import type { Group, GroupOptions } from '../group.js'
 import type { TileMap, TileMapOptions } from '../node2d/tilemap.js'
+import type { View, ViewOptions } from '../view.js'
 
 /**
  * The **`NodeClasses`** interface maps each `PrimaryNode` to its class constructor.
@@ -44,6 +45,7 @@ export interface NodeClasses {
   [PrimaryNode.AudioPlayer]: typeof AudioPlayer
   [PrimaryNode.Camera]: typeof Camera
   [PrimaryNode.RigidBody]: typeof RigidBody
+  [PrimaryNode.View]: typeof View
 }
 
 /**
@@ -73,6 +75,7 @@ export interface NodesOptions {
   [PrimaryNode.AudioPlayer]: AudioPlayerOptions
   [PrimaryNode.Camera]: CameraOptions
   [PrimaryNode.RigidBody]: RigidBodyOptions
+  [PrimaryNode.View]: ViewOptions
 }
 
 type NodeName = keyof NodeClasses
