@@ -1,4 +1,4 @@
-import { Texture, textures } from './texture.js'
+import { Texture, textures } from '../texture.js'
 
 /**
  * The **`loadTexture`** function loads a single texture from a URL and returns

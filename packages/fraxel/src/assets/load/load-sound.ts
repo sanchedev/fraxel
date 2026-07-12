@@ -1,5 +1,5 @@
-import { getAudioContext } from '../audio/audio-context.js'
-import { SoundNotFoundError } from '../errors/assets.js'
+import { getAudioContext } from '../../audio/audio-context.js'
+import { SoundNotFoundError } from '../../errors/assets.js'
 
 const sounds = new Map<symbol, AudioBuffer>()
 
