@@ -1,11 +1,11 @@
 import { NodeNotInitializedError, NodeTypeMismatchError } from '../../errors/index.js'
+import { Trigger } from '../../events/trigger.js'
 import { renderToNodes } from '../../jsx/index.js'
 import type { Fraxel } from '../../jsx/types.js'
 import type { NodeInstances, PrimaryNode } from '../../nodes/index.js'
 import { Signal, type SignalGetter } from '../../reactivity/index.js'
 import type { FraxelScript } from '../../scripts/script.js'
 import { currentContext, type HookContext } from '../context.js'
-import { Trigger } from '../use-trigger.js'
 
 /**
  * The **`NodeReference`** class is the base reference for all node hooks.
@@ -74,16 +74,12 @@ export class NodeReference<T extends PrimaryNode = PrimaryNode> {
 
     this.signal.signal.sub((node) => {
       if (node == null) {
-        this.started.clear()
-        this.drawed.clear()
-        this.updated.clear()
-        this.destroyed.clear()
         onEnd?.()
       } else {
-        node.started.on(this.started.emit)
-        node.drawed.on(this.drawed.emit)
-        node.updated.on(this.updated.emit)
-        node.destroyed.on(this.destroyed.emit)
+        node.started.connect(this.started)
+        node.drawed.connect(this.drawed)
+        node.updated.connect(this.updated)
+        node.destroyed.connect(this.destroyed)
         onStart?.(node)
       }
     })

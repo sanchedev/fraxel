@@ -1,7 +1,7 @@
 import { type SignalGetter } from '../../reactivity/index.js'
 import { declareDerivedHook } from '../context.js'
 import { useSignal } from '../use-signal.js'
-import { Trigger } from '../use-trigger.js'
+import { Trigger } from '../../events/trigger.js'
 
 /**
  * The **`useCondition`** derived hook creates a reactive boolean that toggles between `true` and `false`

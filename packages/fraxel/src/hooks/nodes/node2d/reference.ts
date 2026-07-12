@@ -45,17 +45,14 @@ export class Node2DReference<T extends PrimaryNode2D = PrimaryNode2D> extends No
     this.position = new Signal(Vector2.ZERO).getter
     this.setPosition = (vectorLike) => (this.node.position = new Vector2(vectorLike))
 
-    let unsub: (() => void) | null = null
     this.signal.signal.sub((node) => {
       if (node == null) {
         onEnd?.()
         this.position.signal.clearSubs()
-        unsub?.()
-        unsub = null
       } else {
         this.position.signal.setter(node.position)
         onStart?.(node)
-        unsub = node.updated.on(() => {
+        node.updated.on(() => {
           this.position.signal.setter(node.position)
         })
       }

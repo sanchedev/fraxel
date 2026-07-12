@@ -1,7 +1,7 @@
+import { Trigger } from '../../events/trigger.js'
 import { PrimaryNode } from '../../nodes/index.js'
 import { Signal } from '../../reactivity/signal.js'
 import { pushEffect } from '../context.js'
-import { Trigger } from '../use-trigger.js'
 import { NodeReference } from './reference.js'
 
 /**
@@ -61,7 +61,6 @@ export class TimerReference extends NodeReference<PrimaryNode.Timer> {
   stop: () => void = () => {}
 
   constructor() {
-    let unsubs: (() => void)[] = []
     super(
       PrimaryNode.Timer,
       (node) => {
@@ -74,21 +73,20 @@ export class TimerReference extends NodeReference<PrimaryNode.Timer> {
         ]
         sets.forEach((set) => set())
 
-        unsubs.push(
-          node.timeChanged.on((elapsed) => {
-            this.time.signal.setter(elapsed)
-            this.progress.signal.setter(elapsed / node.duration)
-            this.timeChanged.emit(elapsed)
-          }),
-          node.timeout.on(() => {
-            this.time.signal.setter(node.duration)
-            this.progress.signal.setter(1)
-            this.timeout.emit()
-          }),
-          node.updated.on(() => {
-            this.duration.signal.setter(node.duration)
-          }),
-        )
+        node.timeChanged.on((elapsed) => {
+          this.time.signal.setter(elapsed)
+          this.progress.signal.setter(elapsed / node.duration)
+        })
+        node.timeout.on(() => {
+          this.time.signal.setter(node.duration)
+          this.progress.signal.setter(1)
+        })
+        node.updated.on(() => {
+          this.duration.signal.setter(node.duration)
+        })
+
+        node.timeChanged.connect(this.timeChanged)
+        node.timeout.connect(this.timeout)
 
         this.play = (from) => node.play(from)
         this.pause = () => node.pause()
@@ -102,10 +100,6 @@ export class TimerReference extends NodeReference<PrimaryNode.Timer> {
         this.time.signal.clearSubs()
         this.duration.signal.clearSubs()
         this.progress.signal.clearSubs()
-        this.timeout.clear()
-        this.timeChanged.clear()
-        unsubs.forEach((unsub) => unsub())
-        unsubs = []
       },
     )
   }

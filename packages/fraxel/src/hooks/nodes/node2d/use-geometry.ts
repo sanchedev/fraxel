@@ -49,7 +49,6 @@ export class GeometryReference extends Node2DReference<PrimaryNode.Geometry> {
   size = new Signal<Vector2>({ x: 0, y: 0 } as Vector2).getter
 
   constructor() {
-    let unsub = () => {}
     super(
       PrimaryNode.Geometry,
       (node) => {
@@ -63,7 +62,7 @@ export class GeometryReference extends Node2DReference<PrimaryNode.Geometry> {
           },
         ]
         sets.forEach((set) => set())
-        unsub = node.updated.on(() => {
+        node.updated.on(() => {
           sets.forEach((set) => set())
         })
       },
@@ -73,7 +72,6 @@ export class GeometryReference extends Node2DReference<PrimaryNode.Geometry> {
         this.strokeColor.signal.clearSubs()
         this.strokeWidth.signal.clearSubs()
         this.size.signal.clearSubs()
-        unsub()
       },
     )
   }

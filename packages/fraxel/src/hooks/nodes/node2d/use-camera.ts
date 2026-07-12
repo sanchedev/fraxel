@@ -68,7 +68,6 @@ export class CameraReference extends Node2DReference<PrimaryNode.Camera> {
   worldToScreen: (worldPos: VectorLike) => Vector2 = (pos) => vectorize(pos)
 
   constructor() {
-    let unsub = () => {}
     super(
       PrimaryNode.Camera,
       (node) => {
@@ -81,7 +80,7 @@ export class CameraReference extends Node2DReference<PrimaryNode.Camera> {
           },
         ]
         sets.forEach((set) => set())
-        unsub = node.updated.on(() => {
+        node.updated.on(() => {
           sets.forEach((set) => set())
         })
 
@@ -95,7 +94,6 @@ export class CameraReference extends Node2DReference<PrimaryNode.Camera> {
         this.offset.signal.clearSubs()
         this.smoothing.signal.clearSubs()
         this.limit.signal.clearSubs()
-        unsub()
       },
     )
   }

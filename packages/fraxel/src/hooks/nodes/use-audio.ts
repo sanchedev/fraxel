@@ -1,7 +1,7 @@
+import { Trigger } from '../../events/trigger.js'
 import { PrimaryNode } from '../../nodes/index.js'
 import { Signal } from '../../reactivity/signal.js'
 import { pushEffect } from '../context.js'
-import { Trigger } from '../use-trigger.js'
 import { NodeReference } from './reference.js'
 
 /**
@@ -55,27 +55,22 @@ export class AudioReference extends NodeReference<PrimaryNode.AudioPlayer> {
   stop: () => void = () => {}
 
   constructor() {
-    let unsubs: (() => void)[] = []
     super(
       PrimaryNode.AudioPlayer,
       (node) => {
         this.playing.signal.setter(node.isPlaying)
 
-        unsubs.push(
-          node.started.on(() => {
-            this.playing.signal.setter(true)
-          }),
-          node.ended.on(() => {
-            this.playing.signal.setter(false)
-            this.ended.emit()
-          }),
-          node.error.on((err) => {
-            this.error.emit(err)
-          }),
-          node.updated.on(() => {
-            this.playing.signal.setter(node.isPlaying)
-          }),
-        )
+        node.started.on(() => {
+          this.playing.signal.setter(true)
+        })
+        node.ended.on(() => {
+          this.playing.signal.setter(false)
+        })
+        node.updated.on(() => {
+          this.playing.signal.setter(node.isPlaying)
+        })
+        node.ended.connect(this.ended)
+        node.error.connect(this.error)
 
         this.play = (offset) => node.play(offset)
         this.pause = () => node.pause()
@@ -85,8 +80,6 @@ export class AudioReference extends NodeReference<PrimaryNode.AudioPlayer> {
         this.playing.signal.clearSubs()
         this.ended.clear()
         this.error.clear()
-        unsubs.forEach((unsub) => unsub())
-        unsubs = []
       },
     )
   }

@@ -33,6 +33,7 @@ export function useText() {
 export class TextReference extends Node2DReference<PrimaryNode.Text> {
   /** Reactive text content. */
   text = new Signal('').getter
+  setText = (text: string) => (this.node.text = text)
 
   constructor() {
     let unsub = () => {}

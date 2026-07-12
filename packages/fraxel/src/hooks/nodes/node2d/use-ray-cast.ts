@@ -1,7 +1,7 @@
 import { PrimaryNode, type Collider } from '../../../nodes/index.js'
 import { Signal } from '../../../reactivity/signal.js'
 import { pushEffect } from '../../context.js'
-import { Trigger } from '../../use-trigger.js'
+import { Trigger } from '../../../events/trigger.js'
 import { Node2DReference } from './reference.js'
 
 /**
@@ -27,7 +27,7 @@ import { Node2DReference } from './reference.js'
  *     }
  *   })
  *
- *   return <ray-cast ref={raycast} direction={[100, 0]} collidesWith={['zombie']} />
+ *   return <raycast ref={raycast} direction={[100, 0]} collidesWith={['zombie']} />
  * }
  * ```
  */
@@ -50,7 +50,6 @@ export class RayCastReference extends Node2DReference<PrimaryNode.RayCast> {
   colliderExited = new Trigger<[collider: Collider]>()
 
   constructor() {
-    let unsub = () => {}
     super(
       PrimaryNode.RayCast,
       (node) => {
@@ -63,14 +62,10 @@ export class RayCastReference extends Node2DReference<PrimaryNode.RayCast> {
         ]
         sets.forEach((set) => set())
 
-        node.colliderEntered.on((c) => {
-          this.colliderEntered.emit(c)
-        })
-        node.colliderExited.on((c) => {
-          this.colliderExited.emit(c)
-        })
+        node.colliderEntered.connect(this.colliderEntered)
+        node.colliderExited.connect(this.colliderExited)
 
-        unsub = node.updated.on(() => {
+        node.updated.on(() => {
           sets.forEach((set) => set())
         })
       },
@@ -78,9 +73,6 @@ export class RayCastReference extends Node2DReference<PrimaryNode.RayCast> {
         this.direction.signal.clearSubs()
         this.collider.signal.clearSubs()
         this.detected.signal.clearSubs()
-        this.colliderEntered.clear()
-        this.colliderExited.clear()
-        unsub()
       },
     )
   }
@@ -104,7 +96,7 @@ export class RayCastReference extends Node2DReference<PrimaryNode.RayCast> {
    *     }
    *   })
    *
-   *   return <ray-cast ref={raycast} direction={[1, 0]} collidesWith={['enemy']} />
+   *   return <raycast ref={raycast} direction={[1, 0]} collidesWith={['enemy']} />
    * }
    * ```
    */

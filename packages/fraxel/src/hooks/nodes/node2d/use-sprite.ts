@@ -80,7 +80,6 @@ export class SpriteReference extends Node2DReference<PrimaryNode.Sprite> {
       <T>(g: SignalGetter<T>, v: T) =>
       () =>
         g.signal.setter(v)
-    let unsub = () => {}
     super(
       PrimaryNode.Sprite,
       (node) => {
@@ -97,7 +96,7 @@ export class SpriteReference extends Node2DReference<PrimaryNode.Sprite> {
           set(this.opacity, node.opacity),
         ]
         sets.forEach((set) => set())
-        unsub = node.updated.on(() => {
+        node.updated.on(() => {
           sets.forEach((set) => set())
         })
       },
@@ -112,7 +111,6 @@ export class SpriteReference extends Node2DReference<PrimaryNode.Sprite> {
         this.hueRotate.signal.clearSubs()
         this.invert.signal.clearSubs()
         this.opacity.signal.clearSubs()
-        unsub()
       },
     )
   }

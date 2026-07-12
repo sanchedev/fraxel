@@ -1,7 +1,7 @@
+import { Trigger } from '../../events/trigger.js'
 import { PrimaryNode } from '../../nodes/index.js'
 import { Signal } from '../../reactivity/signal.js'
 import { pushEffect } from '../context.js'
-import { Trigger } from '../use-trigger.js'
 import { NodeReference } from './reference.js'
 
 /**
@@ -76,7 +76,6 @@ export class AnimationReference extends NodeReference<PrimaryNode.AnimationPlaye
   setNext: (animName: string | null) => void = () => {}
 
   constructor() {
-    let unsubs: (() => void)[] = []
     super(
       PrimaryNode.AnimationPlayer,
       (node) => {
@@ -88,25 +87,23 @@ export class AnimationReference extends NodeReference<PrimaryNode.AnimationPlaye
         ]
         sets.forEach((set) => set())
 
-        unsubs.push(
-          node.animationChanged.on((name, old) => {
-            this.animName.signal.setter(name)
-            this.ended.signal.setter(false)
-            this.animationChanged.emit(name, old)
-          }),
-          node.animationStopped.on((anim) => {
-            this.animName.signal.setter(null)
-            this.animationStopped.emit(anim)
-          }),
-          node.animationIndexChanged.on((index) => {
-            this.frameIndex.signal.setter(index)
-            this.animationIndexChanged.emit(index)
-          }),
-          node.animationEnded.on((anim) => {
-            this.ended.signal.setter(true)
-            this.animationEnded.emit(anim)
-          }),
-        )
+        node.animationChanged.on((name) => {
+          this.animName.signal.setter(name)
+          this.ended.signal.setter(false)
+        })
+        node.animationStopped.on(() => {
+          this.animName.signal.setter(null)
+        })
+        node.animationIndexChanged.on((index) => {
+          this.frameIndex.signal.setter(index)
+        })
+        node.animationEnded.on(() => {
+          this.ended.signal.setter(true)
+        })
+        node.animationChanged.connect(this.animationChanged)
+        node.animationStopped.connect(this.animationStopped)
+        node.animationIndexChanged.connect(this.animationIndexChanged)
+        node.animationEnded.connect(this.animationEnded)
 
         this.play = (animName, index) => node.play(animName, index)
         this.stop = () => node.stop()
@@ -116,12 +113,6 @@ export class AnimationReference extends NodeReference<PrimaryNode.AnimationPlaye
         this.animName.signal.clearSubs()
         this.frameIndex.signal.clearSubs()
         this.ended.signal.clearSubs()
-        this.animationChanged.clear()
-        this.animationStopped.clear()
-        this.animationIndexChanged.clear()
-        this.animationEnded.clear()
-        unsubs.forEach((unsub) => unsub())
-        unsubs = []
       },
     )
   }

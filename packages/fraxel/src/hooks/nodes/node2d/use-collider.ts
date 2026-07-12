@@ -1,7 +1,7 @@
+import { Trigger } from '../../../events/trigger.js'
 import { PrimaryNode, type Collider } from '../../../nodes/index.js'
 import { Signal } from '../../../reactivity/signal.js'
 import { pushEffect } from '../../context.js'
-import { Trigger } from '../../use-trigger.js'
 import { Node2DReference } from './reference.js'
 
 /**
@@ -55,7 +55,6 @@ export class ColliderReference extends Node2DReference<PrimaryNode.Collider> {
   colliderExited = new Trigger<[other: Collider]>()
 
   constructor() {
-    let unsub = () => {}
     super(
       PrimaryNode.Collider,
       (node) => {
@@ -66,18 +65,15 @@ export class ColliderReference extends Node2DReference<PrimaryNode.Collider> {
           },
         ]
         sets.forEach((set) => set())
-        node.colliderEntered.on(this.colliderEntered.emit)
-        node.colliderExited.on(this.colliderExited.emit)
-        unsub = node.updated.on(() => {
+        node.updated.on(() => {
           sets.forEach((set) => set())
         })
+        node.colliderEntered.connect(this.colliderEntered)
+        node.colliderExited.connect(this.colliderExited)
       },
       () => {
         this.colliding.signal.clearSubs()
         this.detectedColliders.signal.clearSubs()
-        this.colliderEntered.clear()
-        this.colliderExited.clear()
-        unsub()
       },
     )
   }

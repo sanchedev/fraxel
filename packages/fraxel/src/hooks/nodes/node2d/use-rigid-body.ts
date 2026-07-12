@@ -27,9 +27,9 @@ import { Vector2, vector2, type VectorLike } from '../../../math/vector2.js'
  *   })
  *
  *   return (
- *     <rigid-body ref={ref} mass={1}>
+ *     <body ref={ref} mass={1}>
  *       <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['ground']} />
- *     </rigid-body>
+ *     </body>
  *   )
  * }
  * ```
@@ -58,22 +58,21 @@ export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
    *
    * @param force The force vector to apply
    */
-  applyForce: (force: VectorLike) => void = () => {}
+  applyForce = (force: VectorLike) => this.node.applyForce(vector2(force))
   /**
    * Applies an instantaneous impulse to the body.
    *
    * @param impulse The impulse vector to apply
    */
-  applyImpulse: (impulse: VectorLike) => void = () => {}
+  applyImpulse = (impulse: VectorLike) => this.node.applyImpulse(vector2(impulse))
   /**
    * Sets the body's velocity directly.
    *
    * @param v The new velocity vector
    */
-  setVelocity: (v: VectorLike) => void = () => {}
+  setVelocity = (v: VectorLike) => this.node.setVelocity(vector2(v))
 
   constructor() {
-    let unsub = () => {}
     super(
       PrimaryNode.RigidBody,
       (node) => {
@@ -88,13 +87,9 @@ export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
           },
         ]
         sets.forEach((set) => set())
-        unsub = node.updated.on(() => {
+        node.updated.on(() => {
           sets.forEach((set) => set())
         })
-
-        this.applyForce = (force) => node.applyForce(vector2(force))
-        this.applyImpulse = (impulse) => node.applyImpulse(vector2(impulse))
-        this.setVelocity = (v) => node.setVelocity(vector2(v))
       },
       () => {
         this.velocity.signal.clearSubs()
@@ -103,7 +98,6 @@ export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
         this.bounce.signal.clearSubs()
         this.isStatic.signal.clearSubs()
         this.useGravity.signal.clearSubs()
-        unsub()
       },
     )
   }
