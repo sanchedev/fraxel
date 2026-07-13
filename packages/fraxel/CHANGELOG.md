@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0-alpha.6c
+## 0.1.0-alpha.6d
 
 ### Highlights
 
@@ -18,6 +18,7 @@
 - **Rectangular collision offset** — `getRotatedRectCorners`, `closestPointOnRotatedRect`, `obbRectOverlap`, `getBoundsByRectangle`, `computeRectCircleOverlap`, `computeRectCapsuleOverlap`, and `#rectangleCapsuleOverlap` all corrected to rotate around `pos` instead of `pos + size/2`.
 - **Error handling** — updated to reflect new component names (`GameRoot`, `SceneRoot`).
 - **Sprite display and source** - moved to render the right positions.
+- **Hooks in Scene** - updated to create a hook context in Scenes.
 
 ### Breaking Changes
 

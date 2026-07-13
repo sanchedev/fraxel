@@ -13,6 +13,7 @@ import {
   MissingSceneError,
 } from '../../errors/jsx.js'
 import { SceneManager } from '../../core/scene-manager.js'
+import { finishHooks, startHooks } from '../../hooks/context.js'
 
 /** The **`createGame`** function creates the game and returns an object with control methods that can be used to play, pause the game, change the scene, etc...
  *
@@ -87,6 +88,8 @@ export interface GameControls {
 }
 
 async function SceneComponentToNode(component: SceneComponent): Promise<Node> {
+  startHooks()
+
   const node = await component()
 
   let nodesRendered: Node[]
@@ -100,6 +103,8 @@ async function SceneComponentToNode(component: SceneComponent): Promise<Node> {
   } else {
     nodesRendered = renderToNodes(node)
   }
+
+  finishHooks(nodesRendered)
 
   if (nodesRendered.length !== 1 || !(nodesRendered[0] instanceof Node)) {
     throw new InvalidSceneComponentError()
