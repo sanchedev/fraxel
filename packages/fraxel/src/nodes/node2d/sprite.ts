@@ -27,8 +27,26 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    */
   textureId?: Reactive<symbol>
   /**
+   * The **`source`** property defines the region of the texture to render.
+   * Combines texture offset and crop size into a single `Region`.
+   *
+   * @example
+   * ```tsx
+   * import { loadTexture, region } from 'fraxel'
+   *
+   * const SHEET = await loadTexture('/assets/sheet.png')
+   *
+   * function Player() {
+   *   return <sprite textureId={SHEET} source={region(16, 0, 16, 16)} />
+   * }
+   * ```
+   */
+  source?: Reactive<Region>
+  /**
    * The **`margin`** property offsets the texture origin within the source image.
    * Useful for selecting a frame from a sprite sheet.
+   *
+   * @deprecated Use `source` instead.
    *
    * @example
    * ```tsx
@@ -47,6 +65,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * Defaults to the full texture size if not set.
    *
    * @default texture.size
+   * @deprecated Use `source` instead.
    *
    * @example
    * ```tsx
@@ -191,11 +210,11 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
 
 /**
  * The **`Sprite`** node displays a texture in the game world.
- * Supports texture atlases via `margin`/`sourceSize`, display scaling, flipping, and visual filters.
+ * Supports texture atlases via `source`, display scaling, flipping, and visual filters.
  *
  * @example
  * ```tsx
- * import { loadTexture } from 'fraxel'
+ * import { loadTexture, region } from 'fraxel'
  * import { useSprite } from 'fraxel'
  *
  * const PLAYER = await loadTexture('/assets/player.png')
@@ -207,7 +226,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
  *     <sprite
  *       ref={sprite}
  *       textureId={PLAYER}
- *       sourceSize={[32, 32]}
+ *       source={region(0, 0, 32, 32)}
  *       displaySize={[64, 64]}
  *       brightness={1.2}
  *       modulate={[1, 0.5, 0, 1]}
@@ -220,17 +239,48 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
   #textureId?: symbol | undefined
   #texture?: Texture | undefined
 
+  #source: Region = new Region(Vector2.ZERO, Vector2.ZERO)
+
+  /**
+   * The **`source`** property defines the region of the texture to render.
+   * Combines texture offset and crop size into a single `Region`.
+   */
+  get source(): Region {
+    return this.#source
+  }
+  set source(region: Region) {
+    const next = new Region(region.offset, region.size)
+    if (this.#source.equals(next)) return
+    this.#source = next
+  }
+
   /**
    * The **`margin`** property offsets the texture origin within the source image.
    * Useful for selecting a frame from a sprite sheet.
+   *
+   * @deprecated Use `source` instead.
    */
-  margin?: Vector2 | undefined
+  get margin(): Vector2 {
+    return this.#source.offset
+  }
+  set margin(value: Vector2) {
+    if (this.#source.offset.equals(value)) return
+    this.#source = new Region(value, this.#source.size)
+  }
 
   /**
    * The **`sourceSize`** property defines the region of the texture to render.
    * Defaults to the full texture size if not set.
+   *
+   * @deprecated Use `source` instead.
    */
-  sourceSize?: Vector2 | undefined
+  get sourceSize(): Vector2 {
+    return this.#source.size
+  }
+  set sourceSize(value: Vector2) {
+    if (this.#source.size.equals(value)) return
+    this.#source = new Region(this.#source.offset, value)
+  }
 
   /**
    * The **`displaySize`** property scales the rendered output.
@@ -368,8 +418,6 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
     const vectors = (key: VectorNKeys & VectorOKeys) => {
       return ns(options[key], (vector) => propSignal(this, key, signalVector(vector)), this[key])
     }
-    this.margin = vectors('margin')
-    this.sourceSize = vectors('sourceSize')
     this.displaySize = vectors('displaySize')
     this.textureId = propSignal(this, 'textureId', options.textureId)
     this.flipX = propSignal(this, 'flipX', options.flipX)
@@ -386,6 +434,17 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
     this.hueRotate = propSignal(this, 'hueRotate', options.hueRotate)
     this.invert = propSignal(this, 'invert', options.invert)
     this.opacity = propSignal(this, 'opacity', options.opacity)
+
+    // source takes priority over deprecated margin/sourceSize
+    if (options.source != null) {
+      this.#source = propSignal(this, 'source', options.source)
+    } else {
+      // Deprecated: margin and sourceSize still work via setter → #source
+      if (options.margin != null)
+        this.#source.offset = propSignal(this, 'margin', signalVector(options.margin))
+      if (options.sourceSize != null)
+        this.#source.size = propSignal(this, 'sourceSize', signalVector(options.sourceSize))
+    }
   }
 
   /** @internal Loads the texture when the sprite starts. */
@@ -418,13 +477,13 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
 
       const ds = this.displaySize ?? this.sourceSize
 
+      const applyFlip = (flip: boolean) => (flip ? -1 : 1)
+      const flipVector = new Vector2(applyFlip(this.flipX), applyFlip(this.flipY))
+      const displaySize = this.displaySize?.toMultiplied(flipVector) ?? Vector2.ZERO
+
       this.#texture.draw({
-        source: new Region(this.position, this.sourceSize ?? Vector2.ZERO),
-        display: new Region(
-          this.margin ?? Vector2.ZERO,
-          this.displaySize?.toMultiplied([this.flipX ? -1 : 1, this.flipY ? -1 : 1]) ??
-            Vector2.ZERO,
-        ),
+        display: new Region(this.position, displaySize),
+        source: this.#source,
       })
 
       const isModulated = !this.#modulate.equals(Color.WHITE)

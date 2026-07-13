@@ -1,4 +1,6 @@
 import { Color, color, type ColorLike } from '../../../math/color.js'
+import { Region } from '../../../math/region.js'
+import { Vector2 } from '../../../math/vector2.js'
 import { PrimaryNode } from '../../../nodes/index.js'
 import { Signal } from '../../../reactivity/signal.js'
 import type { SignalGetter, SignalSetter } from '../../../reactivity/types.js'
@@ -33,6 +35,11 @@ export function useSprite() {
 }
 
 export class SpriteReference extends Node2DReference<PrimaryNode.Sprite> {
+  /** Reactive source region of the texture. */
+  source = new Signal<Region>(new Region(Vector2.ZERO, Vector2.ZERO)).getter
+  /** Sets the source region of the texture. */
+  setSource: SignalSetter<Region> = (value) => (this.node.source = value)
+
   /** Reactive horizontal flip state. */
   flipX = new Signal(false).getter
   /** Sets the horizontal flip state. */
@@ -84,6 +91,7 @@ export class SpriteReference extends Node2DReference<PrimaryNode.Sprite> {
       PrimaryNode.Sprite,
       (node) => {
         const sets = [
+          set(this.source, node.source),
           set(this.flipX, node.flipX),
           set(this.flipY, node.flipY),
           set(this.brightness, node.brightness),
@@ -101,6 +109,7 @@ export class SpriteReference extends Node2DReference<PrimaryNode.Sprite> {
         })
       },
       () => {
+        this.source.signal.clearSubs()
         this.flipX.signal.clearSubs()
         this.flipY.signal.clearSubs()
         this.brightness.signal.clearSubs()

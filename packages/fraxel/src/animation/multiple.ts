@@ -9,12 +9,12 @@ import type { AnimationKeyframe } from './types.js'
  *
  * @example
  * ```ts
- * import { multiKF, kfFromProp } from 'fraxel'
+ * import { multiKF, kfFromProp, region } from 'fraxel'
  *
  * // Both assignments happen in the same frame
  * multiKF([
  *   kfFromProp(sprite, 'textureId', IDLE_TEXTURE),
- *   kfFromProp(sprite, 'margin', vector2(0, 0)),
+ *   kfFromProp(sprite, 'source', region(0, 0, 16, 16)),
  * ])
  * ```
  */

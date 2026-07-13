@@ -1,10 +1,10 @@
 import { getTexture } from '../assets/texture.js'
 import type { SpriteReference } from '../hooks/index.js'
-import { vector2 } from '../math/vector2.js'
 import type { Animation, AnimationKeyframe } from './types.js'
 import { Sprite } from '../nodes/node2d/sprite.js'
 import { multiKF } from './multiple.js'
 import { kfFromProp } from './properties.js'
+import { region } from '../math/region.js'
 
 /**
  * The **`keyframesFromSheet`** function generates keyframes from a sprite sheet texture.
@@ -51,13 +51,14 @@ export function keyframesFromSheet(
   const from = Math.min(range?.[0] ?? 0, count - 1)
   const to = Math.max(range?.[1] ?? count - 1, from)
 
-  sprite.sourceSize = vector2(sizeX, sizeY)
+  sprite.source = region(0, 0, sizeX, sizeY)
+
   const kfs = Array.from({ length: to - from + 1 }, (_, i) => {
     const index = i + from
     const x = index % columns
     const y = Math.floor(index / columns)
 
-    return kfFromProp(sprite, 'margin', vector2(x * sizeX, y * sizeY))
+    return kfFromProp(sprite, 'source', region(x * sizeX, y * sizeY, sizeX, sizeY))
   })
 
   return [

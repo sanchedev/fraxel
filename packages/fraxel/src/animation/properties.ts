@@ -12,12 +12,12 @@ import type { Node } from '../nodes/_node.js'
  *
  * @example
  * ```ts
- * import { kfFromProp, multiKF } from 'fraxel'
+ * import { kfFromProp, multiKF, region, vector2 } from 'fraxel'
  *
- * // Set texture and margin in the same frame
+ * // Set texture and source region in the same frame
  * multiKF([
  *   kfFromProp(sprite, 'textureId', IDLE_TEXTURE),
- *   kfFromProp(sprite, 'margin', vector2(0, 0)),
+ *   kfFromProp(sprite, 'source', region(0, 0, 16, 16)),
  * ])
  * ```
  */
