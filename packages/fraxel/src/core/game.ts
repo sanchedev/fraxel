@@ -24,6 +24,8 @@ export interface SetupOptions {
   root: HTMLElement
   /** When `true`, the game pauses when the browser tab loses focus. @default false */
   pauseOnBlur?: boolean
+  /** When `true`, disables canvas image smoothing for pixel-art rendering. @default false */
+  pixelated?: boolean
   /** Debug rendering options. */
   testOptions?: Partial<TestOptions>
   /** The default `Theme` for text rendering. */
@@ -53,7 +55,7 @@ let ratio = 1
 const onResize = () => {
   ratio = getDPRFromCtx(GameConfig.ctx, GameConfig.width, GameConfig.height, ratio)
   GameConfig.dprRatio = ratio * (window.devicePixelRatio ?? 1)
-  GameConfig.ctx.imageSmoothingEnabled = false
+  GameConfig.ctx.imageSmoothingEnabled = !GameConfig.pixelated
 }
 
 /**
@@ -128,6 +130,7 @@ export class Game {
       height: options.height,
       testOptions: options.testOptions,
       theme: options.theme ?? new Theme(),
+      pixelated: options.pixelated,
     })
 
     const width = options.width
@@ -142,7 +145,7 @@ export class Game {
     window.addEventListener('resize', onResize)
     onResize()
 
-    ctx.imageSmoothingEnabled = false
+    ctx.imageSmoothingEnabled = !GameConfig.pixelated
 
     SceneManager.setScene(null)
 

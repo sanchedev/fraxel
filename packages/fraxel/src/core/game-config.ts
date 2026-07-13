@@ -23,6 +23,9 @@ export class GameConfig {
 
   /** The DPR-corrected scale ratio (ratio * dpr). */
   static dprRatio = 1
+
+  /** When `true`, disables canvas image smoothing for pixel-art rendering. */
+  static pixelated = false
 }
 
 /**
@@ -50,13 +53,23 @@ interface GCO {
   height: number
   theme: Theme
   testOptions?: Partial<TestOptions>
+  pixelated?: boolean
 }
 
-export function _set_gc({ canvas, ctx, width, height, theme, testOptions = {} }: GCO) {
+export function _set_gc({
+  canvas,
+  ctx,
+  width,
+  height,
+  theme,
+  testOptions = {},
+  pixelated = false,
+}: GCO) {
   GameConfig.canvas = canvas
   GameConfig.ctx = ctx
   GameConfig.width = width
   GameConfig.height = height
   GameConfig.testOptions = { ...defaultTestOptions, ...testOptions }
   GameConfig.theme = theme
+  GameConfig.pixelated = pixelated
 }

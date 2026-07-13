@@ -10,6 +10,7 @@
 - **Build system** — switched from `tsc` to `tsdown` for building. Added `tsdown.config.ts`.
 - **Node2D rotation support** — added `rotation` property, `globalRotation` getter/setter, and `getLocalPosition`/`getGlobalPosition` improvements.
 - **Vector2 methods** — added `min`, `max`, `rotate`, and `toRotated` methods.
+- **`pixelated` option** — `Game.setup()` and `<GameRoot>` accept a `pixelated` flag that disables canvas image smoothing for pixel-art rendering.
 
 ### Bug Fixes
 
