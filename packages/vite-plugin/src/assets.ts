@@ -1,6 +1,6 @@
 export type AssetType = 'texture' | 'sound'
 
-const TEXTURE_RE = /\.(?:png|jpe?g|webp)(?:\?.*)?$/i
+const TEXTURE_RE = /\.(?:png|jpe?g|webp|svg)(?:\?.*)?$/i
 const SOUND_RE = /\.(?:ogg|mp3|wav|opus|m4a)(?:\?.*)?$/i
 const FRAXEL_QUERY_RE = /[?&]fraxel(?:&|$)/
 const TYPE_QUERY_RE = (type: AssetType) => new RegExp(`[?&]${type}(?:&|$)`)

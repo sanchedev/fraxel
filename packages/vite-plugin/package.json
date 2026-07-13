@@ -1,6 +1,6 @@
 {
   "name": "@fraxel/vite-plugin",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Official Vite plugin for Fraxel.",
   "type": "module",
   "main": "dist/index.js",

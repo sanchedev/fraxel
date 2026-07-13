@@ -85,8 +85,8 @@ declare module '*.gif' {
   export default src
 }
 declare module '*.svg' {
-  const src: string
-  export default src
+  const id: symbol
+  export default id
 }
 declare module '*.ico' {
   const src: string
