@@ -43,6 +43,21 @@ export class Region {
       this.size = Vector2.max(Vector2.ZERO, this.size)
     }
   }
+  /**
+   * The **`equals`** method checks if this region has the same offset and size as another.
+   * @param other The region to compare with.
+   * @returns `true` if both offset and size are equal, `false` otherwise.
+   *
+   * @example
+   * ```ts
+   * const a = new Region(10, 20, 32, 48)
+   * const b = new Region(10, 20, 32, 48)
+   * a.equals(b) // true
+   * ```
+   */
+  equals(other: Region): boolean {
+    return this.offset.equals(other.offset) && this.size.equals(other.size)
+  }
 }
 
 /**
