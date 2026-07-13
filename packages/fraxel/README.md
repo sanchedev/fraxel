@@ -1,202 +1,338 @@
 # fraxel
 
-> Build 2D games with JSX — no React, no virtual DOM, no re-renders.
+> **Declarative 2D game engine powered by JSX and fine-grained reactivity.**
 
 [![CI](https://github.com/sanchedev/fraxel/actions/workflows/ci.yml/badge.svg)](https://github.com/sanchedev/fraxel/actions)
-[![npm version](https://img.shields.io/badge/version-0.1.0--alpha.4b-blue)](https://github.com/sanchedev/fraxel)
+[![npm version](https://img.shields.io/npm/v/fraxel)](https://www.npmjs.com/package/fraxel)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**fraxel** is a custom JSX runtime for building 2D games in the browser. JSX compiles directly to a declarative scene graph rendered to `<canvas>` — no reconciliation, no diffing, just signals driving properties.
+**Fraxel** is a declarative 2D game engine for the browser built around a custom JSX runtime.
+
+Instead of rendering HTML, JSX compiles directly into a scene graph rendered on a `<canvas>`. Signals update node properties automatically, eliminating reconciliation, virtual DOM diffing and component re-renders.
+
+Designed for developers who enjoy declarative APIs while keeping the performance and architecture expected from a real-time game engine.
 
 <p align="center">
   <img src="https://github.com/sanchedev/fraxel/blob/main/docs/demo.gif" alt="Fraxel demo" width="700" />
 </p>
 
-## Install
+## Why Fraxel?
+
+- 🎮 Declarative scene graph powered by JSX
+- ⚡ Fine-grained reactivity with signals
+- 🧩 Typed node references through native hooks
+- 💥 Built-in physics and collision detection
+- 🎥 Camera, audio, animation and asset loading
+- 📦 TypeScript-first API
+- 🚫 No React
+- 🚫 No virtual DOM
+- 🚫 No component re-renders
+
+---
+
+# Install
 
 ```bash
 npm install fraxel
-# or
+```
+
+or
+
+```bash
 pnpm add fraxel
-# or
+```
+
+or
+
+```bash
 yarn add fraxel
 ```
 
-## Example
+---
 
-A player that moves and jumps with physics, input, and collisions — all in ~35 lines:
+# Quick Example
+
+A complete player with movement, jumping, collisions and physics.
+
+Create a new project using `npx create-fraxel my-game` with template `Example`.
+
+Paste it in src/main.tsx
 
 ```tsx
-import { createGame, Game, Scene } from 'fraxel'
-import { loadTexture, Input, shapes } from 'fraxel'
-import { useRigidBody, useAction, useActionAxis, useEffect } from 'fraxel'
+import {
+  Input,
+  loadTexture,
+  shapes,
+  createGame,
+  GameRoot,
+  SceneRoot,
+  useRigidBody,
+  useRayCast,
+  useAction,
+  useActionAxis,
+  useEffect,
+} from 'fraxel'
 
-const PLAYER = await loadTexture('/assets/player.png') // waits for image load
+const PLAYER = await loadTexture('/player.png')
 
-const Jump = Input.createAction({ key: ' ' })
 const Left = Input.createAction({ key: 'a' })
 const Right = Input.createAction({ key: 'd' })
+const Jump = Input.createAction({ key: ' ' })
 
 function Player() {
-  const rb = useRigidBody()
+  const body = useRigidBody()
+  const detector = useRayCast()
+
   const jump = useAction(Jump)
-  const dir = useActionAxis(Left, Right)
+  const axis = useActionAxis(Left, Right)
 
   useEffect(() => {
-    if (jump.justPressed() && rb.isGrounded()) rb.applyImpulse([0, -400])
-    rb.setVelocity([dir() * 120, rb.velocity().y])
+    body.setVelocity([axis() * 120, body.velocity().y])
+
+    if (jump.justPressed() && detector.detected()) {
+      body.applyImpulse([0, -400])
+    }
   })
 
   return (
-    <body ref={rb} position={[80, 50]} mass={1}>
+    <body ref={body} position={[80, 40]} mass={1}>
       <sprite textureId={PLAYER} />
-      <collider shape={shapes.rectangle(16, 16)} group={['player']} collidesWith={['ground']} />
+      <collider shape={shapes.rectangle(16, 16)} group="player" collidesWith="ground" />
+      <raycast ref={detector} position={[8, 16]} direction={[0, 2]} collidesWith={['ground']} />
     </body>
   )
 }
 
-const scene = () => (
-  <transform>
-    <Player />
-    <body position={[0, 200]} isStatic>
-      <collider shape={shapes.rectangle(300, 16)} group={['ground']} collidesWith={['player']} />
-    </body>
-  </transform>
-)
+function MainScene() {
+  return (
+    <>
+      <Player />
+
+      <body position={[0, 200]} isStatic>
+        <collider shape={shapes.rectangle(400, 16)} group={['ground']} collidesWith={['player']} />
+      </body>
+    </>
+  )
+}
 
 const game = createGame(
-  <GameCreator width={300} height={220} defaultScene="main">
-    <SceneDef name="main" component={scene} />
-  </GameCreator>,
+  <GameRoot width={320} height={240} defaultScene="main">
+    <SceneRoot name="main" component={MainScene} />
+  </GameRoot>,
   document.querySelector('#root')!,
 )
 
 game.play()
 ```
 
-## Setup
+Do `npm run dev` and play.
 
-Add the custom JSX runtime to your `tsconfig.json`:
+---
+
+# Setup
+
+Enable Fraxel's JSX runtime.
 
 ```json
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "strict": true,
-    "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
     "jsxImportSource": "fraxel"
   }
 }
 ```
 
-## Why fraxel?
+---
 
-### Custom JSX Runtime
+# What makes Fraxel different?
 
-fraxel ships its own JSX runtime. JSX is not React — it's a language feature. fraxel uses it to build a declarative scene graph that compiles directly to canvas draw calls.
+Fraxel combines ideas from modern frontend frameworks with the architecture of a traditional game engine.
 
-```tsx
-// This JSX...
-<sprite textureId={PLAYER} position={[80, 50]} />
+Instead of rendering HTML, JSX creates nodes inside a scene graph.
 
-// ...becomes a Sprite node in the scene graph
-```
+Instead of component state, signals update node properties directly.
 
-### Fine-grained Reactivity
+Instead of DOM refs, hooks expose strongly typed node references with methods, reactive state and events.
 
-Properties accept signals directly. When a signal changes, only the affected property updates — no virtual DOM diffing, no re-renders.
+The result feels familiar to frontend developers while remaining purpose-built for real-time rendering.
 
-```tsx
-// Signals drive properties directly — no useEffect needed
-const brightness = useComputed(() => (health() > 50 ? 1.2 : 0.5))
-return <sprite textureId={PLAYER} brightness={brightness} />
-```
+---
 
-### Typed Node References
+# Core Concepts
 
-Hooks like `useSprite()` or `useRigidBody()` return typed references with reactive state, event triggers, and imperative methods — all in one place.
+## Declarative Scene Graph
+
+Every JSX element becomes a node.
 
 ```tsx
-function Player() {
-  const rb = useRigidBody()
-
-  useEffect(() => {
-    rb.applyImpulse([0, -400]) // imperative
-  })
-
-  return <body ref={rb} mass={1} /> // declarative — connects to node
-}
+<Player>
+  <sprite />
+  <collider />
+</Player>
 ```
 
-### Everything is a Node
+becomes
 
-Sprites, cameras, rigid bodies, timers, animations, audio, text — everything is a node in the same scene graph. Same lifecycle, same hooks, same patterns.
-
-## Core Concepts
-
-Fraxel is built around three ideas:
-
-- **Nodes** describe your game. Sprites, cameras, rigid bodies, timers — everything is a node in the same scene graph with the same lifecycle (`start → update → destroy`).
-- **Hooks** interact with nodes. Native hooks (`useSprite`, `useCollider`, etc.) return typed references with reactive state and events.
-- **Signals** keep everything reactive. Properties accept `SignalGetter` functions that update automatically when dependencies change — no virtual DOM, no re-renders.
-
-```
-<sprite>  ─┐
-<collider> ─┤
-<camera>   ─┼→ Scene Graph → Node Lifecycle → canvas
-<timer>    ─┤
-<audio>    ─┘
+```text
+Transform
+└── RigidBody
+    ├── Sprite
+    └── Collider
 ```
 
-JSX is the declarative language for building these scene graphs. Instead of manually synchronizing objects every frame, game state drives node properties directly through signals. The result is an API that feels familiar to frontend developers while remaining purpose-built for real-time rendering.
+The scene graph drives rendering, physics, audio, animation and every engine subsystem.
 
-## Features
+---
 
-- **Custom JSX Runtime** — own runtime, not React
-- **Declarative Scene Graph** — JSX maps to nodes
-- **Typed Node References** — reactive state + events + methods
-- **Fine-grained Reactivity** — signals, not re-renders
-- **Physics & Collision Detection** — rigid bodies, spatial hash, raycasts
-- **GameMode** — per-node pause behavior (ALWAYS, PAUSED, INHERIT, etc.)
-- **Camera System** — zoom, offset, smoothing, shake
-- **Audio Playback** — sound loading and playback
-- **Animation & Tweening** — sprite sheets, easing, sequences
-- **Asset Loading** — batch loading with progress
-- **Input System** — actions, keyboard, pointer
-- **TypeScript-first** — strict, fully typed
+## Fine-grained Reactivity
 
-## Documentation
-
-- [Getting Started](https://github.com/sanchedev/fraxel/blob/main/docs/getting-started.md)
-- [Nodes Reference](https://github.com/sanchedev/fraxel/blob/main/docs/nodes.md)
-- [Hooks API](https://github.com/sanchedev/fraxel/blob/main/docs/hooks.md)
-- [Collisions](https://github.com/sanchedev/fraxel/blob/main/docs/collision.md)
-- [Physics](https://github.com/sanchedev/fraxel/blob/main/docs/physics.md)
-- [Camera](https://github.com/sanchedev/fraxel/blob/main/docs/camera.md)
-- [Audio](https://github.com/sanchedev/fraxel/blob/main/docs/audio.md)
-- [Animation](https://github.com/sanchedev/fraxel/blob/main/docs/animation.md)
-- [Tweening](https://github.com/sanchedev/fraxel/blob/main/docs/tweening.md)
-- [Assets](https://github.com/sanchedev/fraxel/blob/main/docs/assets.md)
-- [Input System](https://github.com/sanchedev/fraxel/blob/main/docs/input.md)
-- [Scripts](https://github.com/sanchedev/fraxel/blob/main/docs/scripts.md)
-- [Filters](https://github.com/sanchedev/fraxel/blob/main/docs/filters.md)
-
-## Package Exports
+Properties accept signals directly.
 
 ```tsx
-// Main entry — nodes, math, collision, input, assets, animation
-import { Input, shapes, loadTexture, Vector2 } from 'fraxel'
+const player = useRigidBody()
 
-// Hooks
-import { useSprite, useRigidBody, useEffect } from 'fraxel'
+const rotation = useComputed(() => player.velocity().x * 0.01)
 
-// JSX components
-import { Game, Scene, List, Fragment } from 'fraxel'
+return (
+  <body ref={player} rotation={rotation}>
+    <sprite textureId={PLAYER} />
+  </body>
+)
 ```
 
-## License
+Only the affected property updates.
+
+No render loop.
+
+No reconciliation.
+
+No virtual DOM.
+
+---
+
+## Typed Node References
+
+Native hooks expose references to engine nodes.
+
+```tsx
+const sprite = useSprite()
+
+sprite.position()
+sprite.rotation()
+sprite.setBrightness(1.2)
+sprite.setModulate([1, 0.5, 0.5, 1])
+sprite.setOpacity(0.8)
+
+return <sprite ref={sprite} textureId={PLAYER} />
+```
+
+Each reference combines:
+
+- reactive state
+- imperative methods
+- strongly typed events
+
+---
+
+## Trigger System
+
+Triggers allow nodes to communicate without tight coupling.
+
+```tsx
+const died = createTrigger<[]>()
+
+useTrigger(died, () => {
+  console.log('Player died')
+})
+
+died.emit()
+```
+
+---
+
+# Features
+
+- ✅ Custom JSX runtime
+- ✅ Declarative scene graph
+- ✅ Fine-grained reactivity
+- ✅ Signals & computed values
+- ✅ Native hooks
+- ✅ Typed node references
+- ✅ Trigger system
+- ✅ Physics engine
+- ✅ Collision detection
+- ✅ Raycasts
+- ✅ Camera system
+- ✅ Audio playback
+- ✅ Sprite animations
+- ✅ Tweening
+- ✅ Asset loading
+- ✅ Input actions
+- ✅ Pixel-art rendering
+- ✅ TypeScript-first
+
+---
+
+# Package Structure
+
+```tsx
+import {
+  // Engine
+  loadTexture,
+  Input,
+  shapes
+  createGame,
+
+  // JSX runtime
+  GameRoot,
+  SceneRoot,
+  Fragment,
+
+  // Hooks
+  useRigidBody,
+  useSprite,
+  useEffect,
+} from 'fraxel'
+```
+
+---
+
+# Documentation
+
+- Getting Started
+- JSX Runtime
+- Nodes
+- Hooks
+- Physics
+- Collision Detection
+- Camera
+- Audio
+- Animation
+- Tweening
+- Asset Loading
+- Input
+- API Reference
+
+https://fraxel.dev
+
+---
+
+# Philosophy
+
+Fraxel is designed around one simple idea:
+
+> **Games should be described, not synchronized.**
+
+JSX describes the scene.
+
+Signals describe the state.
+
+Hooks interact with nodes.
+
+Fraxel keeps everything in sync.
+
+---
+
+# License
 
 MIT
