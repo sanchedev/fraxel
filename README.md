@@ -31,7 +31,7 @@
 fraxel removes the boilerplate. Look how easy it is to create a reactive, interactable game entity:
 
 ```tsx
-import { useSignal } from 'fraxel/hooks'
+import { useSignal } from 'fraxel'
 import { PLAYER_TEX } from './assets'
 
 export function Player() {
@@ -80,7 +80,7 @@ Add the custom JSX runtime to your tsconfig.json:
 Dive into the official documentation to master the engine:
 
 - [Getting Started](docs/getting-started.md) — Installation, setup, and first game
-- [Nodes Reference](docs/nodes.md) — `<transform>`, `<sprite>`, `<text>`, `<camera>`, `<collider>`, `<rigid-body>`
+- [Nodes Reference](docs/nodes.md) — `<transform>`, `<sprite>`, `<text>`, `<camera>`, `<collider>`, `<body>`
 - [Hooks API](docs/hooks.md) — useSignal, useComputed, useEffect, useSprite, useCollider
 - [Collisions](docs/collision.md) — Shapes, filtering groups, events, and raycasting
 - [Physics](docs/physics.md) — Gravity, rigid bodies, forces, and collision response
