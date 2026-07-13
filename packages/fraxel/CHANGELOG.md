@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0-alpha.6
+## 0.1.0-alpha.6c
 
 ### Highlights
 
@@ -11,11 +11,13 @@
 - **Node2D rotation support** — added `rotation` property, `globalRotation` getter/setter, and `getLocalPosition`/`getGlobalPosition` improvements.
 - **Vector2 methods** — added `min`, `max`, `rotate`, and `toRotated` methods.
 - **`pixelated` option** — `Game.setup()` and `<GameRoot>` accept a `pixelated` flag that disables canvas image smoothing for pixel-art rendering.
+- **`source` property** - added `source` as a replacement for `margin` and `sourceSize`.
 
 ### Bug Fixes
 
 - **Rectangular collision offset** — `getRotatedRectCorners`, `closestPointOnRotatedRect`, `obbRectOverlap`, `getBoundsByRectangle`, `computeRectCircleOverlap`, `computeRectCapsuleOverlap`, and `#rectangleCapsuleOverlap` all corrected to rotate around `pos` instead of `pos + size/2`.
 - **Error handling** — updated to reflect new component names (`GameRoot`, `SceneRoot`).
+- **Sprite display and source** - moved to render the right positions.
 
 ### Breaking Changes
 
