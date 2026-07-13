@@ -299,21 +299,7 @@ import {
 
 # Documentation
 
-- Getting Started
-- JSX Runtime
-- Nodes
-- Hooks
-- Physics
-- Collision Detection
-- Camera
-- Audio
-- Animation
-- Tweening
-- Asset Loading
-- Input
-- API Reference
-
-https://fraxel.dev
+[https://fraxel.dev](https://fraxel.mintlify.app/)
 
 ---
 
