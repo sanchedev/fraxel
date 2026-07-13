@@ -57,16 +57,16 @@ declare module '*.bmp' {
   export default src
 }
 declare module '*.png' {
-  const id: symbol
-  export default id
+  const src: string
+  export default src
 }
 declare module '*.jpg' {
-  const id: symbol
-  export default id
+  const src: string
+  export default src
 }
 declare module '*.jpeg' {
-  const id: symbol
-  export default id
+  const src: string
+  export default src
 }
 declare module '*.jfif' {
   const src: string
@@ -85,16 +85,16 @@ declare module '*.gif' {
   export default src
 }
 declare module '*.svg' {
-  const id: symbol
-  export default id
+  const src: string
+  export default src
 }
 declare module '*.ico' {
   const src: string
   export default src
 }
 declare module '*.webp' {
-  const id: symbol
-  export default id
+  const src: string
+  export default src
 }
 declare module '*.avif' {
   const src: string
@@ -119,16 +119,16 @@ declare module '*.webm' {
   export default src
 }
 declare module '*.ogg' {
-  const id: symbol
-  export default id
+  const src: string
+  export default src
 }
 declare module '*.mp3' {
-  const id: symbol
-  export default id
+  const src: string
+  export default src
 }
 declare module '*.wav' {
-  const id: symbol
-  export default id
+  const src: string
+  export default src
 }
 declare module '*.flac' {
   const src: string
@@ -139,20 +139,30 @@ declare module '*.aac' {
   export default src
 }
 declare module '*.opus' {
-  const id: symbol
-  export default id
+  const src: string
+  export default src
 }
 declare module '*.mov' {
   const src: string
   export default src
 }
 declare module '*.m4a' {
-  const id: symbol
-  export default id
+  const src: string
+  export default src
 }
 declare module '*.vtt' {
   const src: string
   export default src
+}
+
+// fraxel asset queries
+declare module '*?texture' {
+  const id: symbol
+  export default id
+}
+declare module '*?sound' {
+  const id: symbol
+  export default id
 }
 
 // fonts

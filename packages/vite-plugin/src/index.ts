@@ -1,5 +1,5 @@
 import type { Plugin } from 'vite'
-import { detectFraxelAsset, stripFraxelQuery } from './assets.js'
+import { detectFraxelAsset, stripAssetQuery } from './assets.js'
 import { config } from './hooks/config.js'
 import type { FraxelPluginOptions } from './options.js'
 import { createContext } from './context.js'
@@ -17,6 +17,10 @@ const assetRegistry = new Map<string, string>()
  *
  * The plugin configures the JSX runtime, enables the Fraxel asset pipeline,
  * and provides build-time tooling for developing 2D games with Vite.
+ *
+ * Asset imports with `?texture` or `?sound` query params are rewritten
+ * to call `loadTexture()` / `loadSound()` and return `symbol` IDs.
+ * All other imports pass through to Vite's default handling.
  *
  * @param options Plugin configuration options.
  * @returns A Vite plugin instance.
@@ -52,7 +56,7 @@ export function fraxel(options: FraxelPluginOptions = {}): Plugin {
 
       if (importer.startsWith(ASSET_VIRTUAL_PREFIX)) return
 
-      const cleanPath = stripFraxelQuery(source)
+      const cleanPath = stripAssetQuery(source)
       const resolved = await this.resolve(cleanPath, importer, {
         skipSelf: true,
         kind: options.kind,

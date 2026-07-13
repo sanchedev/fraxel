@@ -9,7 +9,7 @@
 ## Features
 
 - **JSX Configuration** — Automatically configures Vite's OXC transform to use Fraxel's custom JSX runtime.
-- **Asset Pipeline** — Import textures (`.png`, `.jpg`, `.webp`) and sounds (`.ogg`, `.mp3`, `.wav`) directly — the plugin wraps them in `loadTexture()` / `loadSound()` calls and returns ready-to-use `symbol` IDs.
+- **Asset Pipeline** — Import textures and sounds with `?texture` / `?sound` query params — the plugin wraps them in `loadTexture()` / `loadSound()` calls and returns ready-to-use `symbol` IDs. Plain imports pass through to Vite's default handling.
 - **Virtual Module** — `virtual:fraxel` exposes `version`, `mode`, and `debug` constants at runtime.
 - **Diagnostics** — Startup checks catch common misconfigurations: conflicting React plugins, wrong JSX settings, missing tsconfig, missing fraxel installation.
 
@@ -56,30 +56,34 @@ That's it — the plugin takes care of the rest.
 
 ## Asset Pipeline
 
-Import game assets directly and use them as `symbol` IDs:
+### Default imports (URL)
+
+By default, image and sound imports behave like standard Vite — they return a URL string:
 
 ```tsx
-import PLAYER from './assets/player.png'
-import SHOOT from './assets/shoot.ogg'
+import playerUrl from './assets/player.png'
+// playerUrl is a string: "/assets/player.png"
+```
+
+### Fraxel imports (texture / sound)
+
+Add `?texture` or `?sound` to get a loaded `symbol` ID ready for use in nodes:
+
+```tsx
+import PLAYER from './assets/player.png?texture'
+import SHOOT from './assets/shoot.ogg?sound'
 
 // PLAYER and SHOOT are `symbol` IDs — pass them straight to nodes
 <sprite textureId={PLAYER} />
 <audio soundId={SHOOT} />
 ```
 
-### Auto-detected formats
+### Supported formats
 
-| Type    | Extensions                              |
-| ------- | --------------------------------------- |
-| Texture | `.png`, `.jpg`, `.jpeg`, `.webp`        |
-| Sound   | `.ogg`, `.mp3`, `.wav`, `.opus`, `.m4a` |
-
-You can also force detection with query params:
-
-```ts
-import sound from './background.png?souns'
-import texture from './music.ogg?texture'
-```
+| Query      | Extensions                               |
+| ---------- | ---------------------------------------- |
+| `?texture` | `.png`, `.jpg`, `.jpeg`, `.webp`, `.svg` |
+| `?sound`   | `.ogg`, `.mp3`, `.wav`, `.opus`, `.m4a`  |
 
 Under the hood, the plugin rewrites these imports to call `loadTexture()` or `loadSound()` from `fraxel` automatically — no manual loading needed.
 
@@ -130,7 +134,7 @@ This provides type definitions for standard Vite import patterns like `*.module.
 ## Requirements
 
 - **Vite** `^8.0.0`
-- **fraxel** `^0.1.0-alpha.5`
+- **fraxel** `^0.1.0-alpha.6b`
 
 ## License
 
