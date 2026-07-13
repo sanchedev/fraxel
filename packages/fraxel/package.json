@@ -1,6 +1,6 @@
 {
   "name": "fraxel",
-  "version": "0.1.0-alpha.6b",
+  "version": "0.1.0-alpha.6c",
   "type": "module",
   "description": "A modern node-based 2D game engine for the web powered by JSX and fine-grained reactivity",
   "main": "dist/index.js",
