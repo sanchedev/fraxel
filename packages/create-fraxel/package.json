@@ -1,0 +1,62 @@
+{
+  "name": "create-fraxel",
+  "version": "0.1.0-alpha.1",
+  "description": "Create a new Fraxel project.",
+  "license": "MIT",
+  "author": "José Sánchez",
+  "homepage": "https://github.com/sanchedev/fraxel",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sanchedev/fraxel.git",
+    "directory": "packages/create-fraxel"
+  },
+  "bugs": {
+    "url": "https://github.com/sanchedev/fraxel/issues"
+  },
+  "keywords": [
+    "fraxel",
+    "game",
+    "game-engine",
+    "2d",
+    "canvas",
+    "jsx",
+    "typescript",
+    "create",
+    "scaffold"
+  ],
+  "type": "module",
+  "bin": {
+    "create-fraxel": "./dist/index.mjs"
+  },
+  "files": [
+    "dist",
+    "template-empty",
+    "template-platformer",
+    "template-top-down",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "prepublishOnly": "pnpm build"
+  },
+  "packageManager": "pnpm@10.29.3",
+  "dependencies": {
+    "@clack/prompts": "^1.7.0",
+    "cross-spawn": "^7.0.6",
+    "mri": "^1.2.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/cross-spawn": "^6.0.6",
+    "@types/node": "^26.1.1",
+    "tsdown": "^0.22.5",
+    "typescript": "^5.9.2"
+  }
+}
