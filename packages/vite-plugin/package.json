@@ -44,12 +44,12 @@
     "node": ">=18"
   },
   "peerDependencies": {
-    "fraxel": "^0.1.0-alpha.6b",
+    "fraxel": "^0.1.0-alpha.6c",
     "vite": "^8.0.0"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
-    "fraxel": "^0.1.0-alpha.6b",
+    "fraxel": "^0.1.0-alpha.6c",
     "tsdown": "^0.22.5",
     "typescript": "^5.9.3",
     "vite": "^8.0.0"
