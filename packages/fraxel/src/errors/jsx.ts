@@ -90,7 +90,7 @@ export class InvalidRefAttributeError extends JSXError {
  * @example
  * ```ts
  * // Thrown when root is null or not an HTMLElement:
- * createGame(<GameCreator />, document.querySelector('#nonexistent'))
+ * createGame(<GameRoot />, document.querySelector('#nonexistent'))
  * ```
  */
 export class MissingGameRootError extends JSXError {
@@ -101,36 +101,36 @@ export class MissingGameRootError extends JSXError {
 
 /**
  * The **`InvalidGameElementError`** class is thrown when the JSX passed to `createGame`
- * is not a `<GameCreator>` component. The first argument must be a `<GameCreator>` element.
+ * is not a `<GameRoot>` component. The first argument must be a `<GameRoot>` element.
  *
  * @example
  * ```tsx
- * // Thrown when JSX is not a GameCreator component:
+ * // Thrown when JSX is not a GameRoot component:
  * createGame(<sprite />, document.querySelector('#root')!) // InvalidGameElementError
  * ```
  */
 export class InvalidGameElementError extends JSXError {
   constructor() {
-    super('The jsx passed to createGame must be a GameCreator component.')
+    super('The jsx passed to createGame must be a GameRoot component.')
   }
 }
 
 /**
- * The **`MissingSceneError`** class is thrown when a `<GameCreator>` component has no
+ * The **`MissingSceneError`** class is thrown when a `<GameRoot>` component has no
  * `<Scene>` children. At least one Scene must be declared inside Game.
  *
  * @example
  * ```tsx
  * // Thrown when Game has no Scene children:
  * createGame(
- *   <GameCreator width={800} height={600} />,
+ *   <GameRoot width={800} height={600} />,
  *   document.querySelector('#root')!,
  * ) // MissingSceneError
  * ```
  */
 export class MissingSceneError extends JSXError {
   constructor() {
-    super('The GameCreator component requires SceneDef components as children.')
+    super('The GameRoot component requires SceneRoot components as children.')
   }
 }
 
@@ -142,7 +142,7 @@ export class MissingSceneError extends JSXError {
  * @example
  * ```tsx
  * // Thrown when component is not a function:
- * <SceneDef name="main" component="not-a-function" /> // InvalidSceneComponentError
+ * <SceneRoot name="main" component="not-a-function" /> // InvalidSceneComponentError
  * ```
  */
 export class InvalidSceneComponentError extends JSXError {

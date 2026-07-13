@@ -11,11 +11,11 @@ export type SceneOptions = {
    * @example
    * **Without lazy loading**
    * ```jsx
-   * <SceneDef name='main' component={MainScene} />
+   * <SceneRoot name='main' component={MainScene} />
    * ```
    * **With lazy loading**
    * ```jsx
-   * <SceneDef name='main' component={() => import('./scenes/main.js')} />
+   * <SceneRoot name='main' component={() => import('./scenes/main.js')} />
    * ```
    */
   component: SceneComponent
@@ -27,16 +27,16 @@ export type SceneOptions = {
  * @example
  * **Without lazy loading**
  * ```jsx
- * <SceneDef name='main' component={MainScene} />
+ * <SceneRoot name='main' component={MainScene} />
  * ```
  * **With lazy loading**
  * ```jsx
- * <SceneDef name='main' component={() => import('./scenes/main.js')} />
+ * <SceneRoot name='main' component={() => import('./scenes/main.js')} />
  * ```
  *
  * @param options The options for the scene, including the `name` and the `component`.
  * @returns A `Scene` element that can be used in the `Game` component to define a scene.
  */
-export function SceneDef(_options: SceneOptions): null {
+export function SceneRoot(_options: SceneOptions): null {
   return null
 }
