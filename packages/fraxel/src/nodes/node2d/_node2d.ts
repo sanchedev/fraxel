@@ -3,7 +3,7 @@ import { Vector2, type VectorLike } from '../../math/vector2.js'
 import { ns, propSignal, signalVector } from '../../utils/ternaries.js'
 import type { PrimaryNode } from '../lib/enum.js'
 import { Node, type NodeOptions } from '../_node.js'
-import { getGlobalPosition, getGlobalRotation } from './lib/utils.js'
+import { getGlobalPosition, getGlobalRotation, getLocalPosition } from './lib/utils.js'
 import type { Reactive } from '../../reactivity/index.js'
 
 export interface Node2DOptions<T extends PrimaryNode> extends NodeOptions<T> {
@@ -40,7 +40,7 @@ export interface Node2DOptions<T extends PrimaryNode> extends NodeOptions<T> {
    * })
    *
    * return (
-   *   <transform ref={transform} origin={[-8, -8]}>
+   *   <transform ref={transform}>
    *     <sprite textureId={ROTATOR_TEXTURE} />
    *   </transform>
    * )
@@ -83,7 +83,7 @@ export abstract class Node2D<T extends PrimaryNode = PrimaryNode> extends Node<T
    * })
    *
    * return (
-   *   <transform ref={transform} origin={[-8, -8]}>
+   *   <transform ref={transform}>
    *     <sprite textureId={ROTATOR_TEXTURE} />
    *   </transform>
    * )
@@ -112,9 +112,7 @@ export abstract class Node2D<T extends PrimaryNode = PrimaryNode> extends Node<T
    * ```
    */
   set globalPosition(value) {
-    const gp = getGlobalPosition(this).add(this.position)
-
-    this.position = value.toSubtracted(gp)
+    this.position = getLocalPosition(this, value)
   }
   get globalPosition(): Vector2 {
     return getGlobalPosition(this)
@@ -131,9 +129,7 @@ export abstract class Node2D<T extends PrimaryNode = PrimaryNode> extends Node<T
    * ```
    */
   set globalRotation(value) {
-    const gr = getGlobalRotation(this) + this.rotation
-
-    this.rotation = value - gr
+    this.rotation = value - (getGlobalRotation(this) - this.rotation)
   }
   get globalRotation(): number {
     return getGlobalRotation(this)
@@ -147,7 +143,7 @@ export abstract class Node2D<T extends PrimaryNode = PrimaryNode> extends Node<T
   lookAt(position: VectorLike): void {
     const diff = new Vector2(position).subtract(this.globalPosition)
     const angleRad = Math.atan2(diff.y, diff.x)
-    this.rotation = (angleRad / Math.PI) * 180
+    this.globalRotation = (angleRad / Math.PI) * 180
   }
 
   /**
