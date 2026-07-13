@@ -3,6 +3,7 @@ import type { Collider } from '../../nodes/node2d/collider.js'
 import type { RigidBody } from '../../nodes/index.js'
 import { resolveCollision, computeOverlap } from './resolver.js'
 import { CollisionSystem } from '../collision-system.js'
+import { worldToLocal } from '../utils.js'
 
 interface BodyEntry {
   body: RigidBody
@@ -61,12 +62,16 @@ export class PhysicsSystem {
       if (!PhysicsSystem.#isBodyActive(entry.body)) continue
 
       const { body } = entry
-      if (body.isStatic || !body.useGravity) continue
+      if (body.isStatic) continue
 
       const effectiveDelta = delta * body.globalDeltaIncrease
       const accel = body.consumeAcceleration()
-      accel.x += this.#gravity.x
-      accel.y += this.#gravity.y
+
+      if (body.useGravity) {
+        const localGravity = worldToLocal(body, this.#gravity)
+        accel.x += localGravity.x
+        accel.y += localGravity.y
+      }
 
       body.velocity.x += accel.x * effectiveDelta
       body.velocity.y += accel.y * effectiveDelta

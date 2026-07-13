@@ -1,11 +1,11 @@
-import { vector2, Vector2 } from '../math/vector2.js'
 import { clamp } from '../math/utils.js'
 import type { Collider } from '../nodes/node2d/collider.js'
 import type { RayCast } from '../nodes/node2d/ray-cast.js'
 import { SpatialHash } from './broadphase/spatial-hash.js'
 import { Narrowphase } from './narrowphase/detector.js'
 import { CollisionEmitter } from './events/collision-emitter.js'
-import type { CollisionBounds } from './types.js'
+import { getCapsuleBone } from './utils.js'
+import { getBounds } from './bounds.js'
 
 /**
  * The **`CollisionSystem`** is a singleton that manages all collision detection in the game.
@@ -134,7 +134,6 @@ export class CollisionSystem {
   #updateInternal(_delta: number) {
     this.#broadphase()
     this.#narrowphase()
-    this.#emitEvents()
   }
 
   #broadphase() {
@@ -163,12 +162,8 @@ export class CollisionSystem {
     }
   }
 
-  #emitEvents() {
-    // Events are emitted directly during narrowphase
-  }
-
   #queryCandidates(collider: Collider): Set<Collider> {
-    const bounds = this.#getBounds(collider)
+    const bounds = getBounds(collider)
     const candidates = this.#spatialHash.query(bounds)
     candidates.delete(collider)
     return candidates
@@ -288,7 +283,7 @@ export class CollisionSystem {
   #raycastRectangle(raycast: RayCast, collider: Collider): number {
     if (collider.shape.type !== 'rectangle') return -1
     const fromRay = raycast.globalPosition
-    const toRay = fromRay.toAdded(raycast.direction)
+    const toRay = fromRay.toAdded(raycast.direction.toRotated(raycast.globalRotation))
     const fromCollider = collider.globalPosition
     const toCollider = fromCollider.toAdded(collider.shape.size)
 
@@ -311,7 +306,7 @@ export class CollisionSystem {
   #raycastCircle(raycast: RayCast, collider: Collider): number {
     if (collider.shape.type !== 'circle') return -1
     const rayFrom = raycast.globalPosition
-    const rayDir = raycast.direction
+    const rayDir = raycast.direction.toRotated(raycast.globalRotation)
     const circleCenter = collider.globalPosition
     const radius = collider.shape.radius
 
@@ -339,21 +334,10 @@ export class CollisionSystem {
   #raycastCapsule(raycast: RayCast, collider: Collider): number {
     if (collider.shape.type !== 'capsule') return -1
 
-    const pos = collider.globalPosition
-    const { length, radius, direction } = collider.shape
-    const bone =
-      direction === 'vertical'
-        ? {
-            a: { x: pos.x + radius, y: pos.y + radius },
-            b: { x: pos.x + radius, y: pos.y + length - radius },
-          }
-        : {
-            a: { x: pos.x + radius, y: pos.y + radius },
-            b: { x: pos.x + length - radius, y: pos.y + radius },
-          }
+    const bone = getCapsuleBone(collider.shape, collider.globalPosition, collider.globalRotation)
 
     const rayFrom = raycast.globalPosition
-    const rayDir = raycast.direction
+    const rayDir = raycast.direction.toRotated(raycast.globalRotation)
     const dirLenSq = rayDir.x * rayDir.x + rayDir.y * rayDir.y
     if (dirLenSq === 0) return -1
 
@@ -372,7 +356,7 @@ export class CollisionSystem {
       const cy = rayFrom.y + t * rayDir.y
       const ddx = bone.a.x - cx
       const ddy = bone.a.y - cy
-      if (ddx * ddx + ddy * ddy > radius * radius) return -1
+      if (ddx * ddx + ddy * ddy > collider.shape.radius * collider.shape.radius) return -1
       return t * Math.sqrt(dirLenSq)
     }
 
@@ -416,42 +400,8 @@ export class CollisionSystem {
 
     const ddx = rCx - bCx
     const ddy = rCy - bCy
-    if (ddx * ddx + ddy * ddy > radius * radius) return -1
+    if (ddx * ddx + ddy * ddy > collider.shape.radius * collider.shape.radius) return -1
 
     return t * Math.sqrt(dirLenSq)
-  }
-
-  #getBounds(collider: Collider): CollisionBounds {
-    const position = collider.globalPosition
-    const shape = collider.shape
-
-    switch (shape.type) {
-      case 'rectangle':
-        return {
-          from: position.toJSON(),
-          to: position.toAdded(shape.size).toJSON(),
-        }
-      case 'circle':
-        return {
-          from: position.toSubtracted(shape.radius).toJSON(),
-          to: position.toAdded(shape.radius).toJSON(),
-        }
-      case 'capsule':
-        if (shape.direction === 'vertical') {
-          return {
-            from: position.toJSON(),
-            to: vector2(position.x + shape.radius * 2, position.y + shape.length).toJSON(),
-          }
-        }
-        return {
-          from: position.toJSON(),
-          to: vector2(position.x + shape.length, position.y + shape.radius * 2).toJSON(),
-        }
-      default:
-        return {
-          from: Vector2.ZERO.toJSON(),
-          to: Vector2.ZERO.toJSON(),
-        }
-    }
   }
 }

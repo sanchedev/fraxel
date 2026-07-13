@@ -1,16 +1,16 @@
-import { vector2, type Vector2 } from '../../math/vector2.js'
+import { vector2, Vector2 } from '../../math/vector2.js'
 import { clamp } from '../../math/utils.js'
 import type { RigidBody } from '../../nodes/index.js'
 import type { Collider } from '../../nodes/node2d/collider.js'
-import type { CapsuleShape } from '../narrowphase/shapes.js'
+import { worldToLocal, localToWorld, getCapsuleBone, obbRectOverlap } from '../utils.js'
 
 /**
  * The **`resolveCollision`** function corrects overlap between two rigid bodies and applies impulse-based velocity changes.
  * @param bodyA The first rigid body
  * @param bodyB The second rigid body
- * @param overlap The overlap vector from B to A
- * @param normal The collision normal (from B to A)
- * @returns The position correction applied to body A
+ * @param overlap The overlap vector from B to A (world space)
+ * @param normal The collision normal from B to A (world space)
+ * @returns The position correction applied to body A (local space)
  */
 export function resolveCollision(
   bodyA: RigidBody,
@@ -18,25 +18,30 @@ export function resolveCollision(
   overlap: Vector2,
   normal: Vector2,
 ): Vector2 {
-  const totalInvMass = (bodyA.isStatic ? 0 : 1 / bodyA.mass) + (bodyB.isStatic ? 0 : 1 / bodyB.mass)
+  const invMassA = Math.max(0, bodyA.isStatic || bodyA.mass === 0 ? 0 : 1 / bodyA.mass)
+  const invMassB = Math.max(0, bodyB.isStatic || bodyB.mass === 0 ? 0 : 1 / bodyB.mass)
+  const totalInvMass = invMassA + invMassB
+
   if (totalInvMass === 0) return vector2(0, 0)
 
-  const ratioA = bodyA.isStatic ? 0 : 1 / bodyA.mass / totalInvMass
-  const ratioB = bodyB.isStatic ? 0 : 1 / bodyB.mass / totalInvMass
+  const ratioA = invMassA / totalInvMass
+  const ratioB = invMassB / totalInvMass
 
-  const correctionA_x = overlap.x * ratioA
-  const correctionA_y = overlap.y * ratioA
+  const localOverlapA = worldToLocal(bodyA, overlap)
+  const localOverlapB = worldToLocal(bodyB, overlap)
 
-  bodyA.position.x += correctionA_x
-  bodyA.position.y += correctionA_y
-  bodyB.position.x -= overlap.x * ratioB
-  bodyB.position.y -= overlap.y * ratioB
+  bodyA.position.x += localOverlapA.x * ratioA
+  bodyA.position.y += localOverlapA.y * ratioA
+  bodyB.position.x -= localOverlapB.x * ratioB
+  bodyB.position.y -= localOverlapB.y * ratioB
 
-  const relVelX = bodyA.velocity.x - bodyB.velocity.x
-  const relVelY = bodyA.velocity.y - bodyB.velocity.y
+  const worldVelA = localToWorld(bodyA, bodyA.velocity)
+  const worldVelB = localToWorld(bodyB, bodyB.velocity)
+  const relVelX = worldVelA.x - worldVelB.x
+  const relVelY = worldVelA.y - worldVelB.y
   const velAlongNormal = relVelX * normal.x + relVelY * normal.y
 
-  if (velAlongNormal > 0) return vector2(correctionA_x, correctionA_y)
+  if (velAlongNormal > 0) return localOverlapA
 
   const restitution = Math.min(bodyA.bounce, bodyB.bounce)
   let j = -(1 + restitution) * velAlongNormal
@@ -45,13 +50,16 @@ export function resolveCollision(
   const impulseX = j * normal.x
   const impulseY = j * normal.y
 
+  const localImpulseA = worldToLocal(bodyA, vector2(impulseX, impulseY))
+  const localImpulseB = worldToLocal(bodyB, vector2(impulseX, impulseY))
+
   if (!bodyA.isStatic) {
-    bodyA.velocity.x += impulseX / bodyA.mass
-    bodyA.velocity.y += impulseY / bodyA.mass
+    bodyA.velocity.x += localImpulseA.x * invMassA
+    bodyA.velocity.y += localImpulseA.y * invMassA
   }
   if (!bodyB.isStatic) {
-    bodyB.velocity.x -= impulseX / bodyB.mass
-    bodyB.velocity.y -= impulseY / bodyB.mass
+    bodyB.velocity.x -= localImpulseB.x * invMassB
+    bodyB.velocity.y -= localImpulseB.y * invMassB
   }
 
   const tangentX = relVelX - velAlongNormal * normal.x
@@ -67,17 +75,20 @@ export function resolveCollision(
     jt /= totalInvMass
     jt = clamp(-j * friction, jt, j * friction)
 
+    const localTangentA = worldToLocal(bodyA, vector2(tx, ty))
+    const localTangentB = worldToLocal(bodyB, vector2(tx, ty))
+
     if (!bodyA.isStatic) {
-      bodyA.velocity.x += (jt * tx) / bodyA.mass
-      bodyA.velocity.y += (jt * ty) / bodyA.mass
+      bodyA.velocity.x += jt * localTangentA.x * invMassA
+      bodyA.velocity.y += jt * localTangentA.y * invMassA
     }
     if (!bodyB.isStatic) {
-      bodyB.velocity.x -= (jt * tx) / bodyB.mass
-      bodyB.velocity.y -= (jt * ty) / bodyB.mass
+      bodyB.velocity.x -= jt * localTangentB.x * invMassB
+      bodyB.velocity.y -= jt * localTangentB.y * invMassB
     }
   }
 
-  return vector2(correctionA_x, correctionA_y)
+  return localOverlapA
 }
 
 /**
@@ -153,45 +164,19 @@ function computeRectRectOverlap(
   const shapeB = colliderB.shape
   if (shapeA.type !== 'rectangle' || shapeB.type !== 'rectangle') return null
 
-  const posA = colliderA.globalPosition
-  const sizeA = shapeA.size
-  const posB = colliderB.globalPosition
-  const sizeB = shapeB.size
+  const result = obbRectOverlap(
+    colliderA.globalPosition,
+    shapeA.size,
+    colliderA.globalRotation,
+    colliderB.globalPosition,
+    shapeB.size,
+    colliderB.globalRotation,
+  )
+  if (!result) return null
 
-  const overlapX = Math.min(posA.x + sizeA.x, posB.x + sizeB.x) - Math.max(posA.x, posB.x)
-  const overlapY = Math.min(posA.y + sizeA.y, posB.y + sizeB.y) - Math.max(posA.y, posB.y)
-
-  if (overlapX <= 0 || overlapY <= 0) return null
-
-  const centerA_x = posA.x + sizeA.x / 2
-  const centerA_y = posA.y + sizeA.y / 2
-  const centerB_x = posB.x + sizeB.x / 2
-  const centerB_y = posB.y + sizeB.y / 2
-
-  const bodyA = colliderA.parent
-  const velX = bodyA && 'velocity' in bodyA ? (bodyA.velocity as Vector2).x : 0
-  const velY = bodyA && 'velocity' in bodyA ? (bodyA.velocity as Vector2).y : 0
-
-  let resolveHorizontal = false
-
-  if (overlapX < overlapY - 0.5) {
-    resolveHorizontal = true
-  } else if (overlapY < overlapX - 0.5) {
-    resolveHorizontal = false
-  } else {
-    if (Math.abs(velX) > Math.abs(velY)) {
-      resolveHorizontal = true
-    } else {
-      resolveHorizontal = overlapX < overlapY
-    }
-  }
-
-  if (resolveHorizontal) {
-    const normalX = centerA_x < centerB_x ? -1 : 1
-    return { overlap: vector2(normalX * overlapX, 0), normal: vector2(normalX, 0) }
-  } else {
-    const normalY = centerA_y < centerB_y ? -1 : 1
-    return { overlap: vector2(0, normalY * overlapY), normal: vector2(0, normalY) }
+  return {
+    overlap: vector2(result.overlap.x, result.overlap.y),
+    normal: vector2(result.normal.x, result.normal.y),
   }
 }
 
@@ -236,69 +221,93 @@ function computeRectCircleOverlap(
 ): { overlap: Vector2; normal: Vector2 } | null {
   if (rect.shape.type !== 'rectangle' || circle.shape.type !== 'circle') return null
 
-  const rectPos = rect.globalPosition
-  const rectSize = rect.shape.size
-  const cx = circle.globalPosition.x
-  const cy = circle.globalPosition.y
+  const w = rect.shape.size.x
+  const h = rect.shape.size.y
+  const angle = (rect.globalRotation * Math.PI) / 180
+  const cos = Math.cos(angle)
+  const sin = Math.sin(angle)
+
+  const cx = rect.globalPosition.x
+  const cy = rect.globalPosition.y
+
+  const circleCx = circle.globalPosition.x
+  const circleCy = circle.globalPosition.y
   const r = circle.shape.radius
 
-  const closestX = clamp(rectPos.x, cx, rectPos.x + rectSize.x)
-  const closestY = clamp(rectPos.y, cy, rectPos.y + rectSize.y)
+  const dx = circleCx - cx
+  const dy = circleCy - cy
+  const localX = dx * cos + dy * sin
+  const localY = -dx * sin + dy * cos
 
-  const dx = cx - closestX
-  const dy = cy - closestY
-  const distSq = dx * dx + dy * dy
+  const clampedX = Math.max(0, Math.min(w, localX))
+  const clampedY = Math.max(0, Math.min(h, localY))
 
-  if (distSq >= r * r) return null
+  const isInside = localX === clampedX && localY === clampedY
 
-  const dist = Math.sqrt(distSq)
-  if (dist < 0.0001) {
-    const escapeLeft = cx - rectPos.x
-    const escapeRight = rectPos.x + rectSize.x - cx
-    const escapeTop = cy - rectPos.y
-    const escapeBottom = rectPos.y + rectSize.y - cy
-    const minEscape = Math.min(escapeLeft, escapeRight, escapeTop, escapeBottom)
+  let overlapMag: number
+  let nx: number
+  let ny: number
 
-    if (minEscape === escapeLeft)
-      return { overlap: vector2(escapeLeft + r, 0), normal: vector2(-1, 0) }
-    if (minEscape === escapeRight)
-      return { overlap: vector2(escapeRight + r, 0), normal: vector2(1, 0) }
-    if (minEscape === escapeTop)
-      return { overlap: vector2(0, escapeTop + r), normal: vector2(0, -1) }
-    return { overlap: vector2(0, escapeBottom + r), normal: vector2(0, 1) }
+  if (isInside) {
+    const distRight = w - localX
+    const distLeft = localX
+    const distBottom = h - localY
+    const distTop = localY
+
+    let minEdge = distRight
+    let localNx = 1
+    let localNy = 0
+
+    if (distLeft < minEdge) {
+      minEdge = distLeft
+      localNx = -1
+      localNy = 0
+    }
+    if (distBottom < minEdge) {
+      minEdge = distBottom
+      localNx = 0
+      localNy = 1
+    }
+    if (distTop < minEdge) {
+      minEdge = distTop
+      localNx = 0
+      localNy = -1
+    }
+
+    overlapMag = minEdge + r
+
+    const worldNx = localNx * cos - localNy * sin
+    const worldNy = localNx * sin + localNy * cos
+    nx = -worldNx
+    ny = -worldNy
+  } else {
+    const localDx = localX - clampedX
+    const localDy = localY - clampedY
+    const distSq = localDx * localDx + localDy * localDy
+
+    if (distSq >= r * r) return null
+
+    const dist = Math.sqrt(distSq)
+    overlapMag = r - dist
+
+    if (dist < 0.0001) {
+      return { overlap: vector2(r, 0), normal: vector2(-1, 0) }
+    }
+
+    const worldDx = circleCx - (cx + clampedX * cos - clampedY * sin)
+    const worldDy = circleCy - (cy + clampedX * sin + clampedY * cos)
+
+    nx = -(worldDx / dist)
+    ny = -(worldDy / dist)
   }
 
-  const overlapMag = r - dist
-  const nx = dx / dist
-  const ny = dy / dist
-
   return {
-    overlap: vector2(-nx * overlapMag, -ny * overlapMag),
-    normal: vector2(-nx, -ny),
+    overlap: vector2(nx * overlapMag, ny * overlapMag),
+    normal: vector2(nx, ny),
   }
 }
 
 // ─── Capsule helpers ─────────────────────────────────────────────
-
-function getCapsuleBone(
-  shape: CapsuleShape,
-  pos: { x: number; y: number },
-): { ax: number; ay: number; bx: number; by: number } {
-  if (shape.direction === 'vertical') {
-    return {
-      ax: pos.x + shape.radius,
-      ay: pos.y + shape.radius,
-      bx: pos.x + shape.radius,
-      by: pos.y + shape.length - shape.radius,
-    }
-  }
-  return {
-    ax: pos.x + shape.radius,
-    ay: pos.y + shape.radius,
-    bx: pos.x + shape.length - shape.radius,
-    by: pos.y + shape.radius,
-  }
-}
 
 function closestPointOnSegment(
   ax: number,
@@ -320,15 +329,15 @@ function closestPointOnSegment(
 }
 
 function closestPointsOnSegments(
-  a: { ax: number; ay: number; bx: number; by: number },
-  b: { ax: number; ay: number; bx: number; by: number },
+  a: { a: { x: number; y: number }; b: { x: number; y: number } },
+  b: { a: { x: number; y: number }; b: { x: number; y: number } },
 ): { aX: number; aY: number; bX: number; bY: number } {
-  const dAx = a.bx - a.ax
-  const dAy = a.by - a.ay
-  const dBx = b.bx - b.ax
-  const dBy = b.by - b.ay
-  const rx = a.ax - b.ax
-  const ry = a.ay - b.ay
+  const dAx = a.b.x - a.a.x
+  const dAy = a.b.y - a.a.y
+  const dBx = b.b.x - b.a.x
+  const dBy = b.b.y - b.a.y
+  const rx = a.a.x - b.a.x
+  const ry = a.a.y - b.a.y
 
   const dotA = dAx * dAx + dAy * dAy
   const dotB = dBx * dBx + dBy * dBy
@@ -356,10 +365,10 @@ function closestPointsOnSegments(
   }
 
   return {
-    aX: a.ax + s * dAx,
-    aY: a.ay + s * dAy,
-    bX: b.ax + t * dBx,
-    bY: b.ay + t * dBy,
+    aX: a.a.x + s * dAx,
+    aY: a.a.y + s * dAy,
+    bX: b.a.x + t * dBx,
+    bY: b.a.y + t * dBy,
   }
 }
 
@@ -371,8 +380,8 @@ function computeCapsuleCapsuleOverlap(
 ): { overlap: Vector2; normal: Vector2 } | null {
   if (colliderA.shape.type !== 'capsule' || colliderB.shape.type !== 'capsule') return null
 
-  const aBone = getCapsuleBone(colliderA.shape, colliderA.globalPosition)
-  const bBone = getCapsuleBone(colliderB.shape, colliderB.globalPosition)
+  const aBone = getCapsuleBone(colliderA.shape, colliderA.globalPosition, colliderA.globalRotation)
+  const bBone = getCapsuleBone(colliderB.shape, colliderB.globalPosition, colliderB.globalRotation)
 
   const closest = closestPointsOnSegments(aBone, bBone)
   const dx = closest.bX - closest.aX
@@ -403,53 +412,137 @@ function computeRectCapsuleOverlap(
 ): { overlap: Vector2; normal: Vector2 } | null {
   if (rect.shape.type !== 'rectangle' || capsule.shape.type !== 'capsule') return null
 
-  const bone = getCapsuleBone(capsule.shape, capsule.globalPosition)
-  const rectPos = rect.globalPosition
-  const rectSize = rect.shape.size
+  const w = rect.shape.size.x
+  const h = rect.shape.size.y
+  const angle = (rect.globalRotation * Math.PI) / 180
+  const cos = Math.cos(angle)
+  const sin = Math.sin(angle)
+
+  const cx = rect.globalPosition.x
+  const cy = rect.globalPosition.y
+
+  const localVerts = [
+    { x: 0, y: 0 },
+    { x: w, y: 0 },
+    { x: w, y: h },
+    { x: 0, y: h },
+  ]
+
+  const verts = localVerts.map((v) => ({
+    x: cx + v.x * cos - v.y * sin,
+    y: cy + v.x * sin + v.y * cos,
+  }))
+
+  const rectAxes = [
+    { x: cos, y: sin },
+    { x: -sin, y: cos },
+  ]
+
+  const bone = getCapsuleBone(capsule.shape, capsule.globalPosition, capsule.globalRotation)
   const r = capsule.shape.radius
 
-  const closest = closestPointOnSegment(
-    bone.ax,
-    bone.ay,
-    bone.bx,
-    bone.by,
-    rectPos.x + rectSize.x / 2,
-    rectPos.y + rectSize.y / 2,
-  )
+  const boneDx = bone.b.x - bone.a.x
+  const boneDy = bone.b.y - bone.a.y
+  const boneLen = Math.sqrt(boneDx * boneDx + boneDy * boneDy)
 
-  const clampX = Math.max(rectPos.x, Math.min(closest.x, rectPos.x + rectSize.x))
-  const clampY = Math.max(rectPos.y, Math.min(closest.y, rectPos.y + rectSize.y))
-
-  const dx = closest.x - clampX
-  const dy = closest.y - clampY
-  const distSq = dx * dx + dy * dy
-
-  if (distSq >= r * r) return null
-
-  const dist = Math.sqrt(distSq)
-  if (dist < 0.0001) {
-    const escapeLeft = closest.x - rectPos.x
-    const escapeRight = rectPos.x + rectSize.x - closest.x
-    const escapeTop = closest.y - rectPos.y
-    const escapeBottom = rectPos.y + rectSize.y - closest.y
-    const minEscape = Math.min(escapeLeft, escapeRight, escapeTop, escapeBottom)
-
-    if (minEscape === escapeLeft)
-      return { overlap: vector2(escapeLeft + r, 0), normal: vector2(-1, 0) }
-    if (minEscape === escapeRight)
-      return { overlap: vector2(escapeRight + r, 0), normal: vector2(1, 0) }
-    if (minEscape === escapeTop)
-      return { overlap: vector2(0, escapeTop + r), normal: vector2(0, -1) }
-    return { overlap: vector2(0, escapeBottom + r), normal: vector2(0, 1) }
+  const axesToTest = [...rectAxes]
+  if (boneLen > 0.0001) {
+    axesToTest.push({ x: -boneDy / boneLen, y: boneDx / boneLen })
   }
 
-  const overlapMag = r - dist
-  const nx = dx / dist
-  const ny = dy / dist
+  // VORONOI FILTER: Only test corner axes if the capsule endpoint is actually near that corner.
+  for (const p of [bone.a, bone.b]) {
+    const pdx = p.x - cx
+    const pdy = p.y - cy
+    const localX = pdx * cos + pdy * sin
+    const localY = -pdx * sin + pdy * cos
+
+    if (localX < 0 && localY < 0) {
+      const cornerWorldX = cx
+      const cornerWorldY = cy
+      const cdx = p.x - cornerWorldX
+      const cdy = p.y - cornerWorldY
+      const cLen = Math.sqrt(cdx * cdx + cdy * cdy)
+      if (cLen > 0.0001) {
+        axesToTest.push({ x: cdx / cLen, y: cdy / cLen })
+      }
+    } else if (localX > w && localY < 0) {
+      const cornerWorldX = cx + w * cos
+      const cornerWorldY = cy + w * sin
+      const cdx = p.x - cornerWorldX
+      const cdy = p.y - cornerWorldY
+      const cLen = Math.sqrt(cdx * cdx + cdy * cdy)
+      if (cLen > 0.0001) {
+        axesToTest.push({ x: cdx / cLen, y: cdy / cLen })
+      }
+    } else if (localX > w && localY > h) {
+      const cornerWorldX = cx + w * cos - h * sin
+      const cornerWorldY = cy + w * sin + h * cos
+      const cdx = p.x - cornerWorldX
+      const cdy = p.y - cornerWorldY
+      const cLen = Math.sqrt(cdx * cdx + cdy * cdy)
+      if (cLen > 0.0001) {
+        axesToTest.push({ x: cdx / cLen, y: cdy / cLen })
+      }
+    } else if (localX < 0 && localY > h) {
+      const cornerWorldX = cx - h * sin
+      const cornerWorldY = cy + h * cos
+      const cdx = p.x - cornerWorldX
+      const cdy = p.y - cornerWorldY
+      const cLen = Math.sqrt(cdx * cdx + cdy * cdy)
+      if (cLen > 0.0001) {
+        axesToTest.push({ x: cdx / cLen, y: cdy / cLen })
+      }
+    }
+  }
+
+  let minOverlap = Infinity
+  let smallestAxis = { x: 0, y: 0 }
+
+  for (const axis of axesToTest) {
+    let rectMin = Infinity
+    let rectMax = -Infinity
+    for (const v of verts) {
+      const proj = v.x * axis.x + v.y * axis.y
+      if (proj < rectMin) rectMin = proj
+      if (proj > rectMax) rectMax = proj
+    }
+
+    const p1 = bone.a.x * axis.x + bone.a.y * axis.y
+    const p2 = bone.b.x * axis.x + bone.b.y * axis.y
+    const capMin = Math.min(p1, p2) - r
+    const capMax = Math.max(p1, p2) + r
+
+    if (rectMax <= capMin || capMax <= rectMin) {
+      return null // We found a TRUE separating axis
+    }
+
+    const overlap1 = rectMax - capMin
+    const overlap2 = capMax - rectMin
+    const overlap = Math.min(overlap1, overlap2)
+
+    if (overlap < minOverlap) {
+      minOverlap = overlap
+
+      const capCx = (bone.a.x + bone.b.x) / 2
+      const capCy = (bone.a.y + bone.b.y) / 2
+      const rectCx = cx + (w * cos - h * sin) / 2
+      const rectCy = cy + (w * sin + h * cos) / 2
+      const dirX = rectCx - capCx
+      const dirY = rectCy - capCy
+
+      const finalAxis = { x: axis.x, y: axis.y }
+      if (dirX * axis.x + dirY * axis.y < 0) {
+        finalAxis.x = -axis.x
+        finalAxis.y = -axis.y
+      }
+      smallestAxis = finalAxis
+    }
+  }
 
   return {
-    overlap: vector2(-nx * overlapMag, -ny * overlapMag),
-    normal: vector2(-nx, -ny),
+    overlap: vector2(smallestAxis.x * minOverlap, smallestAxis.y * minOverlap),
+    normal: vector2(smallestAxis.x, smallestAxis.y),
   }
 }
 
@@ -459,13 +552,13 @@ function computeCircleCapsuleOverlap(
 ): { overlap: Vector2; normal: Vector2 } | null {
   if (circle.shape.type !== 'circle' || capsule.shape.type !== 'capsule') return null
 
-  const bone = getCapsuleBone(capsule.shape, capsule.globalPosition)
+  const bone = getCapsuleBone(capsule.shape, capsule.globalPosition, capsule.globalRotation)
   const cx = circle.globalPosition.x
   const cy = circle.globalPosition.y
   const rCircle = circle.shape.radius
   const rCapsule = capsule.shape.radius
 
-  const closest = closestPointOnSegment(bone.ax, bone.ay, bone.bx, bone.by, cx, cy)
+  const closest = closestPointOnSegment(bone.a.x, bone.a.y, bone.b.x, bone.b.y, cx, cy)
   const dx = closest.x - cx
   const dy = closest.y - cy
   const distSq = dx * dx + dy * dy

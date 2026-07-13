@@ -1,6 +1,11 @@
 import type { Collider } from '../../nodes/node2d/collider.js'
-import type { CapsuleShape } from './shapes.js'
 import { clamp } from '../../math/utils.js'
+import {
+  getCapsuleBone,
+  obbRectOverlap,
+  closestPointOnRotatedRect,
+  getRotatedRectCorners,
+} from '../utils.js'
 
 /**
  * The **`Narrowphase`** class performs precise collision detection between two colliders.
@@ -59,12 +64,16 @@ export class Narrowphase {
 
   static #rectangleOverlap(a: Collider, b: Collider): boolean {
     if (a.shape.type !== 'rectangle' || b.shape.type !== 'rectangle') return false
-    const fromA = a.globalPosition
-    const toA = fromA.toAdded(a.shape.size)
-    const fromB = b.globalPosition
-    const toB = fromB.toAdded(b.shape.size)
-
-    return fromA.x < toB.x && toA.x > fromB.x && fromA.y < toB.y && toA.y > fromB.y
+    return (
+      obbRectOverlap(
+        a.globalPosition,
+        a.shape.size,
+        a.globalRotation,
+        b.globalPosition,
+        b.shape.size,
+        b.globalRotation,
+      ) !== null
+    )
   }
 
   static #circleOverlap(a: Collider, b: Collider): boolean {
@@ -78,25 +87,23 @@ export class Narrowphase {
 
   static #rectangleCircleOverlap(rectangle: Collider, circle: Collider): boolean {
     if (rectangle.shape.type !== 'rectangle' || circle.shape.type !== 'circle') return false
-    const rectFrom = rectangle.globalPosition
-    const rectTo = rectFrom.toAdded(rectangle.shape.size)
-    const cx = circle.globalPosition.x
-    const cy = circle.globalPosition.y
-    const r = circle.shape.radius
+    const closest = closestPointOnRotatedRect(
+      rectangle.globalPosition,
+      rectangle.shape.size,
+      rectangle.globalRotation,
+      circle.globalPosition,
+    )
+    const dx = circle.globalPosition.x - closest.x
+    const dy = circle.globalPosition.y - closest.y
 
-    const closestX = clamp(rectFrom.x, cx, rectTo.x)
-    const closestY = clamp(rectFrom.y, cy, rectTo.y)
-    const dx = cx - closestX
-    const dy = cy - closestY
-
-    return dx * dx + dy * dy < r * r
+    return dx * dx + dy * dy < circle.shape.radius * circle.shape.radius
   }
 
   static #capsuleOverlap(a: Collider, b: Collider): boolean {
     if (a.shape.type !== 'capsule' || b.shape.type !== 'capsule') return false
 
-    const aBone = this.#getCapsuleBone(a.shape, a.globalPosition)
-    const bBone = this.#getCapsuleBone(b.shape, b.globalPosition)
+    const aBone = getCapsuleBone(a.shape, a.globalPosition, a.globalRotation)
+    const bBone = getCapsuleBone(b.shape, b.globalPosition, b.globalRotation)
 
     const closest = this.#closestPointsOnSegments(aBone, bBone)
     const dx = closest.b.x - closest.a.x
@@ -110,21 +117,47 @@ export class Narrowphase {
   static #rectangleCapsuleOverlap(rect: Collider, capsule: Collider): boolean {
     if (rect.shape.type !== 'rectangle' || capsule.shape.type !== 'capsule') return false
 
-    const bone = this.#getCapsuleBone(capsule.shape, capsule.globalPosition)
-    const rectFrom = rect.globalPosition
-    const rectTo = rectFrom.toAdded(rect.shape.size)
+    const bone = getCapsuleBone(capsule.shape, capsule.globalPosition, capsule.globalRotation)
 
-    const closest = this.#closestPointOnSegmentToRect(bone, rectFrom, rectTo)
-    const dx = bone.a.x + (bone.b.x - bone.a.x) * closest.t - closest.x
-    const dy = bone.a.y + (bone.b.y - bone.a.y) * closest.t - closest.y
+    // Check closest point on rect to each bone endpoint
+    const closestA = closestPointOnRotatedRect(
+      rect.globalPosition,
+      rect.shape.size,
+      rect.globalRotation,
+      bone.a,
+    )
+    const dxA = bone.a.x - closestA.x
+    const dyA = bone.a.y - closestA.y
+    if (dxA * dxA + dyA * dyA < capsule.shape.radius * capsule.shape.radius) return true
 
+    const closestB = closestPointOnRotatedRect(
+      rect.globalPosition,
+      rect.shape.size,
+      rect.globalRotation,
+      bone.b,
+    )
+    const dxB = bone.b.x - closestB.x
+    const dyB = bone.b.y - closestB.y
+    if (dxB * dxB + dyB * dyB < capsule.shape.radius * capsule.shape.radius) return true
+
+    // Check closest point on bone to each rect corner
+    const corners = getRotatedRectCorners(rect.globalPosition, rect.shape.size, rect.globalRotation)
+
+    const closest = this.#closestPointOnSegment(bone, corners[0]!.x, corners[0]!.y)
+    for (const corner of corners) {
+      const c = this.#closestPointOnSegment(bone, corner.x, corner.y)
+      if (c.t > closest.t) Object.assign(closest, c)
+    }
+
+    const dx = closest.x - (bone.a.x + (bone.b.x - bone.a.x) * closest.t)
+    const dy = closest.y - (bone.a.y + (bone.b.y - bone.a.y) * closest.t)
     return dx * dx + dy * dy < capsule.shape.radius * capsule.shape.radius
   }
 
   static #circleCapsuleOverlap(circle: Collider, capsule: Collider): boolean {
     if (circle.shape.type !== 'circle' || capsule.shape.type !== 'capsule') return false
 
-    const bone = this.#getCapsuleBone(capsule.shape, capsule.globalPosition)
+    const bone = getCapsuleBone(capsule.shape, capsule.globalPosition, capsule.globalRotation)
     const cx = circle.globalPosition.x
     const cy = circle.globalPosition.y
 
@@ -135,23 +168,6 @@ export class Narrowphase {
     const radiusSum = circle.shape.radius + capsule.shape.radius
 
     return distSq < radiusSum * radiusSum
-  }
-
-  /** Returns the bone (line segment) endpoints of a capsule in world space. */
-  static #getCapsuleBone(
-    shape: CapsuleShape,
-    pos: { x: number; y: number },
-  ): { a: { x: number; y: number }; b: { x: number; y: number } } {
-    if (shape.direction === 'vertical') {
-      return {
-        a: { x: pos.x + shape.radius, y: pos.y + shape.radius },
-        b: { x: pos.x + shape.radius, y: pos.y + shape.length - shape.radius },
-      }
-    }
-    return {
-      a: { x: pos.x + shape.radius, y: pos.y + shape.radius },
-      b: { x: pos.x + shape.length - shape.radius, y: pos.y + shape.radius },
-    }
   }
 
   /** Finds the closest point on a line segment to a point. */

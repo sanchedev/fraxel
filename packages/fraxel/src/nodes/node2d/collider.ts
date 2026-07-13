@@ -29,7 +29,7 @@ export interface ColliderOptions extends Node2DOptions<PrimaryNode.Collider> {
    * <collider shape={shapes.rectangle(32, 32)} group={['player', 'character']} collidesWith={['enemy']} />
    * ```
    */
-  group: string[]
+  group?: string | string[]
   /**
    * The **`collidesWith`** property defines which groups this collider can interact with.
    *
@@ -38,7 +38,7 @@ export interface ColliderOptions extends Node2DOptions<PrimaryNode.Collider> {
    * <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy', 'obstacle']} />
    * ```
    */
-  collidesWith: string[]
+  collidesWith?: string | string[]
 }
 
 /**
@@ -76,6 +76,7 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
   _activeCollisions: Set<Collider> = new Set()
 
   #lastGlobalPosition: Vector2
+  #lastGlobalRotation: number
 
   /**
    * The read-only **`shape`** property returns the collision shape.
@@ -120,10 +121,13 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
   constructor(options: ColliderOptions) {
     super(PrimaryNode.Collider, options)
 
+    const setof = (s?: string | string[]) => new Set(typeof s === 'string' ? [s] : s)
+
     this.#shape = options.shape
-    this.#group = new Set(options.group)
-    this.#collidesWith = new Set(options.collidesWith)
+    this.#group = setof(options.group)
+    this.#collidesWith = setof(options.collidesWith)
     this.#lastGlobalPosition = this.globalPosition.clone()
+    this.#lastGlobalRotation = this.globalRotation
   }
 
   /**
@@ -214,11 +218,16 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
     ctx.stroke()
   }
 
-  /** @internal Checks position changes and marks collision system dirty. */
+  /** @internal Checks position and rotation changes and marks collision system dirty. */
   update(delta: number): void {
     const currentGlobalPos = this.globalPosition
-    if (!currentGlobalPos.equals(this.#lastGlobalPosition)) {
+    const currentGlobalRot = this.globalRotation
+    if (
+      !currentGlobalPos.equals(this.#lastGlobalPosition) ||
+      currentGlobalRot !== this.#lastGlobalRotation
+    ) {
       this.#lastGlobalPosition = currentGlobalPos.clone()
+      this.#lastGlobalRotation = currentGlobalRot
       CollisionSystem.setDirty()
     }
 

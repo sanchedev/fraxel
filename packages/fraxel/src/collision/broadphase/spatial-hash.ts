@@ -1,4 +1,5 @@
 import type { Collider } from '../../nodes/node2d/collider.js'
+import { getBounds } from '../bounds.js'
 import type { CollisionBounds } from '../types.js'
 
 /**
@@ -31,7 +32,7 @@ export class SpatialHash {
    * @param collider The collider to insert into the spatial hash.
    */
   insert(collider: Collider) {
-    const bounds = this.#getBounds(collider)
+    const bounds = getBounds(collider)
     const minCellX = Math.floor(bounds.from.x / this.#cellSize)
     const minCellY = Math.floor(bounds.from.y / this.#cellSize)
     const maxCellX = Math.floor(bounds.to.x / this.#cellSize)
@@ -75,37 +76,6 @@ export class SpatialHash {
     }
 
     return result
-  }
-
-  #getBounds(collider: Collider): CollisionBounds {
-    const pos = collider.globalPosition
-
-    if (collider.shape.type === 'circle') {
-      const r = collider.shape.radius
-      return {
-        from: { x: pos.x - r, y: pos.y - r },
-        to: { x: pos.x + r, y: pos.y + r },
-      }
-    }
-
-    if (collider.shape.type === 'capsule') {
-      const { length, radius, direction } = collider.shape
-      if (direction === 'vertical') {
-        return {
-          from: { x: pos.x, y: pos.y },
-          to: { x: pos.x + radius * 2, y: pos.y + length },
-        }
-      }
-      return {
-        from: { x: pos.x, y: pos.y },
-        to: { x: pos.x + length, y: pos.y + radius * 2 },
-      }
-    }
-
-    return {
-      from: pos.toJSON(),
-      to: pos.toAdded(collider.shape.size).toJSON(),
-    }
   }
 
   #getKey(x: number, y: number): string {

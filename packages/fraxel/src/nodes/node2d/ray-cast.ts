@@ -29,7 +29,7 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
    * <raycast direction={[100, 0]} collidesWith={['enemy', 'obstacle']} />
    * ```
    */
-  collidesWith: string[]
+  collidesWith: string | string[]
 }
 
 /**
@@ -71,7 +71,7 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
     super(PrimaryNode.RayCast, options)
 
     this.direction = propSignal(this, 'direction', signalVector(options.direction))
-    this.#collidesWith = Array.from(new Set(options.collidesWith))
+    this.#collidesWith = Array.from(new Set([options.collidesWith].flat()))
   }
 
   /**
