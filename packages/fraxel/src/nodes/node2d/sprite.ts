@@ -419,8 +419,8 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
       const ds = this.displaySize ?? this.sourceSize
 
       this.#texture.draw({
-        display: new Region(this.position, this.sourceSize ?? Vector2.ZERO),
-        source: new Region(
+        source: new Region(this.position, this.sourceSize ?? Vector2.ZERO),
+        display: new Region(
           this.margin ?? Vector2.ZERO,
           this.displaySize?.toMultiplied([this.flipX ? -1 : 1, this.flipY ? -1 : 1]) ??
             Vector2.ZERO,
