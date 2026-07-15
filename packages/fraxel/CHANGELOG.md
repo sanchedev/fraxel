@@ -10,6 +10,7 @@
 - **Action axis input** — added `Input.getActionAxis(negativeAction, positiveAction)` and `useActionAxis()` support for action-based directional input.
 - **Effect phases** — `useEffect()` now flushes after node updates and before physics, and `usePostPhysicsEffect()` runs after physics before draw.
 - **Sound loading cache** — `loadSound()` now deduplicates repeated and concurrent calls by URL.
+- **Signal API rename** — `createSignal()` was renamed to `defineSignal()` for signals created outside hook/component scope.
 
 ### Breaking Changes
 
@@ -20,6 +21,7 @@
 - **`useRef()` removed** — use typed native node hooks such as `useSprite()`, `useCollider()`, `useTimer()`, or a plain local variable when no native reference is needed.
 - **Deprecated sprite crop props removed** — replace `margin` and `sourceSize` with `source={region(x, y, width, height)}`.
 - **Effect timing changed** — `useEffect()` callbacks no longer flush through microtasks; they flush inside the game loop before physics.
+- **`createSignal()` renamed** — use `defineSignal()` for signals created outside hook/component scope.
 
 ### Bug Fixes
 

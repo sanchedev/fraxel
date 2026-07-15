@@ -34,7 +34,7 @@ export function useSignal<T>(initialValue: T): [getter: SignalGetter<T>, setter:
 }
 
 /**
- * The **`createSignal`** function creates a reactive signal outside of a component.
+ * The **`defineSignal`** function creates a reactive signal outside of a component.
  * Unlike `useSignal`, it does not auto-cleanup on node destroy — use `clearSignal`
  * to manually unsubscribe when needed.
  *
@@ -43,9 +43,9 @@ export function useSignal<T>(initialValue: T): [getter: SignalGetter<T>, setter:
  *
  * @example
  * ```ts
- * import { createSignal, clearSignal } from 'fraxel'
+ * import { defineSignal, clearSignal } from 'fraxel'
  *
- * const [health, setHealth] = createSignal(100)
+ * const [health, setHealth] = defineSignal(100)
  *
  * health() // 100
  * setHealth(50)
@@ -54,7 +54,7 @@ export function useSignal<T>(initialValue: T): [getter: SignalGetter<T>, setter:
  * clearSignal(health)
  * ```
  */
-export function createSignal<T>(
+export function defineSignal<T>(
   defaultValue: T,
 ): [getter: SignalGetter<T>, setter: SignalSetter<T>] {
   const signal = new Signal(defaultValue)
@@ -63,15 +63,15 @@ export function createSignal<T>(
 
 /**
  * The **`clearSignal`** function removes all subscribers from a signal created
- * with `useSignal` or `createSignal`. Useful for manual cleanup.
+ * with `useSignal` or `defineSignal`. Useful for manual cleanup.
  *
  * @param signal The signal getter to clear
  *
  * @example
  * ```ts
- * import { createSignal, clearSignal } from 'fraxel'
+ * import { defineSignal, clearSignal } from 'fraxel'
  *
- * const [count, setCount] = createSignal(0)
+ * const [count, setCount] = defineSignal(0)
  *
  * // Later, clean up all subscribers
  * clearSignal(count)

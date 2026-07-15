@@ -5,7 +5,7 @@ export * from './nodes/index.js'
 
 export { useEffect, usePostPhysicsEffect } from './use-effect.js'
 export { useMount } from './use-mount.js'
-export { useSignal, createSignal, clearSignal } from './use-signal.js'
+export { useSignal, defineSignal, clearSignal } from './use-signal.js'
 export { useComputed } from './use-computed.js'
 export { useUpdate } from './use-update.js'
 export { useAction, useActionAxis } from './use-action.js'
