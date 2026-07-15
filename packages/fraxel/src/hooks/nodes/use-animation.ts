@@ -51,21 +51,13 @@ export class AnimationReference extends NodeReference<PrimaryNode.AnimationPlaye
   ended = new Signal(false).getter
 
   /** Fires when the animation changes. */
-  get onAnimChange(): Trigger<[newAnim: string, oldAnim: string | null]> {
-    return this.node.onAnimChange
-  }
+  onAnimChange = new Trigger<[newAnim: string, oldAnim: string | null]>()
   /** Fires when the animation is stopped. */
-  get onAnimStop(): Trigger<[anim: string]> {
-    return this.node.onAnimStop
-  }
+  onAnimStop = new Trigger<[anim: string]>()
   /** Fires when the frame index changes. */
-  get onAnimIndexChange(): Trigger<[index: number]> {
-    return this.node.onAnimIndexChange
-  }
+  onAnimIndexChange = new Trigger<[index: number]>()
   /** Fires when the animation reaches the end. */
-  get onAnimEnd(): Trigger<[anim: string]> {
-    return this.node.onAnimEnd
-  }
+  onAnimEnd = new Trigger<[anim: string]>()
 
   /**
    * Plays an animation by name, optionally starting at a specific frame.
@@ -87,6 +79,11 @@ export class AnimationReference extends NodeReference<PrimaryNode.AnimationPlaye
     super(
       PrimaryNode.AnimationPlayer,
       (node) => {
+        this.onAnimChange.link(node.onAnimChange)
+        this.onAnimStop.link(node.onAnimStop)
+        this.onAnimIndexChange.link(node.onAnimIndexChange)
+        this.onAnimEnd.link(node.onAnimEnd)
+
         const sets = [
           () => {
             this.animName.signal.setter(node.currentAnim)

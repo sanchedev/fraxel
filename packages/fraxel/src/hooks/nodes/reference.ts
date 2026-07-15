@@ -1,5 +1,5 @@
 import { NodeNotInitializedError, NodeTypeMismatchError } from '../../errors/index.js'
-import type { Trigger } from '../../events/trigger.js'
+import { Trigger } from '../../events/trigger.js'
 import { renderToNodes } from '../../jsx/index.js'
 import type { Fraxel } from '../../jsx/types.js'
 import type { NodeInstances, PrimaryNode } from '../../nodes/index.js'
@@ -60,29 +60,28 @@ export class NodeReference<T extends PrimaryNode = PrimaryNode> {
   signal: SignalGetter<NodeInstances[T] | null>
 
   /** Fires when the node starts (first frame). */
-  get onStart(): Trigger<[]> {
-    return this.node.onStart
-  }
+  onStart = new Trigger<[]>()
   /** Fires every frame during draw with the delta time. */
-  get onDraw(): Trigger<[delta: number]> {
-    return this.node.onDraw
-  }
+  onDraw = new Trigger<[delta: number]>()
   /** Fires every frame during update with the delta time. */
-  get onUpdate(): Trigger<[delta: number]> {
-    return this.node.onUpdate
-  }
+  onUpdate = new Trigger<[delta: number]>()
   /** Fires when the node is destroyed. */
-  get onDestroy(): Trigger<[]> {
-    return this.node.onDestroy
-  }
+  onDestroy = new Trigger<[]>()
 
   constructor(type: T, onStart?: (node: NodeInstances[T]) => void, onEnd?: () => void) {
     this.#type = type
     this.signal = this.#node.getter
 
     this.signal.signal.sub((node) => {
-      if (node == null) onEnd?.()
-      else onStart?.(node)
+      if (node == null) {
+        onEnd?.()
+      } else {
+        this.onStart.link(node.onStart)
+        this.onDraw.link(node.onDraw)
+        this.onUpdate.link(node.onUpdate)
+        this.onDestroy.link(node.onDestroy)
+        onStart?.(node)
+      }
     })
 
     this.#oldCtx = currentContext.slice()

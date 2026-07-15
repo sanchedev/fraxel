@@ -45,13 +45,9 @@ export class TimerReference extends NodeReference<PrimaryNode.Timer> {
   progress = new Signal(0).getter
 
   /** Fires when the timer reaches its duration. */
-  get onTimeout(): Trigger<[]> {
-    return this.node.onTimeout
-  }
+  onTimeout = new Trigger<[]>()
   /** Fires every frame with the current elapsed time. */
-  get onTimeChange(): Trigger<[time: number]> {
-    return this.node.onTimeChange
-  }
+  onTimeChange = new Trigger<[time: number]>()
 
   /**
    * Starts or resumes the timer.
@@ -68,6 +64,9 @@ export class TimerReference extends NodeReference<PrimaryNode.Timer> {
     super(
       PrimaryNode.Timer,
       (node) => {
+        this.onTimeout.link(node.onTimeout)
+        this.onTimeChange.link(node.onTimeChange)
+
         const sets = [
           () => {
             this.time.signal.setter(0)

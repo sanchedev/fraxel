@@ -45,18 +45,17 @@ export class RayCastReference extends Node2DReference<PrimaryNode.RayCast> {
   detected = new Signal(false).getter
 
   /** Fires when the ray starts hitting a collider. */
-  get onColliderEnter(): Trigger<[collider: Collider]> {
-    return this.node.onColliderEnter
-  }
+  onColliderEnter = new Trigger<[collider: Collider]>()
   /** Fires when the ray stops hitting a collider. */
-  get onColliderExit(): Trigger<[collider: Collider]> {
-    return this.node.onColliderExit
-  }
+  onColliderExit = new Trigger<[collider: Collider]>()
 
   constructor() {
     super(
       PrimaryNode.RayCast,
       (node) => {
+        this.onColliderEnter.link(node.onColliderEnter)
+        this.onColliderExit.link(node.onColliderExit)
+
         const sets = [
           () => {
             this.direction.signal.setter(node.direction)

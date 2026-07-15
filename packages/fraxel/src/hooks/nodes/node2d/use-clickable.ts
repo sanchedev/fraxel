@@ -50,22 +50,20 @@ export class ClickableReference extends Node2DReference<PrimaryNode.Clickable> {
   mousePosition = new Signal<Vector2>(Vector2.ZERO).getter
 
   /** Fires on pointer release inside the clickable area. */
-  get onClick(): Trigger<[position: Vector2]> {
-    return this.node.onClick
-  }
+  onClick = new Trigger<[position: Vector2]>()
   /** Fires when the pointer enters the clickable area. */
-  get onMouseEnter(): Trigger<[]> {
-    return this.node.onMouseEnter
-  }
+  onMouseEnter = new Trigger<[]>()
   /** Fires when the pointer exits the clickable area. */
-  get onMouseExit(): Trigger<[]> {
-    return this.node.onMouseExit
-  }
+  onMouseExit = new Trigger<[]>()
 
   constructor() {
     super(
       PrimaryNode.Clickable,
       (node) => {
+        this.onClick.link(node.onClick)
+        this.onMouseEnter.link(node.onMouseEnter)
+        this.onMouseExit.link(node.onMouseExit)
+
         this.disabled.signal.setter(node.disabled)
 
         node.onMouseEnter.connect(() => {

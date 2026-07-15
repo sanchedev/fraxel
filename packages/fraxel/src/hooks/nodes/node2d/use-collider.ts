@@ -50,18 +50,17 @@ export class ColliderReference extends Node2DReference<PrimaryNode.Collider> {
   detectedColliders = new Signal<Set<Collider>>(new Set()).getter
 
   /** Fires when a new collision starts. */
-  get onColliderEnter(): Trigger<[other: Collider]> {
-    return this.node.onColliderEnter
-  }
+  onColliderEnter = new Trigger<[other: Collider]>()
   /** Fires when a collision ends. */
-  get onColliderExit(): Trigger<[other: Collider]> {
-    return this.node.onColliderExit
-  }
+  onColliderExit = new Trigger<[other: Collider]>()
 
   constructor() {
     super(
       PrimaryNode.Collider,
       (node) => {
+        this.onColliderEnter.link(node.onColliderEnter)
+        this.onColliderExit.link(node.onColliderExit)
+
         const sets = [
           () => {
             this.colliding.signal.setter(node._activeCollisions.size !== 0)
