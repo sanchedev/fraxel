@@ -19,7 +19,7 @@ export function WinArea({ position, size, fillColor }: WinAreaProps) {
   const scene = useScene()
   const shapeSize = vector2(size)
 
-  useTrigger(winArea.colliderEntered, () => {
+  useTrigger(winArea.onColliderEnter, () => {
     void scene.change('win')
   })
 
