@@ -33,7 +33,7 @@ export function useAction(action: symbol) {
   pushEffect('useAction', ([node]) => {
     if (node == null) return
 
-    node.updated.on(() => {
+    node.onUpdate.connect(() => {
       setPressed(Input.isActionPressed(action))
       setJustPressed(Input.justActionPressed(action))
       setJustUnpressed(Input.justActionUnpressed(action))
@@ -78,11 +78,8 @@ export function useActionAxis(negative: symbol, positive: symbol) {
   pushEffect('useActionAxis', ([node]) => {
     if (node == null) return
 
-    node.updated.on(() => {
-      let value = 0
-      if (Input.isActionPressed(negative)) value -= 1
-      if (Input.isActionPressed(positive)) value += 1
-      setAxis(value)
+    node.onUpdate.connect(() => {
+      setAxis(Input.getActionAxis(negative, positive))
     })
   })
 

@@ -1,12 +1,13 @@
 import { ActionNotFoundError, DuplicateKeyError } from '../errors/input.js'
-import { Event } from '../events/event.js'
+import { Trigger } from '../events/trigger.js'
+import { clamp } from '../math/utils.js'
 import { vector2, Vector2 } from '../math/vector2.js'
 
 /**
- * The **`InputKey`** interface defines a key binding for an input action.
+ * The **`InputAction`** interface defines a key binding for an input action.
  * Used with `Input.createAction()` to register keyboard shortcuts.
  */
-export interface InputKey {
+export interface InputAction {
   /** The key name (e.g., `'a'`, `' '`, `'ArrowLeft'`). */
   key: string
   /** Require Ctrl modifier. */
@@ -41,7 +42,7 @@ export class Input {
   static #justKeys = new Set<string>()
   static #justKeysUnpressed = new Set<string>()
 
-  static #actions = new Map<symbol, InputKey>()
+  static #actions = new Map<symbol, InputAction>()
   static #keyToAction = new Map<string, symbol>()
 
   static #pointer = {
@@ -94,7 +95,7 @@ export class Input {
     }
 
     Input.#handleKeyDown = (ev: KeyboardEvent) => {
-      const keyString = Input.#getKeyString(ev)
+      const keyString = Input.#getKeyEvString(ev)
       if (Input.#keyToAction.has(keyString)) ev.preventDefault()
       if (!Input.#currentKeys.has(keyString)) {
         Input.#justKeys.add(keyString)
@@ -103,7 +104,7 @@ export class Input {
     }
 
     Input.#handleKeyUp = (ev: KeyboardEvent) => {
-      const keyString = Input.#getKeyString(ev)
+      const keyString = Input.#getKeyEvString(ev)
       if (Input.#keyToAction.has(keyString)) ev.preventDefault()
       Input.#justKeysUnpressed.add(keyString)
       Input.#currentKeys.delete(keyString)
@@ -113,7 +114,7 @@ export class Input {
       const position = Input.#getPointerPosition(ev)
       Input.#pointer.position.x = position.x
       Input.#pointer.position.y = position.y
-      Input.pointerMoved.emit(position)
+      Input.onPointerMove.emit(position)
     }
 
     Input.#handlePointerDown = (ev: PointerEvent) => {
@@ -121,7 +122,7 @@ export class Input {
       Input.#pointer.position.x = position.x
       Input.#pointer.position.y = position.y
       Input.#pointer.isPressed = true
-      Input.pointerPressed.emit(position)
+      Input.onPointerPress.emit(position)
     }
 
     Input.#handlePointerUp = (ev: PointerEvent) => {
@@ -129,7 +130,7 @@ export class Input {
       Input.#pointer.position.x = position.x
       Input.#pointer.position.y = position.y
       Input.#pointer.isPressed = false
-      Input.pointerUnpressed.emit(position)
+      Input.onPointerUnpress.emit(position)
     }
 
     window.addEventListener('resize', Input.#handleResize)
@@ -159,8 +160,8 @@ export class Input {
    * const Fire = Input.createAction({ key: 'f', ctrl: true })
    * ```
    */
-  static createAction(options: InputKey): symbol {
-    const keyString = Input.#keyComboString(options)
+  static createAction(options: InputAction): symbol {
+    const keyString = Input.#getActionString(options)
     const existingAction = Input.#keyToAction.get(keyString)
     if (existingAction != null) {
       const newAction = Symbol(options.key)
@@ -177,7 +178,7 @@ export class Input {
    * Throws `ActionNotFoundError` if the action hasn't been registered.
    *
    * @param action The action symbol to look up.
-   * @returns The `InputKey` configuration for the action.
+   * @returns The `InputAction` configuration for the action.
    *
    * @example
    * ```ts
@@ -185,7 +186,7 @@ export class Input {
    * console.log(config.key) // ' '
    * ```
    */
-  static getAction(action: symbol): InputKey {
+  static getAction(action: symbol): InputAction {
     const key = Input.#actions.get(action)
     if (key == null) throw new ActionNotFoundError(action)
     return key
@@ -200,7 +201,7 @@ export class Input {
   static isActionPressed(action: symbol): boolean {
     const key = Input.#actions.get(action)
     if (key == null) return false
-    return Input.isKeyPressed(key.key, key.ctrl, key.shift, key.alt)
+    return Input.#currentKeys.has(Input.#getActionString(key))
   }
 
   /**
@@ -212,7 +213,7 @@ export class Input {
   static justActionPressed(action: symbol): boolean {
     const key = Input.#actions.get(action)
     if (key == null) return false
-    return Input.isJustKeyPressed(key.key, key.ctrl, key.shift, key.alt)
+    return Input.#justKeys.has(Input.#getActionString(key))
   }
 
   /**
@@ -224,7 +225,14 @@ export class Input {
   static justActionUnpressed(action: symbol): boolean {
     const key = Input.#actions.get(action)
     if (key == null) return false
-    return Input.isJustKeyUnpressed(key.key, key.ctrl, key.shift, key.alt)
+    return Input.#justKeysUnpressed.has(Input.#getActionString(key))
+  }
+
+  static getActionAxis(negativeAction: symbol, positiveAction: symbol): number {
+    let axis = 0
+    if (this.isActionPressed(positiveAction)) axis += 1
+    if (this.isActionPressed(negativeAction)) axis -= 1
+    return axis
   }
 
   // --- Raw key queries ---
@@ -238,96 +246,17 @@ export class Input {
     )
   }
 
-  static #getKeyString(ev: LikeKeyboardEvent) {
-    return `${ev.key.toLowerCase()}|${ev.ctrlKey}|${ev.altKey}|${ev.shiftKey}`
+  static #getKeyEvString(ev: LikeKeyboardEvent) {
+    return this.#getActionString({
+      key: ev.key,
+      ctrl: ev.ctrlKey,
+      shift: ev.shiftKey,
+      alt: ev.altKey,
+    })
   }
 
-  static #keyComboString(options: InputKey): string {
+  static #getActionString(options: InputAction): string {
     return `${options.key.toLowerCase()}|${options.ctrl ?? false}|${options.alt ?? false}|${options.shift ?? false}`
-  }
-
-  /**
-   * The **`isJustKeyPressed`** method returns `true` on the first frame a key is pressed.
-   *
-   * @param key The key name (e.g., `'a'`, `' '`, `'ArrowLeft'`).
-   * @param ctrlKey Whether Ctrl is required (default `false`).
-   * @param shiftKey Whether Shift is required (default `false`).
-   * @param altKey Whether Alt is required (default `false`).
-   * @returns `true` if the key was just pressed.
-   */
-  static isJustKeyPressed(key: string, ctrlKey = false, shiftKey = false, altKey = false) {
-    return Input.#justKeys.has(
-      Input.#getKeyString({
-        key,
-        ctrlKey,
-        altKey,
-        shiftKey,
-      }),
-    )
-  }
-
-  /**
-   * The **`isKeyPressed`** method returns `true` while a key is held down.
-   *
-   * @param key The key name (e.g., `'a'`, `' '`, `'ArrowLeft'`).
-   * @param ctrlKey Whether Ctrl is required (default `false`).
-   * @param shiftKey Whether Shift is required (default `false`).
-   * @param altKey Whether Alt is required (default `false`).
-   * @returns `true` if the key is currently held.
-   */
-  static isKeyPressed(key: string, ctrlKey = false, shiftKey = false, altKey = false) {
-    return Input.#currentKeys.has(
-      Input.#getKeyString({
-        key,
-        ctrlKey,
-        altKey,
-        shiftKey,
-      }),
-    )
-  }
-
-  /**
-   * The **`isJustKeyUnpressed`** method returns `true` on the first frame a key is released.
-   *
-   * @param key The key name (e.g., `'a'`, `' '`, `'ArrowLeft'`).
-   * @param ctrlKey Whether Ctrl is required (default `false`).
-   * @param shiftKey Whether Shift is required (default `false`).
-   * @param altKey Whether Alt is required (default `false`).
-   * @returns `true` if the key was just released.
-   */
-  static isJustKeyUnpressed(key: string, ctrlKey = false, shiftKey = false, altKey = false) {
-    return Input.#justKeysUnpressed.has(
-      Input.#getKeyString({
-        key,
-        ctrlKey,
-        altKey,
-        shiftKey,
-      }),
-    )
-  }
-
-  /**
-   * The **`getKeyAxis`** method returns an axis value based on two opposing keys.
-   * Returns `-1` if only the negative key is held, `1` if only the positive key
-   * is held, or `0` if neither or both are held.
-   *
-   * @param positiveKey The key that produces +1 (e.g., `'ArrowRight'`).
-   * @param negativeKey The key that produces -1 (e.g., `'ArrowLeft'`).
-   * @returns `-1`, `0`, or `1` based on which key is held.
-   *
-   * @example
-   * ```ts
-   * import { Input } from 'fraxel'
-   *
-   * const horizontal = Input.getKeyAxis('ArrowRight', 'ArrowLeft')
-   * // Returns: -1 (left), 0 (none), or 1 (right)
-   * ```
-   */
-  static getKeyAxis(positiveKey: string, negativeKey: string) {
-    let axis = 0
-    if (Input.isKeyPressed(positiveKey)) axis += 1
-    if (Input.isKeyPressed(negativeKey)) axis -= 1
-    return axis
   }
 
   // --- Pointer ---
@@ -348,22 +277,22 @@ export class Input {
   }
 
   /**
-   * The **`pointerMoved`** event fires when the pointer moves. The callback receives
+   * The **`onPointerMove`** trigger fires when the pointer moves. The callback receives
    * the pointer position in game coordinates.
    */
-  static pointerMoved = new Event('pointerMove', (_position: Vector2) => {})
+  static onPointerMove = new Trigger<[position: Vector2]>()
 
   /**
-   * The **`pointerPressed`** event fires when the pointer is pressed. The callback
+   * The **`onPointerPress`** trigger fires when the pointer is pressed. The callback
    * receives the pointer position in game coordinates.
    */
-  static pointerPressed = new Event('pointerPress', (_position: Vector2) => {})
+  static onPointerPress = new Trigger<[position: Vector2]>()
 
   /**
-   * The **`pointerUnpressed`** event fires when the pointer is released. The callback
+   * The **`onPointerUnpress`** trigger fires when the pointer is released. The callback
    * receives the pointer position in game coordinates.
    */
-  static pointerUnpressed = new Event('pointerUnpress', (_position: Vector2) => {})
+  static onPointerUnpress = new Trigger<[position: Vector2]>()
 
   // --- Lifecycle ---
 
@@ -392,10 +321,6 @@ export class Input {
     Input.#justKeys.clear()
     Input.#justKeysUnpressed.clear()
   }
-}
-
-function clamp(min: number, val: number, max: number) {
-  return Math.min(Math.max(min, val), max)
 }
 
 type LikeKeyboardEvent = {
