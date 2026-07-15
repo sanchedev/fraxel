@@ -1,6 +1,6 @@
 {
   "name": "fraxel",
-  "version": "0.1.0-alpha.6d",
+  "version": "0.1.0-alpha.7",
   "type": "module",
   "description": "A modern node-based 2D game engine for the web powered by JSX and fine-grained reactivity",
   "main": "dist/index.js",
@@ -46,7 +46,6 @@
   "files": [
     "dist",
     "README.md",
-    "CHANGELOG.md",
     "LICENSE"
   ]
 }
