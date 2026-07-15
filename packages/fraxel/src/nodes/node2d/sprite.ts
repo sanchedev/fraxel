@@ -16,7 +16,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    *
    * @example
    * ```tsx
-   * import { loadTexture } from 'fraxel'
+   * import { loadTexture, region } from 'fraxel'
    *
    * const BALL = await loadTexture('/assets/ball.png')
    *
@@ -43,47 +43,10 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    */
   source?: Reactive<Region>
   /**
-   * The **`margin`** property offsets the texture origin within the source image.
-   * Useful for selecting a frame from a sprite sheet.
-   *
-   * @deprecated Use `source` instead.
-   *
-   * @example
-   * ```tsx
-   * import { loadTexture } from 'fraxel'
-   *
-   * const SHEET = await loadTexture('/assets/sheet.png')
-   *
-   * function Player() {
-   *   return <sprite textureId={SHEET} margin={[16, 0]} sourceSize={[16, 16]} />
-   * }
-   * ```
-   */
-  margin?: Reactive<VectorLike>
-  /**
-   * The **`sourceSize`** property defines the region of the texture to render.
-   * Defaults to the full texture size if not set.
+   * The **`displaySize`** property scales the rendered output.
+   * Defaults to the texture size if not set.
    *
    * @default texture.size
-   * @deprecated Use `source` instead.
-   *
-   * @example
-   * ```tsx
-   * import { loadTexture } from 'fraxel'
-   *
-   * const SHEET = await loadTexture('/assets/sheet.png')
-   *
-   * function Player() {
-   *   return <sprite textureId={SHEET} margin={[16, 0]} sourceSize={[16, 16]} />
-   * }
-   * ```
-   */
-  sourceSize?: Reactive<VectorLike>
-  /**
-   * The **`displaySize`** property scales the rendered output.
-   * Defaults to `sourceSize` if not set.
-   *
-   * @default sourceSize
    *
    * @example
    * ```tsx
@@ -92,7 +55,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    * const TEX = await loadTexture('/assets/sprite.png')
    *
    * function Player() {
-   *   return <sprite textureId={TEX} sourceSize={[16, 16]} displaySize={[32, 32]} />
+   *   return <sprite textureId={TEX} source={region(0, 0, 16, 16)} displaySize={[32, 32]} />
    * }
    * ```
    */
@@ -255,36 +218,8 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
   }
 
   /**
-   * The **`margin`** property offsets the texture origin within the source image.
-   * Useful for selecting a frame from a sprite sheet.
-   *
-   * @deprecated Use `source` instead.
-   */
-  get margin(): Vector2 {
-    return this.#source.offset
-  }
-  set margin(value: Vector2) {
-    if (this.#source.offset.equals(value)) return
-    this.#source = new Region(value, this.#source.size)
-  }
-
-  /**
-   * The **`sourceSize`** property defines the region of the texture to render.
-   * Defaults to the full texture size if not set.
-   *
-   * @deprecated Use `source` instead.
-   */
-  get sourceSize(): Vector2 {
-    return this.#source.size
-  }
-  set sourceSize(value: Vector2) {
-    if (this.#source.size.equals(value)) return
-    this.#source = new Region(this.#source.offset, value)
-  }
-
-  /**
    * The **`displaySize`** property scales the rendered output.
-   * Defaults to `sourceSize` if not set.
+   * Defaults to the texture size if not set.
    */
   displaySize?: Vector2 | undefined
 
@@ -435,15 +370,8 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
     this.invert = propSignal(this, 'invert', options.invert)
     this.opacity = propSignal(this, 'opacity', options.opacity)
 
-    // source takes priority over deprecated margin/sourceSize
     if (options.source != null) {
       this.#source = propSignal(this, 'source', options.source)
-    } else {
-      // Deprecated: margin and sourceSize still work via setter → #source
-      if (options.margin != null)
-        this.#source.offset = propSignal(this, 'margin', signalVector(options.margin))
-      if (options.sourceSize != null)
-        this.#source.size = propSignal(this, 'sourceSize', signalVector(options.sourceSize))
     }
   }
 
@@ -475,7 +403,7 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
         ctx.filter = filters.join(' ')
       }
 
-      const ds = this.displaySize ?? this.sourceSize
+      const drawnSize = this.displaySize ?? new Vector2(this.#texture.width, this.#texture.height)
 
       const applyFlip = (flip: boolean) => (flip ? -1 : 1)
       const flipVector = new Vector2(applyFlip(this.flipX), applyFlip(this.flipY))
@@ -493,7 +421,7 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
         ctx.globalCompositeOperation = 'multiply'
 
         ctx.fillStyle = this.#modulate.toCSS()
-        ctx.fillRect(this.position.x, this.position.y, ds?.x ?? 0, ds?.y ?? 0)
+        ctx.fillRect(this.position.x, this.position.y, drawnSize.x, drawnSize.y)
 
         ctx.globalCompositeOperation = 'source-over'
       }

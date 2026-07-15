@@ -23,7 +23,7 @@ export class Texture {
 
   /**
    * The **`draw`** method renders the texture to the canvas at the given position
-   * with optional source cropping, display scaling, and margin offset.
+   * with optional source cropping and display scaling.
    *
    * @param options Texture draw options.
    */
