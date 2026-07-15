@@ -9,6 +9,7 @@
 - **Intrinsic event props cleanup** — JSX event props now map to trigger names such as `onClick`, `onColliderEnter`, `onTimeout`, and `onAnimEnd`.
 - **Action axis input** — added `Input.getActionAxis(negativeAction, positiveAction)` and `useActionAxis()` support for action-based directional input.
 - **Effect phases** — `useEffect()` now flushes after node updates and before physics, and `usePostPhysicsEffect()` runs after physics before draw.
+- **Sound loading cache** — `loadSound()` now deduplicates repeated and concurrent calls by URL.
 
 ### Breaking Changes
 

@@ -2,11 +2,13 @@ import { getAudioContext } from '../../audio/audio-context.js'
 import { SoundNotFoundError } from '../../errors/assets.js'
 
 const sounds = new Map<symbol, AudioBuffer>()
+const soundUrls = new Map<string, symbol>()
+const pendingSounds = new Map<string, Promise<symbol>>()
 
 /**
  * The **`loadSound`** function loads an audio file from a URL and returns
- * a symbol ID for referencing it. Unlike `loadTexture`, this does not
- * deduplicate — each call creates a new entry.
+ * a symbol ID for referencing it. Deduplicates by URL — repeated or concurrent
+ * calls with the same URL return the same symbol.
  *
  * @param url Audio file URL to load.
  * @returns A symbol ID referencing the loaded audio buffer.
@@ -20,6 +22,22 @@ const sounds = new Map<symbol, AudioBuffer>()
  * ```
  */
 export async function loadSound(url: string): Promise<symbol> {
+  const cached = soundUrls.get(url)
+  if (cached != null && sounds.has(cached)) return cached
+
+  const pending = pendingSounds.get(url)
+  if (pending != null) return pending
+
+  const promise = loadSoundBuffer(url).finally(() => {
+    pendingSounds.delete(url)
+  })
+
+  pendingSounds.set(url, promise)
+
+  return promise
+}
+
+async function loadSoundBuffer(url: string): Promise<symbol> {
   const ctx = getAudioContext()
   const response = await fetch(url)
   const arrayBuffer = await response.arrayBuffer()
@@ -27,6 +45,7 @@ export async function loadSound(url: string): Promise<symbol> {
 
   const id = Symbol(url)
   sounds.set(id, audioBuffer)
+  soundUrls.set(url, id)
 
   return id
 }
@@ -66,4 +85,10 @@ export function getSound(id: symbol): AudioBuffer {
  */
 export function unloadSound(id: symbol): void {
   sounds.delete(id)
+  for (const [url, soundId] of soundUrls) {
+    if (soundId === id) {
+      soundUrls.delete(url)
+      break
+    }
+  }
 }
