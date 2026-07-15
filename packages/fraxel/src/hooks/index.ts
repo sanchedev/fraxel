@@ -3,7 +3,7 @@ import '../nodes/index.js'
 export * from './deriveds/index.js'
 export * from './nodes/index.js'
 
-export { useEffect } from './use-effect.js'
+export { useEffect, usePostPhysicsEffect } from './use-effect.js'
 export { useMount } from './use-mount.js'
 export { useSignal, createSignal, clearSignal } from './use-signal.js'
 export { useComputed } from './use-computed.js'

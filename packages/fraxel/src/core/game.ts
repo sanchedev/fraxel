@@ -11,6 +11,7 @@ import { PhysicsSystem } from '../collision/physics/physics-system.js'
 import { Camera } from '../nodes/node2d/camera.js'
 import { paused, running } from './game-state.js'
 import { Trigger } from '../events/trigger.js'
+import { flushEffects, flushPostPhysicsEffects } from '../reactivity/effects.js'
 
 /**
  * The **`SetupOptions`** interface configures the game canvas and engine initialization.
@@ -246,9 +247,16 @@ export class Game {
 
       if (!this.isPaused.value()) {
         node.update(delta)
+      }
+
+      flushEffects()
+
+      if (!this.isPaused.value()) {
         CollisionSystem.update(delta)
         PhysicsSystem.update(delta)
       }
+
+      flushPostPhysicsEffects()
 
       const camera = Camera.getCurrent()
       GameConfig.ctx.save()
