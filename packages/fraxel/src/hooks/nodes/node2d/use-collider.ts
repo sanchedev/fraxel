@@ -17,7 +17,7 @@ import { Node2DReference } from './reference.js'
  * function Enemy() {
  *   const collider = useCollider()
  *
- *   useTrigger(collider.colliderEntered, (other) => {
+ *   useTrigger(collider.onColliderEnter, (other) => {
  *     console.log('Hit by:', other)
  *   })
  *
@@ -50,9 +50,13 @@ export class ColliderReference extends Node2DReference<PrimaryNode.Collider> {
   detectedColliders = new Signal<Set<Collider>>(new Set()).getter
 
   /** Fires when a new collision starts. */
-  colliderEntered = new Trigger<[other: Collider]>()
+  get onColliderEnter(): Trigger<[other: Collider]> {
+    return this.node.onColliderEnter
+  }
   /** Fires when a collision ends. */
-  colliderExited = new Trigger<[other: Collider]>()
+  get onColliderExit(): Trigger<[other: Collider]> {
+    return this.node.onColliderExit
+  }
 
   constructor() {
     super(
@@ -65,11 +69,9 @@ export class ColliderReference extends Node2DReference<PrimaryNode.Collider> {
           },
         ]
         sets.forEach((set) => set())
-        node.updated.on(() => {
+        node.onUpdate.connect(() => {
           sets.forEach((set) => set())
         })
-        node.colliderEntered.connect(this.colliderEntered)
-        node.colliderExited.connect(this.colliderExited)
       },
       () => {
         this.colliding.signal.clearSubs()

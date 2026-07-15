@@ -1,11 +1,11 @@
 import { KeyframeNotFoundError } from '../errors/animation.js'
-import { Event } from '../events/event.js'
 import { PrimaryNode } from './lib/enum.js'
 import { Node, type NodeOptions } from './_node.js'
 import { registerNode } from './lib/registry.js'
 import type { Reactive } from '../reactivity/types.js'
 import { subReactive } from '../reactivity/reactive.js'
 import type { Animation } from '../animation/types.js'
+import { Trigger } from '../events/trigger.js'
 
 /**
  * The **`AnimationPlayerOptions`** interface defines the options for an `AnimationPlayer` node.
@@ -95,7 +95,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
     super(PrimaryNode.AnimationPlayer, options)
     this.#destroyOnEnd = options.destroyOnEnd ?? false
 
-    this.started.on(() => {
+    this.onStart.connect(() => {
       if (options.animations) {
         this.define(
           subReactive(options.animations!, (animations) => {
@@ -110,34 +110,18 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
           subReactive(
             options.currentAnim,
             (anim) => this.play(anim),
-            (fn) => this.destroyed.on(fn),
+            (fn) => this.onDestroy.connect(fn),
           ),
         )
       }
     })
   }
 
-  // Events
-  /**
-   * The **`animationChanged`** event fires when the current animation changes.
-   * The callback receives the new animation name and the previous animation name.
-   */
-  animationChanged = new Event('animationChange', (_newAnim: string, _oldAnim: string | null) => {})
-  /**
-   * The **`animationStopped`** event fires when `stop()` is called.
-   * The callback receives the animation name that was stopped.
-   */
-  animationStopped = new Event('animationStop', (_anim: string) => {})
-  /**
-   * The **`animationIndexChanged`** event fires when the frame index changes.
-   * The callback receives the new frame index.
-   */
-  animationIndexChanged = new Event('animationIndexChange', (_index: number) => {})
-  /**
-   * The **`animationEnded`** event fires when the current animation reaches the end
-   * and is not set to loop.
-   */
-  animationEnded = new Event('animationEnd', (_anim: string) => {})
+  // Triggers
+  onAnimChange = new Trigger<[newAnim: string, oldAnim: string | null]>()
+  onAnimStop = new Trigger<[anim: string]>()
+  onAnimIndexChange = new Trigger<[index: number]>()
+  onAnimEnd = new Trigger<[anim: string]>()
 
   // utils
   /**
@@ -252,8 +236,8 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
     const oldAnim = this.#currentAnim
     this.#index = index ?? 0
     this.#currentAnim = animName
-    this.animationChanged.emit(animName, oldAnim)
-    this.animationIndexChanged.emit(index ?? 0)
+    this.onAnimChange.emit(animName, oldAnim)
+    this.onAnimIndexChange.emit(index ?? 0)
   }
   /**
    * The **`setNext`** method sets the animation to play after the current one ends.
@@ -265,7 +249,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    * ```tsx
    * const anim = useAnimation()
    *
-   * useTrigger(anim.animationEnded, () => {
+   * useTrigger(anim.onAnimEnd, () => {
    *   anim.setNext('idle')
    * })
    * ```
@@ -280,7 +264,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
    */
   stop() {
     if (this.#currentAnim == null) return
-    this.animationStopped.emit(this.#currentAnim)
+    this.onAnimStop.emit(this.#currentAnim)
     this.#index = 0
     this.#currentAnim = null
   }
@@ -296,7 +280,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
       if (!anim.loop) {
         const animName = this.#currentAnim
         this.stop()
-        this.animationEnded.emit(animName)
+        this.onAnimEnd.emit(animName)
 
         if (this.#destroyOnEnd) {
           this.destroy()
@@ -315,7 +299,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
       }
 
       this.#index = 0
-      this.animationIndexChanged.emit(0)
+      this.onAnimIndexChange.emit(0)
     }
 
     const i = Math.floor(this.#index)
@@ -329,7 +313,7 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
     this.#index += delta * anim.fps
 
     if (this.#index < anim.keyframes.length && i !== Math.floor(this.#index)) {
-      this.animationIndexChanged.emit(Math.floor(this.#index))
+      this.onAnimIndexChange.emit(Math.floor(this.#index))
     }
   }
 
@@ -339,10 +323,10 @@ export class AnimationPlayer extends Node<PrimaryNode.AnimationPlayer> {
   }
 
   cleanEvents(): void {
-    this.animationChanged.clean()
-    this.animationEnded.clean()
-    this.animationIndexChanged.clean()
-    this.animationStopped.clean()
+    this.onAnimChange.clear()
+    this.onAnimEnd.clear()
+    this.onAnimIndexChange.clear()
+    this.onAnimStop.clear()
     super.cleanEvents()
   }
 }

@@ -1,7 +1,8 @@
-import type { Event } from '../events/event.js'
+import type { Trigger } from '../events/trigger.js'
+import type { Fun } from '../events/types.js'
 import type { NodeReference } from '../hooks/index.js'
 import type { PrimaryNode } from '../nodes/lib/enum.js'
-import type { NodeEvents, NodesOptions } from '../nodes/lib/types.js'
+import type { NodesOptions, NodeTriggers } from '../nodes/lib/types.js'
 
 export namespace Fraxel {
   export type Type = keyof JSX.IntrinsicElements | ((props: any) => any) | (new (props: any) => any)
@@ -43,8 +44,8 @@ export type IntrinsicElement<T extends PrimaryNode> = {
    */
   ref?: NodeReference<T>
 } & {
-  [P in keyof NodeEvents[T]]?: NonNullable<
-    NodeEvents[T][P] extends Event<infer U, infer V> ? Event<U, V>['exampleFun'] : never
+  [P in keyof NodeTriggers[T]]?: NonNullable<
+    NodeTriggers[T][P] extends Trigger<infer V> ? Fun<V> : never
   >
 } & Fraxel.WithChildren<NodesOptions[T]>
 

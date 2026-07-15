@@ -1,5 +1,4 @@
 import { GameConfig } from '../../core/game-config.js'
-import { Event } from '../../events/event.js'
 import { type Vector2, type VectorLike } from '../../math/vector2.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
@@ -7,6 +6,7 @@ import { registerNode } from '../lib/registry.js'
 import type { Reactive } from '../../reactivity/types.js'
 import { propSignal, signalVector } from '../../utils/ternaries.js'
 import { Input } from '../../input/input.js'
+import { Trigger } from '../../events/trigger.js'
 
 /**
  * The **`ClickableOptions`** interface defines the configuration for a `Clickable` node.
@@ -38,7 +38,7 @@ export interface ClickableOptions extends Node2DOptions<PrimaryNode.Clickable> {
 /**
  * The **`Clickable`** node detects pointer interactions within its rectangular area.
  * Emits events when the pointer enters, exits, hovers, or completes a click inside the area.
- * The `clicked` event includes the local position relative to the node's top-left corner.
+ * The `onClick` trigger includes the local position relative to the node's top-left corner.
  *
  * @example
  * ```tsx
@@ -47,7 +47,7 @@ export interface ClickableOptions extends Node2DOptions<PrimaryNode.Clickable> {
  * function Button() {
  *   const clickable = useClickable()
  *
- *   useTrigger(clickable.clicked, (pos) => {
+ *   useTrigger(clickable.onClick, (pos) => {
  *     console.log('Clicked at', pos.x, pos.y)
  *   })
  *
@@ -65,27 +65,11 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
   #isHovered = false
   #wasPressed = false
 
-  /**
-   * The **`clicked`** event fires when the pointer is released inside the clickable area.
-   * The callback receives the local position relative to the node's top-left corner.
-   */
-  clicked = new Event('click', (_position: Vector2) => {})
-
-  /**
-   * The **`mouseEntered`** event fires when the pointer enters the clickable area.
-   */
-  mouseEntered = new Event('mouseEnter', () => {})
-
-  /**
-   * The **`mouseExited`** event fires when the pointer leaves the clickable area.
-   */
-  mouseExited = new Event('mouseExit', () => {})
-
-  /**
-   * The **`mouseOver`** event fires every frame while the pointer is inside the clickable area.
-   * The callback receives the local position relative to the node's top-left corner.
-   */
-  mouseOver = new Event('mouseOver', (_position: Vector2) => {})
+  // Trigger
+  onClick = new Trigger<[position: Vector2]>()
+  onMouseEnter = new Trigger<[]>()
+  onMouseExit = new Trigger<[]>()
+  onMouseOver = new Trigger<[position: Vector2]>()
 
   constructor(options: ClickableOptions) {
     super(PrimaryNode.Clickable, options)
@@ -111,22 +95,22 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
     if (!this.disabled) {
       if (isInside && !this.#isHovered) {
         this.#isHovered = true
-        this.mouseEntered.emit()
+        this.onMouseEnter.emit()
       } else if (!isInside && this.#isHovered) {
         this.#isHovered = false
-        this.mouseExited.emit()
+        this.onMouseExit.emit()
       }
 
       const isPressed = Input.isPointerPressed
       if (this.#wasPressed && !isPressed && isInside) {
         const local = Input.pointerPosition.toSubtracted(this.globalPosition)
-        this.clicked.emit(local)
+        this.onClick.emit(local)
       }
       this.#wasPressed = isPressed
 
       if (isInside) {
         const local = Input.pointerPosition.toSubtracted(this.globalPosition)
-        this.mouseOver.emit(local)
+        this.onMouseOver.emit(local)
       }
     }
 
@@ -149,10 +133,10 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
 
   /** @internal Cleans up all event listeners. */
   cleanEvents(): void {
-    this.clicked.clean()
-    this.mouseEntered.clean()
-    this.mouseExited.clean()
-    this.mouseOver.clean()
+    this.onClick.clear()
+    this.onMouseEnter.clear()
+    this.onMouseExit.clear()
+    this.onMouseOver.clear()
     super.cleanEvents()
   }
 }

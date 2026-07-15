@@ -1,5 +1,4 @@
 import { GameConfig } from '../../core/game-config.js'
-import { Event } from '../../events/event.js'
 import { Vector2, type VectorLike } from '../../math/vector2.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
@@ -8,6 +7,7 @@ import { CollisionSystem } from '../../collision/collision-system.js'
 import type { Collider } from './collider.js'
 import type { Reactive } from '../../reactivity/types.js'
 import { propSignal, signalVector } from '../../utils/ternaries.js'
+import { Trigger } from '../../events/trigger.js'
 
 export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
   /**
@@ -43,7 +43,7 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
  * function Gun() {
  *   const ray = useRayCast()
  *
- *   useTrigger(ray.colliderEntered, (collider) => {
+ *   useTrigger(ray.onColliderEnter, (collider) => {
  *     console.log('Hit:', collider)
  *   })
  *
@@ -93,15 +93,9 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
     return Math.sqrt(this.direction.x ** 2 + this.direction.y ** 2)
   }
 
-  /**
-   * The **`colliderEntered`** event fires when a new collider is hit by this raycast.
-   */
-  colliderEntered = new Event('colliderEnter', (_collider: Collider) => {})
-
-  /**
-   * The **`colliderExited`** event fires when the previously hit collider is no longer in range.
-   */
-  colliderExited = new Event('colliderExit', (_collider: Collider) => {})
+  // Trigger
+  onColliderEnter = new Trigger<[collider: Collider]>()
+  onColliderExit = new Trigger<[collider: Collider]>()
 
   /**
    * The **`getCollider`** method returns the currently detected collider.
@@ -114,7 +108,7 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
    * function Peashooter() {
    *   const ray = useRayCast()
    *
-   *   useTrigger(ray.colliderEntered, () => {
+   *   useTrigger(ray.onColliderEnter, () => {
    *     const target = ray.getCollider()
    *     if (target) {
    *       console.log('Target at:', target.globalPosition)
@@ -183,8 +177,8 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
 
   /** @internal Cleans up custom event listeners. */
   cleanEvents(): void {
-    this.colliderEntered.clean()
-    this.colliderExited.clean()
+    this.onColliderEnter.clear()
+    this.onColliderExit.clear()
     super.cleanEvents()
   }
 }

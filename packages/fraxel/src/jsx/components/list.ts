@@ -149,7 +149,7 @@ export function List<T>({ array, itemKey, empty, children }: ListOptions<T>): Fr
 
   useMount(() => {
     const generator = subReactive(array, handleRegen, (unsub) => {
-      anchor.node.destroyed.on(unsub)
+      anchor.node.onDestroy.connect(unsub)
     })
 
     handleRegen(generator)

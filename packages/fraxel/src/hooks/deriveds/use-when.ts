@@ -21,7 +21,7 @@ import { useComputed } from '../use-computed.js'
  * import { useCondition, useWhen, useClickable } from 'fraxel'
  *
  * const clickable = useClickable()
- * const isHovered = useCondition(clickable.mouseEntered, clickable.mouseExited)
+ * const isHovered = useCondition(clickable.onMouseEnter, clickable.onMouseExit)
  * const brightness = useWhen(isHovered, 1.2, 1.0)
  *
  * return <sprite brightness={brightness} />
@@ -32,7 +32,7 @@ import { useComputed } from '../use-computed.js'
  * import { useCondition, useWhen, useRayCast } from 'fraxel'
  *
  * const raycast = useRayCast()
- * const isZombieDetected = useCondition(raycast.colliderEntered, raycast.colliderExited)
+ * const isZombieDetected = useCondition(raycast.onColliderEnter, raycast.onColliderExit)
  * const animName = useWhen(isZombieDetected, 'shoot', 'idle')
  *
  * return <animation-player currentAnim={animName} />

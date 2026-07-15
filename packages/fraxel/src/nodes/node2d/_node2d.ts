@@ -160,6 +160,6 @@ export abstract class Node2D<T extends PrimaryNode = PrimaryNode> extends Node<T
       node.draw(delta * node.deltaIncrease)
       GameConfig.ctx.restore()
     }
-    this.drawed.emit(delta)
+    this.onDraw.emit(delta)
   }
 }

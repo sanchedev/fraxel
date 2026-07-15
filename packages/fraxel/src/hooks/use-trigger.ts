@@ -41,6 +41,6 @@ export function useTrigger<T extends Trigger<any[]>>(trigger: T, fn: Parameters<
     if (node == null) return
 
     trigger.connect(fn)
-    node.destroyed.on(() => trigger.disconnect(fn))
+    node.onDestroy.connect(() => trigger.disconnect(fn))
   })
 }

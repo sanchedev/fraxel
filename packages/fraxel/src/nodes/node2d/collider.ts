@@ -1,11 +1,11 @@
 import { GameConfig } from '../../core/game-config.js'
-import { Event } from '../../events/event.js'
 import type { Vector2 } from '../../math/vector2.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { registerNode } from '../lib/registry.js'
 import { CollisionSystem } from '../../collision/collision-system.js'
 import type { Shape } from '../../collision/narrowphase/shapes.js'
+import { Trigger } from '../../events/trigger.js'
 
 export interface ColliderOptions extends Node2DOptions<PrimaryNode.Collider> {
   /**
@@ -53,7 +53,7 @@ export interface ColliderOptions extends Node2DOptions<PrimaryNode.Collider> {
  * function Player() {
  *   const collider = useCollider()
  *
- *   useTrigger(collider.colliderEntered, (other) => {
+ *   useTrigger(collider.onColliderEnter, (other) => {
  *     console.log('Hit by:', other)
  *   })
  *
@@ -130,20 +130,10 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
     this.#lastGlobalRotation = this.globalRotation
   }
 
-  /**
-   * The **`colliderEntered`** event fires when this collider first overlaps with another collider.
-   */
-  colliderEntered = new Event('colliderEnter', (_collider: Collider) => {})
-
-  /**
-   * The **`collided`** event fires every frame while this collider overlaps with another collider.
-   */
-  collided = new Event('collide', (_collider: Collider) => {})
-
-  /**
-   * The **`colliderExited`** event fires when this collider stops overlapping with another collider.
-   */
-  colliderExited = new Event('colliderExit', (_collider: Collider) => {})
+  // Trigger
+  onColliderEnter = new Trigger<[collider: Collider]>()
+  onCollide = new Trigger<[collider: Collider]>()
+  onColliderExit = new Trigger<[collider: Collider]>()
 
   /** @internal Registers this collider with the collision system. */
   start(): void {
@@ -242,9 +232,9 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
 
   /** @internal Cleans up custom event listeners. */
   cleanEvents(): void {
-    this.colliderEntered.clean()
-    this.collided.clean()
-    this.colliderExited.clean()
+    this.onColliderEnter.clear()
+    this.onCollide.clear()
+    this.onColliderExit.clear()
     super.cleanEvents()
   }
 }

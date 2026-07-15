@@ -31,7 +31,7 @@ export function useEffect(fn: () => void | (() => void)): void {
     if (nodes.length < 0) return
     const node = nodes[0]!
 
-    node.started.on(() => {
+    node.onStart.connect(() => {
       let unmountCurrentEffect = () => {}
       let scheduled = false
       let cancelled = false
@@ -61,7 +61,7 @@ export function useEffect(fn: () => void | (() => void)): void {
         queueMicrotask(refresh)
       }
 
-      node.destroyed.on(() => {
+      node.onDestroy.connect(() => {
         cancelled = true
         unmountCurrentEffect()
       })

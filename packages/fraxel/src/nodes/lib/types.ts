@@ -4,8 +4,6 @@ import type { Sprite, SpriteOptions } from '../node2d/sprite.js'
 import type { AnimationPlayer, AnimationPlayerOptions } from '../animation-player.js'
 import type { Collider, ColliderOptions } from '../node2d/collider.js'
 import type { RayCast, RayCastOptions } from '../node2d/ray-cast.js'
-import type { Event } from '../../events/event.js'
-import type { EventName } from '../../events/types.js'
 import type { PrimaryNode } from './enum.js'
 import type { Clickable, ClickableOptions } from '../node2d/clickable.js'
 import type { Timer, TimerOptions } from '../timer.js'
@@ -17,6 +15,7 @@ import type { RigidBody, RigidBodyOptions } from '../node2d/rigid-body.js'
 import type { Group, GroupOptions } from '../group.js'
 import type { TileMap, TileMapOptions } from '../node2d/tilemap.js'
 import type { View, ViewOptions } from '../view.js'
+import type { Trigger } from '../../events/trigger.js'
 
 /**
  * The **`NodeClasses`** interface maps each `PrimaryNode` to its class constructor.
@@ -110,47 +109,21 @@ export type NodeInstances = {
 export type NodeToOptions<T extends typeof Node> = ConstructorParameters<T>[0]
 
 /**
- * The **`NodeEvents`** type maps each node type to its available events.
+ * The **`NodeTriggers`** type maps each node type to its available events.
  * Used internally for type-safe event subscriptions.
  *
  * @example
  * ```ts
- * import type { NodeEvents } from 'fraxel'
+ * import type { NodeTriggers } from 'fraxel'
  *
- * // Event map for a specific node type
- * type SpriteEvents = NodeEvents[PrimaryNode.Sprite]
+ * // Trigger map for a specific node type
+ * type SpriteTriggers = NodeTriggers[PrimaryNode.Sprite]
  * ```
  */
-export type NodeEvents = {
+export type NodeTriggers = {
   [P in NodeName]: {
     [
-      Q in keyof NodeInstances[P] as NodeEvent<NodeInstances[P], Q> extends undefined
-        ? never
-        : EventName<NonNullable<NodeEvent<NodeInstances[P], Q>>['baseName']>
-    ]: NonNullable<NodeEvent<NodeInstances[P], Q>>
+      Q in keyof NodeInstances[P] as NodeInstances[P][Q] extends Trigger ? Q : never
+    ]: NodeInstances[P][Q]
   }
 }
-
-type NodeEvent<T extends Node, K extends keyof T> =
-  T[K] extends Event<any[], string> ? T[K] : undefined
-
-/**
- * The **`NodeEventListeners`** type maps each node event to its listener function type.
- * Used internally to type event callback parameters.
- *
- * @example
- * ```ts
- * import type { NodeEventListeners } from 'fraxel'
- *
- * // Listener type for a specific event
- * type SpriteUpdated = NodeEventListeners[PrimaryNode.Sprite]['updated']
- * ```
- */
-export type NodeEventListeners = {
-  [P in keyof NodeEvents]: {
-    [Q in keyof NodeEvents[P]]: NonNullable<NodeEventListener<P, Q>>
-  }
-}
-
-type NodeEventListener<T extends keyof NodeEvents, K extends keyof NodeEvents[T]> =
-  NodeEvents[T][K] extends Event<any[], string> ? NodeEvents[T][K]['exampleFun'] : undefined

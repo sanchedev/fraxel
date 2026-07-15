@@ -244,11 +244,11 @@ export class CollisionSystem {
     if (previous !== detected) {
       if (previous) {
         CollisionEmitter.emitRaycastExit(previous, raycast as unknown as Collider)
-        raycast.colliderExited.emit(previous)
+        raycast.onColliderExit.emit(previous)
       }
       if (detected) {
         CollisionEmitter.emitRaycastEnter(detected, raycast as unknown as Collider)
-        raycast.colliderEntered.emit(detected)
+        raycast.onColliderEnter.emit(detected)
       }
     }
 

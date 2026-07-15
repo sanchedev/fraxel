@@ -17,7 +17,7 @@ import { NodeReference } from './reference.js'
  * function Cooldown() {
  *   const timer = useTimer()
  *
- *   useTrigger(timer.timeout, () => {
+ *   useTrigger(timer.onTimeout, () => {
  *     console.log('Cooldown finished!')
  *   })
  *
@@ -45,9 +45,13 @@ export class TimerReference extends NodeReference<PrimaryNode.Timer> {
   progress = new Signal(0).getter
 
   /** Fires when the timer reaches its duration. */
-  timeout = new Trigger<[]>()
+  get onTimeout(): Trigger<[]> {
+    return this.node.onTimeout
+  }
   /** Fires every frame with the current elapsed time. */
-  timeChanged = new Trigger<[time: number]>()
+  get onTimeChange(): Trigger<[time: number]> {
+    return this.node.onTimeChange
+  }
 
   /**
    * Starts or resumes the timer.
@@ -73,20 +77,17 @@ export class TimerReference extends NodeReference<PrimaryNode.Timer> {
         ]
         sets.forEach((set) => set())
 
-        node.timeChanged.on((elapsed) => {
+        node.onTimeChange.connect((elapsed) => {
           this.time.signal.setter(elapsed)
           this.progress.signal.setter(elapsed / node.duration)
         })
-        node.timeout.on(() => {
+        node.onTimeout.connect(() => {
           this.time.signal.setter(node.duration)
           this.progress.signal.setter(1)
         })
-        node.updated.on(() => {
+        node.onUpdate.connect(() => {
           this.duration.signal.setter(node.duration)
         })
-
-        node.timeChanged.connect(this.timeChanged)
-        node.timeout.connect(this.timeout)
 
         this.play = (from) => node.play(from)
         this.pause = () => node.pause()

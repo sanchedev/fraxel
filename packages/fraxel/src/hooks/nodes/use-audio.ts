@@ -39,9 +39,13 @@ export class AudioReference extends NodeReference<PrimaryNode.AudioPlayer> {
   playing = new Signal(false).getter
 
   /** Fires when the audio finishes playing naturally. */
-  ended = new Trigger<[]>()
+  get onEnd(): Trigger<[]> {
+    return this.node.onEnd
+  }
   /** Fires when an audio error occurs. */
-  error = new Trigger<[err: Error]>()
+  get onError(): Trigger<[err: Error]> {
+    return this.node.onError
+  }
 
   /**
    * Starts or resumes playback.
@@ -60,17 +64,15 @@ export class AudioReference extends NodeReference<PrimaryNode.AudioPlayer> {
       (node) => {
         this.playing.signal.setter(node.isPlaying)
 
-        node.started.on(() => {
+        node.onStart.connect(() => {
           this.playing.signal.setter(true)
         })
-        node.ended.on(() => {
+        node.onEnd.connect(() => {
           this.playing.signal.setter(false)
         })
-        node.updated.on(() => {
+        node.onUpdate.connect(() => {
           this.playing.signal.setter(node.isPlaying)
         })
-        node.ended.connect(this.ended)
-        node.error.connect(this.error)
 
         this.play = (offset) => node.play(offset)
         this.pause = () => node.pause()
@@ -78,8 +80,6 @@ export class AudioReference extends NodeReference<PrimaryNode.AudioPlayer> {
       },
       () => {
         this.playing.signal.clearSubs()
-        this.ended.clear()
-        this.error.clear()
       },
     )
   }

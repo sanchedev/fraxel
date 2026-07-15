@@ -18,7 +18,7 @@ import { Trigger } from '../../events/trigger.js'
  * import { useCondition, useComputed, useClickable } from 'fraxel'
  *
  * const clickable = useClickable()
- * const hover = useCondition(clickable.mouseEntered, clickable.mouseExited)
+ * const hover = useCondition(clickable.onMouseEnter, clickable.onMouseExit)
  *
  * const brightness = useComputed(() => (hover() ? 1.1 : 1))
  *
@@ -30,7 +30,7 @@ import { Trigger } from '../../events/trigger.js'
  * import { useCondition, useEffect, useRayCast } from 'fraxel'
  *
  * const raycast = useRayCast()
- * const isZombieDetected = useCondition(raycast.colliderEntered, raycast.colliderExited)
+ * const isZombieDetected = useCondition(raycast.onColliderEnter, raycast.onColliderExit)
  *
  * useEffect(() => {
  *   anim.node.setNext(isZombieDetected() ? 'shoot' : 'idle')

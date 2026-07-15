@@ -17,7 +17,7 @@ import { NodeReference } from './reference.js'
  * function Character() {
  *   const anim = useAnimation()
  *
- *   useTrigger(anim.animationChanged, (newAnim, oldAnim) => {
+ *   useTrigger(anim.onAnimChange, (newAnim, oldAnim) => {
  *     console.log(`Switched from ${oldAnim} to ${newAnim}`)
  *   })
  *
@@ -26,7 +26,7 @@ import { NodeReference } from './reference.js'
  *   })
  *
  *   return (
- *     <animation-player
+ *     <animator
  *       ref={anim}
  *       animations={() => ({
  *         idle: { keyframes: idleFrames, fps: 8 },
@@ -51,13 +51,21 @@ export class AnimationReference extends NodeReference<PrimaryNode.AnimationPlaye
   ended = new Signal(false).getter
 
   /** Fires when the animation changes. */
-  animationChanged = new Trigger<[newAnim: string, oldAnim: string | null]>()
+  get onAnimChange(): Trigger<[newAnim: string, oldAnim: string | null]> {
+    return this.node.onAnimChange
+  }
   /** Fires when the animation is stopped. */
-  animationStopped = new Trigger<[anim: string]>()
+  get onAnimStop(): Trigger<[anim: string]> {
+    return this.node.onAnimStop
+  }
   /** Fires when the frame index changes. */
-  animationIndexChanged = new Trigger<[index: number]>()
+  get onAnimIndexChange(): Trigger<[index: number]> {
+    return this.node.onAnimIndexChange
+  }
   /** Fires when the animation reaches the end. */
-  animationEnded = new Trigger<[anim: string]>()
+  get onAnimEnd(): Trigger<[anim: string]> {
+    return this.node.onAnimEnd
+  }
 
   /**
    * Plays an animation by name, optionally starting at a specific frame.
@@ -87,23 +95,19 @@ export class AnimationReference extends NodeReference<PrimaryNode.AnimationPlaye
         ]
         sets.forEach((set) => set())
 
-        node.animationChanged.on((name) => {
+        node.onAnimChange.connect((name) => {
           this.animName.signal.setter(name)
           this.ended.signal.setter(false)
         })
-        node.animationStopped.on(() => {
+        node.onAnimStop.connect(() => {
           this.animName.signal.setter(null)
         })
-        node.animationIndexChanged.on((index) => {
+        node.onAnimIndexChange.connect((index) => {
           this.frameIndex.signal.setter(index)
         })
-        node.animationEnded.on(() => {
+        node.onAnimEnd.connect(() => {
           this.ended.signal.setter(true)
         })
-        node.animationChanged.connect(this.animationChanged)
-        node.animationStopped.connect(this.animationStopped)
-        node.animationIndexChanged.connect(this.animationIndexChanged)
-        node.animationEnded.connect(this.animationEnded)
 
         this.play = (animName, index) => node.play(animName, index)
         this.stop = () => node.stop()

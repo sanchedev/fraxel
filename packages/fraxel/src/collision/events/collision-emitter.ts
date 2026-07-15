@@ -11,7 +11,7 @@ export class CollisionEmitter {
    * @param other The other collider that was entered.
    */
   static emitEnter(collider: Collider, other: Collider) {
-    collider.colliderEntered.emit(other)
+    collider.onColliderEnter.emit(other)
   }
 
   /**
@@ -20,7 +20,7 @@ export class CollisionEmitter {
    * @param other The other collider being collided with.
    */
   static emitCollide(collider: Collider, other: Collider) {
-    collider.collided.emit(other)
+    collider.onCollide.emit(other)
   }
 
   /**
@@ -29,7 +29,7 @@ export class CollisionEmitter {
    * @param other The other collider that was exited.
    */
   static emitExit(collider: Collider, other: Collider) {
-    collider.colliderExited.emit(other)
+    collider.onColliderExit.emit(other)
   }
 
   /**
@@ -38,7 +38,7 @@ export class CollisionEmitter {
    * @param other The raycast collider that hit it.
    */
   static emitRaycastEnter(collider: Collider, other: Collider) {
-    collider.colliderEntered.emit(other)
+    collider.onColliderEnter.emit(other)
   }
 
   /**
@@ -47,6 +47,6 @@ export class CollisionEmitter {
    * @param other The raycast collider that stopped hitting it.
    */
   static emitRaycastExit(collider: Collider, other: Collider) {
-    collider.colliderExited.emit(other)
+    collider.onColliderExit.emit(other)
   }
 }

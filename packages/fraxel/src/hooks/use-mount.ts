@@ -26,9 +26,9 @@ export function useMount(fn: () => void | (() => void)): void {
     if (nodes.length < 0) return
     const node = nodes[0]!
 
-    node.started.on(() => {
+    node.onStart.connect(() => {
       const unmount = fn()
-      if (unmount) node.destroyed.on(() => unmount())
+      if (unmount) node.onDestroy.connect(() => unmount())
     })
   })
 }

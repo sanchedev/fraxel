@@ -17,7 +17,7 @@ import { Node2DReference } from './reference.js'
  * function Peashooter() {
  *   const raycast = useRayCast()
  *
- *   useTrigger(raycast.colliderEntered, (collider) => {
+ *   useTrigger(raycast.onColliderEnter, (collider) => {
  *     console.log('Detected:', collider)
  *   })
  *
@@ -45,9 +45,13 @@ export class RayCastReference extends Node2DReference<PrimaryNode.RayCast> {
   detected = new Signal(false).getter
 
   /** Fires when the ray starts hitting a collider. */
-  colliderEntered = new Trigger<[collider: Collider]>()
+  get onColliderEnter(): Trigger<[collider: Collider]> {
+    return this.node.onColliderEnter
+  }
   /** Fires when the ray stops hitting a collider. */
-  colliderExited = new Trigger<[collider: Collider]>()
+  get onColliderExit(): Trigger<[collider: Collider]> {
+    return this.node.onColliderExit
+  }
 
   constructor() {
     super(
@@ -62,10 +66,7 @@ export class RayCastReference extends Node2DReference<PrimaryNode.RayCast> {
         ]
         sets.forEach((set) => set())
 
-        node.colliderEntered.connect(this.colliderEntered)
-        node.colliderExited.connect(this.colliderExited)
-
-        node.updated.on(() => {
+        node.onUpdate.connect(() => {
           sets.forEach((set) => set())
         })
       },

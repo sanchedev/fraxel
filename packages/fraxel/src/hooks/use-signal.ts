@@ -25,7 +25,7 @@ import { pushEffect } from './context.js'
 export function useSignal<T>(initialValue: T): [getter: SignalGetter<T>, setter: SignalSetter<T>] {
   pushEffect('useSignal', ([node]) => {
     if (node == null) return
-    node.destroyed.on(() => signal.clearSubs())
+    node.onDestroy.connect(() => signal.clearSubs())
   })
 
   const signal = new Signal(initialValue)

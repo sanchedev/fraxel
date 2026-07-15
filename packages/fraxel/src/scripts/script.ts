@@ -1,6 +1,5 @@
 import { NodeNotInitializedError } from '../errors'
-import type { Event } from '../events'
-import type { Node, NodeInstances } from '../nodes'
+import type { NodeInstances } from '../nodes'
 import type { PrimaryNode } from '../nodes/lib/enum'
 
 /**
@@ -20,7 +19,7 @@ import type { PrimaryNode } from '../nodes/lib/enum'
  *   health = 100
  *
  *   setup() {
- *     this.connect('started', () => {
+ *     this.me.onStart.connect(() => {
  *       console.log('Player spawned!')
  *     })
  *   }
@@ -42,7 +41,7 @@ export abstract class FraxelScript<T extends PrimaryNode> {
    * @example
    * ```ts
    * setup() {
-   *   this.connect('updated', () => {
+   *   this.me.onUpdate.connect(() => {
    *     const pos = this.me.position
    *     console.log('Position:', pos.x, pos.y)
    *   })
@@ -65,51 +64,9 @@ export abstract class FraxelScript<T extends PrimaryNode> {
   }
 
   /**
-   * The **`connect`** method subscribes to a node event by name.
-   * Provides type-safe event subscription based on the node's event map.
-   *
-   * @param ev The event name to subscribe to (e.g. `'started'`, `'destroyed'`, `'updated'`).
-   * @param func The callback to invoke when the event fires.
-   *
-   * @example
-   * ```ts
-   * class EnemyScript extends FraxelScript<PrimaryNode.Transform> {
-   *   setup() {
-   *     this.connect('started', () => {
-   *       console.log('Node started!')
-   *     })
-   *
-   *     this.connect('destroyed', () => {
-   *       console.log('Node destroyed!')
-   *     })
-   *
-   *     this.connect('updated', (delta) => {
-   *       console.log('Delta:', delta)
-   *     })
-   *   }
-   * }
-   * ```
-   */
-  connect<K extends keyof NodeEvent<NodeInstances[T]>>(ev: K, func: EventFrom<T, K>['exampleFun']) {
-    const event = this.me[ev] as EventFrom<T, K>
-    event.on(func)
-  }
-
-  /**
    * The **`setup`** method is called once when the script is initialized.
    * Override this to register event listeners, initialize state, or set up
    * subscriptions that should persist for the node's lifetime.
    */
   abstract setup(): void
 }
-
-type NodeEvent<T extends Node> = {
-  [Q in keyof T as GetEvent<T, Q> extends undefined ? never : Q]: T[Q]
-}
-
-type GetEvent<T extends Node, K extends keyof T> =
-  T[K] extends Event<any[], string> ? T[K] : undefined
-
-type EventFrom<T extends PrimaryNode, K extends keyof NodeInstances[T]> = NonNullable<
-  GetEvent<NodeInstances[T], K>
->

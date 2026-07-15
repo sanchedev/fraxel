@@ -33,7 +33,7 @@ export function propSignal<N extends Node, K extends keyof N, T extends N[K]>(
   const signal = subReactive(
     prop,
     (val) => (node[key] = val),
-    (unsub) => node.destroyed.on(unsub),
+    (unsub) => node.onDestroy.connect(unsub),
   )
 
   return signal

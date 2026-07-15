@@ -42,7 +42,7 @@ export class View extends Node<PrimaryNode.View> {
     for (const node of this._children) {
       node.draw(delta * node.deltaIncrease)
     }
-    this.drawed.emit(delta)
+    this.onDraw.emit(delta)
 
     ctx.restore()
   }

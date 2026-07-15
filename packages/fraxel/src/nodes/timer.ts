@@ -1,9 +1,9 @@
-import { Event } from '../events/event.js'
 import { PrimaryNode } from './lib/enum.js'
 import { Node, type NodeOptions } from './_node.js'
 import { registerNode } from './lib/registry.js'
 import type { Reactive } from '../reactivity/types.js'
 import { propSignal } from '../utils/ternaries.js'
+import { Trigger } from '../events/trigger.js'
 
 /**
  * The **`TimerOptions`** interface defines the options for a `Timer` node.
@@ -44,11 +44,11 @@ export interface TimerOptions extends NodeOptions<PrimaryNode.Timer> {
  * function CooldownTimer() {
  *   const timer = useTimer()
  *
- *   useTrigger(timer.timeout, () => {
+ *   useTrigger(timer.onTimeout, () => {
  *     console.log('Cooldown finished!')
  *   })
  *
- *   useTrigger(timer.timeChanged, (time) => {
+ *   useTrigger(timer.onTimeChange, (time) => {
  *     console.log('Time:', time)
  *   })
  *
@@ -78,16 +78,9 @@ export class Timer extends Node<PrimaryNode.Timer> {
     if (options.autoPlay) this.play()
   }
 
-  /**
-   * The **`timeout`** event fires when the timer reaches its duration.
-   */
-  timeout = new Event('timeout', () => {})
-
-  /**
-   * The **`timeChanged`** event fires every frame while the timer is playing.
-   * The callback receives the current elapsed time in seconds.
-   */
-  timeChanged = new Event('timeChange', (_time: number) => {})
+  // Triggers
+  onTimeout = new Trigger<[]>()
+  onTimeChange = new Trigger<[time: number]>()
 
   /**
    * The **`play`** method starts or resumes the timer.
@@ -136,9 +129,9 @@ export class Timer extends Node<PrimaryNode.Timer> {
     if (this.#isPlaying) {
       if (this.#counter >= this.duration) {
         this.stop()
-        this.timeout.emit()
+        this.onTimeout.emit()
       } else {
-        this.timeChanged.emit(this.#counter)
+        this.onTimeChange.emit(this.#counter)
         this.#counter += delta
       }
     }
@@ -148,8 +141,8 @@ export class Timer extends Node<PrimaryNode.Timer> {
 
   /** @internal Cleans up custom event listeners. */
   cleanEvents(): void {
-    this.timeout.clean()
-    this.timeChanged.clean()
+    this.onTimeout.clear()
+    this.onTimeChange.clear()
     super.cleanEvents()
   }
 }

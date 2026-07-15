@@ -18,7 +18,7 @@ import { Trigger } from '../../../events/trigger.js'
  * function Button() {
  *   const clickable = useClickable()
  *
- *   useTrigger(clickable.clicked, (pos) => {
+ *   useTrigger(clickable.onClick, (pos) => {
  *     console.log('Clicked at:', pos)
  *   })
  *
@@ -50,11 +50,17 @@ export class ClickableReference extends Node2DReference<PrimaryNode.Clickable> {
   mousePosition = new Signal<Vector2>(Vector2.ZERO).getter
 
   /** Fires on pointer release inside the clickable area. */
-  clicked = new Trigger<[position: Vector2]>()
+  get onClick(): Trigger<[position: Vector2]> {
+    return this.node.onClick
+  }
   /** Fires when the pointer enters the clickable area. */
-  mouseEntered = new Trigger<[]>()
+  get onMouseEnter(): Trigger<[]> {
+    return this.node.onMouseEnter
+  }
   /** Fires when the pointer exits the clickable area. */
-  mouseExited = new Trigger<[]>()
+  get onMouseExit(): Trigger<[]> {
+    return this.node.onMouseExit
+  }
 
   constructor() {
     super(
@@ -62,21 +68,18 @@ export class ClickableReference extends Node2DReference<PrimaryNode.Clickable> {
       (node) => {
         this.disabled.signal.setter(node.disabled)
 
-        node.mouseEntered.on(() => {
+        node.onMouseEnter.connect(() => {
           this.hovered.signal.setter(true)
         })
-        node.mouseExited.on(() => {
+        node.onMouseExit.connect(() => {
           this.hovered.signal.setter(false)
         })
-        node.mouseOver.on((pos) => {
+        node.onMouseOver.connect((pos) => {
           this.mousePosition.signal.setter(pos)
         })
-        node.updated.on(() => {
+        node.onUpdate.connect(() => {
           this.disabled.signal.setter(node.disabled)
         })
-        node.mouseEntered.connect(this.mouseEntered)
-        node.mouseExited.connect(this.mouseExited)
-        node.clicked.connect(this.clicked)
       },
       () => {
         this.hovered.signal.clearSubs()

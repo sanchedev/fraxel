@@ -62,7 +62,7 @@ export class GeometryReference extends Node2DReference<PrimaryNode.Geometry> {
           },
         ]
         sets.forEach((set) => set())
-        node.updated.on(() => {
+        node.onUpdate.connect(() => {
           sets.forEach((set) => set())
         })
       },

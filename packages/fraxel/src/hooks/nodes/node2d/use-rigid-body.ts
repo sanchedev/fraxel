@@ -87,7 +87,7 @@ export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
           },
         ]
         sets.forEach((set) => set())
-        node.updated.on(() => {
+        node.onUpdate.connect(() => {
           sets.forEach((set) => set())
         })
       },

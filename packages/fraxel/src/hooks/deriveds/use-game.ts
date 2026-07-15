@@ -1,7 +1,6 @@
 import { Game } from '../../core/game.js'
 import type { Trigger } from '../../events/trigger.js'
 import { declareDerivedHook } from '../context.js'
-import { createTrigger } from '../use-trigger.js'
 
 interface GameControllers {
   /** Starts the game loop. */
@@ -11,9 +10,9 @@ interface GameControllers {
   /** Stops the loop, removes all listeners, and cleans up. */
   destroy: () => void
   /** Fires when the browser tab loses focus. */
-  blurred: Trigger<[]>
+  onBlur: Trigger<[]>
   /** Fires when the browser tab gains focus. */
-  focused: Trigger<[]>
+  onFocus: Trigger<[]>
 }
 
 /**
@@ -21,20 +20,20 @@ interface GameControllers {
  * and reactive triggers for browser focus events.
  *
  * @returns A `GameControllers` object with `play`, `stop`, `destroy` methods
- * and `blurred`/`focused` triggers.
+ * and `onBlur`/`onFocus` triggers.
  *
  * @example
  * ```tsx
  * import { useGame, useTrigger, useEffect } from 'fraxel'
  *
  * function GameController() {
- *   const { play, stop, blurred, focused } = useGame()
+ *   const { play, stop, onBlur, onFocus } = useGame()
  *
- *   useTrigger(blurred, () => {
+ *   useTrigger(onBlur, () => {
  *     console.log('Game lost focus')
  *   })
  *
- *   useTrigger(focused, () => {
+ *   useTrigger(onFocus, () => {
  *     console.log('Game regained focus')
  *   })
  *
@@ -48,15 +47,11 @@ interface GameControllers {
  */
 export function useGame(): GameControllers {
   declareDerivedHook('useGame')
-  const blurred = createTrigger<[]>()
-  Game.blurred.connect(blurred)
-  const focused = createTrigger<[]>()
-  Game.focused.connect(focused)
   return {
     play: () => Game.play(),
     stop: () => Game.stop(),
     destroy: () => Game.destroy(),
-    blurred,
-    focused,
+    onBlur: Game.onBlur,
+    onFocus: Game.onFocus,
   }
 }

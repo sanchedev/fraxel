@@ -80,7 +80,7 @@ export class CameraReference extends Node2DReference<PrimaryNode.Camera> {
           },
         ]
         sets.forEach((set) => set())
-        node.updated.on(() => {
+        node.onUpdate.connect(() => {
           sets.forEach((set) => set())
         })
 

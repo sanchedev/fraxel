@@ -23,6 +23,6 @@ import { pushEffect } from './context.js'
 export function useUpdate(fn: (delta: number) => void) {
   pushEffect('useUpdate', ([node]) => {
     if (node == null) throw new HookRequiresNodeRootError('useUpdate')
-    node.updated.on(fn)
+    node.onUpdate.connect(fn)
   })
 }

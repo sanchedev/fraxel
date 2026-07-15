@@ -1,9 +1,9 @@
-import { Event } from '../events/event.js'
 import { PrimaryNode } from './lib/enum.js'
 import { Node, type NodeOptions } from './_node.js'
 import { registerNode } from './lib/registry.js'
 import { getAudioContext } from '../audio/audio-context.js'
 import { getSound } from '../assets/load/load-sound.js'
+import { Trigger } from '../events/trigger.js'
 
 /**
  * The **`AudioPlayerOptions`** interface defines the options for an `AudioPlayer` node.
@@ -67,13 +67,13 @@ export interface AudioPlayerOptions extends NodeOptions<PrimaryNode.AudioPlayer>
  *   const audio = useAudio()
  *   const clickable = useClickable()
  *
- *   useTrigger(clickable.clicked, () => {
+ *   useTrigger(clickable.onClick, () => {
  *     audio.play()
  *   })
  *
  *   return (
  *     <sprite ref={clickable} textureId={GUN}>
- *       <audio-player ref={audio} soundId={shootSound} volume={0.8} />
+ *       <audio ref={audio} soundId={shootSound} volume={0.8} />
  *     </sprite>
  *   )
  * }
@@ -87,7 +87,7 @@ export interface AudioPlayerOptions extends NodeOptions<PrimaryNode.AudioPlayer>
  *   const audio = useAudio()
  *   const collider = useCollider()
  *
- *   useTrigger(collider.colliderEntered, () => {
+ *   useTrigger(collider.onColliderEnter, () => {
  *     audio.play()
  *     pea.node.destroy() // audio survives until sound finishes
  *   })
@@ -129,16 +129,9 @@ export class AudioPlayer extends Node<PrimaryNode.AudioPlayer> {
     this.#persistUntilEnd = options.persistUntilEnd ?? false
   }
 
-  /**
-   * The **`ended`** event fires when playback reaches the end (non-looping only).
-   */
-  ended = new Event('ended', () => {})
-
-  /**
-   * The **`error`** event fires if playback fails.
-   * The callback receives the error that caused the failure.
-   */
-  error = new Event('error', (_err: Error) => {})
+  // Trigger
+  onEnd = new Trigger<[]>()
+  onError = new Trigger<[err: Error]>()
 
   /**
    * The **`play`** method starts or resumes playback.
@@ -173,13 +166,13 @@ export class AudioPlayer extends Node<PrimaryNode.AudioPlayer> {
         if (!this.#isPlaying) return
         this.#isPlaying = false
         this.#pauseOffset = 0
-        this.ended.emit()
+        this.onEnd.emit()
         if (this.#persistUntilEnd && this.isDestroyed) {
           super.destroy()
         }
       }
     } catch (err) {
-      this.error.emit(err instanceof Error ? err : new Error(String(err)))
+      this.onError.emit(err instanceof Error ? err : new Error(String(err)))
     }
   }
 
@@ -262,8 +255,8 @@ export class AudioPlayer extends Node<PrimaryNode.AudioPlayer> {
 
   /** @internal Cleans up custom event listeners. */
   cleanEvents(): void {
-    this.ended.clean()
-    this.error.clean()
+    this.onEnd.clear()
+    this.onError.clear()
     super.cleanEvents()
   }
 }

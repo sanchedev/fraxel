@@ -2,7 +2,6 @@ import { SceneManager } from './scene-manager.js'
 import { Theme } from './theme.js'
 import { _set_gc, GameConfig, type TestOptions } from './game-config.js'
 import { getDPRFromCtx } from '../utils/dpr.js'
-import { Event } from '../events/event.js'
 import { Context2DNotSupportedError } from '../errors/env.js'
 import { EngineNotSetupError } from '../errors/lifecycle.js'
 import { Input } from '../input/input.js'
@@ -11,6 +10,7 @@ import { CollisionSystem } from '../collision/collision-system.js'
 import { PhysicsSystem } from '../collision/physics/physics-system.js'
 import { Camera } from '../nodes/node2d/camera.js'
 import { paused, running } from './game-state.js'
+import { Trigger } from '../events/trigger.js'
 
 /**
  * The **`SetupOptions`** interface configures the game canvas and engine initialization.
@@ -39,16 +39,17 @@ let pauseOnBlur = false
 
 const onFocus = () => {
   if (Game.isRunning.value()) return
+  Game.onFocus.emit()
   Game.play()
 }
 
 const onBlur = () => {
   if (!Game.isRunning.value()) return
-  Game.stop()
   if (pauseOnBlur) {
     Game.isPaused.signal.setter(true)
   }
-  Game.blurred.emit()
+  Game.onBlur.emit()
+  Game.stop()
 }
 
 let ratio = 1
@@ -260,7 +261,7 @@ export class Game {
   }
 
   /** Fires when the browser tab loses focus. */
-  static blurred = new Event('blur', () => {})
+  static onBlur = new Trigger<[]>()
   /** Fires when the browser tab gains focus. */
-  static focused = new Event('focus', () => {})
+  static onFocus = new Trigger<[]>()
 }

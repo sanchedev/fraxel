@@ -16,7 +16,7 @@ import type { Fun } from './types.js'
  * trigger.emit(42) // logs: 42
  * ```
  */
-export class Trigger<T extends any[]> {
+export class Trigger<T extends any[] = any[]> {
   #listeners = new Set<Fun<T>>()
 
   connect = (cb: Fun<T>) => {

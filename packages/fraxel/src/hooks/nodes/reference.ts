@@ -1,5 +1,5 @@
 import { NodeNotInitializedError, NodeTypeMismatchError } from '../../errors/index.js'
-import { Trigger } from '../../events/trigger.js'
+import type { Trigger } from '../../events/trigger.js'
 import { renderToNodes } from '../../jsx/index.js'
 import type { Fraxel } from '../../jsx/types.js'
 import type { NodeInstances, PrimaryNode } from '../../nodes/index.js'
@@ -25,8 +25,8 @@ import { currentContext, type HookContext } from '../context.js'
  *   const sprite = useSprite()
  *
  *   useEffect(() => {
- *     sprite.started.connect(() => console.log('started'))
- *     sprite.destroyed.connect(() => console.log('destroyed'))
+ *     sprite.onStart.connect(() => console.log('started'))
+ *     sprite.onDestroy.connect(() => console.log('destroyed'))
  *   })
  *
  *   return <sprite ref={sprite} textureId={PLAYER} />
@@ -60,28 +60,29 @@ export class NodeReference<T extends PrimaryNode = PrimaryNode> {
   signal: SignalGetter<NodeInstances[T] | null>
 
   /** Fires when the node starts (first frame). */
-  started = new Trigger<[]>()
+  get onStart(): Trigger<[]> {
+    return this.node.onStart
+  }
   /** Fires every frame during draw with the delta time. */
-  drawed = new Trigger<[delta: number]>()
+  get onDraw(): Trigger<[delta: number]> {
+    return this.node.onDraw
+  }
   /** Fires every frame during update with the delta time. */
-  updated = new Trigger<[delta: number]>()
+  get onUpdate(): Trigger<[delta: number]> {
+    return this.node.onUpdate
+  }
   /** Fires when the node is destroyed. */
-  destroyed = new Trigger<[]>()
+  get onDestroy(): Trigger<[]> {
+    return this.node.onDestroy
+  }
 
   constructor(type: T, onStart?: (node: NodeInstances[T]) => void, onEnd?: () => void) {
     this.#type = type
     this.signal = this.#node.getter
 
     this.signal.signal.sub((node) => {
-      if (node == null) {
-        onEnd?.()
-      } else {
-        node.started.connect(this.started)
-        node.drawed.connect(this.drawed)
-        node.updated.connect(this.updated)
-        node.destroyed.connect(this.destroyed)
-        onStart?.(node)
-      }
+      if (node == null) onEnd?.()
+      else onStart?.(node)
     })
 
     this.#oldCtx = currentContext.slice()

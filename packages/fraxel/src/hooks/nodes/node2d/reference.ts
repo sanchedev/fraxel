@@ -58,7 +58,7 @@ export class Node2DReference<T extends PrimaryNode2D = PrimaryNode2D> extends No
       } else {
         setters(node)
         onStart?.(node)
-        node.updated.on(() => {
+        node.onUpdate.connect(() => {
           setters(node)
         })
       }

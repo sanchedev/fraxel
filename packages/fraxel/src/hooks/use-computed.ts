@@ -31,7 +31,7 @@ export function useComputed<T>(fn: () => T): SignalGetter<T> {
 
   pushEffect('useComputed', ([nd]) => {
     if (nd == null) return
-    nd.destroyed.on(() => {
+    nd.onDestroy.connect(() => {
       signalComputed.clearSubs()
       unsub()
     })

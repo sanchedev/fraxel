@@ -104,7 +104,7 @@ export class SpriteReference extends Node2DReference<PrimaryNode.Sprite> {
           set(this.opacity, node.opacity),
         ]
         sets.forEach((set) => set())
-        node.updated.on(() => {
+        node.onUpdate.connect(() => {
           sets.forEach((set) => set())
         })
       },

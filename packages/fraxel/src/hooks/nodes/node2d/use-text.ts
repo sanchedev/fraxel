@@ -46,7 +46,7 @@ export class TextReference extends Node2DReference<PrimaryNode.Text> {
           },
         ]
         sets.forEach((set) => set())
-        unsub = node.updated.on(() => {
+        unsub = node.onUpdate.connect(() => {
           sets.forEach((set) => set())
         })
       },

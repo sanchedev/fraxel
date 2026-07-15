@@ -1,4 +1,3 @@
-import { Event, getEventName } from '../events/event.js'
 import { type NodeInstances } from './lib/types.js'
 import {
   InvalidNodeIdError,
@@ -8,12 +7,12 @@ import {
 } from '../errors/node.js'
 import { getNodeName } from './lib/utils.js'
 import { Nodes } from './lib/registry.js'
-import type { Fun } from '../events/types.js'
 import { GameMode, PrimaryNode } from './lib/enum.js'
 import type { FraxelScript } from '../scripts/script.js'
 import type { Reactive } from '../reactivity/index.js'
 import { propSignal } from '../utils/ternaries.js'
 import { paused } from '../core/game-state.js'
+import { Trigger } from '../events/trigger.js'
 
 export interface NodeOptions<T extends PrimaryNode> {
   /**
@@ -270,7 +269,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    */
   set zIndex(value: number) {
     if (value === this.#zIndex) return
-    this.zIndexChanged.emit(value)
+    this.onZIndexChange.emit(value)
     this.#zIndex = value
   }
   get zIndex(): number {
@@ -444,13 +443,13 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
     const index = this._children.indexOf(child)
     if (index === -1) return
     child._parent = undefined
-    child.zIndexChanged.off(this.#reorder)
+    child.onZIndexChange.disconnect(this.#reorder)
     this._children.splice(index, 1)
   }
 
   #attachChild(child: Node) {
     child._parent = this
-    child.zIndexChanged.on(this.#reorder)
+    child.onZIndexChange.connect(this.#reorder)
   }
   #reorder = () => {
     this.#sortChildren()
@@ -459,62 +458,27 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
     this._children.sort((a, b) => a.globalZIndex - b.globalZIndex)
   }
 
-  // Events
-  /**
-   * The **`zIndexChanged`** event fires when the node's `zIndex` value changes.
-   * The callback receives the new `zIndex` value.
-   */
-  zIndexChanged = new Event('zIndexChange', (_zIndex: number) => {})
-
-  /**
-   * The **`started`** event fires when the node finishes its `start()` lifecycle.
-   */
-  started = new Event('start', () => {})
-
-  /**
-   * The **`drawed`** event fires each frame when the node is being drawn.
-   * The callback receives the frame `delta` in seconds.
-   */
-  drawed = new Event('draw', (_delta: number) => {})
-
-  /**
-   * The **`updated`** event fires each frame during the node's update cycle.
-   * The callback receives the frame `delta` in seconds.
-   */
-  updated = new Event('update', (_delta: number) => {})
-
-  /**
-   * The **`destroyed`** event fires when the node is destroyed.
-   */
-  destroyed = new Event('destroy', () => {})
+  // Triggers
+  onZIndexChange = new Trigger<[zIndex: number]>()
+  onStart = new Trigger<[]>()
+  onDraw = new Trigger<[delta: number]>()
+  onUpdate = new Trigger<[delta: number]>()
+  onDestroy = new Trigger<[]>()
 
   // Lifecycle methods
   /**
    * The **`start`** method initializes the node and starts its lifecycle.
-   * It attaches event callbacks and starts all child nodes.
    * Called automatically when the node is added to the scene.
    */
   start(): void {
     if (this.isStarted) return
-
-    // Attach events
-    const events = Object.keys(this)
-      .filter((key) => this[key as keyof this] instanceof Event)
-      .map((key) => this[key as keyof this]) as Event<any, string>[]
-
-    for (const event of events) {
-      const key = getEventName(event.baseName)
-      if (this[key as keyof this] == null) continue
-      const cb = this[key as keyof this] as Fun<any[]>
-      event.on(cb.bind(this))
-    }
 
     this.isStarted = true
 
     for (const node of this._children) {
       node.start()
     }
-    this.started.emit()
+    this.onStart.emit()
   }
   /**
    * The **`update`** method is called each frame to update the node and its children.
@@ -525,7 +489,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
   update(delta: number): void {
     if (this.isDestroyed || !this.shouldUpdate()) return
 
-    this.updated.emit(delta)
+    this.onUpdate.emit(delta)
     for (const node of this._children) {
       node.update(delta * node.deltaIncrease)
     }
@@ -542,7 +506,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
     for (const node of this._children) {
       node.draw(delta * node.deltaIncrease)
     }
-    this.drawed.emit(delta)
+    this.onDraw.emit(delta)
   }
 
   /**
@@ -559,7 +523,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
     }
 
     this.isDestroyed = true
-    this.destroyed.emit()
+    this.onDestroy.emit()
 
     this.cleanEvents()
 
@@ -574,22 +538,18 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    *
    * @example
    * ```tsx
-   * const transform = useTransform()
+   * const clickable = useClickable()
    *
-   * useMount(() => {
-   *   transform.node.started.on(() => {
-   *     console.log('Node started')
-   *   })
-   *
-   *   transform.node.cleanEvents()
-   *   // No listeners will fire
+   * useTrigger(clickable.onClick, () => {
+   *   clickable.node.destroy()
+   *   // on destroy clean events before
    * })
    * ```
    */
   cleanEvents() {
-    this.started.clean()
-    this.drawed.clean()
-    this.updated.clean()
-    this.destroyed.clean()
+    this.onStart.clear()
+    this.onDraw.clear()
+    this.onUpdate.clear()
+    this.onDestroy.clear()
   }
 }
