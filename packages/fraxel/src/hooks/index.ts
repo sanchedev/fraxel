@@ -5,7 +5,6 @@ export * from './nodes/index.js'
 
 export { useEffect } from './use-effect.js'
 export { useMount } from './use-mount.js'
-export { useRef } from './use-ref.js'
 export { useSignal, createSignal, clearSignal } from './use-signal.js'
 export { useComputed } from './use-computed.js'
 export { useUpdate } from './use-update.js'

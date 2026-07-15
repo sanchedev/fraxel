@@ -69,7 +69,6 @@ export class UnknownIntrinsicElementError extends JSXError {
  * // Thrown when ref receives an invalid value:
  * <sprite ref={null} />           // InvalidRefAttributeError
  * <sprite ref={42} />             // InvalidRefAttributeError
- * <sprite ref={useRef()} />       // useRef is deprecated — use native hooks for refs
  * ```
  */
 export class InvalidRefAttributeError extends JSXError {
