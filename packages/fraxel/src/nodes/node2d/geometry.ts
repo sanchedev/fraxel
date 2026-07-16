@@ -36,7 +36,7 @@ export interface GeometryOptions extends Node2DOptions<PrimaryNode.Geometry> {
    * ```tsx
    * import { shapes } from 'fraxel'
    *
-   * <geometry shape={shapes.rectangle(64, 32)} fillColor={[1, 0, 0, 1]} />
+   * <geometry shape={shapes.rectangle(64, 32)} fillColor="#f00" />
    * ```
    */
   fillColor?: Reactive<ColorLike>
@@ -48,7 +48,7 @@ export interface GeometryOptions extends Node2DOptions<PrimaryNode.Geometry> {
    * ```tsx
    * import { shapes } from 'fraxel'
    *
-   * <geometry shape={shapes.rectangle(64, 32)} strokeColor={[0, 0, 0, 1]} strokeWidth={2} />
+   * <geometry shape={shapes.rectangle(64, 32)} strokeColor="#000" strokeWidth={2} />
    * ```
    */
   strokeColor?: Reactive<ColorLike>
@@ -61,7 +61,7 @@ export interface GeometryOptions extends Node2DOptions<PrimaryNode.Geometry> {
    * ```tsx
    * import { shapes } from 'fraxel'
    *
-   * <geometry shape={shapes.rectangle(64, 32)} strokeColor={[0, 0, 0, 1]} strokeWidth={3} />
+   * <geometry shape={shapes.rectangle(64, 32)} strokeColor="#000" strokeWidth={3} />
    * ```
    */
   strokeWidth?: Reactive<number>

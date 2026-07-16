@@ -105,7 +105,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    *
    * @example
    * ```tsx
-   * <sprite textureId={TEX} tint={[1, 0.5, 0, 1]} />
+   * <sprite textureId={TEX} tint="#ff8800" />
    * ```
    */
   tint?: Reactive<ColorLike>
@@ -192,7 +192,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
  *       source={region(0, 0, 32, 32)}
  *       displaySize={[64, 64]}
  *       brightness={1.2}
- *       tint={[1, 0.5, 0, 1]}
+ *       tint="#ff8800"
  *     />
  *   )
  * }

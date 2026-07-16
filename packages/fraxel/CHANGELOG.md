@@ -11,6 +11,7 @@
 - **Shape-based pointer targets** — `Clickable` now uses collision `Shape` definitions for pointer hit-testing, enabling rectangle, circle, and capsule clickable areas.
 - **Sprite tint rename** — renamed the sprite color multiplier from `modulate` to `tint` for clearer public API naming.
 - **Consistent node hook setters** — node hooks now expose setters for mirrored public writable properties such as camera zoom, geometry shape, clickable disabled state, timer duration, and audio controls.
+- **Hex colors** — `ColorLike` now accepts CSS-style hex strings (`#RGB`, `#RGBA`, `#RRGGBB`, and `#RRGGBBAA`) anywhere colors are accepted.
 - **Effect phases** — `useEffect()` now flushes after node updates and before physics, and `usePostPhysicsEffect()` runs after physics before draw.
 - **Sound loading cache** — `loadSound()` now deduplicates repeated and concurrent calls by URL.
 - **Signal API rename** — `createSignal()` was renamed to `defineSignal()` for signals created outside hook/component scope.

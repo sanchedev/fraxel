@@ -21,7 +21,7 @@ import type { SignalSetter } from '../../../reactivity/types.js'
  *   const geo = useGeometry()
  *
  *   useEffect(() => {
- *     geo.setFillColor([1, 0, 0, 0.5]) // semi-transparent red
+ *     geo.setFillColor('#f008') // semi-transparent red
  *   })
  *
  *   return (

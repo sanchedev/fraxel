@@ -21,7 +21,7 @@ import { Node2DReference } from './reference.js'
  *   const sprite = useSprite()
  *
  *   useEffect(() => {
- *     sprite.setTint([1, 0.5, 0.5, 1])
+ *     sprite.setTint('#ff8080')
  *     sprite.setOpacity(0.8)
  *   })
  *

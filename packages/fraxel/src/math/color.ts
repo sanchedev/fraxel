@@ -4,7 +4,7 @@ import { clamp } from './utils.js'
 /**
  * The **`Color`** class represents an RGBA color with channels in the `0`–`1` range.
  * All values are clamped on construction. Supports construction from tuples, objects,
- * and individual channel values.
+ * CSS-style hex strings, and individual channel values.
  *
  * @example
  * ```ts
@@ -14,6 +14,7 @@ import { clamp } from './utils.js'
  * const transparentBlue = new Color(0, 0, 1, 0.5)
  * const fromTuple: Color = new Color([0.5, 0.5, 0.5])
  * const fromObject: Color = new Color({ r: 1, g: 0.5, b: 0 })
+ * const fromHex: Color = new Color('#ff8800')
  * ```
  */
 export class Color {
@@ -72,6 +73,13 @@ export class Color {
         this.g = obj.g
         this.b = obj.b
         this.a = obj.a
+      } else if (typeof obj === 'string') {
+        const parsed = parseHexColor(obj)
+        if (parsed == null) throw new InvalidColorLikeError(obj)
+        this.r = parsed.r
+        this.g = parsed.g
+        this.b = parsed.b
+        this.a = parsed.a
       } else if (
         Array.isArray(obj) &&
         (obj.length === 3 || obj.length === 4) &&
@@ -173,7 +181,7 @@ export class Color {
 /**
  * The **`ColorLike`** type represents all accepted formats for color input.
  * Can be a `Color` instance, `[r, g, b]` tuple, `[r, g, b, a]` tuple,
- * `{ r, g, b }` object, or `{ r, g, b, a }` object.
+ * `{ r, g, b }` object, `{ r, g, b, a }` object, or a CSS-style hex string.
  *
  * @example
  * ```ts
@@ -184,10 +192,15 @@ export class Color {
  * const c: ColorLike = [0, 1, 0, 0.5]          // RGBA tuple
  * const d: ColorLike = { r: 0, g: 0, b: 1 }    // RGB object
  * const e: ColorLike = { r: 1, g: 0, b: 0, a: 0.5 } // RGBA object
+ * const f: ColorLike = '#ff8800'               // hex string
+ * const g: ColorLike = '#f808'                 // short hex with alpha
  * ```
  */
+export type HexColor = `#${string}`
+
 export type ColorLike =
   | Color
+  | HexColor
   | [r: number, g: number, b: number]
   | [r: number, g: number, b: number, a: number]
   | { r: number; g: number; b: number }
@@ -208,6 +221,7 @@ export type ColorLike =
  * const transparent = color(1, 1, 1, 0)
  * const fromArray = color([0.5, 0.5, 0.5])
  * const fromObject = color({ r: 1, g: 0.5, b: 0 })
+ * const fromHex = color('#ff880080')
  * ```
  */
 export function color(colorLike: ColorLike): Color
@@ -215,4 +229,17 @@ export function color(r: number, g: number, b: number): Color
 export function color(r: number, g: number, b: number, a: number): Color
 export function color(...args: unknown[]): Color {
   return new Color(...(args as [ColorLike]))
+}
+
+function parseHexColor(hex: string): { r: number; g: number; b: number; a: number } | null {
+  if (!/^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(hex)) return null
+
+  const raw = hex.slice(1)
+  const normalized = raw.length <= 4 ? raw.replaceAll(/./g, (char) => char + char) : raw
+  return {
+    r: Number.parseInt(normalized.slice(0, 2), 16) / 255,
+    g: Number.parseInt(normalized.slice(2, 4), 16) / 255,
+    b: Number.parseInt(normalized.slice(4, 6), 16) / 255,
+    a: normalized.length === 8 ? Number.parseInt(normalized.slice(6, 8), 16) / 255 : 1,
+  }
 }

@@ -57,7 +57,8 @@ export class InvalidBoundsLikeError extends MathError {
  * The **`InvalidColorLikeError`** class is thrown when a value passed to `color()` or
  * a `Color` constructor is not a valid `ColorLike`. Accepted formats: `Color` instance,
  * `[red, green, blue]` tuple, `[red, green, blue, alpha]` tuple, or
- * `{ r, g, b }` / `{ r, g, b, a }` object.
+ * `{ r, g, b }` / `{ r, g, b, a }` object, or CSS-style hex strings (`#RGB`, `#RGBA`,
+ * `#RRGGBB`, `#RRGGBBAA`).
  *
  * @example
  * ```ts
@@ -65,6 +66,7 @@ export class InvalidBoundsLikeError extends MathError {
  *
  * color(null)      // throws InvalidColorLikeError
  * color([1, 0, 0]) // works — red
+ * color('#f00')    // works — red
  * color(0.5)       // throws InvalidColorLikeError — number not accepted
  * ```
  */
@@ -78,7 +80,7 @@ export class InvalidColorLikeError extends MathError {
           : (received?.constructor?.name ?? typeof received)
 
     super(
-      `Expected a ColorLike but received ${type}. A ColorLike is a Color instance, [red, green, blue] tuple, [red, green, blue, alpha] tuple, or object with red/green/blue or red/green/blue/alpha properties`,
+      `Expected a ColorLike but received ${type}. A ColorLike is a Color instance, #RGB/#RGBA/#RRGGBB/#RRGGBBAA hex string, [red, green, blue] tuple, [red, green, blue, alpha] tuple, or object with red/green/blue or red/green/blue/alpha properties`,
     )
   }
 }
