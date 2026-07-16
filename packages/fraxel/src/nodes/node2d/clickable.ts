@@ -5,8 +5,8 @@ import { Node2D, type Node2DOptions } from './_node2d.js'
 import { registerNode } from '../lib/registry.js'
 import type { Reactive } from '../../reactivity/types.js'
 import { propSignal, signalVector } from '../../utils/ternaries.js'
-import { Input } from '../../input/input.js'
 import { Trigger } from '../../events/trigger.js'
+import { Pointer } from '../../input/pointer.js'
 
 /**
  * The **`ClickableOptions`** interface defines the configuration for a `Clickable` node.
@@ -78,7 +78,7 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
   }
 
   #isPointerInside(): boolean {
-    const pointer = Input.pointerPosition
+    const pointer = Pointer.pointerPosition
     const pos = this.globalPosition
     return (
       pointer.x >= pos.x &&
@@ -101,15 +101,15 @@ export class Clickable extends Node2D<PrimaryNode.Clickable> {
         this.onMouseExit.emit()
       }
 
-      const isPressed = Input.isPointerPressed
+      const isPressed = Pointer.isPointerPressed
       if (this.#wasPressed && !isPressed && isInside) {
-        const local = Input.pointerPosition.toSubtracted(this.globalPosition)
+        const local = Pointer.pointerPosition.toSubtracted(this.globalPosition)
         this.onClick.emit(local)
       }
       this.#wasPressed = isPressed
 
       if (isInside) {
-        const local = Input.pointerPosition.toSubtracted(this.globalPosition)
+        const local = Pointer.pointerPosition.toSubtracted(this.globalPosition)
         this.onMouseOver.emit(local)
       }
     }

@@ -151,7 +151,7 @@ export class Game {
 
     SceneManager.setScene(null)
 
-    Input.setup(canvas, vector2(width, height))
+    Input.mount(canvas, vector2(width, height))
     this.#mounted = true
   }
 
@@ -208,7 +208,7 @@ export class Game {
     window.removeEventListener('focus', onFocus)
     window.removeEventListener('resize', onResize)
 
-    Input.destroy()
+    Input.unmount()
     SceneManager.setScene(null)
 
     this.#mounted = false

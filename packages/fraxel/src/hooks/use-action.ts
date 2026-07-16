@@ -1,4 +1,4 @@
-import { Input } from '../input/input.js'
+import { Input, type ActionString } from '../input/input.js'
 import { useSignal } from './use-signal.js'
 import { pushEffect } from './context.js'
 
@@ -6,7 +6,7 @@ import { pushEffect } from './context.js'
  * The **`useAction`** hook provides reactive state for a single input action.
  * Returns signals that update every frame based on the action's key state.
  *
- * @param action A symbol created via `Input.createAction()`
+ * @param action An action identifier created via `Input.createAction()`
  * @returns An object with `pressed`, `justPressed`, and `justUnpressed` signals
  *
  * @example
@@ -29,7 +29,7 @@ import { pushEffect } from './context.js'
  * }
  * ```
  */
-export function useAction(action: symbol) {
+export function useAction(action: ActionString) {
   pushEffect('useAction', ([node]) => {
     if (node == null) return
 
@@ -74,7 +74,7 @@ export function useAction(action: symbol) {
  * }
  * ```
  */
-export function useActionAxis(negative: symbol, positive: symbol) {
+export function useActionAxis(negative: ActionString, positive: ActionString) {
   pushEffect('useActionAxis', ([node]) => {
     if (node == null) return
 

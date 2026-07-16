@@ -8,6 +8,7 @@
 - **Lifecycle trigger renames** — node lifecycle triggers now use `onStart`, `onUpdate`, `onDraw`, and `onDestroy`.
 - **Intrinsic event props cleanup** — JSX event props now map to trigger names such as `onClick`, `onColliderEnter`, `onTimeout`, and `onAnimEnd`.
 - **Action axis input** — added `Input.getActionAxis(negativeAction, positiveAction)` and `useActionAxis()` support for action-based directional input.
+- **Pointer and key input split** — moved keyboard, pointer, and viewport handling into dedicated `Key`, `Pointer`, and `Viewport` modules while keeping action-based input on `Input`.
 - **Effect phases** — `useEffect()` now flushes after node updates and before physics, and `usePostPhysicsEffect()` runs after physics before draw.
 - **Sound loading cache** — `loadSound()` now deduplicates repeated and concurrent calls by URL.
 - **Signal API rename** — `createSignal()` was renamed to `defineSignal()` for signals created outside hook/component scope.
@@ -18,6 +19,7 @@
 - **Lifecycle event names changed** — replace `started`, `updated`, `drawed`, and `destroyed` with `onStart`, `onUpdate`, `onDraw`, and `onDestroy`.
 - **Node trigger names changed** — replace old names like `clicked`, `colliderEntered`, `colliderExited`, `timeout`, `timeChanged`, and `animationEnded` with `onClick`, `onColliderEnter`, `onColliderExit`, `onTimeout`, `onTimeChange`, and `onAnimEnd`.
 - **Raw key helpers removed** — `Input.isKeyPressed`, `Input.isJustKeyUnpressed`, and `Input.getKeyAxis` were removed. Define actions with `Input.createAction()` and query them with action APIs.
+- **Input actions return strings** — `Input.createAction()` now returns an `ActionString` instead of a `symbol`; hooks and action queries accept that identifier.
 - **`useRef()` removed** — use typed native node hooks such as `useSprite()`, `useCollider()`, `useTimer()`, or a plain local variable when no native reference is needed.
 - **Deprecated sprite crop props removed** — replace `margin` and `sourceSize` with `source={region(x, y, width, height)}`.
 - **Effect timing changed** — `useEffect()` callbacks no longer flush through microtasks; they flush inside the game loop before physics.
@@ -25,6 +27,7 @@
 
 ### Bug Fixes
 
+- **Input lifecycle cleanup** — fixed input mount/unmount state tracking, listener cleanup, action registry cleanup, and pointer coordinate updates after viewport changes.
 - **Documentation consistency** — updated JSDoc, templates, and operational docs to reference current trigger, input, and hook APIs.
 
 ## 0.1.0-alpha.6d

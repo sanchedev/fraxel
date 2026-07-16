@@ -1,3 +1,4 @@
+import type { Action, ActionString } from '../input/input.js'
 import { FraxelError } from './base.js'
 
 /**
@@ -25,39 +26,24 @@ export class InputError extends FraxelError {
 /**
  * The **`ActionNotFoundError`** class is thrown when trying to access an action that
  * hasn't been registered via `Input.createAction()`. This commonly happens when
- * querying input state with an unregistered action symbol.
+ * querying input state with an unregistered action identifier.
  *
  * @example
  * ```ts
  * import { Input } from 'fraxel'
  *
- * const Unknown = Symbol('unknown')
+ * const Unknown = 'key:unknown|false|false|false'
  * Input.isActionPressed(Unknown) // ActionNotFoundError: Did you call Input.createAction()?
  * ```
  */
 export class ActionNotFoundError extends InputError {
-  constructor(action: symbol) {
-    super(`Input action not found: ${action.toString()}. Did you call Input.createAction()?`)
+  constructor(action: ActionString) {
+    super(`Action not found: ${action}. Did you call Input.createAction()?`)
   }
 }
 
-/**
- * The **`DuplicateKeyError`** class is thrown when trying to bind a key combination
- * that's already used by another action. Each key combo can only be bound to one action.
- *
- * @example
- * ```ts
- * import { Input } from 'fraxel'
- *
- * const Jump = Input.createAction({ key: ' ' })
- * const DoubleJump = Input.createAction({ key: ' ' })
- * // DuplicateKeyError: Key combo " " is already bound to Symbol(Jump)
- * ```
- */
-export class DuplicateKeyError extends InputError {
-  constructor(keyCombo: string, existingAction: symbol, newAction: symbol) {
-    super(
-      `Key combo "${keyCombo}" is already bound to action ${existingAction.toString()}. Cannot bind to ${newAction.toString()}.`,
-    )
+export class InvalidActionTypeError extends InputError {
+  constructor(action: Action) {
+    super(`Invalid action type: ${action?.type}`)
   }
 }

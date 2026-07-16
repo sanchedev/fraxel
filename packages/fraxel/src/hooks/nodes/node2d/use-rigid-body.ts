@@ -13,9 +13,9 @@ import { Vector2, vector2, type VectorLike } from '../../../math/vector2.js'
  * @example
  * ```tsx
  * import { useRigidBody, useEffect, useAction } from 'fraxel'
- * import { Input, InputKey } from 'fraxel'
+ * import { Input } from 'fraxel'
  *
- * const Jump = Input.createAction(InputKey.Space)
+ * const Jump = Input.createAction({ key: ' ' })
  *
  * function Player() {
  *   const { ref, velocity, isGrounded, applyImpulse } = useRigidBody()

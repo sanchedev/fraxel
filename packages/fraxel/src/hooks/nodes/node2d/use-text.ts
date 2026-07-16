@@ -36,7 +36,7 @@ export class TextReference extends Node2DReference<PrimaryNode.Text> {
   setText = (text: string) => (this.node.text = text)
 
   constructor() {
-    let unsub = () => {}
+    let unsub: () => void = () => {}
     super(
       PrimaryNode.Text,
       (node) => {
@@ -46,9 +46,11 @@ export class TextReference extends Node2DReference<PrimaryNode.Text> {
           },
         ]
         sets.forEach((set) => set())
-        unsub = node.onUpdate.connect(() => {
+        const updateText = () => {
           sets.forEach((set) => set())
-        })
+        }
+        node.onUpdate.connect(updateText)
+        unsub = () => node.onUpdate.disconnect(updateText)
       },
       () => {
         this.text.signal.clearSubs()
