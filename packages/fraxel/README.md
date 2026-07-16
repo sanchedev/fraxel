@@ -220,7 +220,7 @@ const sprite = useSprite()
 sprite.position()
 sprite.rotation()
 sprite.setBrightness(1.2)
-sprite.setModulate([1, 0.5, 0.5, 1])
+sprite.setTint([1, 0.5, 0.5, 1])
 sprite.setOpacity(0.8)
 
 return <sprite ref={sprite} textureId={PLAYER} />

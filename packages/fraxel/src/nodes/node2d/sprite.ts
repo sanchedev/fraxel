@@ -98,17 +98,17 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
    */
   grayscale?: Reactive<number>
   /**
-   * The **`modulate`** filter multiplies the sprite's colors by an RGBA tint.
+   * The **`tint`** filter multiplies the sprite's colors by an RGBA tint.
    * Each channel ranges from `0` (no intensity) to `1` (full intensity).
    *
    * @default [1, 1, 1, 1]
    *
    * @example
    * ```tsx
-   * <sprite textureId={TEX} modulate={[1, 0.5, 0, 1]} />
+   * <sprite textureId={TEX} tint={[1, 0.5, 0, 1]} />
    * ```
    */
-  modulate?: Reactive<ColorLike>
+  tint?: Reactive<ColorLike>
   /**
    * The **`contrast`** filter adjusts the sprite's contrast.
    * `0` = no contrast, `1` = base, `2` = double contrast.
@@ -192,7 +192,7 @@ export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
  *       source={region(0, 0, 32, 32)}
  *       displaySize={[64, 64]}
  *       brightness={1.2}
- *       modulate={[1, 0.5, 0, 1]}
+ *       tint={[1, 0.5, 0, 1]}
  *     />
  *   )
  * }
@@ -235,7 +235,7 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
 
   #brightness = 1
   #grayscale = 0
-  #modulate: Color = Color.WHITE
+  #tint: Color = Color.WHITE
   #contrast = 1
   #saturate = 1
   #hueRotate = 0
@@ -287,12 +287,12 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
     this.#grayscale = value
   }
 
-  /** The **`modulate`** filter RGBA color. Each channel `0`–`1`. */
-  get modulate() {
-    return this.#modulate
+  /** The **`tint`** filter RGBA color. Each channel `0`–`1`. */
+  get tint() {
+    return this.#tint
   }
-  set modulate(value) {
-    this.#modulate = value
+  set tint(value) {
+    this.#tint = value
   }
 
   /** The **`contrast`** filter value. `0` = no contrast, `1` = base, `2` = double. */
@@ -359,11 +359,7 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
     this.flipY = propSignal(this, 'flipY', options.flipY)
     this.brightness = propSignal(this, 'brightness', options.brightness)
     this.grayscale = propSignal(this, 'grayscale', options.grayscale)
-    this.modulate = ns(
-      options.modulate,
-      (c) => propSignal(this, 'modulate', signalColor(c)),
-      this.#modulate,
-    )
+    this.tint = ns(options.tint, (c) => propSignal(this, 'tint', signalColor(c)), this.#tint)
     this.contrast = propSignal(this, 'contrast', options.contrast)
     this.saturate = propSignal(this, 'saturate', options.saturate)
     this.hueRotate = propSignal(this, 'hueRotate', options.hueRotate)
@@ -414,13 +410,13 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
         source: this.#source,
       })
 
-      const isModulated = !this.#modulate.equals(Color.WHITE)
+      const isTinted = !this.#tint.equals(Color.WHITE)
 
-      if (isModulated) {
+      if (isTinted) {
         ctx.filter = 'none'
         ctx.globalCompositeOperation = 'multiply'
 
-        ctx.fillStyle = this.#modulate.toCSS()
+        ctx.fillStyle = this.#tint.toCSS()
         ctx.fillRect(this.position.x, this.position.y, drawnSize.x, drawnSize.y)
 
         ctx.globalCompositeOperation = 'source-over'

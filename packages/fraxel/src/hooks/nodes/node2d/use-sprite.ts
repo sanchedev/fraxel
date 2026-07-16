@@ -9,7 +9,7 @@ import { Node2DReference } from './reference.js'
 
 /**
  * The **`useSprite`** hook creates a reference to a `Sprite` node with reactive access
- * to all visual properties (flip, filters, modulate, opacity).
+ * to all visual properties (flip, filters, tint, opacity).
  *
  * @returns A `SpriteReference` with reactive properties and setters
  *
@@ -21,7 +21,7 @@ import { Node2DReference } from './reference.js'
  *   const sprite = useSprite()
  *
  *   useEffect(() => {
- *     sprite.setModulate([1, 0.5, 0.5, 1]) // tint red
+ *     sprite.setTint([1, 0.5, 0.5, 1])
  *     sprite.setOpacity(0.8)
  *   })
  *
@@ -58,9 +58,9 @@ export class SpriteReference extends Node2DReference<PrimaryNode.Sprite> {
   /** Sets the grayscale filter value. */
   setGrayscale: SignalSetter<number> = (value) => (this.node.grayscale = value)
   /** Reactive RGBA tint color. */
-  modulate = new Signal<Color>(Color.WHITE).getter
-  /** Sets the modulate tint color. */
-  setModulate: SignalSetter<ColorLike> = (value) => (this.node.modulate = color(value))
+  tint = new Signal<Color>(Color.WHITE).getter
+  /** Sets the tint color. */
+  setTint: SignalSetter<ColorLike> = (value) => (this.node.tint = color(value))
   /** Reactive contrast (0=no contrast, 1=base). */
   contrast = new Signal(1).getter
   /** Sets the contrast filter value. */
@@ -96,7 +96,7 @@ export class SpriteReference extends Node2DReference<PrimaryNode.Sprite> {
           set(this.flipY, node.flipY),
           set(this.brightness, node.brightness),
           set(this.grayscale, node.grayscale),
-          set(this.modulate, node.modulate),
+          set(this.tint, node.tint),
           set(this.contrast, node.contrast),
           set(this.saturate, node.saturate),
           set(this.hueRotate, node.hueRotate),
@@ -114,7 +114,7 @@ export class SpriteReference extends Node2DReference<PrimaryNode.Sprite> {
         this.flipY.signal.clearSubs()
         this.brightness.signal.clearSubs()
         this.grayscale.signal.clearSubs()
-        this.modulate.signal.clearSubs()
+        this.tint.signal.clearSubs()
         this.contrast.signal.clearSubs()
         this.saturate.signal.clearSubs()
         this.hueRotate.signal.clearSubs()

@@ -9,6 +9,7 @@
 - **Intrinsic event props cleanup** — JSX event props now map to trigger names such as `onClick`, `onColliderEnter`, `onTimeout`, and `onAnimEnd`.
 - **Action axis input** — added `Input.getActionAxis(negativeAction, positiveAction)` and `useActionAxis()` support for action-based directional input.
 - **Shape-based pointer targets** — `Clickable` now uses collision `Shape` definitions for pointer hit-testing, enabling rectangle, circle, and capsule clickable areas.
+- **Sprite tint rename** — renamed the sprite color multiplier from `modulate` to `tint` for clearer public API naming.
 - **Effect phases** — `useEffect()` now flushes after node updates and before physics, and `usePostPhysicsEffect()` runs after physics before draw.
 - **Sound loading cache** — `loadSound()` now deduplicates repeated and concurrent calls by URL.
 - **Signal API rename** — `createSignal()` was renamed to `defineSignal()` for signals created outside hook/component scope.
@@ -20,6 +21,7 @@
 - **Node trigger names changed** — replace old names like `clicked`, `colliderEntered`, `colliderExited`, `timeout`, `timeChanged`, and `animationEnded` with `onClick`, `onColliderEnter`, `onColliderExit`, `onTimeout`, `onTimeChange`, and `onAnimEnd`.
 - **Raw key helpers removed** — `Input.isKeyPressed`, `Input.isJustKeyUnpressed`, and `Input.getKeyAxis` were removed. Define actions with `Input.createAction()` and query them with action APIs.
 - **Clickable `size` removed** — use `shape={shapes.rectangle(width, height)}` instead of `size={[width, height]}`. Clickables now support all collision shapes.
+- **Sprite `modulate` renamed** — use the `tint` prop, `Sprite.tint`, and `sprite.setTint()` instead of `modulate`, `Sprite.modulate`, and `sprite.setModulate()`.
 - **`useRef()` removed** — use typed native node hooks such as `useSprite()`, `useCollider()`, `useTimer()`, or a plain local variable when no native reference is needed.
 - **Deprecated sprite crop props removed** — replace `margin` and `sourceSize` with `source={region(x, y, width, height)}`.
 - **Effect timing changed** — `useEffect()` callbacks no longer flush through microtasks; they flush inside the game loop before physics.
