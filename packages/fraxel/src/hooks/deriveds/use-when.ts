@@ -21,7 +21,7 @@ import { useComputed } from '../use-computed.js'
  * import { useCondition, useWhen, useClickable } from 'fraxel'
  *
  * const clickable = useClickable()
- * const isHovered = useCondition(clickable.onMouseEnter, clickable.onMouseExit)
+ * const isHovered = useCondition(clickable.onPointerEnter, clickable.onPointerExit)
  * const brightness = useWhen(isHovered, 1.2, 1.0)
  *
  * return <sprite brightness={brightness} />

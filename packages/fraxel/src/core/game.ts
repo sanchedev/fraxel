@@ -9,6 +9,7 @@ import { vector2 } from '../math/vector2.js'
 import { CollisionSystem } from '../collision/collision-system.js'
 import { PhysicsSystem } from '../collision/physics/physics-system.js'
 import { Camera } from '../nodes/node2d/camera.js'
+import { PointerTargetSystem } from '../nodes/node2d/lib/pointer-target-system.js'
 import { paused, running } from './game-state.js'
 import { Trigger } from '../events/trigger.js'
 import { flushEffects, flushPostPhysicsEffects } from '../reactivity/effects.js'
@@ -248,6 +249,8 @@ export class Game {
       if (!this.isPaused.value()) {
         node.update(delta)
       }
+
+      PointerTargetSystem.update()
 
       flushEffects()
 

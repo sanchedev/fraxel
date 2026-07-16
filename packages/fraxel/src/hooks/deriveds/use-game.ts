@@ -24,7 +24,7 @@ interface GameControllers {
  *
  * @example
  * ```tsx
- * import { useGame, useTrigger, useEffect } from 'fraxel'
+ * import { shapes, useGame, useTrigger, useEffect } from 'fraxel'
  *
  * function GameController() {
  *   const { play, stop, onBlur, onFocus } = useGame()
@@ -38,7 +38,7 @@ interface GameControllers {
  *   })
  *
  *   return (
- *     <clickable onClick={() => stop()} size={[64, 32]}>
+ *     <clickable onClick={() => stop()} shape={shapes.rectangle(64, 32)}>
  *       <text text="Pause" />
  *     </clickable>
  *   )

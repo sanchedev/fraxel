@@ -12,7 +12,7 @@ import { NodeReference } from './reference.js'
  *
  * @example
  * ```tsx
- * import { useAudio, useTrigger } from 'fraxel'
+ * import { shapes, useAudio, useTrigger } from 'fraxel'
  *
  * function SoundEffect() {
  *   const audio = useAudio()
@@ -23,7 +23,7 @@ import { NodeReference } from './reference.js'
  *
  *   return (
  *     <audio-player ref={audio} soundId={SFX}>
- *       <clickable onClick={() => audio.play()} size={[64, 32]} />
+ *       <clickable onClick={() => audio.play()} shape={shapes.rectangle(64, 32)} />
  *     </audio-player>
  *   )
  * }

@@ -13,7 +13,7 @@ import { Trigger } from '../../../events/trigger.js'
  *
  * @example
  * ```tsx
- * import { useClickable, useTrigger, useEffect } from 'fraxel'
+ * import { shapes, useClickable, useTrigger, useEffect } from 'fraxel'
  *
  * function Button() {
  *   const clickable = useClickable()
@@ -30,7 +30,7 @@ import { Trigger } from '../../../events/trigger.js'
  *
  *   return (
  *     <sprite textureId={BTN}>
- *       <clickable ref={clickable} size={[64, 32]} />
+ *       <clickable ref={clickable} shape={shapes.rectangle(64, 32)} />
  *     </sprite>
  *   )
  * }
@@ -44,45 +44,68 @@ export function useClickable() {
 export class ClickableReference extends Node2DReference<PrimaryNode.Clickable> {
   /** Reactive `true` when the pointer hovers over the clickable area. */
   hovered = new Signal(false).getter
+  /** Reactive `true` while the pointer press started on this clickable and is still held. */
+  pressed = new Signal(false).getter
   /** Reactive `true` when the clickable is disabled. */
   disabled = new Signal(false).getter
   /** Reactive pointer position in local coordinates. */
-  mousePosition = new Signal<Vector2>(Vector2.ZERO).getter
+  pointerPosition = new Signal<Vector2>(Vector2.ZERO).getter
 
-  /** Fires on pointer release inside the clickable area. */
-  onClick = new Trigger<[position: Vector2]>()
+  /** Fires when the pointer presses inside the clickable area. */
+  onPointerPress = new Trigger<[position: Vector2]>()
+  /** Fires when the pointer releases inside the clickable area. */
+  onPointerUnpress = new Trigger<[position: Vector2]>()
+  /** Fires when the pointer moves inside the clickable area. */
+  onPointerMove = new Trigger<[position: Vector2]>()
+  /** Fires every frame while this is the topmost clickable under the pointer. */
+  onPointerOver = new Trigger<[position: Vector2]>()
   /** Fires when the pointer enters the clickable area. */
-  onMouseEnter = new Trigger<[]>()
+  onPointerEnter = new Trigger<[]>()
   /** Fires when the pointer exits the clickable area. */
-  onMouseExit = new Trigger<[]>()
+  onPointerExit = new Trigger<[]>()
+  /** Fires when pointer press and release both happen inside this clickable area. */
+  onClick = new Trigger<[position: Vector2]>()
 
   constructor() {
     super(
       PrimaryNode.Clickable,
       (node) => {
         this.onClick.link(node.onClick)
-        this.onMouseEnter.link(node.onMouseEnter)
-        this.onMouseExit.link(node.onMouseExit)
+        this.onPointerPress.link(node.onPointerPress)
+        this.onPointerUnpress.link(node.onPointerUnpress)
+        this.onPointerMove.link(node.onPointerMove)
+        this.onPointerOver.link(node.onPointerOver)
+        this.onPointerEnter.link(node.onPointerEnter)
+        this.onPointerExit.link(node.onPointerExit)
 
         this.disabled.signal.setter(node.disabled)
 
-        node.onMouseEnter.connect(() => {
+        node.onPointerEnter.connect(() => {
           this.hovered.signal.setter(true)
         })
-        node.onMouseExit.connect(() => {
+        node.onPointerExit.connect(() => {
           this.hovered.signal.setter(false)
         })
-        node.onMouseOver.connect((pos) => {
-          this.mousePosition.signal.setter(pos)
+        node.onPointerPress.connect(() => {
+          this.pressed.signal.setter(true)
+        })
+        node.onPointerUnpress.connect(() => {
+          this.pressed.signal.setter(false)
+        })
+        node.onPointerOver.connect((pos) => {
+          this.pointerPosition.signal.setter(pos)
         })
         node.onUpdate.connect(() => {
+          this.hovered.signal.setter(node.hovered)
+          this.pressed.signal.setter(node.pressed)
           this.disabled.signal.setter(node.disabled)
         })
       },
       () => {
         this.hovered.signal.clearSubs()
+        this.pressed.signal.clearSubs()
         this.disabled.signal.clearSubs()
-        this.mousePosition.signal.clearSubs()
+        this.pointerPosition.signal.clearSubs()
       },
     )
   }

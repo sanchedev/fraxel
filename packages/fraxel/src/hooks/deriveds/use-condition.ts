@@ -18,7 +18,7 @@ import { Trigger } from '../../events/trigger.js'
  * import { useCondition, useComputed, useClickable } from 'fraxel'
  *
  * const clickable = useClickable()
- * const hover = useCondition(clickable.onMouseEnter, clickable.onMouseExit)
+ * const hover = useCondition(clickable.onPointerEnter, clickable.onPointerExit)
  *
  * const brightness = useComputed(() => (hover() ? 1.1 : 1))
  *

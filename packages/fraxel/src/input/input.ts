@@ -162,6 +162,7 @@ export class Input {
   /** Clears per-frame state. Called by `Game.loop()`. */
   static update() {
     Key.update()
+    Pointer.update()
   }
 
   /**

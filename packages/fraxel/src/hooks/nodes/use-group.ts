@@ -10,14 +10,14 @@ import { NodeReference } from './reference.js'
  *
  * @example
  * ```tsx
- * import { useGroup } from 'fraxel'
+ * import { shapes, useGroup } from 'fraxel'
  *
  * function Container() {
  *   const group = useGroup()
  *
  *   return (
  *     <group ref={group}>
- *       <clickable onClick={() => group.spawn(<Enemy />)} size={[32, 32]} />
+ *       <clickable onClick={() => group.spawn(<Enemy />)} shape={shapes.rectangle(32, 32)} />
  *     </group>
  *   )
  * }
