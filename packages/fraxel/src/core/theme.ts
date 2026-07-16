@@ -1,3 +1,5 @@
+import { color, type Color, type ColorLike } from '../math/color.js'
+
 /**
  * The **`Theme`** class holds the default text style for the game.
  * Pass a `Theme` instance to `Game.setup()` to configure default text rendering.
@@ -7,7 +9,7 @@
  * import { Theme, TextStyle, FontWeight, TextAlign } from 'fraxel'
  *
  * const theme = new Theme(
- *   new TextStyle('#ffffff', 24, 'monospace', FontWeight.Bold, TextAlign.Center)
+ *   new TextStyle('#fff', 24, 'monospace', FontWeight.Bold, TextAlign.Center)
  * )
  * ```
  */
@@ -28,18 +30,30 @@ export class TextStyle {
     return new TextStyle()
   }
 
+  /** The **`fillColor`** property sets the text fill color. @default '#000000' */
+  fillColor: Color
+  /** The **`fontSize`** property sets the font size in pixels. @default 16 */
+  fontSize: number
+  /** The **`fontFamily`** property sets the font family. @default 'sans-serif' */
+  fontFamily: string
+  /** The **`fontWeight`** property sets the font weight. @default FontWeight.Normal */
+  fontWeight: FontWeight
+  /** The **`textAlign`** property sets the text alignment. @default TextAlign.Start */
+  textAlign: TextAlign
+
   constructor(
-    /** The **`foregroundColor`** property sets the text color. @default '#000000' */
-    public foregroundColor: string = '#000000',
-    /** The **`fontSize`** property sets the font size in pixels. @default 16 */
-    public fontSize: number = 16,
-    /** The **`fontFamily`** property sets the font family. @default 'sans-serif' */
-    public fontFamily: string = 'sans-serif',
-    /** The **`fontWeight`** property sets the font weight. @default FontWeight.Normal */
-    public fontWeight: FontWeight = FontWeight.Normal,
-    /** The **`textAlign`** property sets the text alignment. @default TextAlign.Start */
-    public textAlign: TextAlign = TextAlign.Start,
-  ) {}
+    fillColor: ColorLike = '#000',
+    fontSize: number = 16,
+    fontFamily: string = 'sans-serif',
+    fontWeight: FontWeight = FontWeight.Normal,
+    textAlign: TextAlign = TextAlign.Start,
+  ) {
+    this.fillColor = color(fillColor)
+    this.fontSize = fontSize
+    this.fontFamily = fontFamily
+    this.fontWeight = fontWeight
+    this.textAlign = textAlign
+  }
 }
 
 /**

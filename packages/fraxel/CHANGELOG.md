@@ -12,6 +12,7 @@
 - **Sprite tint rename** — renamed the sprite color multiplier from `modulate` to `tint` for clearer public API naming.
 - **Consistent node hook setters** — node hooks now expose setters for mirrored public writable properties such as camera zoom, geometry shape, clickable disabled state, timer duration, and audio controls.
 - **Hex colors** — `ColorLike` now accepts CSS-style hex strings (`#RGB`, `#RGBA`, `#RRGGBB`, and `#RRGGBBAA`) anywhere colors are accepted.
+- **Text styling props** — `Text` now uses direct reactive props such as `fillColor`, `fontSize`, `fontFamily`, `fontWeight`, and `textAlign`.
 - **Effect phases** — `useEffect()` now flushes after node updates and before physics, and `usePostPhysicsEffect()` runs after physics before draw.
 - **Sound loading cache** — `loadSound()` now deduplicates repeated and concurrent calls by URL.
 - **Signal API rename** — `createSignal()` was renamed to `defineSignal()` for signals created outside hook/component scope.
@@ -24,6 +25,7 @@
 - **Raw key helpers removed** — `Input.isKeyPressed`, `Input.isJustKeyUnpressed`, and `Input.getKeyAxis` were removed. Define actions with `Input.createAction()` and query them with action APIs.
 - **Clickable `size` removed** — use `shape={shapes.rectangle(width, height)}` instead of `size={[width, height]}`. Clickables now support all collision shapes.
 - **Sprite `modulate` renamed** — use the `tint` prop, `Sprite.tint`, and `sprite.setTint()` instead of `modulate`, `Sprite.modulate`, and `sprite.setModulate()`.
+- **Text `style` removed** — use direct props like `fillColor`, `fontSize`, `fontFamily`, `fontWeight`, and `textAlign`. `TextStyle.foregroundColor` was renamed to `fillColor`.
 - **`useRef()` removed** — use typed native node hooks such as `useSprite()`, `useCollider()`, `useTimer()`, or a plain local variable when no native reference is needed.
 - **Deprecated sprite crop props removed** — replace `margin` and `sourceSize` with `source={region(x, y, width, height)}`.
 - **Effect timing changed** — `useEffect()` callbacks no longer flush through microtasks; they flush inside the game loop before physics.
