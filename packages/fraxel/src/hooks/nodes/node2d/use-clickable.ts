@@ -1,5 +1,7 @@
 import { PrimaryNode } from '../../../nodes/index.js'
+import type { Shape } from '../../../collision/narrowphase/shapes.js'
 import { Signal } from '../../../reactivity/signal.js'
+import type { SignalSetter } from '../../../reactivity/types.js'
 import { pushEffect } from '../../context.js'
 import { Node2DReference } from './reference.js'
 import { Vector2 } from '../../../math/vector2.js'
@@ -42,12 +44,18 @@ export function useClickable() {
 }
 
 export class ClickableReference extends Node2DReference<PrimaryNode.Clickable> {
+  /** Reactive clickable shape. */
+  shape = new Signal<Shape>(null as unknown as Shape).getter
+  /** Sets the clickable shape. */
+  setShape: SignalSetter<Shape> = (value) => (this.node.shape = value)
   /** Reactive `true` when the pointer hovers over the clickable area. */
   hovered = new Signal(false).getter
   /** Reactive `true` while the pointer press started on this clickable and is still held. */
   pressed = new Signal(false).getter
   /** Reactive `true` when the clickable is disabled. */
   disabled = new Signal(false).getter
+  /** Enables or disables pointer interactions for this clickable. */
+  setDisabled: SignalSetter<boolean> = (value) => (this.node.disabled = value)
   /** Reactive pointer position in local coordinates. */
   pointerPosition = new Signal<Vector2>(Vector2.ZERO).getter
 
@@ -79,6 +87,7 @@ export class ClickableReference extends Node2DReference<PrimaryNode.Clickable> {
         this.onPointerExit.link(node.onPointerExit)
 
         this.disabled.signal.setter(node.disabled)
+        this.shape.signal.setter(node.shape)
 
         node.onPointerEnter.connect(() => {
           this.hovered.signal.setter(true)
@@ -99,9 +108,11 @@ export class ClickableReference extends Node2DReference<PrimaryNode.Clickable> {
           this.hovered.signal.setter(node.hovered)
           this.pressed.signal.setter(node.pressed)
           this.disabled.signal.setter(node.disabled)
+          this.shape.signal.setter(node.shape)
         })
       },
       () => {
+        this.shape.signal.clearSubs()
         this.hovered.signal.clearSubs()
         this.pressed.signal.clearSubs()
         this.disabled.signal.clearSubs()

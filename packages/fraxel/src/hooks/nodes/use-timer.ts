@@ -1,6 +1,7 @@
 import { Trigger } from '../../events/trigger.js'
 import { PrimaryNode } from '../../nodes/index.js'
 import { Signal } from '../../reactivity/signal.js'
+import type { SignalSetter } from '../../reactivity/types.js'
 import { pushEffect } from '../context.js'
 import { NodeReference } from './reference.js'
 
@@ -41,6 +42,8 @@ export class TimerReference extends NodeReference<PrimaryNode.Timer> {
   time = new Signal(0).getter
   /** Reactive total duration in seconds. */
   duration = new Signal(1).getter
+  /** Sets the total duration in seconds. */
+  setDuration: SignalSetter<number> = (value) => (this.node.duration = value)
   /** Reactive progress ratio (0 to 1). */
   progress = new Signal(0).getter
 

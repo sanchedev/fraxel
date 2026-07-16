@@ -1,5 +1,6 @@
 import { PrimaryNode } from '../../../nodes/index.js'
 import { Signal } from '../../../reactivity/signal.js'
+import type { SignalSetter } from '../../../reactivity/types.js'
 import { pushEffect } from '../../context.js'
 import { Node2DReference } from './reference.js'
 import { Vector2, vector2, type VectorLike } from '../../../math/vector2.js'
@@ -44,14 +45,24 @@ export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
   velocity = new Signal<Vector2>(Vector2.ZERO).getter
   /** Reactive mass value. */
   mass = new Signal(1).getter
+  /** Sets the body's mass. */
+  setMass: SignalSetter<number> = (value) => (this.node.mass = value)
   /** Reactive friction coefficient. */
   friction = new Signal(0.1).getter
+  /** Sets the body's friction coefficient. */
+  setFriction: SignalSetter<number> = (value) => (this.node.friction = value)
   /** Reactive bounce coefficient (0 = no bounce, 1 = perfect bounce). */
   bounce = new Signal(0).getter
+  /** Sets the body's restitution coefficient. */
+  setBounce: SignalSetter<number> = (value) => (this.node.bounce = value)
   /** Reactive `true` if the body is static (unaffected by forces). */
   isStatic = new Signal(false).getter
+  /** Sets whether the body is static. */
+  setIsStatic: SignalSetter<boolean> = (value) => (this.node.isStatic = value)
   /** Reactive `true` if gravity is applied to this body. */
   useGravity = new Signal(true).getter
+  /** Sets whether gravity is applied to this body. */
+  setUseGravity: SignalSetter<boolean> = (value) => (this.node.useGravity = value)
 
   /**
    * Applies a continuous force to the body.

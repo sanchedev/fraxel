@@ -1,4 +1,5 @@
 import { Trigger } from '../../events/trigger.js'
+import type { Animation } from '../../animation/types.js'
 import { PrimaryNode } from '../../nodes/index.js'
 import { Signal } from '../../reactivity/signal.js'
 import { pushEffect } from '../context.js'
@@ -74,6 +75,10 @@ export class AnimationReference extends NodeReference<PrimaryNode.AnimationPlaye
    * @param animName The animation name, or `null` to clear the queue
    */
   setNext: (animName: string | null) => void = () => {}
+  /** Adds a single animation definition. */
+  add: (animName: string, animation: Animation) => void = () => {}
+  /** Replaces or adds multiple animation definitions. */
+  define: (animations: Record<string, Animation>) => void = () => {}
 
   constructor() {
     super(
@@ -109,6 +114,12 @@ export class AnimationReference extends NodeReference<PrimaryNode.AnimationPlaye
         this.play = (animName, index) => node.play(animName, index)
         this.stop = () => node.stop()
         this.setNext = (animName) => node.setNext(animName)
+        this.add = (animName, animation) => {
+          node.add(animName, animation)
+        }
+        this.define = (animations) => {
+          node.define(animations)
+        }
       },
       () => {
         this.animName.signal.clearSubs()

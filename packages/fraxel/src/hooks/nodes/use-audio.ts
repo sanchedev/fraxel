@@ -1,6 +1,7 @@
 import { Trigger } from '../../events/trigger.js'
 import { PrimaryNode } from '../../nodes/index.js'
 import { Signal } from '../../reactivity/signal.js'
+import type { SignalSetter } from '../../reactivity/types.js'
 import { pushEffect } from '../context.js'
 import { NodeReference } from './reference.js'
 
@@ -37,6 +38,14 @@ export function useAudio() {
 export class AudioReference extends NodeReference<PrimaryNode.AudioPlayer> {
   /** Reactive `true` when audio is currently playing. */
   playing = new Signal(false).getter
+  /** Reactive playback volume from `0` to `1`. */
+  volume = new Signal(1).getter
+  /** Sets the playback volume from `0` to `1`. */
+  setVolume: SignalSetter<number> = (value) => (this.node.volume = value)
+  /** Reactive playback speed multiplier. */
+  playbackRate = new Signal(1).getter
+  /** Sets the playback speed multiplier. */
+  setPlaybackRate: SignalSetter<number> = (value) => (this.node.playbackRate = value)
 
   /** Fires when the audio finishes playing naturally. */
   onEnd = new Trigger<[]>()
@@ -62,6 +71,8 @@ export class AudioReference extends NodeReference<PrimaryNode.AudioPlayer> {
         this.onError.link(node.onError)
 
         this.playing.signal.setter(node.isPlaying)
+        this.volume.signal.setter(node.volume)
+        this.playbackRate.signal.setter(node.playbackRate)
 
         node.onStart.connect(() => {
           this.playing.signal.setter(true)
@@ -71,6 +82,8 @@ export class AudioReference extends NodeReference<PrimaryNode.AudioPlayer> {
         })
         node.onUpdate.connect(() => {
           this.playing.signal.setter(node.isPlaying)
+          this.volume.signal.setter(node.volume)
+          this.playbackRate.signal.setter(node.playbackRate)
         })
 
         this.play = (offset) => node.play(offset)
@@ -79,6 +92,8 @@ export class AudioReference extends NodeReference<PrimaryNode.AudioPlayer> {
       },
       () => {
         this.playing.signal.clearSubs()
+        this.volume.signal.clearSubs()
+        this.playbackRate.signal.clearSubs()
       },
     )
   }

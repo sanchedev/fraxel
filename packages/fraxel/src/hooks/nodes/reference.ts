@@ -2,8 +2,8 @@ import { NodeNotInitializedError, NodeTypeMismatchError } from '../../errors/ind
 import { Trigger } from '../../events/trigger.js'
 import { renderToNodes } from '../../jsx/index.js'
 import type { Fraxel } from '../../jsx/types.js'
-import type { NodeInstances, PrimaryNode } from '../../nodes/index.js'
-import { Signal, type SignalGetter } from '../../reactivity/index.js'
+import { GameMode, type NodeInstances, type PrimaryNode } from '../../nodes/index.js'
+import { Signal, type SignalGetter, type SignalSetter } from '../../reactivity/index.js'
 import type { FraxelScript } from '../../scripts/script.js'
 import { currentContext, type HookContext } from '../context.js'
 
@@ -68,6 +68,11 @@ export class NodeReference<T extends PrimaryNode = PrimaryNode> {
   /** Fires when the node is destroyed. */
   onDestroy = new Trigger<[]>()
 
+  /** Reactive game mode getter. Updates every frame. */
+  gameMode = new Signal(GameMode.INHERIT).getter
+  /** Sets how this node updates relative to the game's pause state. */
+  setGameMode: SignalSetter<GameMode> = (mode) => (this.node.gameMode = mode)
+
   constructor(type: T, onStart?: (node: NodeInstances[T]) => void, onEnd?: () => void) {
     this.#type = type
     this.signal = this.#node.getter
@@ -75,11 +80,16 @@ export class NodeReference<T extends PrimaryNode = PrimaryNode> {
     this.signal.signal.sub((node) => {
       if (node == null) {
         onEnd?.()
+        this.gameMode.signal.clearSubs()
       } else {
         this.onStart.link(node.onStart)
         this.onDraw.link(node.onDraw)
         this.onUpdate.link(node.onUpdate)
         this.onDestroy.link(node.onDestroy)
+        this.gameMode.signal.setter(node.gameMode)
+        node.onUpdate.connect(() => {
+          this.gameMode.signal.setter(node.gameMode)
+        })
         onStart?.(node)
       }
     })

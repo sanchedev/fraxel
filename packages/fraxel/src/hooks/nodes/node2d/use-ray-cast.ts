@@ -2,7 +2,9 @@ import { PrimaryNode, type Collider } from '../../../nodes/index.js'
 import { Signal } from '../../../reactivity/signal.js'
 import { pushEffect } from '../../context.js'
 import { Trigger } from '../../../events/trigger.js'
+import { vector2, Vector2, type VectorLike } from '../../../math/vector2.js'
 import { Node2DReference } from './reference.js'
+import type { SignalSetter } from '../../../reactivity/types.js'
 
 /**
  * The **`useRayCast`** hook creates a reference to a `RayCast` node with reactive
@@ -38,7 +40,9 @@ export function useRayCast() {
 
 export class RayCastReference extends Node2DReference<PrimaryNode.RayCast> {
   /** Reactive ray direction vector. */
-  direction = new Signal({ x: 0, y: 0 }).getter
+  direction = new Signal<Vector2>(Vector2.ZERO).getter
+  /** Sets the ray direction. Accepts any `VectorLike` value. */
+  setDirection: SignalSetter<VectorLike> = (value) => (this.node.direction = vector2(value))
   /** Reactive reference to the currently detected collider, or `null`. */
   collider = new Signal<Collider | null>(null).getter
   /** Reactive `true` when a collider is detected. */
