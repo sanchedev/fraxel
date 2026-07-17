@@ -58,6 +58,11 @@ export class Region {
   equals(other: Region): boolean {
     return this.offset.equals(other.offset) && this.size.equals(other.size)
   }
+
+  /** Returns a readable string representation of this region. */
+  toString() {
+    return `Region(offset=${this.offset.toString()}, size=${this.size.toString()})`
+  }
 }
 
 /**

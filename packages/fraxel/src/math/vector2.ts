@@ -444,6 +444,11 @@ export class Vector2 {
       y: this.y,
     }
   }
+
+  /** Returns a readable string representation of this vector. */
+  toString() {
+    return `Vector2(${this.x}, ${this.y})`
+  }
 }
 
 /**

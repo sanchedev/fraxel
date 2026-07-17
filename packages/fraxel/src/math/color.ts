@@ -176,6 +176,11 @@ export class Color {
   toJSON() {
     return { r: this.r, g: this.g, b: this.b, a: this.a }
   }
+
+  /** Returns a readable string representation of this color. */
+  toString() {
+    return `Color(${this.r}, ${this.g}, ${this.b}, ${this.a})`
+  }
 }
 
 /**

@@ -134,6 +134,11 @@ export class Bounds {
     }
     if (!isBoundsLike(args[0])) throw new InvalidBoundsLikeError(args[0])
   }
+
+  /** Returns a readable string representation of this bounds. */
+  toString() {
+    return `Bounds(${this.left}, ${this.top}, ${this.right}, ${this.bottom})`
+  }
 }
 
 /**
