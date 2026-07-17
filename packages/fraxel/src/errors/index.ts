@@ -1,6 +1,7 @@
 export * from './animation.js'
 export * from './assets.js'
 export * from './base.js'
+export * from './collision.js'
 export * from './env.js'
 export * from './hook.js'
 export * from './jsx.js'

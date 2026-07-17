@@ -3,6 +3,7 @@ import type { Transform, TransformOptions } from '../node2d/transform.js'
 import type { Sprite, SpriteOptions } from '../node2d/sprite.js'
 import type { AnimationPlayer, AnimationPlayerOptions } from '../animation-player.js'
 import type { Collider, ColliderOptions } from '../node2d/collider.js'
+import type { Detector, DetectorOptions } from '../node2d/detector.js'
 import type { RayCast, RayCastOptions } from '../node2d/ray-cast.js'
 import type { PrimaryNode } from './enum.js'
 import type { Clickable, ClickableOptions } from '../node2d/clickable.js'
@@ -36,6 +37,7 @@ export interface NodeClasses {
   [PrimaryNode.TileMap]: typeof TileMap
   [PrimaryNode.AnimationPlayer]: typeof AnimationPlayer
   [PrimaryNode.Collider]: typeof Collider
+  [PrimaryNode.Detector]: typeof Detector
   [PrimaryNode.RayCast]: typeof RayCast
   [PrimaryNode.Clickable]: typeof Clickable
   [PrimaryNode.Timer]: typeof Timer
@@ -66,6 +68,7 @@ export interface NodesOptions {
   [PrimaryNode.TileMap]: TileMapOptions
   [PrimaryNode.AnimationPlayer]: AnimationPlayerOptions
   [PrimaryNode.Collider]: ColliderOptions
+  [PrimaryNode.Detector]: DetectorOptions
   [PrimaryNode.RayCast]: RayCastOptions
   [PrimaryNode.Clickable]: ClickableOptions
   [PrimaryNode.Timer]: TimerOptions

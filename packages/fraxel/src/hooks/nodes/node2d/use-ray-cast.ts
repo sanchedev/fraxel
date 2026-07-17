@@ -1,38 +1,17 @@
-import { PrimaryNode, type Collider } from '../../../nodes/index.js'
-import { Signal } from '../../../reactivity/signal.js'
-import { pushEffect } from '../../context.js'
+import {
+  CollisionLayer,
+  type CollisionMaskValue,
+  type CollisionOwner,
+} from '../../../collision/index.js'
 import { Trigger } from '../../../events/trigger.js'
 import { vector2, Vector2, type VectorLike } from '../../../math/vector2.js'
-import { Node2DReference } from './reference.js'
+import { PrimaryNode } from '../../../nodes/index.js'
+import { Signal } from '../../../reactivity/signal.js'
 import type { SignalSetter } from '../../../reactivity/types.js'
+import { pushEffect } from '../../context.js'
+import { Node2DReference } from './reference.js'
 
-/**
- * The **`useRayCast`** hook creates a reference to a `RayCast` node with reactive
- * detection state and event triggers.
- *
- * @returns A `RayCastReference` with reactive detection state and triggers
- *
- * @example
- * ```tsx
- * import { useRayCast, useTrigger, useEffect } from 'fraxel'
- *
- * function Peashooter() {
- *   const raycast = useRayCast()
- *
- *   useTrigger(raycast.onColliderEnter, (collider) => {
- *     console.log('Detected:', collider)
- *   })
- *
- *   useEffect(() => {
- *     if (raycast.detected()) {
- *       console.log('Zombie ahead:', raycast.collider())
- *     }
- *   })
- *
- *   return <raycast ref={raycast} direction={[100, 0]} collidesWith={['zombie']} />
- * }
- * ```
- */
+/** Creates a reference to a RayCast node with reactive target state. */
 export function useRayCast() {
   pushEffect('useRayCast', () => {})
   return new RayCastReference()
@@ -43,68 +22,47 @@ export class RayCastReference extends Node2DReference<PrimaryNode.RayCast> {
   direction = new Signal<Vector2>(Vector2.ZERO).getter
   /** Sets the ray direction. Accepts any `VectorLike` value. */
   setDirection: SignalSetter<VectorLike> = (value) => (this.node.direction = vector2(value))
-  /** Reactive reference to the currently detected collider, or `null`. */
-  collider = new Signal<Collider | null>(null).getter
-  /** Reactive `true` when a collider is detected. */
+  /** Reactive collision mask. */
+  mask = new Signal<CollisionMaskValue>(CollisionLayer.Default).getter
+  /** Sets the collision mask. */
+  setMask: SignalSetter<CollisionMaskValue> = (value) => this.node.setMask(value)
+  /** Reactive reference to the currently detected owner, or `null`. */
+  target = new Signal<CollisionOwner | null>(null).getter
+  /** Reactive `true` when a target is detected. */
   detected = new Signal(false).getter
 
-  /** Fires when the ray starts hitting a collider. */
-  onColliderEnter = new Trigger<[collider: Collider]>()
-  /** Fires when the ray stops hitting a collider. */
-  onColliderExit = new Trigger<[collider: Collider]>()
+  /** Fires when the ray starts hitting an owner. */
+  onTargetEnter = new Trigger<[target: CollisionOwner]>()
+  /** Fires when the ray stops hitting an owner. */
+  onTargetExit = new Trigger<[target: CollisionOwner]>()
 
   constructor() {
     super(
       PrimaryNode.RayCast,
       (node) => {
-        this.onColliderEnter.link(node.onColliderEnter)
-        this.onColliderExit.link(node.onColliderExit)
+        this.onTargetEnter.link(node.onTargetEnter)
+        this.onTargetExit.link(node.onTargetExit)
 
-        const sets = [
-          () => {
-            this.direction.signal.setter(node.direction)
-            this.collider.signal.setter(node.getCollider())
-            this.detected.signal.setter(node.getCollider() != null)
-          },
-        ]
-        sets.forEach((set) => set())
-
-        node.onUpdate.connect(() => {
-          sets.forEach((set) => set())
-        })
+        const set = () => {
+          this.direction.signal.setter(node.direction)
+          this.mask.signal.setter(node.mask)
+          this.target.signal.setter(node.getTarget())
+          this.detected.signal.setter(node.getTarget() != null)
+        }
+        set()
+        node.onUpdate.connect(set)
       },
       () => {
         this.direction.signal.clearSubs()
-        this.collider.signal.clearSubs()
+        this.mask.signal.clearSubs()
+        this.target.signal.clearSubs()
         this.detected.signal.clearSubs()
       },
     )
   }
 
-  /**
-   * Returns the currently detected collider, or `null` if none is detected.
-   *
-   * @returns The detected `Collider` or `null`
-   *
-   * @example
-   * ```tsx
-   * import { useRayCast, useEffect } from 'fraxel'
-   *
-   * function Detector() {
-   *   const raycast = useRayCast()
-   *
-   *   useEffect(() => {
-   *     const hit = raycast.getCollider()
-   *     if (hit) {
-   *       console.log('Hit:', hit)
-   *     }
-   *   })
-   *
-   *   return <raycast ref={raycast} direction={[1, 0]} collidesWith={['enemy']} />
-   * }
-   * ```
-   */
-  getCollider(): Collider | null {
-    return this.node.getCollider()
+  /** Returns the currently detected owner, or `null` if none is detected. */
+  getTarget(): CollisionOwner | null {
+    return this.node.getTarget()
   }
 }

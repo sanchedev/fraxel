@@ -5,6 +5,11 @@ import type { TileSet } from '../../assets/tileset.js'
 import { Vector2, vector2 } from '../../math/vector2.js'
 import { InvalidTileKeyError, InvalidMapRowLengthError } from '../../errors/tilemap.js'
 import type { TileCollision } from '../../assets/tile.js'
+import {
+  CollisionLayer,
+  type CollisionLayerValue,
+  type CollisionMaskValue,
+} from '../../collision/layers.js'
 
 /**
  * The **`TileMapOptions`** interface defines the configuration for a `TileMap` node.
@@ -39,25 +44,25 @@ export interface TileMapOptions<
    */
   map: string[]
   /**
-   * The **`collisionGroup`** property defines the default collision group for tiles
-   * that have collision data but no explicit `group` override.
+   * The **`collisionLayer`** property defines the default collision layer for tiles
+   * that have collision data but no explicit `layer` override.
    *
    * @example
    * ```tsx
-   * <tilemap collisionGroup={['ground']} collidesWith={['player']} />
+   * <tilemap collisionLayer={Layers.Ground} collisionMask={Layers.Player} />
    * ```
    */
-  collisionGroup?: string[]
+  collisionLayer?: CollisionLayerValue
   /**
-   * The **`collidesWith`** property defines the default groups that tile colliders
-   * can interact with, when the tile has no explicit `collidesWith` override.
+   * The **`collisionMask`** property defines the default layers that tile owners
+   * can interact with, when the tile has no explicit `mask` override.
    *
    * @example
    * ```tsx
-   * <tilemap collisionGroup={['ground']} collidesWith={['player']} />
+   * <tilemap collisionLayer={Layers.Ground} collisionMask={Layers.Player} />
    * ```
    */
-  collidesWith?: string[]
+  collisionMask?: CollisionMaskValue
   /**
    * The **`chunkSize`** property controls how static tiles are grouped into
    * physics bodies. Each chunk becomes a single `RigidBody` containing its
@@ -92,7 +97,7 @@ interface StaticTileEntry {
  *
  * Static tiles (`static: true`, default) are grouped into chunked `RigidBody`
  * nodes that block dynamic bodies via physics resolution. Trigger tiles
- * (`static: false`) spawn standalone colliders for overlap detection only.
+ * (`static: false`) spawn `Detector` nodes for overlap detection only.
  *
  * All map rows must have the same length. Space characters render as empty tiles.
  *
@@ -104,13 +109,13 @@ interface StaticTileEntry {
  * const tiles = tileset(vector2(16, 16), {
  *   x: tile(TILE_TEXTURE, region(0, 16), {
  *     shape: shapes.rectangle(16, 16),
- *     group: ['solid'],
- *     collidesWith: ['player'],
+ *     layer: Layers.Solid,
+ *     mask: Layers.Player,
  *   }),
  *   c: tile(TILE_TEXTURE, region(32, 16), {
  *     shape: shapes.circle(8),
- *     group: ['coin'],
- *     collidesWith: ['player'],
+ *     layer: Layers.Coin,
+ *     mask: Layers.Player,
  *     static: false,
  *   }),
  *   o: tile(TILE_TEXTURE, region(16, 16)),
@@ -120,8 +125,8 @@ interface StaticTileEntry {
  *   return (
  *     <tilemap
  *       tiles={tiles}
- *       collisionGroup={['ground']}
- *       collidesWith={['player']}
+ *       collisionLayer={Layers.Ground}
+ *       collisionMask={Layers.Player}
  *       map={[
  *         'xxxxxxxxx',
  *         'x.c...c.x',
@@ -136,8 +141,8 @@ interface StaticTileEntry {
 export class TileMap<const T extends string> extends Node2D<PrimaryNode.TileMap> {
   #tiles: TileSet<T>
   #map: string[]
-  #collisionGroup?: string[]
-  #collidesWith?: string[]
+  #collisionLayer: CollisionLayerValue
+  #collisionMask: CollisionMaskValue
   #chunkSize: number | null
   #physicsCreated = false
 
@@ -159,8 +164,8 @@ export class TileMap<const T extends string> extends Node2D<PrimaryNode.TileMap>
     super(PrimaryNode.TileMap, options)
     this.#tiles = options.tiles
     this.#map = options.map.slice()
-    this.#collisionGroup = options.collisionGroup
-    this.#collidesWith = options.collidesWith
+    this.#collisionLayer = options.collisionLayer ?? CollisionLayer.Default
+    this.#collisionMask = options.collisionMask ?? CollisionLayer.Default
     this.#chunkSize = options.chunkSize ?? 8
 
     const keys = this.#tiles.keys
@@ -224,14 +229,19 @@ export class TileMap<const T extends string> extends Node2D<PrimaryNode.TileMap>
     }
 
     for (const tile of triggerTiles) {
-      this.addChild(
+      const detector = getNode(PrimaryNode.Detector, {
+        position: vector2(tile.x, tile.y).multiply(tileSize),
+        layer: tile.collision.layer ?? this.#collisionLayer,
+        mask: tile.collision.mask ?? this.#collisionMask,
+      })
+
+      detector.addChild(
         getNode(PrimaryNode.Collider, {
-          position: vector2(tile.x, tile.y).multiply(tileSize),
           shape: tile.collision.shape,
-          group: tile.collision.group ?? this.#collisionGroup ?? [],
-          collidesWith: tile.collision.collidesWith ?? this.#collidesWith ?? [],
         }),
       )
+
+      this.addChild(detector)
     }
   }
 
@@ -255,11 +265,14 @@ export class TileMap<const T extends string> extends Node2D<PrimaryNode.TileMap>
     }
 
     for (const [, chunk] of chunks) {
+      const firstTile = chunk.tiles[0]!
       const body = getNode(PrimaryNode.RigidBody, {
         position: vector2(chunk.originX, chunk.originY).multiply(tileSize),
         isStatic: true,
         mass: 0,
         useGravity: false,
+        layer: firstTile.collision.layer ?? this.#collisionLayer,
+        mask: firstTile.collision.mask ?? this.#collisionMask,
       })
 
       for (const tile of chunk.tiles) {
@@ -267,8 +280,6 @@ export class TileMap<const T extends string> extends Node2D<PrimaryNode.TileMap>
           getNode(PrimaryNode.Collider, {
             position: vector2(tile.x - chunk.originX, tile.y - chunk.originY).multiply(tileSize),
             shape: tile.collision.shape,
-            group: tile.collision.group ?? this.#collisionGroup ?? [],
-            collidesWith: tile.collision.collidesWith ?? this.#collidesWith ?? [],
           }),
         )
       }
@@ -285,6 +296,8 @@ export class TileMap<const T extends string> extends Node2D<PrimaryNode.TileMap>
       isStatic: true,
       mass: 0,
       useGravity: false,
+      layer: staticTiles[0]?.collision.layer ?? this.#collisionLayer,
+      mask: staticTiles[0]?.collision.mask ?? this.#collisionMask,
     })
 
     for (const tile of staticTiles) {
@@ -292,8 +305,6 @@ export class TileMap<const T extends string> extends Node2D<PrimaryNode.TileMap>
         getNode(PrimaryNode.Collider, {
           position: vector2(tile.x, tile.y).multiply(tileSize),
           shape: tile.collision.shape,
-          group: tile.collision.group ?? this.#collisionGroup ?? [],
-          collidesWith: tile.collision.collidesWith ?? this.#collidesWith ?? [],
         }),
       )
     }

@@ -2,6 +2,11 @@ import { Region } from '../math/region.js'
 import { Vector2 } from '../math/vector2.js'
 import { getTexture, type Texture } from './texture.js'
 import type { Shape } from '../collision/narrowphase/shapes.js'
+import {
+  CollisionLayer,
+  type CollisionLayerValue,
+  type CollisionMaskValue,
+} from '../collision/layers.js'
 
 /**
  * The **`TileCollision`** interface defines the collision configuration for a `Tile`.
@@ -18,15 +23,15 @@ import type { Shape } from '../collision/narrowphase/shapes.js'
  * // Solid wall (blocks bodies)
  * const wall = tile(WALL_TEX, region(0, 16), {
  *   shape: shapes.rectangle(16, 16),
- *   group: ['solid'],
- *   collidesWith: ['player'],
+ *   layer: Layers.Solid,
+ *   mask: Layers.Player,
  * })
  *
  * // Trigger zone (detects only)
  * const coin = tile(COIN_TEX, region(32, 16), {
  *   shape: shapes.circle(8),
- *   group: ['coin'],
- *   collidesWith: ['player'],
+ *   layer: Layers.Coin,
+ *   mask: Layers.Player,
  *   static: false,
  * })
  * ```
@@ -35,15 +40,15 @@ export interface TileCollision {
   /** The collision shape for this tile. */
   shape: Shape
   /**
-   * The collision groups this tile belongs to.
-   * Overrides the TileMap's default `collisionGroup` when set.
+   * The collision layer this tile belongs to.
+   * Overrides the TileMap's default `collisionLayer` when set.
    */
-  group?: string[]
+  layer?: CollisionLayerValue
   /**
-   * The groups this tile can collide with.
-   * Overrides the TileMap's default `collidesWith` when set.
+   * The collision mask this tile interacts with.
+   * Overrides the TileMap's default `collisionMask` when set.
    */
-  collidesWith?: string[]
+  mask?: CollisionMaskValue
   /**
    * Whether this tile is a static solid that blocks dynamic bodies.
    * When `true`, the tile's collider participates in physics resolution.
@@ -68,8 +73,8 @@ export interface TileCollision {
  * // Tile with collision
  * const wall = tile(WALL_TEX, region(16, 16), {
  *   shape: shapes.rectangle(16, 16),
- *   group: ['solid'],
- *   collidesWith: ['player'],
+ *   layer: CollisionLayer.Default,
+ *   mask: CollisionLayer.Default,
  * })
  * ```
  */
@@ -99,6 +104,8 @@ export class Tile {
     })
   }
 }
+
+export { CollisionLayer }
 
 /**
  * The **`tile`** function creates a `Tile`.

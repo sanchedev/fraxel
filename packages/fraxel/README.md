@@ -62,6 +62,7 @@ Paste it in src/main.tsx
 import {
   Input,
   loadTexture,
+  CollisionLayer,
   shapes,
   createGame,
   GameRoot,
@@ -79,6 +80,11 @@ const Left = Input.createAction({ key: 'a' })
 const Right = Input.createAction({ key: 'd' })
 const Jump = Input.createAction({ key: ' ' })
 
+const Layers = {
+  Player: CollisionLayer.create(1),
+  Ground: CollisionLayer.create(2),
+} as const
+
 function Player() {
   const body = useRigidBody()
   const detector = useRayCast()
@@ -95,10 +101,10 @@ function Player() {
   })
 
   return (
-    <body ref={body} position={[80, 40]} mass={1}>
+    <body ref={body} position={[80, 40]} mass={1} layer={Layers.Player} mask={Layers.Ground}>
       <sprite textureId={PLAYER} />
-      <collider shape={shapes.rectangle(16, 16)} group="player" collidesWith="ground" />
-      <raycast ref={detector} position={[8, 16]} direction={[0, 2]} collidesWith={['ground']} />
+      <collider shape={shapes.rectangle(16, 16)} />
+      <raycast ref={detector} position={[8, 16]} direction={[0, 2]} mask={Layers.Ground} />
     </body>
   )
 }
@@ -108,8 +114,8 @@ function MainScene() {
     <>
       <Player />
 
-      <body position={[0, 200]} isStatic>
-        <collider shape={shapes.rectangle(400, 16)} group={['ground']} collidesWith={['player']} />
+      <body position={[0, 200]} isStatic layer={Layers.Ground} mask={Layers.Player}>
+        <collider shape={shapes.rectangle(400, 16)} />
       </body>
     </>
   )

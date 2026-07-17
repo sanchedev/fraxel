@@ -30,7 +30,7 @@ import { Trigger } from '../../events/trigger.js'
  * import { useCondition, useEffect, useRayCast } from 'fraxel'
  *
  * const raycast = useRayCast()
- * const isZombieDetected = useCondition(raycast.onColliderEnter, raycast.onColliderExit)
+ * const isZombieDetected = useCondition(raycast.onTargetEnter, raycast.onTargetExit)
  *
  * useEffect(() => {
  *   anim.node.setNext(isZombieDetected() ? 'shoot' : 'idle')

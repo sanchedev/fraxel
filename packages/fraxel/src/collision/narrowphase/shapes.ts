@@ -92,13 +92,13 @@ export type Shape = RectangleShape | CircleShape | CapsuleShape
  * import { shapes } from 'fraxel'
  *
  * // Rectangle
- * <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy']} />
+ * <collider shape={shapes.rectangle(32, 32)} />
  *
  * // Circle
- * <collider shape={shapes.circle(16)} group={['projectile']} collidesWith={['zombie']} />
+ * <collider shape={shapes.circle(16)} />
  *
  * // Capsule
- * <collider shape={shapes.capsule(64, 12)} group={['player']} collidesWith={['obstacle']} />
+ * <collider shape={shapes.capsule(64, 12)} />
  * ```
  */
 export const shapes = {

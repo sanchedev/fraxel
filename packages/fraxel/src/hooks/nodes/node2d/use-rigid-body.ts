@@ -1,4 +1,10 @@
-import { PrimaryNode } from '../../../nodes/index.js'
+import {
+  CollisionLayer,
+  type CollisionLayerValue,
+  type CollisionMaskValue,
+} from '../../../collision/index.js'
+import { Trigger } from '../../../events/trigger.js'
+import { PrimaryNode, type Detector, type RigidBody } from '../../../nodes/index.js'
 import { Signal } from '../../../reactivity/signal.js'
 import type { SignalSetter } from '../../../reactivity/types.js'
 import { pushEffect } from '../../context.js'
@@ -29,7 +35,7 @@ import { Vector2, vector2, type VectorLike } from '../../../math/vector2.js'
  *
  *   return (
  *     <body ref={ref} mass={1}>
- *       <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['ground']} />
+ *       <collider shape={shapes.rectangle(32, 32)} />
  *     </body>
  *   )
  * }
@@ -63,6 +69,21 @@ export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
   useGravity = new Signal(true).getter
   /** Sets whether gravity is applied to this body. */
   setUseGravity: SignalSetter<boolean> = (value) => (this.node.useGravity = value)
+  /** Reactive collision layer. */
+  layer = new Signal<CollisionLayerValue>(CollisionLayer.Default).getter
+  /** Sets the collision layer. */
+  setLayer: SignalSetter<CollisionLayerValue> = (value) => this.node.setLayer(value)
+  /** Reactive collision mask. */
+  mask = new Signal<CollisionMaskValue>(CollisionLayer.Default).getter
+  /** Sets the collision mask. */
+  setMask: SignalSetter<CollisionMaskValue> = (value) => this.node.setMask(value)
+
+  onBodyEnter = new Trigger<[body: RigidBody]>()
+  onBodyCollide = new Trigger<[body: RigidBody]>()
+  onBodyExit = new Trigger<[body: RigidBody]>()
+  onDetectorEnter = new Trigger<[detector: Detector]>()
+  onDetectorCollide = new Trigger<[detector: Detector]>()
+  onDetectorExit = new Trigger<[detector: Detector]>()
 
   /**
    * Applies a continuous force to the body.
@@ -87,6 +108,13 @@ export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
     super(
       PrimaryNode.RigidBody,
       (node) => {
+        this.onBodyEnter.link(node.onBodyEnter)
+        this.onBodyCollide.link(node.onBodyCollide)
+        this.onBodyExit.link(node.onBodyExit)
+        this.onDetectorEnter.link(node.onDetectorEnter)
+        this.onDetectorCollide.link(node.onDetectorCollide)
+        this.onDetectorExit.link(node.onDetectorExit)
+
         const sets = [
           () => {
             this.velocity.signal.setter(node.velocity)
@@ -95,6 +123,8 @@ export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
             this.bounce.signal.setter(node.bounce)
             this.isStatic.signal.setter(node.isStatic)
             this.useGravity.signal.setter(node.useGravity)
+            this.layer.signal.setter(node.layer)
+            this.mask.signal.setter(node.mask)
           },
         ]
         sets.forEach((set) => set())
@@ -109,6 +139,8 @@ export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
         this.bounce.signal.clearSubs()
         this.isStatic.signal.clearSubs()
         this.useGravity.signal.clearSubs()
+        this.layer.signal.clearSubs()
+        this.mask.signal.clearSubs()
       },
     )
   }

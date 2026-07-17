@@ -6,7 +6,7 @@
 
 - **Trigger API cleanup** — replaced the old `Event` API with `Trigger` and `createTrigger()` for pub/sub and node lifecycle/event hooks.
 - **Lifecycle trigger renames** — node lifecycle triggers now use `onStart`, `onUpdate`, `onDraw`, and `onDestroy`.
-- **Intrinsic event props cleanup** — JSX event props now map to trigger names such as `onClick`, `onColliderEnter`, `onTimeout`, and `onAnimEnd`.
+- **Intrinsic event props cleanup** — JSX event props now map to trigger names such as `onClick`, `onBodyEnter`, `onTimeout`, and `onAnimEnd`.
 - **Action axis input** — added `Input.getActionAxis(negativeAction, positiveAction)` and `useActionAxis()` support for action-based directional input.
 - **Shape-based pointer targets** — `Clickable` now uses collision `Shape` definitions for pointer hit-testing, enabling rectangle, circle, and capsule clickable areas.
 - **Sprite tint rename** — renamed the sprite color multiplier from `modulate` to `tint` for clearer public API naming.
@@ -21,7 +21,7 @@
 
 - **`Event` removed** — use `Trigger`, `createTrigger()`, and `useTrigger()` instead.
 - **Lifecycle event names changed** — replace `started`, `updated`, `drawed`, and `destroyed` with `onStart`, `onUpdate`, `onDraw`, and `onDestroy`.
-- **Node trigger names changed** — replace old names like `clicked`, `colliderEntered`, `colliderExited`, `timeout`, `timeChanged`, and `animationEnded` with `onClick`, `onColliderEnter`, `onColliderExit`, `onTimeout`, `onTimeChange`, and `onAnimEnd`.
+- **Node trigger names changed** — replace old names like `clicked`, `colliderEntered`, `colliderExited`, `timeout`, `timeChanged`, and `animationEnded` with `onClick`, `onBodyEnter`, `onBodyExit`, `onTimeout`, `onTimeChange`, and `onAnimEnd`.
 - **Raw key helpers removed** — `Input.isKeyPressed`, `Input.isJustKeyUnpressed`, and `Input.getKeyAxis` were removed. Define actions with `Input.createAction()` and query them with action APIs.
 - **Clickable `size` removed** — use `shape={shapes.rectangle(width, height)}` instead of `size={[width, height]}`. Clickables now support all collision shapes.
 - **Sprite `modulate` renamed** — use the `tint` prop, `Sprite.tint`, and `sprite.setTint()` instead of `modulate`, `Sprite.modulate`, and `sprite.setModulate()`.

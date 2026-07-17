@@ -62,6 +62,8 @@ export enum PrimaryNode {
   AnimationPlayer = 'animator',
   /** A node that detects collisions with other colliders. */
   Collider = 'collider',
+  /** A non-physical area that detects overlapping bodies and detectors. */
+  Detector = 'detector',
   /** A node that projects a ray to detect colliders along a direction. */
   RayCast = 'raycast',
   /** A node that detects click events. */

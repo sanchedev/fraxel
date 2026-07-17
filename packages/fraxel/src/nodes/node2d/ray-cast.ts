@@ -4,7 +4,8 @@ import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { registerNode } from '../lib/registry.js'
 import { CollisionSystem } from '../../collision/collision-system.js'
-import type { Collider } from './collider.js'
+import type { CollisionOwner } from '../../collision/collision-system.js'
+import { CollisionLayer, type CollisionMaskValue } from '../../collision/layers.js'
 import type { Reactive } from '../../reactivity/types.js'
 import { propSignal, signalVector } from '../../utils/ternaries.js'
 import { Trigger } from '../../events/trigger.js'
@@ -16,25 +17,24 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
    *
    * @example
    * ```tsx
-   * <raycast direction={[100, 0]} collidesWith={['enemy']} />
-   * <raycast direction={[0, -50]} collidesWith={['ceiling']} />
+   * <raycast direction={[100, 0]} mask={Layers.Enemy} />
+   * <raycast direction={[0, -50]} mask={Layers.Ceiling} />
    * ```
    */
   direction: Reactive<VectorLike>
   /**
-   * The **`collidesWith`** property defines which groups this raycast detects.
+   * The **`mask`** property defines which owner layers this raycast detects.
    *
    * @example
    * ```tsx
-   * <raycast direction={[100, 0]} collidesWith={['enemy', 'obstacle']} />
+   * <raycast direction={[100, 0]} mask={Layers.Enemy | Layers.Obstacle} />
    * ```
    */
-  collidesWith: string | string[]
+  mask?: CollisionMaskValue
 }
 
 /**
- * The **`RayCast`** node projects a ray from its position and detects the first collider it hits.
- * Supports rectangle, circle, and capsule collider shapes. Emits events when the detected collider changes.
+ * The **`RayCast`** node projects a ray from its position and detects the first collision owner it hits.
  *
  * @example
  * ```tsx
@@ -43,15 +43,15 @@ export interface RayCastOptions extends Node2DOptions<PrimaryNode.RayCast> {
  * function Gun() {
  *   const ray = useRayCast()
  *
- *   useTrigger(ray.onColliderEnter, (collider) => {
- *     console.log('Hit:', collider)
+ *   useTrigger(ray.onTargetEnter, (target) => {
+ *     console.log('Hit:', target)
  *   })
  *
  *   return (
  *     <raycast
  *       ref={ray}
  *       direction={[100, 0]}
- *       collidesWith={['enemy']}
+ *       mask={Layers.Enemy}
  *     />
  *   )
  * }
@@ -63,22 +63,26 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
    */
   direction: Vector2
 
-  #collidesWith: string[]
+  #mask: CollisionMaskValue
 
-  _detectedCollider: Collider | null = null
+  _target: CollisionOwner | null = null
 
   constructor(options: RayCastOptions) {
     super(PrimaryNode.RayCast, options)
 
     this.direction = propSignal(this, 'direction', signalVector(options.direction))
-    this.#collidesWith = Array.from(new Set([options.collidesWith].flat()))
+    this.#mask = options.mask ?? CollisionLayer.Default
   }
 
   /**
-   * The read-only **`collidesWith`** property returns the groups this raycast detects.
+   * The read-only **`mask`** property returns the owner layers this raycast detects.
    */
-  get collidesWith() {
-    return this.#collidesWith
+  get mask() {
+    return this.#mask
+  }
+
+  setMask(mask: CollisionMaskValue): void {
+    this.#mask = mask
   }
 
   /**
@@ -94,12 +98,12 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
   }
 
   // Trigger
-  onColliderEnter = new Trigger<[collider: Collider]>()
-  onColliderExit = new Trigger<[collider: Collider]>()
+  onTargetEnter = new Trigger<[target: CollisionOwner]>()
+  onTargetExit = new Trigger<[target: CollisionOwner]>()
 
   /**
-   * The **`getCollider`** method returns the currently detected collider.
-   * @returns The detected `Collider` or `null` if none is in range.
+   * The **`getTarget`** method returns the currently detected owner.
+   * @returns The detected `RigidBody`/`Detector` or `null` if none is in range.
    *
    * @example
    * ```tsx
@@ -108,19 +112,19 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
    * function Peashooter() {
    *   const ray = useRayCast()
    *
-   *   useTrigger(ray.onColliderEnter, () => {
-   *     const target = ray.getCollider()
+   *   useTrigger(ray.onTargetEnter, () => {
+   *     const target = ray.getTarget()
    *     if (target) {
    *       console.log('Target at:', target.globalPosition)
    *     }
    *   })
    *
-   *   return <raycast ref={ray} direction={[100, 0]} collidesWith={['zombie']} />
+   *   return <raycast ref={ray} direction={[100, 0]} mask={Layers.Zombie} />
    * }
    * ```
    */
-  getCollider(): Collider | null {
-    return this._detectedCollider
+  getTarget(): CollisionOwner | null {
+    return this._target
   }
 
   /** @internal Registers this raycast with the collision system. */
@@ -177,8 +181,8 @@ export class RayCast extends Node2D<PrimaryNode.RayCast> {
 
   /** @internal Cleans up custom event listeners. */
   cleanEvents(): void {
-    this.onColliderEnter.clear()
-    this.onColliderExit.clear()
+    this.onTargetEnter.clear()
+    this.onTargetExit.clear()
     super.cleanEvents()
   }
 }

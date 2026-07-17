@@ -25,9 +25,7 @@ import type { SignalSetter } from '../../../reactivity/types.js'
  *   })
  *
  *   return (
- *     <geometry ref={geo} shape={shapes.rectangle(32, 32)}>
- *       <collider shape={shapes.rectangle(32, 32)} group={['hitbox']} />
- *     </geometry>
+ *     <geometry ref={geo} shape={shapes.rectangle(32, 32)} />
  *   )
  * }
  * ```

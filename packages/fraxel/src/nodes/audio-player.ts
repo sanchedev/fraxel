@@ -85,20 +85,20 @@ export interface AudioPlayerOptions extends NodeOptions<PrimaryNode.AudioPlayer>
  * ```tsx
  * function Pea({ position }: { position: VectorLike }) {
  *   const audio = useAudio()
- *   const collider = useCollider()
+ *   const detector = useDetector()
  *
- *   useTrigger(collider.onColliderEnter, () => {
+ *   useTrigger(detector.onBodyEnter, () => {
  *     audio.play()
  *     pea.node.destroy() // audio survives until sound finishes
  *   })
  *
  *   return (
- *     <transform ref={pea} position={position}>
+ *     <detector ref={detector} position={position}>
  *       <sprite textureId={PEA}>
- *         <collider ref={collider} ... />
+ *         <collider ... />
  *       </sprite>
  *       <audio-player ref={audio} soundId={SPLAT} persistUntilEnd />
- *     </transform>
+ *     </detector>
  *   )
  * }
  * ```

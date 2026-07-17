@@ -32,7 +32,7 @@ import { useComputed } from '../use-computed.js'
  * import { useCondition, useWhen, useRayCast } from 'fraxel'
  *
  * const raycast = useRayCast()
- * const isZombieDetected = useCondition(raycast.onColliderEnter, raycast.onColliderExit)
+ * const isZombieDetected = useCondition(raycast.onTargetEnter, raycast.onTargetExit)
  * const animName = useWhen(isZombieDetected, 'shoot', 'idle')
  *
  * return <animation-player currentAnim={animName} />

@@ -3,9 +3,8 @@ import type { Vector2 } from '../../math/vector2.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { registerNode } from '../lib/registry.js'
-import { CollisionSystem } from '../../collision/collision-system.js'
 import type { Shape } from '../../collision/narrowphase/shapes.js'
-import { Trigger } from '../../events/trigger.js'
+import { warnInvalidColliderParent } from '../../warn/index.js'
 
 export interface ColliderOptions extends Node2DOptions<PrimaryNode.Collider> {
   /**
@@ -16,64 +15,37 @@ export interface ColliderOptions extends Node2DOptions<PrimaryNode.Collider> {
    * ```tsx
    * import { shapes } from 'fraxel'
    *
-   * <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy']} />
-   * <collider shape={shapes.circle(16)} group={['projectile']} collidesWith={['zombie']} />
+   * <body>
+   *   <collider shape={shapes.rectangle(32, 32)} />
+   * </body>
    * ```
    */
   shape: Shape
-  /**
-   * The **`group`** property defines which collision groups this collider belongs to.
-   *
-   * @example
-   * ```tsx
-   * <collider shape={shapes.rectangle(32, 32)} group={['player', 'character']} collidesWith={['enemy']} />
-   * ```
-   */
-  group?: string | string[]
-  /**
-   * The **`collidesWith`** property defines which groups this collider can interact with.
-   *
-   * @example
-   * ```tsx
-   * <collider shape={shapes.rectangle(32, 32)} group={['player']} collidesWith={['enemy', 'obstacle']} />
-   * ```
-   */
-  collidesWith?: string | string[]
 }
 
 /**
- * The **`Collider`** node detects overlaps with other colliders based on shape, group, and `collidesWith` configuration.
- * Supports rectangle, circle, and capsule shapes. Emits events when collisions begin, continue, or end.
+ * The **`Collider`** node defines a collision shape. It must be a direct child of a
+ * `RigidBody` or `Detector`; the parent decides whether the shape participates in
+ * physics or detection.
  *
  * @example
  * ```tsx
  * import { shapes } from 'fraxel'
- * import { useCollider, useTrigger } from 'fraxel'
+ * import { useCollider } from 'fraxel'
  *
  * function Player() {
  *   const collider = useCollider()
  *
- *   useTrigger(collider.onColliderEnter, (other) => {
- *     console.log('Hit by:', other)
- *   })
- *
  *   return (
- *     <collider
- *       ref={collider}
- *       shape={shapes.rectangle(32, 32)}
- *       group={['player']}
- *       collidesWith={['enemy']}
- *     />
+ *     <body>
+ *       <collider ref={collider} shape={shapes.rectangle(32, 32)} />
+ *     </body>
  *   )
  * }
  * ```
  */
 export class Collider extends Node2D<PrimaryNode.Collider> {
   #shape: Shape
-  #group: Set<string> = new Set()
-  #collidesWith: Set<string> = new Set()
-
-  _activeCollisions: Set<Collider> = new Set()
 
   #lastGlobalPosition: Vector2
   #lastGlobalRotation: number
@@ -83,20 +55,6 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
    */
   get shape() {
     return this.#shape
-  }
-
-  /**
-   * The read-only **`group`** property returns the set of groups this collider belongs to.
-   */
-  get group() {
-    return this.#group
-  }
-
-  /**
-   * The read-only **`collidesWith`** property returns the set of groups this collider can collide with.
-   */
-  get collidesWith() {
-    return this.#collidesWith
   }
 
   /**
@@ -120,24 +78,18 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
 
   constructor(options: ColliderOptions) {
     super(PrimaryNode.Collider, options)
-
-    const setof = (s?: string | string[]) => new Set(typeof s === 'string' ? [s] : s)
-
     this.#shape = options.shape
-    this.#group = setof(options.group)
-    this.#collidesWith = setof(options.collidesWith)
     this.#lastGlobalPosition = this.globalPosition.clone()
     this.#lastGlobalRotation = this.globalRotation
   }
 
-  // Trigger
-  onColliderEnter = new Trigger<[collider: Collider]>()
-  onCollide = new Trigger<[collider: Collider]>()
-  onColliderExit = new Trigger<[collider: Collider]>()
+  setShape(shape: Shape): void {
+    this.#shape = shape
+  }
 
-  /** @internal Registers this collider with the collision system. */
+  /** @internal Warns if this collider has no direct collision owner. */
   start(): void {
-    CollisionSystem.register(this)
+    warnInvalidColliderParent(this)
     super.start()
   }
 
@@ -218,24 +170,9 @@ export class Collider extends Node2D<PrimaryNode.Collider> {
     ) {
       this.#lastGlobalPosition = currentGlobalPos.clone()
       this.#lastGlobalRotation = currentGlobalRot
-      CollisionSystem.setDirty()
     }
 
     super.update(delta)
-  }
-
-  /** @internal Unregisters this collider from the collision system. */
-  destroy(): void {
-    CollisionSystem.unregister(this)
-    super.destroy()
-  }
-
-  /** @internal Cleans up custom event listeners. */
-  cleanEvents(): void {
-    this.onColliderEnter.clear()
-    this.onCollide.clear()
-    this.onColliderExit.clear()
-    super.cleanEvents()
   }
 }
 

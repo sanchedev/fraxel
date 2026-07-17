@@ -1,31 +1,27 @@
 import { clamp } from '../math/utils.js'
 import type { Collider } from '../nodes/node2d/collider.js'
+import type { Detector } from '../nodes/node2d/detector.js'
 import type { RayCast } from '../nodes/node2d/ray-cast.js'
-import { SpatialHash } from './broadphase/spatial-hash.js'
+import type { RigidBody } from '../nodes/node2d/rigid-body.js'
+import { PrimaryNode } from '../nodes/lib/enum.js'
 import { Narrowphase } from './narrowphase/detector.js'
-import { CollisionEmitter } from './events/collision-emitter.js'
 import { getCapsuleBone } from './utils.js'
-import { getBounds } from './bounds.js'
 
-/**
- * The **`CollisionSystem`** is a singleton that manages all collision detection in the game.
- * It uses a spatial hash for broadphase and a narrowphase for precise shape intersection.
- *
- * The system is updated automatically each frame via `Game.loop()`.
- */
+export type CollisionOwner = RigidBody | Detector
+
+interface RaycastHitCandidate {
+  owner: CollisionOwner
+  collider: Collider
+}
+
+/** Manages owner-based collision detection for bodies, detectors, and raycasts. */
 export class CollisionSystem {
   static #instance: CollisionSystem
 
-  #spatialHash = new SpatialHash(64)
-  #colliders = new Set<Collider>()
-  #colliderGroups = new Map<string, Set<Collider>>()
+  #owners = new Set<CollisionOwner>()
   #raycasts = new Set<RayCast>()
   #dirty = true
 
-  /**
-   * Returns the singleton instance of the `CollisionSystem`.
-   * @returns The `CollisionSystem` instance.
-   */
   static getInstance(): CollisionSystem {
     if (!CollisionSystem.#instance) {
       CollisionSystem.#instance = new CollisionSystem()
@@ -33,238 +29,192 @@ export class CollisionSystem {
     return CollisionSystem.#instance
   }
 
-  /**
-   * Checks if collider node should participate in collision detection
-   * based on its effective game mode.
-   * @param collider The collider to check.
-   * @returns `true` if the collider is active.
-   */
-  static #isColliderActive(collider: Collider): boolean {
-    return collider.shouldUpdate()
-  }
-
-  /**
-   * The **`register`** method adds a collider to the collision system.
-   * Called automatically when a `Collider` node starts.
-   * @param collider The collider to register.
-   */
-  static register(collider: Collider) {
+  static registerOwner(owner: CollisionOwner) {
     const instance = CollisionSystem.getInstance()
-    instance.#colliders.add(collider)
-
-    for (const group of collider.group) {
-      const groupColliders = instance.#colliderGroups.get(group) ?? new Set()
-      groupColliders.add(collider)
-      instance.#colliderGroups.set(group, groupColliders)
-    }
-
+    instance.#owners.add(owner)
     instance.#dirty = true
   }
 
-  /**
-   * The **`unregister`** method removes a collider from the collision system.
-   * Called automatically when a `Collider` node is destroyed.
-   * @param collider The collider to unregister.
-   */
-  static unregister(collider: Collider) {
+  static unregisterOwner(owner: CollisionOwner) {
     const instance = CollisionSystem.getInstance()
-    instance.#colliders.delete(collider)
-
-    for (const group of collider.group) {
-      const groupColliders = instance.#colliderGroups.get(group)
-      groupColliders?.delete(collider)
-    }
-
+    instance.#owners.delete(owner)
     instance.#dirty = true
   }
 
-  /**
-   * The **`registerRaycast`** method adds a raycast to the collision system.
-   * Called automatically when a `RayCast` node starts.
-   * @param raycast The raycast to register.
-   */
   static registerRaycast(raycast: RayCast) {
-    const instance = CollisionSystem.getInstance()
-    instance.#raycasts.add(raycast)
+    CollisionSystem.getInstance().#raycasts.add(raycast)
   }
 
-  /**
-   * The **`unregisterRaycast`** method removes a raycast from the collision system.
-   * Called automatically when a `RayCast` node is destroyed.
-   * @param raycast The raycast to unregister.
-   */
   static unregisterRaycast(raycast: RayCast) {
-    const instance = CollisionSystem.getInstance()
-    instance.#raycasts.delete(raycast)
+    CollisionSystem.getInstance().#raycasts.delete(raycast)
   }
 
-  /**
-   * The **`setDirty`** method marks the spatial hash as needing a rebuild.
-   * Called automatically when a collider's position changes.
-   */
   static setDirty() {
-    const instance = CollisionSystem.getInstance()
-    instance.#dirty = true
+    CollisionSystem.getInstance().#dirty = true
   }
 
-  /**
-   * The **`queryCandidates`** method returns all colliders that may overlap with the given collider.
-   * Used internally by the physics system for broadphase filtering.
-   * @param collider The collider to query candidates for.
-   * @returns A set of candidate colliders.
-   */
-  static queryCandidates(collider: Collider): Set<Collider> {
-    const instance = CollisionSystem.getInstance()
-    if (instance.#dirty) {
-      instance.#broadphase()
-    }
-    return instance.#queryCandidates(collider)
+  static owners(): Set<CollisionOwner> {
+    return new Set(CollisionSystem.getInstance().#owners)
   }
 
-  /**
-   * The **`update`** method runs the full collision detection pipeline.
-   * Called automatically each frame by `Game.loop()`.
-   * @param delta The time elapsed since the last frame.
-   */
-  static update(delta: number) {
-    const instance = CollisionSystem.getInstance()
-    instance.#updateInternal(delta)
+  static ownersMatch(a: CollisionOwner, b: CollisionOwner): boolean {
+    return (a.mask & b.layer) !== 0 && (b.mask & a.layer) !== 0
   }
 
-  #updateInternal(_delta: number) {
-    this.#broadphase()
-    this.#narrowphase()
+  static update(_delta: number) {
+    CollisionSystem.getInstance().#updateInternal()
   }
 
-  #broadphase() {
-    if (!this.#dirty) return
-
-    this.#spatialHash.clear()
-
-    for (const collider of this.#colliders) {
-      this.#spatialHash.insert(collider)
-    }
-
+  #updateInternal() {
+    this.#detectOwnerOverlaps()
+    this.#detectRaycasts()
     this.#dirty = false
   }
 
-  #narrowphase() {
-    for (const collider of this.#colliders) {
-      if (collider.collidesWith.size === 0) continue
+  #detectOwnerOverlaps() {
+    const owners = Array.from(this.#owners).filter((owner) => owner.shouldUpdate())
+    const detections = new Map<CollisionOwner, Set<CollisionOwner>>()
 
-      const candidates = this.#queryCandidates(collider)
-      this.#processColliderCollisions(collider, candidates)
+    for (const owner of owners) {
+      detections.set(owner, new Set())
     }
 
+    for (let i = 0; i < owners.length; i++) {
+      const a = owners[i]!
+      if (a.colliders.size === 0) continue
+
+      for (let j = i + 1; j < owners.length; j++) {
+        const b = owners[j]!
+        if (b.colliders.size === 0) continue
+        if (!CollisionSystem.ownersMatch(a, b)) continue
+        if (!this.#ownersOverlap(a, b)) continue
+
+        detections.get(a)?.add(b)
+        detections.get(b)?.add(a)
+      }
+    }
+
+    for (const owner of owners) {
+      this.#emitOwnerEvents(owner, detections.get(owner) ?? new Set())
+    }
+  }
+
+  #ownersOverlap(a: CollisionOwner, b: CollisionOwner): boolean {
+    for (const aCollider of a.colliders) {
+      for (const bCollider of b.colliders) {
+        if (Narrowphase.detect(aCollider, bCollider)) return true
+      }
+    }
+    return false
+  }
+
+  #emitOwnerEvents(owner: CollisionOwner, detected: Set<CollisionOwner>) {
+    const previous = new Set<CollisionOwner>([...owner._activeBodies, ...owner._activeDetectors])
+
+    for (const target of detected) {
+      if (target.type === PrimaryNode.RigidBody) {
+        if (!owner._activeBodies.has(target)) this.#emitBodyEnter(owner, target)
+        this.#emitBodyInside(owner, target)
+      } else {
+        if (!owner._activeDetectors.has(target)) this.#emitDetectorEnter(owner, target)
+        this.#emitDetectorInside(owner, target)
+      }
+    }
+
+    for (const target of previous) {
+      if (detected.has(target)) continue
+      if (target.type === PrimaryNode.RigidBody) {
+        this.#emitBodyExit(owner, target)
+      } else {
+        this.#emitDetectorExit(owner, target)
+      }
+    }
+
+    owner._activeBodies = new Set(
+      Array.from(detected).filter(
+        (target): target is RigidBody => target.type === PrimaryNode.RigidBody,
+      ),
+    )
+    owner._activeDetectors = new Set(
+      Array.from(detected).filter(
+        (target): target is Detector => target.type === PrimaryNode.Detector,
+      ),
+    )
+  }
+
+  #emitBodyEnter(owner: CollisionOwner, body: RigidBody) {
+    owner.onBodyEnter.emit(body)
+  }
+
+  #emitBodyInside(owner: CollisionOwner, body: RigidBody) {
+    if (owner.type === PrimaryNode.RigidBody) owner.onBodyCollide.emit(body)
+    else owner.onBodyInside.emit(body)
+  }
+
+  #emitBodyExit(owner: CollisionOwner, body: RigidBody) {
+    owner.onBodyExit.emit(body)
+  }
+
+  #emitDetectorEnter(owner: CollisionOwner, detector: Detector) {
+    owner.onDetectorEnter.emit(detector)
+  }
+
+  #emitDetectorInside(owner: CollisionOwner, detector: Detector) {
+    if (owner.type === PrimaryNode.RigidBody) owner.onDetectorCollide.emit(detector)
+    else owner.onDetectorInside.emit(detector)
+  }
+
+  #emitDetectorExit(owner: CollisionOwner, detector: Detector) {
+    owner.onDetectorExit.emit(detector)
+  }
+
+  #detectRaycasts() {
     for (const raycast of this.#raycasts) {
+      const raycastParent = raycast.parent
+      if (raycastParent != null && !raycastParent.shouldUpdate()) continue
+
       const candidates = this.#queryRaycastCandidates(raycast)
-      this.#processRaycastCollisions(raycast, candidates)
+      this.#processRaycast(raycast, candidates)
     }
   }
 
-  #queryCandidates(collider: Collider): Set<Collider> {
-    const bounds = getBounds(collider)
-    const candidates = this.#spatialHash.query(bounds)
-    candidates.delete(collider)
-    return candidates
-  }
+  #queryRaycastCandidates(raycast: RayCast): RaycastHitCandidate[] {
+    const candidates: RaycastHitCandidate[] = []
+    for (const owner of this.#owners) {
+      if (!owner.shouldUpdate()) continue
+      if ((raycast.mask & owner.layer) === 0) continue
 
-  #processColliderCollisions(collider: Collider, candidates: Set<Collider>) {
-    if (!CollisionSystem.#isColliderActive(collider)) return
-
-    const detected = new Set<Collider>()
-
-    for (const candidate of candidates) {
-      if (!CollisionSystem.#isColliderActive(candidate)) continue
-      if (!this.#groupsMatch(collider, candidate)) continue
-      if (!Narrowphase.detect(collider, candidate)) continue
-
-      detected.add(candidate)
-    }
-
-    this.#emitColliderEvents(collider, detected)
-  }
-
-  #emitColliderEvents(collider: Collider, detected: Set<Collider>) {
-    const previous = collider._activeCollisions
-
-    for (const node of detected) {
-      if (!previous.has(node)) {
-        CollisionEmitter.emitEnter(collider, node)
-      }
-      CollisionEmitter.emitCollide(collider, node)
-    }
-
-    for (const node of previous) {
-      if (!detected.has(node)) {
-        CollisionEmitter.emitExit(collider, node)
-      }
-    }
-
-    collider._activeCollisions = detected
-  }
-
-  #queryRaycastCandidates(raycast: RayCast): Collider[] {
-    const candidates: Collider[] = []
-    for (const group of raycast.collidesWith) {
-      const groupColliders = this.#colliderGroups.get(group)
-      if (groupColliders) {
-        for (const collider of groupColliders) {
-          candidates.push(collider)
-        }
+      for (const collider of owner.colliders) {
+        candidates.push({ owner, collider })
       }
     }
     return candidates
   }
 
-  #processRaycastCollisions(raycast: RayCast, candidates: Collider[]) {
-    const raycastParent = raycast.parent
-    if (raycastParent != null && !raycastParent.shouldUpdate()) return
-
-    let nearest: { collider: Collider; distance: number } | undefined
+  #processRaycast(raycast: RayCast, candidates: RaycastHitCandidate[]) {
+    let nearest: { owner: CollisionOwner; distance: number } | undefined
 
     for (const candidate of candidates) {
-      if (!this.#raycastGroupsMatch(raycast, candidate)) continue
-      if (!CollisionSystem.#isColliderActive(candidate)) continue
-
-      const distance = this.#getRaycastDistance(raycast, candidate)
+      const distance = this.#getRaycastDistance(raycast, candidate.collider)
       if (distance === -1) continue
 
       if (!nearest || distance < nearest.distance) {
-        nearest = { collider: candidate, distance }
+        nearest = { owner: candidate.owner, distance }
       }
     }
 
-    this.#emitRaycastEvents(raycast, nearest?.collider ?? null)
+    this.#emitRaycastEvents(raycast, nearest?.owner ?? null)
   }
 
-  #emitRaycastEvents(raycast: RayCast, detected: Collider | null) {
-    const previous = raycast._detectedCollider
+  #emitRaycastEvents(raycast: RayCast, detected: CollisionOwner | null) {
+    const previous = raycast._target
 
     if (previous !== detected) {
-      if (previous) {
-        CollisionEmitter.emitRaycastExit(previous, raycast as unknown as Collider)
-        raycast.onColliderExit.emit(previous)
-      }
-      if (detected) {
-        CollisionEmitter.emitRaycastEnter(detected, raycast as unknown as Collider)
-        raycast.onColliderEnter.emit(detected)
-      }
+      if (previous) raycast.onTargetExit.emit(previous)
+      if (detected) raycast.onTargetEnter.emit(detected)
     }
 
-    raycast._detectedCollider = detected
-  }
-
-  #groupsMatch(a: Collider, b: Collider): boolean {
-    const result = Array.from(a.collidesWith).some((group) => b.group.has(group))
-    return result
-  }
-
-  #raycastGroupsMatch(raycast: RayCast, collider: Collider): boolean {
-    for (const group of raycast.collidesWith) {
-      if (collider.group.has(group)) return true
-    }
-    return false
+    raycast._target = detected
   }
 
   #getRaycastDistance(raycast: RayCast, collider: Collider): number {
@@ -341,13 +291,11 @@ export class CollisionSystem {
     const dirLenSq = rayDir.x * rayDir.x + rayDir.y * rayDir.y
     if (dirLenSq === 0) return -1
 
-    // Find closest point on ray to each capsule bone endpoint, then to the bone segment
     const dx = bone.b.x - bone.a.x
     const dy = bone.b.y - bone.a.y
     const boneLenSq = dx * dx + dy * dy
 
     if (boneLenSq === 0) {
-      // Degenerate capsule (circle) — use circle raycast logic
       const cDx = bone.a.x - rayFrom.x
       const cDy = bone.a.y - rayFrom.y
       let t = (cDx * rayDir.x + cDy * rayDir.y) / dirLenSq
@@ -360,9 +308,6 @@ export class CollisionSystem {
       return t * Math.sqrt(dirLenSq)
     }
 
-    // Parametric ray: R(t) = rayFrom + t * rayDir, t in [0, 1]
-    // Parametric bone: B(s) = bone.a + s * (bone.b - bone.a), s in [0, 1]
-    // Minimize |R(t) - B(s)|^2
     const rx = rayFrom.x - bone.a.x
     const ry = rayFrom.y - bone.a.y
     const a = dirLenSq
@@ -385,16 +330,11 @@ export class CollisionSystem {
 
     s = clamp(0, s, 1)
     t = clamp(0, t, 1)
-
-    // Reclamp t given clamped s
     t = (b * s + c) / a
     t = clamp(0, t, 1)
 
-    // Closest point on ray
     const rCx = rayFrom.x + t * rayDir.x
     const rCy = rayFrom.y + t * rayDir.y
-
-    // Closest point on bone
     const bCx = bone.a.x + s * dx
     const bCy = bone.a.y + s * dy
 

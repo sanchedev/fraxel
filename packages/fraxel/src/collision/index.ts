@@ -1,4 +1,7 @@
 export { CollisionSystem } from './collision-system.js'
+export type { CollisionOwner } from './collision-system.js'
+export { CollisionLayer, CollisionMask } from './layers.js'
+export type { CollisionLayerValue, CollisionMaskValue } from './layers.js'
 export { SpatialHash } from './broadphase/spatial-hash.js'
 export { Narrowphase } from './narrowphase/detector.js'
 export { CollisionEmitter } from './events/collision-emitter.js'

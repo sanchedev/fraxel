@@ -1,5 +1,4 @@
 import { vector2, type Vector2 } from '../../math/vector2.js'
-import type { Collider } from '../../nodes/node2d/collider.js'
 import type { RigidBody } from '../../nodes/index.js'
 import { resolveCollision, computeOverlap } from './resolver.js'
 import { CollisionSystem } from '../collision-system.js'
@@ -83,56 +82,49 @@ export class PhysicsSystem {
     const iterations = 4
 
     for (let i = 0; i < iterations; i++) {
-      const resolvedColliders = new Set<string>()
+      const resolvedBodies = new Set<string>()
 
       for (const entry of this.#bodies) {
         if (!PhysicsSystem.#isBodyActive(entry.body)) continue
 
-        for (const collider of entry.body.colliders) {
-          const candidates = CollisionSystem.queryCandidates(collider)
+        for (const otherEntry of this.#bodies) {
+          if (!PhysicsSystem.#isBodyActive(otherEntry.body)) continue
+          if (otherEntry.body === entry.body) continue
+          if (!CollisionSystem.ownersMatch(entry.body, otherEntry.body)) continue
 
-          for (const candidate of candidates) {
-            if (candidate === collider) continue
-            if (candidate.parent && collider.parent && candidate.parent === collider.parent)
-              continue
+          const bodyPairKey = this.#bodyPairKey(entry.body, otherEntry.body)
+          if (resolvedBodies.has(bodyPairKey)) continue
 
-            const otherEntry = this.#findBodyEntry(candidate)
-            if (!otherEntry) continue
+          const result = this.#computeBodyOverlap(entry.body, otherEntry.body)
+          if (result == null) continue
 
-            if (!PhysicsSystem.#isBodyActive(otherEntry.body)) continue
-
-            if (otherEntry.body === entry.body) continue
-
-            const colliderPairKey = this.#colliderPairKey(collider, candidate)
-            if (resolvedColliders.has(colliderPairKey)) continue
-
-            if (!this.#groupsMatch(collider, candidate)) continue
-
-            const result = computeOverlap(collider, candidate)
-            if (result == null) continue
-
-            resolvedColliders.add(colliderPairKey)
-            resolveCollision(entry.body, otherEntry.body, result.overlap, result.normal)
-          }
+          resolvedBodies.add(bodyPairKey)
+          resolveCollision(entry.body, otherEntry.body, result.overlap, result.normal)
         }
       }
     }
   }
 
-  #findBodyEntry(collider: Collider): BodyEntry | undefined {
-    for (const entry of this.#bodies) {
-      if (entry.body.colliders.has(collider)) return entry
-    }
-    return undefined
-  }
-
-  #colliderPairKey(a: Collider, b: Collider): string {
+  #bodyPairKey(a: RigidBody, b: RigidBody): string {
     const aId = a.id.toString()
     const bId = b.id.toString()
     return aId < bId ? `${aId}:${bId}` : `${bId}:${aId}`
   }
 
-  #groupsMatch(a: Collider, b: Collider): boolean {
-    return Array.from(a.collidesWith).some((group) => b.group.has(group))
+  #computeBodyOverlap(
+    a: RigidBody,
+    b: RigidBody,
+  ): {
+    overlap: Vector2
+    normal: Vector2
+  } | null {
+    for (const aCollider of a.colliders) {
+      for (const bCollider of b.colliders) {
+        const result = computeOverlap(aCollider, bCollider)
+        if (result != null) return result
+      }
+    }
+
+    return null
   }
 }

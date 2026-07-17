@@ -2,11 +2,19 @@ import { PrimaryNode } from '../lib/enum.js'
 import { registerNode } from '../lib/registry.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { PhysicsSystem } from '../../collision/physics/physics-system.js'
+import { CollisionSystem } from '../../collision/collision-system.js'
+import {
+  CollisionLayer,
+  type CollisionLayerValue,
+  type CollisionMaskValue,
+} from '../../collision/layers.js'
 import type { Collider } from './collider.js'
 import { Vector2 } from '../../math/vector2.js'
 import type { Reactive } from '../../reactivity/types.js'
 import { propSignal } from '../../utils/ternaries.js'
 import { warnNestedColliders } from '../../warn/index.js'
+import { Trigger } from '../../events/trigger.js'
+import type { Detector } from './detector.js'
 
 /**
  * The **`RigidBodyOptions`** interface defines the configuration for a `RigidBody` node.
@@ -42,6 +50,10 @@ export interface RigidBodyOptions extends Node2DOptions<PrimaryNode.RigidBody> {
    * @default true
    */
   useGravity?: boolean
+  /** Collision layer this body belongs to. @default CollisionLayer.Default */
+  layer?: CollisionLayerValue
+  /** Collision mask this body interacts with. @default CollisionLayer.Default */
+  mask?: CollisionMaskValue
 }
 
 /**
@@ -49,7 +61,7 @@ export interface RigidBodyOptions extends Node2DOptions<PrimaryNode.RigidBody> {
  * Must contain at least one `Collider` child node to work.
  *
  * Gravity is applied by default (980 px/s² downward). The body integrates
- * velocity into position each frame and resolves collisions with other bodies.
+ * velocity into position each frame and resolves collisions with matching bodies.
  *
  * @example
  * ```tsx
@@ -57,9 +69,9 @@ export interface RigidBodyOptions extends Node2DOptions<PrimaryNode.RigidBody> {
  *
  * function FallingRock() {
  *   return (
- *     <body position={[100, 0]} mass={2} bounce={0.6}>
+ *     <body position={[100, 0]} mass={2} bounce={0.6} layer={Layers.Rock} mask={Layers.Ground}>
  *       <sprite textureId={ROCK} />
- *       <collider shape={shapes.circle(16)} group={['rock']} collidesWith={['ground']} />
+ *       <collider shape={shapes.circle(16)} />
  *     </body>
  *   )
  * }
@@ -80,9 +92,21 @@ export class RigidBody extends Node2D<PrimaryNode.RigidBody> {
   isStatic: boolean
   /** The **`useGravity`** property controls whether gravity is applied. */
   useGravity: boolean
+  #layer: CollisionLayerValue
+  #mask: CollisionMaskValue
 
   /** The **`colliders`** property holds the set of child colliders. */
   colliders: Set<Collider> = new Set()
+  _activeBodies: Set<RigidBody> = new Set()
+  _activeDetectors: Set<Detector> = new Set()
+
+  get layer() {
+    return this.#layer
+  }
+
+  get mask() {
+    return this.#mask
+  }
 
   constructor(options: RigidBodyOptions) {
     super(PrimaryNode.RigidBody, options)
@@ -91,6 +115,25 @@ export class RigidBody extends Node2D<PrimaryNode.RigidBody> {
     this.bounce = options.bounce ?? 0
     this.isStatic = propSignal(this, 'isStatic', options.isStatic)
     this.useGravity = options.useGravity ?? true
+    this.#layer = options.layer ?? CollisionLayer.Default
+    this.#mask = options.mask ?? CollisionLayer.Default
+  }
+
+  onBodyEnter = new Trigger<[body: RigidBody]>()
+  onBodyCollide = new Trigger<[body: RigidBody]>()
+  onBodyExit = new Trigger<[body: RigidBody]>()
+  onDetectorEnter = new Trigger<[detector: Detector]>()
+  onDetectorCollide = new Trigger<[detector: Detector]>()
+  onDetectorExit = new Trigger<[detector: Detector]>()
+
+  setLayer(layer: CollisionLayerValue): void {
+    this.#layer = layer
+    CollisionSystem.setDirty()
+  }
+
+  setMask(mask: CollisionMaskValue): void {
+    this.#mask = mask
+    CollisionSystem.setDirty()
   }
 
   /**
@@ -135,6 +178,7 @@ export class RigidBody extends Node2D<PrimaryNode.RigidBody> {
 
     warnNestedColliders(this)
 
+    CollisionSystem.registerOwner(this)
     PhysicsSystem.register(this)
 
     super.start()
@@ -142,8 +186,19 @@ export class RigidBody extends Node2D<PrimaryNode.RigidBody> {
 
   /** @internal Unregisters from the physics system. */
   destroy(): void {
+    CollisionSystem.unregisterOwner(this)
     PhysicsSystem.unregister(this)
     super.destroy()
+  }
+
+  cleanEvents(): void {
+    this.onBodyEnter.clear()
+    this.onBodyCollide.clear()
+    this.onBodyExit.clear()
+    this.onDetectorEnter.clear()
+    this.onDetectorCollide.clear()
+    this.onDetectorExit.clear()
+    super.cleanEvents()
   }
 }
 
