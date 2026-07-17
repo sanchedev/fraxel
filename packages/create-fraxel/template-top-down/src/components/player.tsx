@@ -1,5 +1,6 @@
 import { shapes, useActionAxis, useRigidBody, useUpdate, type VectorLike } from 'fraxel'
 import { Down, Left, Right, Up } from '../actions'
+import { Layers } from '../layers'
 
 interface PlayerProps {
   position: VectorLike
@@ -21,14 +22,21 @@ export function Player({ position }: PlayerProps) {
   })
 
   return (
-    <body ref={player} position={position} useGravity={false} friction={0}>
+    <body
+      ref={player}
+      position={position}
+      useGravity={false}
+      friction={0}
+      layer={Layers.Player}
+      mask={Layers.Wall | Layers.WinArea}
+    >
       <geometry
         shape={shapes.circle(16)}
         fillColor={[0.42, 0.74, 0.95, 1]}
         strokeColor={[0.82, 0.94, 1, 1]}
         strokeWidth={2}
       />
-      <collider shape={shapes.circle(16)} group="player" collidesWith={['wall', 'winArea']} />
+      <collider shape={shapes.circle(16)} />
     </body>
   )
 }

@@ -9,6 +9,7 @@ import {
   type VectorLike,
 } from 'fraxel'
 import { Jump, Left, Right } from '../actions'
+import { Layers } from '../layers'
 
 interface PlayerProps {
   position: VectorLike
@@ -35,19 +36,20 @@ export function Player({ position }: PlayerProps) {
   })
 
   return (
-    <body ref={player} position={position}>
+    <body
+      ref={player}
+      position={position}
+      layer={Layers.Player}
+      mask={Layers.Platform | Layers.WinArea}
+    >
       <geometry
         shape={shapes.rectangle(34, 48)}
         fillColor={[0.82, 0.36, 0.3, 1]}
         strokeColor={[0.98, 0.76, 0.68, 1]}
         strokeWidth={2}
       />
-      <collider
-        shape={shapes.rectangle(34, 48)}
-        group="player"
-        collidesWith={['platform', 'winArea']}
-      />
-      <raycast ref={raycast} position={[17, 40]} direction={[0, 20]} collidesWith="platform" />
+      <collider shape={shapes.rectangle(34, 48)} />
+      <raycast ref={raycast} position={[17, 40]} direction={[0, 20]} mask={Layers.Platform} />
     </body>
   )
 }

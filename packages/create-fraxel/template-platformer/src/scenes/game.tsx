@@ -2,6 +2,7 @@ import { TextAlign, shapes, useSize } from 'fraxel'
 import { Player } from '../components/player'
 import { Platform } from '../components/platform'
 import { WinArea } from '../components/win-area'
+import { Layers } from '../layers'
 
 export default function Game() {
   const size = useSize()
@@ -17,31 +18,11 @@ export default function Game() {
         />
       </view>
       {/* Bounds Limit */}
-      <body isStatic friction={0}>
-        <collider
-          position={[-100, -100]}
-          shape={shapes.rectangle(100, size.y + 200)}
-          group="platform"
-          collidesWith="player"
-        />
-        <collider
-          position={[size.x, -100]}
-          shape={shapes.rectangle(100, size.y + 200)}
-          group="platform"
-          collidesWith="player"
-        />
-        <collider
-          position={[-100, -100]}
-          shape={shapes.rectangle(size.x + 200, 100)}
-          group="platform"
-          collidesWith="player"
-        />
-        <collider
-          position={[-100, size.y]}
-          shape={shapes.rectangle(size.x + 200, 100)}
-          group="platform"
-          collidesWith="player"
-        />
+      <body isStatic friction={0} layer={Layers.Platform} mask={Layers.Player}>
+        <collider position={[-100, -100]} shape={shapes.rectangle(100, size.y + 200)} />
+        <collider position={[size.x, -100]} shape={shapes.rectangle(100, size.y + 200)} />
+        <collider position={[-100, -100]} shape={shapes.rectangle(size.x + 200, 100)} />
+        <collider position={[-100, size.y]} shape={shapes.rectangle(size.x + 200, 100)} />
       </body>
       <Platform position={[0, size.y - 64]} size={[size.x, 64]} fillColor={[0.22, 0.32, 0.28, 1]} />
       <Platform position={[110, 310]} size={[160, 18]} />

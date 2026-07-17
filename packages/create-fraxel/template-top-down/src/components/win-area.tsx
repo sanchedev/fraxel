@@ -1,12 +1,13 @@
 import {
   shapes,
-  useCollider,
+  useDetector,
   useScene,
   useTrigger,
   vector2,
   type ColorLike,
   type VectorLike,
 } from 'fraxel'
+import { Layers } from '../layers'
 
 interface WinAreaProps {
   position: VectorLike
@@ -15,26 +16,21 @@ interface WinAreaProps {
 }
 
 export function WinArea({ position, size, fillColor }: WinAreaProps) {
-  const winArea = useCollider()
+  const winArea = useDetector()
   const scene = useScene()
   const shapeSize = vector2(size)
 
-  useTrigger(winArea.onColliderEnter, () => {
+  useTrigger(winArea.onBodyEnter, () => {
     void scene.change('win')
   })
 
   return (
-    <transform position={position}>
+    <detector ref={winArea} position={position} layer={Layers.WinArea} mask={Layers.Player}>
       <geometry
         shape={shapes.rectangle(shapeSize.x, shapeSize.y)}
         fillColor={fillColor ?? [0.9, 0.72, 0.26, 1]}
       />
-      <collider
-        ref={winArea}
-        shape={shapes.rectangle(shapeSize.x, shapeSize.y)}
-        group="winArea"
-        collidesWith="player"
-      />
-    </transform>
+      <collider shape={shapes.rectangle(shapeSize.x, shapeSize.y)} />
+    </detector>
   )
 }
