@@ -1,70 +1,62 @@
 # Fraxel
 
-> A lightning-fast JSX runtime for building 2D games in the browser — declarative, reactive, zero React.
+> A modern node-based 2D game engine for the web powered by JSX and fine-grained reactivity.
 
 [![CI](https://github.com/sanchedev/fraxel/actions/workflows/ci.yml/badge.svg)](https://github.com/sanchedev/fraxel/actions)
-[![npm version](https://img.shields.io/badge/version-0.1.0--alpha.4b-blue)](https://github.com/sanchedev/fraxel)
+[![npm version](https://img.shields.io/npm/v/fraxel)](https://www.npmjs.com/package/fraxel)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Built with TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 
-![fraxel icon](packages/demo/assets/icon.png)
+**Fraxel** lets you build browser games with JSX without React, DOM rendering, or virtual DOM reconciliation. JSX creates a game scene graph, signals update node properties directly, and the runtime renders everything to canvas.
 
-**fraxel** lets you build 2D games using JSX syntax with a custom runtime — **no React, no DOM overhead, no bundle bloat.** Write your game logic using the hooks, signals, and component architecture that frontend developers already know and love.
+<p align="center">
+  <img src="docs/demo.gif" alt="Fraxel demo" width="700" />
+</p>
+
+## Packages
+
+| Package                                       | Description                                | Version                                                                                                       |
+| --------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| [`fraxel`](packages/fraxel)                   | Core JSX runtime, engine, nodes, and hooks | [![npm](https://img.shields.io/npm/v/fraxel)](https://www.npmjs.com/package/fraxel)                           |
+| [`create-fraxel`](packages/create-fraxel)     | Project scaffolder with starter templates  | [![npm](https://img.shields.io/npm/v/create-fraxel)](https://www.npmjs.com/package/create-fraxel)             |
+| [`@fraxel/vite-plugin`](packages/vite-plugin) | Vite integration and asset imports         | [![npm](https://img.shields.io/npm/v/@fraxel/vite-plugin)](https://www.npmjs.com/package/@fraxel/vite-plugin) |
 
 ## Features
 
-- **JSX without React** — Build scene graphs natively with `<transform>`, `<sprite>`, `<collider>` and more.
-- **Fine-Grained Reactivity** — `useSignal` provides isolated state management that updates the canvas at 60FPS without Virtual DOM diffing.
-- **Auto-Computed Props** — Pass signals or inline functions directly to JSX attributes for automatic dependency tracking.
-- **Collision System** — Built-in rectangle/circle shapes with a spatial hash broadphase and Raycast support.
-- **Physics Simulation** — Gravity, rigid bodies, forces, impulses, and collision response.
-- **Camera System** — Viewport control with zoom, scrolling, and target following.
-- **Audio Playback** — Load sounds and play them with `<audio-player>` node.
-- **Text Rendering** — Render text on canvas with `<text>` node and configurable styles.
-- **Tweening & Easing** — Interpolate properties with 12 easing functions and sequence/parallel composition.
-- **Asset Pipeline** — Batch loading with progress tracking via `loadBatch`.
-- **Sprite Filters** — Hardware-accelerated brightness, grayscale, tint, contrast, and opacity.
-- **TypeScript-First** — Built from the ground up for strict type safety (`verbatimModuleSyntax`).
+- JSX scene graph with native nodes such as `<sprite>`, `<body>`, `<collider>`, `<camera>`, `<text>`, `<draggable>`, and `<droparea>`.
+- Fine-grained reactivity through signals and computed JSX props.
+- Pointer interactions with `Pointer` events, clickable areas, draggable nodes, and drop areas.
+- Input actions with `Input.createAction()`, `useAction()`, and `useActionAxis()`.
+- Collision, raycast, rigid body, detector, and physics primitives.
+- Camera, audio, text, tilemap, sprite animation, tweening, and visual filters.
+- Vite asset pipeline for `?texture` and `?sound` imports through `@fraxel/vite-plugin`.
+- TypeScript-first APIs and a custom JSX runtime.
 
-## The DX
+## Create A Project
 
-fraxel removes the boilerplate. Look how easy it is to create a reactive, interactable game entity:
-
-```tsx
-import { shapes, useSignal } from 'fraxel'
-import { PLAYER_TEX } from './assets'
-
-export function Player() {
-  const [health, setHealth] = useSignal(100)
-
-  return (
-    <sprite
-      textureId={PLAYER_TEX}
-      grayscale={() => (health() <= 0 ? 1 : 0)} // Auto-computed prop!
-      brightness={() => 0.5 + health() / 200}
-    >
-      <clickable shape={shapes.rectangle(32, 32)} onClick={() => setHealth(health() - 10)} />
-    </sprite>
-  )
-}
-```
-
-That's it. Reactive state, computed properties, pointer events, and sprite filters — all in 15 lines. No rigid update loops, no configuration.
-
-## Installation
+The fastest way to start is the official scaffolder:
 
 ```bash
-# pnpm
-pnpm add fraxel
-
-# npm
-npm install fraxel
-
-# yarn
-yarn add fraxel
+pnpm create fraxel
 ```
 
-Add the custom JSX runtime to your tsconfig.json:
+Available templates:
+
+| Template     | Description                        |
+| ------------ | ---------------------------------- |
+| `empty`      | Minimal scene and project setup    |
+| `platformer` | Basic platformer with physics      |
+| `top-down`   | Top-down movement with collisions  |
+| `coin-box`   | Drag-and-drop coin collection game |
+
+You can also install the engine manually:
+
+```bash
+pnpm add fraxel
+pnpm add -D @fraxel/vite-plugin
+```
+
+Configure the JSX runtime in `tsconfig.json`:
 
 ```json
 {
@@ -75,42 +67,89 @@ Add the custom JSX runtime to your tsconfig.json:
 }
 ```
 
-## Documentation
+For Vite projects, add the plugin:
 
-Dive into the official documentation to master the engine:
+```ts
+import { defineConfig } from 'vite'
+import { fraxel } from '@fraxel/vite-plugin'
 
-- [Getting Started](docs/getting-started.md) — Installation, setup, and first game
-- [Nodes Reference](docs/nodes.md) — `<transform>`, `<sprite>`, `<text>`, `<camera>`, `<collider>`, `<body>`
-- [Hooks API](docs/hooks.md) — useSignal, useComputed, useEffect, useSprite, useCollider
-- [Collisions](docs/collision.md) — Shapes, filtering groups, events, and raycasting
-- [Physics](docs/physics.md) — Gravity, rigid bodies, forces, and collision response
-- [Camera](docs/camera.md) — Viewport control, scrolling, and target following
-- [Audio](docs/audio.md) — Sound loading, playback, and `<audio-player>` node
-- [Animation](docs/animation.md) — Sprite sheets, `<animation-player>`, tweening, and easing
-- [Tweening](docs/tweening.md) — Interpolation, easing functions, and sequences
-- [Assets](docs/assets.md) — Batch loading and management
-- Input system — `Input.createAction()` for keyboard actions and `Pointer` for pointer state
-- [Scripts](docs/scripts.md) — FraxelScript and Game lifecycle management
-- [Filters](docs/filters.md) — Sprite filter props and Color types
+export default defineConfig({
+  plugins: [fraxel()],
+})
+```
+
+## Example
+
+```tsx
+import {
+  createGame,
+  GameRoot,
+  SceneRoot,
+  Input,
+  loadTexture,
+  shapes,
+  useActionAxis,
+  useEffect,
+  useRigidBody,
+} from 'fraxel'
+
+const PLAYER = await loadTexture('/player.png')
+
+const Left = Input.createAction({ key: 'a' })
+const Right = Input.createAction({ key: 'd' })
+
+function Player() {
+  const body = useRigidBody()
+  const axis = useActionAxis(Left, Right)
+
+  useEffect(() => {
+    body.setVelocity([axis() * 120, body.velocity().y])
+  })
+
+  return (
+    <body ref={body} position={[80, 80]} mass={1}>
+      <sprite textureId={PLAYER} />
+      <collider shape={shapes.rectangle(16, 16)} />
+    </body>
+  )
+}
+
+function MainScene() {
+  return <Player />
+}
+
+const game = createGame(
+  <GameRoot width={320} height={240} defaultScene="main">
+    <SceneRoot name="main" component={MainScene} />
+  </GameRoot>,
+  document.querySelector('#root')!,
+)
+
+game.play()
+```
 
 ## Development
 
-This is a pnpm monorepo consisting of the engine and a fully featured Plants vs Zombies-style demo game.
-
-| Package  | Description              | Build Command       |
-| -------- | ------------------------ | ------------------- |
-| `fraxel` | The core engine library  | `pnpm engine:build` |
-| `demo`   | Interactive example game | `pnpm demo:build`   |
-
-### Quick Commands
+This repository is a pnpm workspace. Use package filters for package-specific builds.
 
 ```bash
-pnpm dev              # Run engine + demo in watch mode
-pnpm engine:build     # Compile the engine (tsc)
-pnpm demo:dev         # Serve the demo (esbuild)
-pnpm lint             # Run ESLint checks
-pnpm format           # Format code with Prettier
+pnpm lint
+pnpm format:check
+pnpm --filter fraxel build
+pnpm --filter create-fraxel build
+pnpm --filter @fraxel/vite-plugin build
 ```
+
+Workspace packages live under `packages/*`. Playground apps can live under `playground/*`.
+
+## Documentation
+
+The current in-repository references are package-level docs and API notes:
+
+- [Engine README](packages/fraxel/README.md)
+- [Engine changelog](packages/fraxel/CHANGELOG.md)
+- [Scaffolder README](packages/create-fraxel/README.md)
+- [Vite plugin README](packages/vite-plugin/README.md)
 
 ## License
 
