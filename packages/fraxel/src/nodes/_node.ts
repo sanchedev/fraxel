@@ -94,6 +94,34 @@ export interface NodeOptions<T extends PrimaryNode> {
    * ```
    */
   gameMode?: Reactive<GameMode>
+  /**
+   * The **`active`** property controls whether this node and its children participate
+   * in update, draw, physics, collision, pointer, and drop systems.
+   *
+   * @default true
+   *
+   * @example
+   * ```tsx
+   * <transform active={menuOpen}>
+   *   <text text='Menu' />
+   * </transform>
+   * ```
+   */
+  active?: Reactive<boolean>
+  /**
+   * The **`visible`** property controls whether this node and its children are drawn.
+   * Invisible nodes still update and can still interact when active.
+   *
+   * @default true
+   *
+   * @example
+   * ```tsx
+   * <transform visible={showTooltip}>
+   *   <text text='Tooltip' />
+   * </transform>
+   * ```
+   */
+  visible?: Reactive<boolean>
   /** Optional script to attach to this node */
   script?: FraxelScript<T>
   /** Child nodes to add */
@@ -137,6 +165,10 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    * ```
    */
   gameMode: GameMode = GameMode.INHERIT
+  /** Whether this node and its children participate in the game loop and systems. */
+  active: boolean = true
+  /** Whether this node and its children are drawn. */
+  visible: boolean = true
   // States
   /**
    * The **`isStarted`** property indicates whether the node has completed its `start()` lifecycle.
@@ -149,7 +181,10 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    */
   isDestroyed: boolean = false
 
-  constructor(type: T, { id, zIndex, deltaIncrease, gameMode, script, children }: NodeOptions<T>) {
+  constructor(
+    type: T,
+    { id, zIndex, deltaIncrease, gameMode, active, visible, script, children }: NodeOptions<T>,
+  ) {
     this.type = type
 
     if (typeof id === 'string') {
@@ -172,6 +207,8 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
     this.deltaIncrease = deltaIncrease ?? this.deltaIncrease
 
     this.gameMode = propSignal(this, 'gameMode', gameMode)
+    this.active = propSignal(this, 'active', active)
+    this.visible = propSignal(this, 'visible', visible)
 
     this.addChild(...(children ?? []))
   }
@@ -345,6 +382,8 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    * ```
    */
   shouldUpdate(): boolean {
+    if (!this.isActiveInTree()) return false
+
     const mode = this.getEffectiveGameMode()
     const gamePaused = paused.value()
 
@@ -353,6 +392,23 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
     if (mode === GameMode.PLAYING) return !gamePaused
     if (mode === GameMode.PAUSED) return gamePaused
     return !gamePaused
+  }
+
+  /** Returns whether this node and all ancestors are active. */
+  isActiveInTree(): boolean {
+    if (!this.active) return false
+    return this._parent?.isActiveInTree() ?? true
+  }
+
+  /** Returns whether this node and all ancestors are visible. */
+  isVisibleInTree(): boolean {
+    if (!this.visible) return false
+    return this._parent?.isVisibleInTree() ?? true
+  }
+
+  /** Returns whether this node should be drawn this frame. */
+  shouldDraw(): boolean {
+    return !this.isDestroyed && this.isActiveInTree() && this.isVisibleInTree()
   }
 
   // Methods
@@ -447,6 +503,26 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
     this._children.splice(index, 1)
   }
 
+  /** Activates this node and its subtree. */
+  activate() {
+    this.active = true
+  }
+
+  /** Deactivates this node and its subtree. */
+  deactivate() {
+    this.active = false
+  }
+
+  /** Shows this node and its subtree. */
+  show() {
+    this.visible = true
+  }
+
+  /** Hides this node and its subtree from drawing only. */
+  hide() {
+    this.visible = false
+  }
+
   #attachChild(child: Node) {
     child._parent = this
     child.onZIndexChange.connect(this.#reorder)
@@ -491,6 +567,7 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
 
     this.onUpdate.emit(delta)
     for (const node of this._children) {
+      if (!node.shouldUpdate()) continue
       node.update(delta * node.deltaIncrease)
     }
   }
@@ -501,9 +578,10 @@ export abstract class Node<T extends PrimaryNode = PrimaryNode> {
    * @param delta The time elapsed since the last frame in seconds.
    */
   draw(delta: number): void {
-    if (this.isDestroyed) return
+    if (!this.shouldDraw()) return
 
     for (const node of this._children) {
+      if (!node.shouldDraw()) continue
       node.draw(delta * node.deltaIncrease)
     }
     this.onDraw.emit(delta)

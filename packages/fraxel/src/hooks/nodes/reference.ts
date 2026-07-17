@@ -72,6 +72,20 @@ export class NodeReference<T extends PrimaryNode = PrimaryNode> {
   gameMode = new Signal(GameMode.INHERIT).getter
   /** Sets how this node updates relative to the game's pause state. */
   setGameMode: SignalSetter<GameMode> = (mode) => (this.node.gameMode = mode)
+  /** Reactive `true` when this node participates in update, draw, and systems. */
+  active = new Signal(true).getter
+  /** Sets whether this node participates in update, draw, and systems. */
+  setActive: SignalSetter<boolean> = (value) => {
+    this.node.active = value
+    this.active.signal.setter(value)
+  }
+  /** Reactive `true` when this node is drawn. */
+  visible = new Signal(true).getter
+  /** Sets whether this node is drawn. */
+  setVisible: SignalSetter<boolean> = (value) => {
+    this.node.visible = value
+    this.visible.signal.setter(value)
+  }
 
   constructor(type: T, onStart?: (node: NodeInstances[T]) => void, onEnd?: () => void) {
     this.#type = type
@@ -81,14 +95,20 @@ export class NodeReference<T extends PrimaryNode = PrimaryNode> {
       if (node == null) {
         onEnd?.()
         this.gameMode.signal.clearSubs()
+        this.active.signal.clearSubs()
+        this.visible.signal.clearSubs()
       } else {
         this.onStart.link(node.onStart)
         this.onDraw.link(node.onDraw)
         this.onUpdate.link(node.onUpdate)
         this.onDestroy.link(node.onDestroy)
         this.gameMode.signal.setter(node.gameMode)
+        this.active.signal.setter(node.active)
+        this.visible.signal.setter(node.visible)
         node.onUpdate.connect(() => {
           this.gameMode.signal.setter(node.gameMode)
+          this.active.signal.setter(node.active)
+          this.visible.signal.setter(node.visible)
         })
         onStart?.(node)
       }
@@ -154,5 +174,25 @@ export class NodeReference<T extends PrimaryNode = PrimaryNode> {
 
     currentContext.length = 0
     currentContext.push(...currentCtx)
+  }
+
+  /** Activates the referenced node and its subtree. */
+  activate() {
+    this.setActive(true)
+  }
+
+  /** Deactivates the referenced node and its subtree. */
+  deactivate() {
+    this.setActive(false)
+  }
+
+  /** Shows the referenced node and its subtree. */
+  show() {
+    this.setVisible(true)
+  }
+
+  /** Hides the referenced node and its subtree from drawing only. */
+  hide() {
+    this.setVisible(false)
   }
 }

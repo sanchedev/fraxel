@@ -164,6 +164,8 @@ export class PointerTargetSystem {
   }
 
   static #visitInDrawOrder(node: Node, cb: (node: Node) => void) {
+    if (!node.active) return
+
     cb(node)
     for (const child of node._children) {
       this.#visitInDrawOrder(child, cb)

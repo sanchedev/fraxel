@@ -246,7 +246,7 @@ export class Game {
         node.start()
       }
 
-      if (!this.isPaused.value()) {
+      if (!this.isPaused.value() && node.shouldUpdate()) {
         node.update(delta)
       }
 
@@ -264,7 +264,7 @@ export class Game {
       const camera = Camera.getCurrent()
       GameConfig.ctx.save()
       camera?.apply(GameConfig.ctx)
-      node.draw(delta)
+      if (node.shouldDraw()) node.draw(delta)
       GameConfig.ctx.restore()
     }
 

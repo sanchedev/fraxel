@@ -153,7 +153,10 @@ export abstract class Node2D<T extends PrimaryNode = PrimaryNode> extends Node<T
    * @param delta The time elapsed since the last frame in seconds.
    */
   draw(delta: number): void {
+    if (!this.shouldDraw()) return
+
     for (const node of this._children) {
+      if (!node.shouldDraw()) continue
       GameConfig.ctx.save()
       GameConfig.ctx.translate(this.position.x, this.position.y)
       GameConfig.ctx.rotate((this.rotation * Math.PI) / 180)

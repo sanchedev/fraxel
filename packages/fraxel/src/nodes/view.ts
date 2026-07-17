@@ -32,6 +32,8 @@ export class View extends Node<PrimaryNode.View> {
   }
 
   draw(delta: number): void {
+    if (!this.shouldDraw()) return
+
     const mode = this.getEffectiveGameMode()
     if (mode === GameMode.NEVER) return
 
@@ -40,6 +42,7 @@ export class View extends Node<PrimaryNode.View> {
     ctx.setTransform(GameConfig.dprRatio, 0, 0, GameConfig.dprRatio, 0, 0)
 
     for (const node of this._children) {
+      if (!node.shouldDraw()) continue
       node.draw(delta * node.deltaIncrease)
     }
     this.onDraw.emit(delta)
