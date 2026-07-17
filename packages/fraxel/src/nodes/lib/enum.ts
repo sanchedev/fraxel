@@ -70,6 +70,8 @@ export enum PrimaryNode {
   Clickable = 'clickable',
   /** A node that makes its children draggable with pointer input. */
   Draggable = 'draggable',
+  /** A node that receives compatible draggable drops. */
+  DropArea = 'droparea',
   /** A node that tracks elapsed time and emits timeout events. */
   Timer = 'timer',
   /** A node that renders a shape (rectangle, circle, or capsule). */

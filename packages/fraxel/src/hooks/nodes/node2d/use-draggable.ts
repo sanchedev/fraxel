@@ -1,8 +1,10 @@
 import type { Shape } from '../../../collision/narrowphase/shapes.js'
 import { Trigger } from '../../../events/trigger.js'
-import { Vector2 } from '../../../math/vector2.js'
+import type { BoundsLike } from '../../../math/bounds.js'
+import { Vector2, type VectorLike } from '../../../math/vector2.js'
 import { PrimaryNode } from '../../../nodes/index.js'
-import type { DraggableEvent } from '../../../nodes/node2d/draggable.js'
+import type { DragAxis, DraggableEvent } from '../../../nodes/node2d/draggable.js'
+import type { DropKey } from '../../../nodes/node2d/lib/drop-area-system.js'
 import { Signal } from '../../../reactivity/signal.js'
 import type { SignalSetter } from '../../../reactivity/types.js'
 import { pushEffect } from '../../context.js'
@@ -16,7 +18,7 @@ import { Node2DReference } from './reference.js'
  *
  * @example
  * ```tsx
- * import { shapes, useDraggable, useTrigger } from 'fraxel'
+ * import { bounds, shapes, useDraggable, useTrigger } from 'fraxel'
  *
  * function Crate() {
  *   const draggable = useDraggable()
@@ -26,7 +28,7 @@ import { Node2DReference } from './reference.js'
  *   })
  *
  *   return (
- *     <draggable ref={draggable} shape={shapes.rectangle(64, 64)}>
+ *     <draggable ref={draggable} shape={shapes.rectangle(64, 64)} bounds={bounds(0, 0, 800, 600)}>
  *       <sprite textureId={CRATE} />
  *     </draggable>
  *   )
@@ -53,6 +55,26 @@ export class DraggableReference extends Node2DReference<PrimaryNode.Draggable> {
   disabled = new Signal(false).getter
   /** Enables or disables pointer dragging for this node. */
   setDisabled: SignalSetter<boolean> = (value) => (this.node.disabled = value)
+  /** Reactive drag axis constraint. */
+  axis = new Signal<DragAxis>('both').getter
+  /** Sets the drag axis constraint. */
+  setAxis: SignalSetter<DragAxis> = (value) => (this.node.axis = value)
+  /** Reactive bounds used to clamp the draggable global position. */
+  bounds = new Signal<BoundsLike | undefined>(undefined).getter
+  /** Sets the bounds used to clamp the draggable global position. */
+  setBounds: SignalSetter<BoundsLike | undefined> = (value) => (this.node.bounds = value)
+  /** Reactive snap grid used to round draggable movement. */
+  snap = new Signal<VectorLike | undefined>(undefined).getter
+  /** Sets the snap grid used to round draggable movement. */
+  setSnap: SignalSetter<VectorLike | undefined> = (value) => (this.node.snap = value)
+  /** Reactive drop key used to match compatible drop areas. */
+  dropKey = new Signal<DropKey | undefined>(undefined).getter
+  /** Sets the drop key used to match compatible drop areas. */
+  setDropKey: SignalSetter<DropKey | undefined> = (value) => (this.node.dropKey = value)
+  /** Reactive drop data passed to compatible drop area events. */
+  dropData = new Signal<unknown>(undefined).getter
+  /** Sets the drop data passed to compatible drop area events. */
+  setDropData: SignalSetter<unknown> = (value) => (this.node.dropData = value)
   /** Reactive pointer position in local coordinates while dragging updates. */
   pointerPosition = new Signal<Vector2>(Vector2.ZERO).getter
 
@@ -73,6 +95,11 @@ export class DraggableReference extends Node2DReference<PrimaryNode.Draggable> {
 
         this.disabled.signal.setter(node.disabled)
         this.shape.signal.setter(node.shape)
+        this.axis.signal.setter(node.axis)
+        this.bounds.signal.setter(node.bounds)
+        this.snap.signal.setter(node.snap)
+        this.dropKey.signal.setter(node.dropKey)
+        this.dropData.signal.setter(node.dropData)
 
         node.onDragStart.connect((event) => {
           this.dragging.signal.setter(true)
@@ -91,6 +118,11 @@ export class DraggableReference extends Node2DReference<PrimaryNode.Draggable> {
           this.dragging.signal.setter(node.dragging)
           this.disabled.signal.setter(node.disabled)
           this.shape.signal.setter(node.shape)
+          this.axis.signal.setter(node.axis)
+          this.bounds.signal.setter(node.bounds)
+          this.snap.signal.setter(node.snap)
+          this.dropKey.signal.setter(node.dropKey)
+          this.dropData.signal.setter(node.dropData)
         })
       },
       () => {
@@ -99,6 +131,11 @@ export class DraggableReference extends Node2DReference<PrimaryNode.Draggable> {
         this.pressed.signal.clearSubs()
         this.dragging.signal.clearSubs()
         this.disabled.signal.clearSubs()
+        this.axis.signal.clearSubs()
+        this.bounds.signal.clearSubs()
+        this.snap.signal.clearSubs()
+        this.dropKey.signal.clearSubs()
+        this.dropData.signal.clearSubs()
         this.pointerPosition.signal.clearSubs()
       },
     )
