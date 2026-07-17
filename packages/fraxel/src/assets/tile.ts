@@ -1,134 +1,82 @@
-import { Region } from '../math/region.js'
-import { Vector2 } from '../math/vector2.js'
-import { getTexture, type Texture } from './texture.js'
-import type { Shape } from '../collision/narrowphase/shapes.js'
-import {
-  CollisionLayer,
-  type CollisionLayerValue,
-  type CollisionMaskValue,
-} from '../collision/layers.js'
+import type { VectorLike } from '../math/vector2.js'
 
 /**
- * The **`TileCollision`** interface defines the collision configuration for a `Tile`.
- * When a tile has collision data, the `TileMap` will automatically create `Collider`
- * nodes for that tile's position in the grid.
+ * The **`TileOptions`** interface defines optional configuration for a tile.
  *
- * Static tiles (`static: true`, default) block dynamic bodies via physics resolution.
- * Trigger tiles (`static: false`) only detect overlaps without blocking.
+ * Use it when a tile needs to override values inherited from its `TileSet`, such
+ * as drawing from a different texture while keeping the same tile size and map key.
  *
  * @example
  * ```ts
- * import { tile, region, shapes } from 'fraxel'
+ * import { tile } from 'fraxel'
  *
- * // Solid wall (blocks bodies)
- * const wall = tile(WALL_TEX, region(0, 16), {
- *   shape: shapes.rectangle(16, 16),
- *   layer: Layers.Solid,
- *   mask: Layers.Player,
- * })
- *
- * // Trigger zone (detects only)
- * const coin = tile(COIN_TEX, region(32, 16), {
- *   shape: shapes.circle(8),
- *   layer: Layers.Coin,
- *   mask: Layers.Player,
- *   static: false,
- * })
+ * const portal = tile([32, 0], { textureId: PORTAL_TEXTURE })
  * ```
  */
-export interface TileCollision {
-  /** The collision shape for this tile. */
-  shape: Shape
+export interface TileOptions {
   /**
-   * The collision layer this tile belongs to.
-   * Overrides the TileMap's default `collisionLayer` when set.
-   */
-  layer?: CollisionLayerValue
-  /**
-   * The collision mask this tile interacts with.
-   * Overrides the TileMap's default `collisionMask` when set.
-   */
-  mask?: CollisionMaskValue
-  /**
-   * Whether this tile is a static solid that blocks dynamic bodies.
-   * When `true`, the tile's collider participates in physics resolution.
-   * When `false`, the collider only detects overlaps (trigger).
+   * The **`textureId`** property overrides the tileset texture for this tile.
    *
-   * @default true
+   * Use it when a tilemap mostly uses one atlas but a few tiles should render from
+   * another loaded texture. When omitted, the parent `TileSet.textureId` is used.
+   *
+   * @example
+   * ```ts
+   * const tiles = tileset(TERRAIN_TEXTURE, [16, 16], {
+   *   g: tile([0, 0]),
+   *   p: tile([0, 0], { textureId: PORTAL_TEXTURE }),
+   * })
+   * ```
    */
-  static?: boolean
+  textureId?: symbol
 }
 
 /**
- * The **`Tile`** class represents a rectangular tile by size in 2D space with
- * `offset`, and `size`. Used for tilemaps, sprite tiles, and spacial spaces.
+ * The **`Tile`** interface describes one drawable tile in a `TileSet`.
+ *
+ * Use it to map a single-character tile key to a source offset inside a texture.
+ * `TileMap` reads this data to render each non-space character in its map grid.
  *
  * @example
  * ```ts
- * import { tile, region, shapes } from 'fraxel'
+ * import { tile } from 'fraxel'
  *
- * // Basic tile (no collision)
- * const grass = tile(GRASS_TEX, region(0, 16))
- *
- * // Tile with collision
- * const wall = tile(WALL_TEX, region(16, 16), {
- *   shape: shapes.rectangle(16, 16),
- *   layer: CollisionLayer.Default,
- *   mask: CollisionLayer.Default,
- * })
+ * const grass = tile([0, 16])
  * ```
  */
-export class Tile {
-  #texture: Texture
-  #region: Region
-  #collision?: TileCollision
-
+export interface Tile extends TileOptions {
   /**
-   * The **`collision`** property returns the tile's collision configuration, if any.
-   * Used by `TileMap` to generate `Collider` nodes for solid tiles.
+   * The **`source`** property is the tile source offset inside the texture.
+   *
+   * The parent `TileSet` provides the source size through its tile size, so tiles
+   * only need to describe where their crop starts.
+   *
+   * @example
+   * ```ts
+   * const grass = tile([0, 16]) // crop starts at x=0, y=16
+   * ```
    */
-  get collision(): TileCollision | undefined {
-    return this.#collision
-  }
-
-  constructor(textureId: symbol, region: Region, collision?: TileCollision) {
-    this.#texture = getTexture(textureId)
-    this.#region = region
-    this.#collision = collision
-  }
-
-  draw(position: Vector2, size: Vector2) {
-    this.#texture.draw({
-      source: this.#region,
-      display: new Region(position, size),
-    })
-  }
+  source: VectorLike
 }
 
-export { CollisionLayer }
-
 /**
- * The **`tile`** function creates a `Tile`.
- * Convenience factory that delegates to the `Tile` constructor.
+ * The **`tile`** function creates a declarative tile definition.
  *
- * @param textureId - The texture symbol returned by `loadTexture()`.
- * @param region - The source region within the texture.
- * @param collision - Optional collision configuration for solid tiles.
- * @returns A new `Tile` instance.
+ * Use it inside `tileset()` records to describe which texture offset a tile key
+ * should draw from. `tile()` does not load textures and does not create physics;
+ * it only returns data consumed by `TileSet` and `TileMap`.
+ *
+ * @param source - The source offset inside the tileset texture.
+ * @param options - Optional per-tile overrides.
+ * @returns A tile definition.
  *
  * @example
  * ```ts
- * import { tile, region, shapes } from 'fraxel'
+ * import { tile } from 'fraxel'
  *
- * // Tile without collision
- * const grass = tile(GRASS_TEX, region(0, 16))
- *
- * // Tile with collision
- * const wall = tile(WALL_TEX, region(16, 16), {
- *   shape: shapes.rectangle(16, 16),
- * })
+ * const grass = tile([0, 16])
  * ```
  */
-export function tile(textureId: symbol, region: Region, collision?: TileCollision): Tile {
-  return new Tile(textureId, region, collision)
+export function tile(source: VectorLike, options: TileOptions = {}): Tile {
+  return { source, ...options }
 }

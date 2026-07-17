@@ -29,11 +29,9 @@ export class TileMapError extends FraxelError {
  *
  * @example
  * ```ts
- * import { TileSet, tile, region } from 'fraxel'
+ * import { TileMap, tileset, tile } from 'fraxel'
  *
- * const tiles = new TileSet(vector2(16, 16), {
- *   x: tile(TEX, region(0, 16)),
- * })
+ * const tiles = tileset(TEX, [16, 16], { x: tile([0, 16]) })
  *
  * // Throws InvalidTileKeyError: Tile key "z" does not exist in the TileSet
  * new TileMap({ tiles, map: ['xxz'] })
@@ -68,7 +66,7 @@ export class InvalidMapRowLengthError extends TileMapError {
  * @example
  * ```ts
  * // Throws InvalidTileSetError: Tile key "ab" must be a single character
- * new TileSet(vector2(16, 16), { 'ab': tile(TEX, region(0, 16)) })
+ * tileset(TEX, [16, 16], { ab: tile([0, 16]) })
  * ```
  */
 export class InvalidTileSetError extends TileMapError {

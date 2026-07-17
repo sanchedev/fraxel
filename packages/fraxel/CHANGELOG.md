@@ -16,6 +16,8 @@
 - **Effect phases** — `useEffect()` now flushes after node updates and before physics, and `usePostPhysicsEffect()` runs after physics before draw.
 - **Sound loading cache** — `loadSound()` now deduplicates repeated and concurrent calls by URL.
 - **Signal API rename** — `createSignal()` was renamed to `defineSignal()` for signals created outside hook/component scope.
+- **TileMap render API cleanup** — `TileMap` is now render-only and shares Sprite-style render filters (`displaySize`, `tint`, `opacity`, brightness, contrast, saturation, hue rotation, invert, and grayscale) without sprite flips.
+- **Declarative tilesets** — `tileset(textureId, tileSize, tiles)` and `tile(source, options)` replace class-based tile definitions and make atlas tiles easier to declare.
 
 ### Breaking Changes
 
@@ -30,6 +32,8 @@
 - **Deprecated sprite crop props removed** — replace `margin` and `sourceSize` with `source={region(x, y, width, height)}`.
 - **Effect timing changed** — `useEffect()` callbacks no longer flush through microtasks; they flush inside the game loop before physics.
 - **`createSignal()` renamed** — use `defineSignal()` for signals created outside hook/component scope.
+- **Tile/TileSet API changed** — replace `tileset(size, { x: tile(textureId, region(...)) })` with `tileset(textureId, tileSize, { x: tile(source, options) })`. `Tile` is now an interface returned by `tile()`, not a class.
+- **TileMap collisions removed** — `TileMap` no longer accepts `layer`, `mask`, `chunkSize`, or per-tile collision options. Use explicit `<body>`/`<detector>` and `<collider>` nodes for physics or trigger zones.
 
 ### Bug Fixes
 

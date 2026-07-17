@@ -1,5 +1,4 @@
 import { getTexture, type Texture } from '../../assets/texture.js'
-import { GameConfig } from '../../core/game-config.js'
 import { Vector2, type VectorLike } from '../../math/vector2.js'
 import { ns, propSignal, signalColor, signalVector } from '../../utils/ternaries.js'
 import { PrimaryNode } from '../lib/enum.js'
@@ -8,6 +7,7 @@ import { registerNode } from '../lib/registry.js'
 import type { Reactive } from '../../reactivity/types.js'
 import { Color, type ColorLike } from '../../math/color.js'
 import { Region } from '../../math/region.js'
+import { drawTextureWithFilters } from './lib/texture-render.js'
 
 export interface SpriteOptions extends Node2DOptions<PrimaryNode.Sprite> {
   /**
@@ -382,47 +382,24 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
   /** @internal Draws the sprite texture with filters. */
   draw(delta: number): void {
     if (this.#texture != null) {
-      const ctx = GameConfig.ctx
-
-      const filters: string[] = []
-      if (this.#brightness !== 1) filters.push(`brightness(${this.#brightness})`)
-      if (this.#grayscale !== 0) filters.push(`grayscale(${this.#grayscale})`)
-      if (this.#contrast !== 1) filters.push(`contrast(${this.#contrast})`)
-      if (this.#saturate !== 1) filters.push(`saturate(${this.#saturate})`)
-      if (this.#hueRotate !== 0) filters.push(`hue-rotate(${this.#hueRotate}deg)`)
-      if (this.#invert !== 0) filters.push(`invert(${this.#invert})`)
-      if (this.#opacity !== 1) filters.push(`opacity(${this.#opacity})`)
-
-      ctx.save()
-
-      if (filters.length > 0) {
-        ctx.filter = filters.join(' ')
-      }
-
-      const drawnSize = this.displaySize ?? new Vector2(this.#texture.width, this.#texture.height)
-
       const applyFlip = (flip: boolean) => (flip ? -1 : 1)
       const flipVector = new Vector2(applyFlip(this.flipX), applyFlip(this.flipY))
-      const displaySize = this.displaySize?.toMultiplied(flipVector) ?? Vector2.ZERO
+      const displaySize = this.displaySize ?? new Vector2(this.#texture.width, this.#texture.height)
 
-      this.#texture.draw({
-        display: new Region(this.position, displaySize),
+      drawTextureWithFilters({
+        texture: this.#texture,
+        position: this.position,
         source: this.#source,
+        displaySize: displaySize.toMultiplied(flipVector),
+        brightness: this.#brightness,
+        grayscale: this.#grayscale,
+        tint: this.#tint,
+        contrast: this.#contrast,
+        saturate: this.#saturate,
+        hueRotate: this.#hueRotate,
+        invert: this.#invert,
+        opacity: this.#opacity,
       })
-
-      const isTinted = !this.#tint.equals(Color.WHITE)
-
-      if (isTinted) {
-        ctx.filter = 'none'
-        ctx.globalCompositeOperation = 'multiply'
-
-        ctx.fillStyle = this.#tint.toCSS()
-        ctx.fillRect(this.position.x, this.position.y, drawnSize.x, drawnSize.y)
-
-        ctx.globalCompositeOperation = 'source-over'
-      }
-
-      ctx.restore()
     }
 
     super.draw(delta)
