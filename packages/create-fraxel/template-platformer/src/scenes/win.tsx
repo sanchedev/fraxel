@@ -22,20 +22,16 @@ export default function Win() {
       <text
         position={[size.x / 2, 180]}
         text="Congratulations!"
-        style={{
-          textAlign: TextAlign.Center,
-          foregroundColor: '#f8fafc',
-          fontSize: 44,
-        }}
+        textAlign={TextAlign.Center}
+        fillColor="#f8fafc"
+        fontSize={44}
       />
       <text
         position={[size.x / 2, 240]}
         text="Press R to restart"
-        style={{
-          textAlign: TextAlign.Center,
-          foregroundColor: '#a7b7c8',
-          fontSize: 22,
-        }}
+        textAlign={TextAlign.Center}
+        fillColor="#a7b7c8"
+        fontSize={22}
       />
     </transform>
   )

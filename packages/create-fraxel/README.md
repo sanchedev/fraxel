@@ -41,6 +41,7 @@ Choose one of the available starter templates:
 | **Empty**      | Minimal Fraxel project with a blank scene.                  |
 | **Platformer** | Basic platformer with player movement, jumping and physics. |
 | **Top-down**   | Top-down movement with collisions.                          |
+| **Coin Box**   | Drag-and-drop coin collection game.                         |
 
 ---
 

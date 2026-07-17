@@ -33,20 +33,16 @@ export default function Game() {
       <text
         position={[size.x / 2, 52]}
         text="Game Scene"
-        style={{
-          textAlign: TextAlign.Center,
-          foregroundColor: '#f8fafc',
-          fontSize: 28,
-        }}
+        textAlign={TextAlign.Center}
+        fillColor="#f8fafc"
+        fontSize={28}
       />
       <text
         position={[size.x / 2, 86]}
         text="A/D move - Space jump"
-        style={{
-          textAlign: TextAlign.Center,
-          foregroundColor: '#a7b7c8',
-          fontSize: 16,
-        }}
+        textAlign={TextAlign.Center}
+        fillColor="#a7b7c8"
+        fontSize={16}
       />
     </transform>
   )

@@ -14,14 +14,10 @@ export default function Win() {
 
   return (
     <transform>
-      <geometry
-        position={[0, 0]}
-        shape={shapes.rectangle(size.x, size.y)}
-        fillColor={[0.08, 0.12, 0.16, 1]}
-      />
+      <geometry position={[0, 0]} shape={shapes.rectangle(size.x, size.y)} fillColor="#141f29" />
       <text
         position={[size.x / 2, 180]}
-        text="Exit reached!"
+        text="Congratulations!"
         textAlign={TextAlign.Center}
         fillColor="#f8fafc"
         fontSize={44}

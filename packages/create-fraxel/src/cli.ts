@@ -44,6 +44,7 @@ Templates:
   empty
   platformer
   top-down
+  coin-box
 `
 
 export async function runCli() {

@@ -41,6 +41,12 @@ export const TEMPLATES: Template[] = [
     description: 'Basic top-down movement.',
     color: pc.cyan,
   },
+  {
+    name: 'coin-box',
+    display: 'Coin Box',
+    description: 'Drag-and-drop coin collection game.',
+    color: pc.magenta,
+  },
 ]
 
 export function getTemplate(name: string): Template | undefined {

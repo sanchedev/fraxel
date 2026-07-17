@@ -1,6 +1,6 @@
 {
   "name": "create-fraxel",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Create a new Fraxel project.",
   "license": "MIT",
   "author": "José Sánchez",
@@ -30,6 +30,7 @@
   },
   "files": [
     "dist",
+    "template-coin-box",
     "template-empty",
     "template-platformer",
     "template-top-down",
@@ -44,7 +45,7 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "pnpm build && pnpm -w lint"
   },
   "packageManager": "pnpm@10.29.3",
   "dependencies": {

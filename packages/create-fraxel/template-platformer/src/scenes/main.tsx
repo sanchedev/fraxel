@@ -37,29 +37,23 @@ export default function Main() {
       <text
         position={[size.x / 2, 120]}
         text="Platformer"
-        style={{
-          textAlign: TextAlign.Center,
-          foregroundColor: '#f8fafc',
-          fontSize: 52,
-        }}
+        textAlign={TextAlign.Center}
+        fillColor="#f8fafc"
+        fontSize={52}
       />
       <text
         position={[size.x / 2, 170]}
         text="A simple Fraxel template"
-        style={{
-          textAlign: TextAlign.Center,
-          foregroundColor: '#9fb3c8',
-          fontSize: 18,
-        }}
+        textAlign={TextAlign.Center}
+        fillColor="#9fb3c8"
+        fontSize={18}
       />
       <text
         position={[size.x / 2, 270]}
         text="Press Enter to start"
-        style={{
-          textAlign: TextAlign.Center,
-          foregroundColor: '#dbeafe',
-          fontSize: 24,
-        }}
+        textAlign={TextAlign.Center}
+        fillColor="#dbeafe"
+        fontSize={24}
       />
     </transform>
   )

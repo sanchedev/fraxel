@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "fraxel": "^0.1.0-alpha.6d"
+    "fraxel": "^0.1.0-alpha.7"
   },
   "devDependencies": {
     "@fraxel/vite-plugin": "^0.1.0-alpha.3",
