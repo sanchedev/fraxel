@@ -107,10 +107,12 @@ export class PointerTargetSystem {
     }
 
     if (Pointer.justPointerUnpressed) {
-      if (topTarget != null) {
-        topTarget.onPointerUnpress.emit(topTarget.localPosition())
+      const unpressTarget = this.#pressedTarget?.captureAfterPress ? this.#pressedTarget : topTarget
+
+      if (unpressTarget != null) {
+        unpressTarget.onPointerUnpress.emit(unpressTarget.localPosition())
         if (topTarget === this.#pressedTarget) {
-          topTarget.onClick.emit(topTarget.localPosition())
+          unpressTarget.onClick.emit(unpressTarget.localPosition())
         }
       }
 

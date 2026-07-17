@@ -18,6 +18,7 @@
 - **Signal API rename** — `createSignal()` was renamed to `defineSignal()` for signals created outside hook/component scope.
 - **TileMap render API cleanup** — `TileMap` is now render-only and shares Sprite-style render filters (`displaySize`, `tint`, `opacity`, brightness, contrast, saturation, hue rotation, invert, and grayscale) without sprite flips.
 - **Declarative tilesets** — `tileset(textureId, tileSize, tiles)` and `tile(source, options)` replace class-based tile definitions and make atlas tiles easier to declare.
+- **Draggable node** — added `<draggable>` and `useDraggable()` for pointer-driven drag interactions with `onDragStart`, `onDrag`, and `onDragEnd` triggers.
 
 ### Breaking Changes
 
@@ -38,6 +39,7 @@
 ### Bug Fixes
 
 - **Documentation consistency** — updated JSDoc, templates, and operational docs to reference current trigger, input, and hook APIs.
+- **Pointer capture release** — pointer targets that capture after press now receive release events even when the pointer is released outside their shape.
 
 ## 0.1.0-alpha.6d
 

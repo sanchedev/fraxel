@@ -305,7 +305,7 @@ import {
 
 # Documentation
 
-[https://fraxel.dev](https://fraxel.mintlify.app/)
+[https://fraxel.mintlify.app/](https://fraxel.mintlify.app/)
 
 ---
 

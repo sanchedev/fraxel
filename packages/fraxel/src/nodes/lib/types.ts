@@ -7,6 +7,7 @@ import type { Detector, DetectorOptions } from '../node2d/detector.js'
 import type { RayCast, RayCastOptions } from '../node2d/ray-cast.js'
 import type { PrimaryNode } from './enum.js'
 import type { Clickable, ClickableOptions } from '../node2d/clickable.js'
+import type { Draggable, DraggableOptions } from '../node2d/draggable.js'
 import type { Timer, TimerOptions } from '../timer.js'
 import type { Geometry, GeometryOptions } from '../node2d/geometry.js'
 import type { Text, TextOptions } from '../node2d/text.js'
@@ -40,6 +41,7 @@ export interface NodeClasses {
   [PrimaryNode.Detector]: typeof Detector
   [PrimaryNode.RayCast]: typeof RayCast
   [PrimaryNode.Clickable]: typeof Clickable
+  [PrimaryNode.Draggable]: typeof Draggable
   [PrimaryNode.Timer]: typeof Timer
   [PrimaryNode.Geometry]: typeof Geometry
   [PrimaryNode.Text]: typeof Text
@@ -71,6 +73,7 @@ export interface NodesOptions {
   [PrimaryNode.Detector]: DetectorOptions
   [PrimaryNode.RayCast]: RayCastOptions
   [PrimaryNode.Clickable]: ClickableOptions
+  [PrimaryNode.Draggable]: DraggableOptions
   [PrimaryNode.Timer]: TimerOptions
   [PrimaryNode.Geometry]: GeometryOptions
   [PrimaryNode.Text]: TextOptions
