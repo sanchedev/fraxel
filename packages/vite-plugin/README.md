@@ -134,7 +134,7 @@ This provides type definitions for standard Vite import patterns like `*.module.
 ## Requirements
 
 - **Vite** `^8.0.0`
-- **fraxel** `^0.1.0-alpha.6d`
+- **fraxel** `^0.1.0-alpha.7`
 
 ## License
 
