@@ -23,7 +23,7 @@
 - **Text Rendering** — Render text on canvas with `<text>` node and configurable styles.
 - **Tweening & Easing** — Interpolate properties with 12 easing functions and sequence/parallel composition.
 - **Asset Pipeline** — Batch loading with progress tracking via `loadBatch`.
-- **Sprite Filters** — Hardware-accelerated brightness, grayscale, modulate, contrast, and opacity.
+- **Sprite Filters** — Hardware-accelerated brightness, grayscale, tint, contrast, and opacity.
 - **TypeScript-First** — Built from the ground up for strict type safety (`verbatimModuleSyntax`).
 
 ## The DX
@@ -31,7 +31,7 @@
 fraxel removes the boilerplate. Look how easy it is to create a reactive, interactable game entity:
 
 ```tsx
-import { useSignal } from 'fraxel'
+import { shapes, useSignal } from 'fraxel'
 import { PLAYER_TEX } from './assets'
 
 export function Player() {
@@ -43,7 +43,7 @@ export function Player() {
       grayscale={() => (health() <= 0 ? 1 : 0)} // Auto-computed prop!
       brightness={() => 0.5 + health() / 200}
     >
-      <clickable size={[32, 32]} onClick={() => setHealth(health() - 10)} />
+      <clickable shape={shapes.rectangle(32, 32)} onClick={() => setHealth(health() - 10)} />
     </sprite>
   )
 }
@@ -89,7 +89,7 @@ Dive into the official documentation to master the engine:
 - [Animation](docs/animation.md) — Sprite sheets, `<animation-player>`, tweening, and easing
 - [Tweening](docs/tweening.md) — Interpolation, easing functions, and sequences
 - [Assets](docs/assets.md) — Batch loading and management
-- [Input System](docs/input.md) — Pointer tracking and keyboard events
+- Input system — `Input.createAction()` for keyboard actions and `Pointer` for pointer state
 - [Scripts](docs/scripts.md) — FraxelScript and Game lifecycle management
 - [Filters](docs/filters.md) — Sprite filter props and Color types
 
