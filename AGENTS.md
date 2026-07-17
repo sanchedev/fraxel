@@ -4,7 +4,7 @@ Compact operational notes for OpenCode sessions in the Fraxel monorepo.
 
 ## Repo Shape
 
-- pnpm workspace, package manager pinned to `pnpm@10.29.3`; workspace globs are `packages/*` and `playground/*`.
+- pnpm workspace, package manager pinned to `pnpm@11.13.0`; workspace globs are `packages/*` and `playground/*`.
 - Root `package.json` only has `lint`, `lint:fix`, `format`, `format:check`, and `prepare`; package builds must use `pnpm --filter ...`.
 - Packages: `packages/fraxel` (`fraxel`, engine/runtime, Node `>=18`), `packages/create-fraxel` (`create-fraxel`, scaffolder CLI, Node `>=20.0.0`), and `packages/vite-plugin` (`@fraxel/vite-plugin`, Node `>=18`, peer `vite@^8.0.0`).
 - Do not edit `dist/` unless explicitly asked for build artifacts; tsdown cleans and regenerates package outputs.

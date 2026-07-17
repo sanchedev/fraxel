@@ -3,12 +3,6 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
-    "engine:build": "pnpm --filter fraxel build",
-    "engine:dev": "pnpm --filter fraxel dev",
-    "demo:start": "pnpm --filter demo start",
-    "demo:build": "pnpm --filter demo build",
-    "demo:dev": "pnpm --filter demo dev",
-    "dev": "concurrently \"pnpm engine:dev\" \"pnpm demo:dev\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
@@ -16,7 +10,7 @@
     "prepare": "husky"
   },
   "license": "MIT",
-  "packageManager": "pnpm@10.29.3",
+  "packageManager": "pnpm@11.13.0",
   "devDependencies": {
     "concurrently": "^9.2.1",
     "eslint": "^10.6.0",
