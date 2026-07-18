@@ -29,10 +29,10 @@ jobs:
         run: pnpm format:check
 
       - name: Build fraxel
-        run: pnpm --filter fraxel
+        run: pnpm --filter fraxel build
 
       - name: Build @fraxel/vite-plugin
-        run: pnpm --filter @fraxel/vite-plugin
+        run: pnpm --filter @fraxel/vite-plugin build
 
       - name: Build create-fraxel
-        run: pnpm --filter create-fraxel
+        run: pnpm --filter create-fraxel build
