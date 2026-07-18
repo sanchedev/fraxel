@@ -17,7 +17,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -28,8 +28,11 @@ jobs:
       - name: Format check
         run: pnpm format:check
 
-      - name: Build engine
-        run: pnpm engine:build
+      - name: Build fraxel
+        run: pnpm --filter fraxel
 
-      - name: Build demo
-        run: pnpm demo:build
+      - name: Build @fraxel/vite-plugin
+        run: pnpm --filter @fraxel/vite-plugin
+
+      - name: Build create-fraxel
+        run: pnpm --filter create-fraxel
