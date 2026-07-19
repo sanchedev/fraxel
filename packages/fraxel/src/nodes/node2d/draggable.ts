@@ -4,7 +4,7 @@ import { Pointer } from '../../input/pointer.js'
 import { Bounds, type BoundsLike } from '../../math/bounds.js'
 import { Vector2, type VectorLike } from '../../math/vector2.js'
 import type { Reactive } from '../../reactivity/types.js'
-import { propSignal } from '../../utils/ternaries.js'
+import { applySignal, ns, propSignal, signalVector } from '../../utils/ternaries.js'
 import { PrimaryNode } from '../lib/enum.js'
 import { registerNode } from '../lib/registry.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
@@ -137,8 +137,8 @@ export class Draggable extends Node2D<PrimaryNode.Draggable> {
   shape: Shape
   disabled: boolean = false
   axis: DragAxis = 'both'
-  bounds?: BoundsLike
-  snap?: VectorLike
+  bounds?: Bounds
+  snap?: Vector2
   dropKey?: DropKey
   dropData: unknown
   #target: PointerTarget
@@ -158,8 +158,17 @@ export class Draggable extends Node2D<PrimaryNode.Draggable> {
     this.shape = propSignal(this, 'shape', options.shape) as Shape
     this.disabled = propSignal(this, 'disabled', options.disabled)
     this.axis = propSignal(this, 'axis', options.axis)
-    this.bounds = propSignal(this, 'bounds', options.bounds)
-    this.snap = propSignal(this, 'snap', options.snap)
+    this.bounds = ns(
+      options.bounds,
+      (v) =>
+        propSignal(
+          this,
+          'bounds',
+          applySignal(v, (v) => new Bounds(v)),
+        ),
+      this.bounds,
+    )
+    this.snap = ns(options.snap, (v) => propSignal(this, 'snap', signalVector(v)), this.snap)
     this.dropKey = propSignal(this, 'dropKey', options.dropKey)
     this.dropData = propSignal(this, 'dropData', options.dropData)
 
@@ -240,20 +249,18 @@ export class Draggable extends Node2D<PrimaryNode.Draggable> {
   #applySnap(position: Vector2) {
     if (this.snap == null) return position
 
-    const snap = new Vector2(this.snap)
     return new Vector2(
-      snap.x > 0 ? Math.round(position.x / snap.x) * snap.x : position.x,
-      snap.y > 0 ? Math.round(position.y / snap.y) * snap.y : position.y,
+      this.snap.x > 0 ? Math.round(position.x / this.snap.x) * this.snap.x : position.x,
+      this.snap.y > 0 ? Math.round(position.y / this.snap.y) * this.snap.y : position.y,
     )
   }
 
   #applyBounds(position: Vector2) {
     if (this.bounds == null) return position
 
-    const bounds = new Bounds(this.bounds)
     return new Vector2(
-      Math.min(Math.max(position.x, bounds.left), bounds.right),
-      Math.min(Math.max(position.y, bounds.top), bounds.bottom),
+      Math.min(Math.max(position.x, this.bounds.left), this.bounds.right),
+      Math.min(Math.max(position.y, this.bounds.top), this.bounds.bottom),
     )
   }
 
