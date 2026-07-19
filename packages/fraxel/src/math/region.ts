@@ -43,6 +43,23 @@ export class Region {
       this.size = Vector2.max(Vector2.ZERO, this.size)
     }
   }
+
+  /**
+   * The **`clone`** method returns a new `Region` with the same offset and size cloned values.
+   * @returns A new `Region` instance.
+   *
+   * @example
+   * ```ts
+   * const a = new Region(16, 32)
+   * const b = a.clone()
+   * b.size.x = 16
+   * console.log(a.size) // Vector2(32, 32) (unchanged)
+   * ```
+   */
+  clone() {
+    return new Region(this.offset.clone(), this.size.clone())
+  }
+
   /**
    * The **`equals`** method checks if this region has the same offset and size as another.
    * @param other The region to compare with.

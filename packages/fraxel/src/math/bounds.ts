@@ -135,6 +135,22 @@ export class Bounds {
     if (!isBoundsLike(args[0])) throw new InvalidBoundsLikeError(args[0])
   }
 
+  /**
+   * The **`clone`** method returns a new `Bounds` with the same side values.
+   * @returns A new `Bounds` instance.
+   *
+   * @example
+   * ```ts
+   * const a = new Bounds(4, 2)
+   * const b = a.clone()
+   * b.bottom = 8
+   * console.log(a.bottom) // 2 (unchanged)
+   * ```
+   */
+  clone() {
+    return new Bounds(this)
+  }
+
   /** Returns a readable string representation of this bounds. */
   toString() {
     return `Bounds(${this.left}, ${this.top}, ${this.right}, ${this.bottom})`
