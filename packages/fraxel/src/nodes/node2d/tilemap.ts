@@ -8,6 +8,8 @@ import { PrimaryNode } from '../lib/enum.js'
 import { registerNode } from '../lib/registry.js'
 import { Node2D, type Node2DOptions } from './_node2d.js'
 import { drawTextureWithFilters } from './lib/texture-render.js'
+import { OffscreenCanvas } from '../../core/offscreen-canvas.js'
+import { OffscreenTexture } from '../../assets/offscreen-texture.js'
 
 /**
  * The **`TileMapOptions`** interface defines the configuration for a `TileMap` node.
@@ -194,6 +196,8 @@ export interface TileMapOptions<
 export class TileMap<const T extends string> extends Node2D<PrimaryNode.TileMap> {
   #tiles: TileSet<T>
   #map: string[]
+  #offscreenCanvas?: OffscreenCanvas
+  #mapVersion = 0
 
   /**
    * The **`displaySize`** property returns or sets the rendered size of each tile cell.
@@ -437,8 +441,10 @@ export class TileMap<const T extends string> extends Node2D<PrimaryNode.TileMap>
     return this.displaySize ?? this.#tiles.size
   }
 
-  draw(delta: number): void {
-    const cellSize = this.#cellSize()
+  #renderTilesToOffscreen(offscreenCanvas: OffscreenCanvas, cellSize: Vector2): void {
+    const ctx = offscreenCanvas.ctx
+    const tileWidth = cellSize.x
+    const tileHeight = cellSize.y
 
     for (let y = 0; y < this.#map.length; y++) {
       const row = this.#map[y]!
@@ -446,24 +452,77 @@ export class TileMap<const T extends string> extends Node2D<PrimaryNode.TileMap>
         const char = row[x]! as T
         if (char === ' ') continue
 
-        drawTextureWithFilters({
-          texture: this.#tiles.getTexture(char),
-          position: this.position.toAdded(vector2(x, y).multiply(cellSize)),
-          source: this.#tiles.getSource(char),
-          displaySize: cellSize,
-          brightness: this.#brightness,
-          grayscale: this.#grayscale,
-          tint: this.#tint,
-          contrast: this.#contrast,
-          saturate: this.#saturate,
-          hueRotate: this.#hueRotate,
-          invert: this.#invert,
-          opacity: this.#opacity,
-        })
+        const texture = this.#tiles.getTexture(char)
+        const source = this.#tiles.getSource(char)
+
+        ctx.drawImage(
+          texture.image,
+          source.offset.x,
+          source.offset.y,
+          source.size.x,
+          source.size.y,
+          x * tileWidth,
+          y * tileHeight,
+          tileWidth,
+          tileHeight,
+        )
       }
     }
+  }
+
+  draw(delta: number): void {
+    const cellSize = this.#cellSize()
+    const mapWidth = this.#map[0]?.length ?? 0
+    const mapHeight = this.#map.length
+    const nativeWidth = mapWidth * cellSize.x
+    const nativeHeight = mapHeight * cellSize.y
+
+    if (this.#offscreenCanvas === undefined || this.#mapVersion !== this.#currentMapVersion) {
+      if (this.#offscreenCanvas) {
+        this.#offscreenCanvas.destroy()
+      }
+      this.#offscreenCanvas = new OffscreenCanvas(nativeWidth, nativeHeight)
+      this.#renderTilesToOffscreen(this.#offscreenCanvas, cellSize)
+      this.#mapVersion = this.#currentMapVersion
+    }
+
+    const offscreenTexture = new OffscreenTexture(this.#offscreenCanvas!)
+    const displaySize = vector2(nativeWidth, nativeHeight)
+
+    drawTextureWithFilters({
+      texture: offscreenTexture,
+      position: this.position,
+      displaySize,
+      brightness: this.#brightness,
+      grayscale: this.#grayscale,
+      tint: this.#tint,
+      contrast: this.#contrast,
+      saturate: this.#saturate,
+      hueRotate: this.#hueRotate,
+      invert: this.#invert,
+      opacity: this.#opacity,
+    })
 
     super.draw(delta)
+  }
+
+  #currentMapVersion = 0
+
+  /**
+   * Marks the tilemap as dirty, causing it to re-render to the offscreen canvas
+   * on the next draw call. Call this if you modify the `map` array directly.
+   */
+  invalidateMap(): void {
+    this.#currentMapVersion++
+  }
+
+  /**
+   * Destroys the tilemap and cleans up offscreen canvas resources.
+   */
+  override destroy(): void {
+    this.#offscreenCanvas?.destroy()
+    this.#offscreenCanvas = undefined
+    super.destroy()
   }
 }
 

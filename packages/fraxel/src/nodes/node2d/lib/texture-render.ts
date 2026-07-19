@@ -3,7 +3,9 @@ import { Color, type ColorLike } from '../../../math/color.js'
 import { Region } from '../../../math/region.js'
 import type { Vector2, VectorLike } from '../../../math/vector2.js'
 import type { Reactive } from '../../../reactivity/types.js'
-import type { Texture } from '../../../assets/texture.js'
+import type { TextureDrawOptions } from '../../../assets/texture.js'
+import { OffscreenCanvas } from '../../../core/offscreen-canvas.js'
+import { OffscreenTexture } from '../../../assets/offscreen-texture.js'
 
 /** Shared texture filter options used by render nodes. */
 export interface TextureFilterOptions {
@@ -38,8 +40,14 @@ export interface TextureFilterState {
   opacity: number
 }
 
+interface DrawableTexture {
+  width: number
+  height: number
+  draw(options: TextureDrawOptions): void
+}
+
 interface DrawTextureOptions extends TextureFilterState {
-  texture: Texture
+  texture: DrawableTexture
   position: Vector2
   source?: Region
   displaySize: Vector2
@@ -56,6 +64,56 @@ export const DEFAULT_TEXTURE_FILTERS: TextureFilterState = {
   hueRotate: 0,
   invert: 0,
   opacity: 1,
+}
+
+const tintCache = new Map<DrawableTexture, Map<string, OffscreenTexture>>()
+
+function getTintCacheKey(tint: Color): string {
+  return tint.toString()
+}
+
+function getOrCreateTintedTexture(texture: DrawableTexture, tint: Color): OffscreenTexture {
+  let textureCache = tintCache.get(texture)
+  if (!textureCache) {
+    textureCache = new Map()
+    tintCache.set(texture, textureCache)
+  }
+
+  const cacheKey = getTintCacheKey(tint)
+  let cached = textureCache.get(cacheKey)
+  if (cached) {
+    return cached
+  }
+
+  const offscreenCanvas = new OffscreenCanvas(texture.width, texture.height)
+  const ctx = offscreenCanvas.ctx
+
+  ctx.save()
+
+  texture.draw({
+    display: new Region(0, [texture.width, texture.height]),
+    ctx,
+  })
+
+  ctx.globalCompositeOperation = 'multiply'
+  ctx.globalAlpha = tint.a
+  ctx.fillStyle = tint.toCSS()
+  ctx.fillRect(0, 0, texture.width, texture.height)
+
+  ctx.globalCompositeOperation = 'destination-in'
+  ctx.globalAlpha = 1
+
+  texture.draw({
+    display: new Region(0, [texture.width, texture.height]),
+    ctx,
+  })
+
+  ctx.restore()
+
+  cached = new OffscreenTexture(offscreenCanvas)
+  textureCache.set(cacheKey, cached)
+
+  return cached
 }
 
 export function drawTextureWithFilters(options: DrawTextureOptions): void {
@@ -75,25 +133,18 @@ export function drawTextureWithFilters(options: DrawTextureOptions): void {
     ctx.filter = filters.join(' ')
   }
 
-  options.texture.draw({
+  let textureToDraw = options.texture
+
+  if (!options.tint.equals(Color.WHITE)) {
+    textureToDraw = getOrCreateTintedTexture(options.texture, options.tint)
+  }
+
+  textureToDraw.draw({
     display: new Region(options.position, options.displaySize),
     source: options.source,
     flipX: options.flipX,
     flipY: options.flipY,
   })
-
-  if (!options.tint.equals(Color.WHITE)) {
-    ctx.filter = 'none'
-    ctx.globalCompositeOperation = 'multiply'
-    ctx.fillStyle = options.tint.toCSS()
-    ctx.fillRect(
-      options.position.x,
-      options.position.y,
-      options.displaySize.x,
-      options.displaySize.y,
-    )
-    ctx.globalCompositeOperation = 'source-over'
-  }
 
   ctx.restore()
 }
