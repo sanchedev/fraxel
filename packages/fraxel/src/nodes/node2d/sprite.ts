@@ -382,15 +382,13 @@ export class Sprite extends Node2D<PrimaryNode.Sprite> {
   /** @internal Draws the sprite texture with filters. */
   draw(delta: number): void {
     if (this.#texture != null) {
-      const applyFlip = (flip: boolean) => (flip ? -1 : 1)
-      const flipVector = new Vector2(applyFlip(this.flipX), applyFlip(this.flipY))
-      const displaySize = this.displaySize ?? new Vector2(this.#texture.width, this.#texture.height)
-
       drawTextureWithFilters({
         texture: this.#texture,
         position: this.position,
         source: this.#source,
-        displaySize: displaySize.toMultiplied(flipVector),
+        displaySize: this.displaySize ?? this.#source.size,
+        flipX: this.flipX,
+        flipY: this.flipY,
         brightness: this.#brightness,
         grayscale: this.#grayscale,
         tint: this.#tint,

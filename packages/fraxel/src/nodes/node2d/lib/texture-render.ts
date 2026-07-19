@@ -43,6 +43,8 @@ interface DrawTextureOptions extends TextureFilterState {
   position: Vector2
   source?: Region
   displaySize: Vector2
+  flipX?: boolean
+  flipY?: boolean
 }
 
 export const DEFAULT_TEXTURE_FILTERS: TextureFilterState = {
@@ -76,6 +78,8 @@ export function drawTextureWithFilters(options: DrawTextureOptions): void {
   options.texture.draw({
     display: new Region(options.position, options.displaySize),
     source: options.source,
+    flipX: options.flipX,
+    flipY: options.flipY,
   })
 
   if (!options.tint.equals(Color.WHITE)) {

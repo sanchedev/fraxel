@@ -44,11 +44,8 @@ export class Texture {
               : options.source.size,
           )
 
-    const flipX = display.size.x !== Math.abs(display.size.x)
-    const flipY = display.size.y !== Math.abs(display.size.y)
-
-    const scaleX = flipX ? -1 : 1
-    const scaleY = flipY ? -1 : 1
+    const scaleX = options.flipX ? -1 : 1
+    const scaleY = options.flipY ? -1 : 1
 
     display.offset.multiply([scaleX, scaleY])
 
@@ -60,10 +57,10 @@ export class Texture {
       source.offset.y,
       source.size.x,
       source.size.y,
-      display.offset.x,
-      display.offset.y,
-      display.size.x,
-      display.size.y,
+      display.offset.x - (options.flipX ? display.size.x : 0),
+      display.offset.y - (options.flipY ? display.size.y : 0),
+      Math.abs(display.size.x),
+      Math.abs(display.size.y),
     )
     GameConfig.ctx.restore()
   }
@@ -74,6 +71,8 @@ interface TextureDrawOptions {
   display: Region
   /** Source texture region */
   source?: Region
+  flipX?: boolean
+  flipY?: boolean
 }
 
 export const textures = new Map<symbol, Texture>()
