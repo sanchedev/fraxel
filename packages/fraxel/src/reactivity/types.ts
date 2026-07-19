@@ -57,3 +57,7 @@ export interface SignalGetterLike<T> {
  * ```
  */
 export type Reactive<T> = T | SignalGetterLike<T>
+
+export type SignalsFrom<T extends Record<keyof any, any>> = {
+  [P in keyof T as T[P] extends SignalGetter<any> ? P : never]: T[P]
+}
