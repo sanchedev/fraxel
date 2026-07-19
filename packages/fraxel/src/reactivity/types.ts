@@ -24,6 +24,7 @@ export interface SignalGetter<T> {
  */
 export interface SignalSetter<T> {
   (value: T): void
+  (fn: (value: T) => T): void
 }
 
 /**

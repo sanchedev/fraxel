@@ -21,7 +21,7 @@ import type { SignalGetter, SignalSetter } from './types.js'
  * health.value = 50 // logs: "Health changed to: 50"
  * ```
  */
-export class Signal<T> {
+export class Signal<T = any> {
   #value: T
   #listeners = new Set<(value: T) => void>()
 
@@ -37,10 +37,7 @@ export class Signal<T> {
 
     // setter & getter
     this.getter = createSignalGetter(this)
-
-    this.setter = ((value) => {
-      this.value = value
-    }) as SignalSetter<T>
+    this.setter = createSignalSetter(this)
   }
 
   /**
@@ -188,6 +185,26 @@ function createSignalGetter<T>(signal: Signal<T>): SignalGetter<T> {
   // @ts-expect-error we change the getter with an id to know if a fn is a symbol getter
   fn[SignalSymbol] = SignalSymbol
   return fn
+}
+
+interface SignalSetterExternals<T> {
+  value?: () => T
+  onChange?: (value: T) => void
+}
+export function createSignalSetter<T>(
+  signal: Signal<T>,
+  externals?: SignalSetterExternals<T>,
+): SignalSetter<T> {
+  const setter: SignalSetter<T> = (arg) => {
+    const value =
+      typeof arg === 'function'
+        ? (arg as (value: T) => T)(externals?.value?.() ?? signal.value)
+        : arg
+
+    externals?.onChange?.(value)
+    signal.value = externals?.value?.() ?? value
+  }
+  return setter
 }
 
 /**
