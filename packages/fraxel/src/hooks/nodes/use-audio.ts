@@ -1,7 +1,6 @@
 import { Trigger } from '../../events/trigger.js'
 import { PrimaryNode } from '../../nodes/index.js'
-import { Signal } from '../../reactivity/signal.js'
-import type { SignalSetter } from '../../reactivity/types.js'
+import { createSignalSetter, Signal } from '../../reactivity/signal.js'
 import { pushEffect } from '../context.js'
 import { NodeReference } from './reference.js'
 
@@ -45,11 +44,17 @@ export class AudioReference extends NodeReference<PrimaryNode.AudioPlayer> {
   /** Reactive playback volume from `0` to `1`. */
   volume = new Signal(1).getter
   /** Sets the playback volume from `0` to `1`. */
-  setVolume: SignalSetter<number> = (value) => (this.node.volume = value)
+  setVolume = createSignalSetter(this.volume.signal, {
+    value: () => this.node.volume,
+    onChange: (v) => (this.node.volume = v),
+  })
   /** Reactive playback speed multiplier. */
   playbackRate = new Signal(1).getter
   /** Sets the playback speed multiplier. */
-  setPlaybackRate: SignalSetter<number> = (value) => (this.node.playbackRate = value)
+  setPlaybackRate = createSignalSetter(this.playbackRate.signal, {
+    value: () => this.node.playbackRate,
+    onChange: (v) => (this.node.playbackRate = v),
+  })
 
   /** Fires when the audio finishes playing naturally. */
   onEnd = new Trigger<[]>()

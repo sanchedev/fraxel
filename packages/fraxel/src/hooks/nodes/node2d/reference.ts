@@ -1,6 +1,7 @@
-import { Vector2, type VectorLike } from '../../../math/index.js'
+import { Vector2 } from '../../../math/index.js'
 import { PrimaryNode, type Node2D, type NodeInstances } from '../../../nodes/index.js'
-import { type SignalSetter, Signal } from '../../../reactivity/index.js'
+import { Signal } from '../../../reactivity/index.js'
+import { createSignalSetter } from '../../../reactivity/signal.js'
 import { NodeReference, type ReferenceOptions } from '../reference.js'
 
 type PrimaryNode2D = keyof {
@@ -37,11 +38,17 @@ export class Node2DReference<T extends PrimaryNode2D = PrimaryNode2D> extends No
   /** Reactive position getter. Updates every frame. */
   position = new Signal(Vector2.ZERO).getter
   /** Sets the node's position. Accepts any `VectorLike` value. */
-  setPosition: SignalSetter<VectorLike> = (v) => (this.node.position = new Vector2(v))
+  setPosition = createSignalSetter(this.position.signal, {
+    value: () => this.node.position,
+    onChange: (v) => (this.node.position = v),
+  })
   /** Reactive rotation getter. Updates every frame. */
   rotation = new Signal(0).getter
   /** Sets the node's rotation. Accepts any `number` value. */
-  setRotation: SignalSetter<number> = (r) => (this.node.rotation = r)
+  setRotation = createSignalSetter(this.rotation.signal, {
+    value: () => this.node.rotation,
+    onChange: (v) => (this.node.rotation = v),
+  })
 
   constructor(options: ReferenceOptions<T>) {
     super({

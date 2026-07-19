@@ -5,8 +5,7 @@ import {
 } from '../../../collision/index.js'
 import { Trigger } from '../../../events/trigger.js'
 import { PrimaryNode, type Detector, type RigidBody } from '../../../nodes/index.js'
-import { Signal } from '../../../reactivity/signal.js'
-import type { SignalSetter } from '../../../reactivity/types.js'
+import { createSignalSetter, Signal } from '../../../reactivity/signal.js'
 import { pushEffect } from '../../context.js'
 import { Node2DReference } from './reference.js'
 import { Vector2, vector2, type VectorLike } from '../../../math/vector2.js'
@@ -49,34 +48,64 @@ export function useRigidBody() {
 export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
   /** Reactive velocity vector, updated every physics frame. */
   velocity = new Signal<Vector2>(Vector2.ZERO).getter
+  /**
+   * Sets the body's velocity directly.
+   */
+  setVelocity = createSignalSetter(this.velocity.signal, {
+    value: () => this.node.velocity.clone(),
+    onChange: (v) => {
+      this.node.setVelocity(v)
+    },
+  })
   /** Reactive mass value. */
   mass = new Signal(1).getter
   /** Sets the body's mass. */
-  setMass: SignalSetter<number> = (value) => (this.node.mass = value)
+  setMass = createSignalSetter(this.mass.signal, {
+    value: () => this.node.mass,
+    onChange: (v) => (this.node.mass = v),
+  })
   /** Reactive friction coefficient. */
   friction = new Signal(0.1).getter
   /** Sets the body's friction coefficient. */
-  setFriction: SignalSetter<number> = (value) => (this.node.friction = value)
+  setFriction = createSignalSetter(this.friction.signal, {
+    value: () => this.node.friction,
+    onChange: (v) => (this.node.friction = v),
+  })
   /** Reactive bounce coefficient (0 = no bounce, 1 = perfect bounce). */
   bounce = new Signal(0).getter
   /** Sets the body's restitution coefficient. */
-  setBounce: SignalSetter<number> = (value) => (this.node.bounce = value)
+  setBounce = createSignalSetter(this.bounce.signal, {
+    value: () => this.node.bounce,
+    onChange: (v) => (this.node.bounce = v),
+  })
   /** Reactive `true` if the body is static (unaffected by forces). */
   isStatic = new Signal(false).getter
   /** Sets whether the body is static. */
-  setIsStatic: SignalSetter<boolean> = (value) => (this.node.isStatic = value)
+  setIsStatic = createSignalSetter(this.isStatic.signal, {
+    value: () => this.node.isStatic,
+    onChange: (v) => (this.node.isStatic = v),
+  })
   /** Reactive `true` if gravity is applied to this body. */
   useGravity = new Signal(true).getter
   /** Sets whether gravity is applied to this body. */
-  setUseGravity: SignalSetter<boolean> = (value) => (this.node.useGravity = value)
+  setUseGravity = createSignalSetter(this.useGravity.signal, {
+    value: () => this.node.useGravity,
+    onChange: (v) => (this.node.useGravity = v),
+  })
   /** Reactive collision layer. */
   layer = new Signal<CollisionLayerValue>(CollisionLayer.Default).getter
   /** Sets the collision layer. */
-  setLayer: SignalSetter<CollisionLayerValue> = (value) => this.node.setLayer(value)
+  setLayer = createSignalSetter(this.layer.signal, {
+    value: () => this.node.layer,
+    onChange: (v) => this.node.setLayer(v),
+  })
   /** Reactive collision mask. */
   mask = new Signal<CollisionMaskValue>(CollisionLayer.Default).getter
   /** Sets the collision mask. */
-  setMask: SignalSetter<CollisionMaskValue> = (value) => this.node.setMask(value)
+  setMask = createSignalSetter(this.mask.signal, {
+    value: () => this.node.mask,
+    onChange: (v) => this.node.setMask(v),
+  })
 
   onBodyEnter = new Trigger<[body: RigidBody]>()
   onBodyCollide = new Trigger<[body: RigidBody]>()
@@ -97,12 +126,6 @@ export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
    * @param impulse The impulse vector to apply
    */
   applyImpulse = (impulse: VectorLike) => this.node.applyImpulse(vector2(impulse))
-  /**
-   * Sets the body's velocity directly.
-   *
-   * @param v The new velocity vector
-   */
-  setVelocity = (v: VectorLike) => this.node.setVelocity(vector2(v))
 
   constructor() {
     super({

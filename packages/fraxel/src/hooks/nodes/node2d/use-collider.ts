@@ -1,7 +1,6 @@
 import type { Shape } from '../../../collision/index.js'
 import { PrimaryNode } from '../../../nodes/index.js'
-import { Signal } from '../../../reactivity/signal.js'
-import type { SignalSetter } from '../../../reactivity/types.js'
+import { createSignalSetter, Signal } from '../../../reactivity/signal.js'
 import { pushEffect } from '../../context.js'
 import { Node2DReference } from './reference.js'
 
@@ -39,7 +38,10 @@ export class ColliderReference extends Node2DReference<PrimaryNode.Collider> {
   /** Reactive collider shape. */
   shape = new Signal<Shape | null>(null).getter
   /** Sets the collider shape. */
-  setShape: SignalSetter<Shape> = (value) => this.node.setShape(value)
+  setShape = createSignalSetter(this.shape.signal, {
+    value: () => this.node.shape,
+    onChange: (v) => this.node.setShape(v ?? this.node.shape),
+  })
 
   constructor() {
     super({

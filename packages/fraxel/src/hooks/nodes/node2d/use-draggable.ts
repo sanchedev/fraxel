@@ -1,12 +1,11 @@
 import type { Shape } from '../../../collision/narrowphase/shapes.js'
 import { Trigger } from '../../../events/trigger.js'
-import { Bounds, type BoundsLike } from '../../../math/bounds.js'
+import { Bounds } from '../../../math/bounds.js'
 import { vector2, Vector2, type VectorLike } from '../../../math/vector2.js'
 import { PrimaryNode } from '../../../nodes/index.js'
 import type { DragAxis, DraggableEvent } from '../../../nodes/node2d/draggable.js'
 import type { DropKey } from '../../../nodes/node2d/lib/drop-area-system.js'
-import { Signal } from '../../../reactivity/signal.js'
-import type { SignalSetter } from '../../../reactivity/types.js'
+import { createSignalSetter, Signal } from '../../../reactivity/signal.js'
 import { pushEffect } from '../../context.js'
 import { Node2DReference } from './reference.js'
 
@@ -44,7 +43,10 @@ export class DraggableReference extends Node2DReference<PrimaryNode.Draggable> {
   /** Reactive draggable shape. */
   shape = new Signal<Shape>(null as unknown as Shape).getter
   /** Sets the draggable shape. */
-  setShape: SignalSetter<Shape> = (value) => (this.node.shape = value)
+  setShape = createSignalSetter(this.shape.signal, {
+    value: () => this.node.shape,
+    onChange: (v) => (this.node.shape = v),
+  })
   /** Reactive `true` when the pointer hovers over the draggable area. */
   hovered = new Signal(false).getter
   /** Reactive `true` while the pointer press started on this draggable and is still held. */
@@ -54,29 +56,45 @@ export class DraggableReference extends Node2DReference<PrimaryNode.Draggable> {
   /** Reactive `true` when dragging is disabled. */
   disabled = new Signal(false).getter
   /** Enables or disables pointer dragging for this node. */
-  setDisabled: SignalSetter<boolean> = (value) => (this.node.disabled = value)
+  setDisabled = createSignalSetter(this.disabled.signal, {
+    value: () => this.node.disabled,
+    onChange: (v) => (this.node.disabled = v),
+  })
   /** Reactive drag axis constraint. */
   axis = new Signal<DragAxis>('both').getter
   /** Sets the drag axis constraint. */
-  setAxis: SignalSetter<DragAxis> = (value) => (this.node.axis = value)
+  setAxis = createSignalSetter(this.axis.signal, {
+    value: () => this.node.axis,
+    onChange: (v) => (this.node.axis = v),
+  })
   /** Reactive bounds used to clamp the draggable global position. */
   bounds = new Signal<Bounds | undefined>(undefined).getter
   /** Sets the bounds used to clamp the draggable global position. */
-  setBounds: SignalSetter<BoundsLike | undefined> = (value) =>
-    (this.node.bounds = value != null ? new Bounds(value) : undefined)
+  setBounds = createSignalSetter(this.bounds.signal, {
+    value: () => this.node.bounds?.clone(),
+    onChange: (v) => (this.node.bounds = v != null ? new Bounds(v) : undefined),
+  })
   /** Reactive snap grid used to round draggable movement. */
   snap = new Signal<VectorLike | undefined>(undefined).getter
   /** Sets the snap grid used to round draggable movement. */
-  setSnap: SignalSetter<VectorLike | undefined> = (value) =>
-    (this.node.snap = value != null ? vector2(value) : undefined)
+  setSnap = createSignalSetter(this.snap.signal, {
+    value: () => this.node.snap?.clone(),
+    onChange: (v) => (this.node.snap = v != null ? vector2(v) : undefined),
+  })
   /** Reactive drop key used to match compatible drop areas. */
   dropKey = new Signal<DropKey | undefined>(undefined).getter
   /** Sets the drop key used to match compatible drop areas. */
-  setDropKey: SignalSetter<DropKey | undefined> = (value) => (this.node.dropKey = value)
+  setDropKey = createSignalSetter(this.dropKey.signal, {
+    value: () => this.node.dropKey,
+    onChange: (v) => (this.node.dropKey = v),
+  })
   /** Reactive drop data passed to compatible drop area events. */
   dropData = new Signal<unknown>(undefined).getter
   /** Sets the drop data passed to compatible drop area events. */
-  setDropData: SignalSetter<unknown> = (value) => (this.node.dropData = value)
+  setDropData = createSignalSetter(this.dropData.signal, {
+    value: () => this.node.dropData,
+    onChange: (v) => (this.node.dropData = v),
+  })
   /** Reactive pointer position in local coordinates while dragging updates. */
   pointerPosition = new Signal<Vector2>(Vector2.ZERO).getter
 

@@ -1,7 +1,6 @@
 import { PrimaryNode } from '../../../nodes/index.js'
 import type { Shape } from '../../../collision/narrowphase/shapes.js'
-import { Signal } from '../../../reactivity/signal.js'
-import type { SignalSetter } from '../../../reactivity/types.js'
+import { createSignalSetter, Signal } from '../../../reactivity/signal.js'
 import { pushEffect } from '../../context.js'
 import { Node2DReference } from './reference.js'
 import { Vector2 } from '../../../math/vector2.js'
@@ -47,7 +46,10 @@ export class ClickableReference extends Node2DReference<PrimaryNode.Clickable> {
   /** Reactive clickable shape. */
   shape = new Signal<Shape>(null as unknown as Shape).getter
   /** Sets the clickable shape. */
-  setShape: SignalSetter<Shape> = (value) => (this.node.shape = value)
+  setShape = createSignalSetter(this.shape.signal, {
+    value: () => this.node.shape,
+    onChange: (v) => (this.node.shape = v),
+  })
   /** Reactive `true` when the pointer hovers over the clickable area. */
   hovered = new Signal(false).getter
   /** Reactive `true` while the pointer press started on this clickable and is still held. */
@@ -55,7 +57,10 @@ export class ClickableReference extends Node2DReference<PrimaryNode.Clickable> {
   /** Reactive `true` when the clickable is disabled. */
   disabled = new Signal(false).getter
   /** Enables or disables pointer interactions for this clickable. */
-  setDisabled: SignalSetter<boolean> = (value) => (this.node.disabled = value)
+  setDisabled = createSignalSetter(this.disabled.signal, {
+    value: () => this.node.disabled,
+    onChange: (v) => (this.node.disabled = v),
+  })
   /** Reactive pointer position in local coordinates. */
   pointerPosition = new Signal<Vector2>(Vector2.ZERO).getter
 

@@ -4,10 +4,9 @@ import {
   type CollisionOwner,
 } from '../../../collision/index.js'
 import { Trigger } from '../../../events/trigger.js'
-import { vector2, Vector2, type VectorLike } from '../../../math/vector2.js'
+import { Vector2 } from '../../../math/vector2.js'
 import { PrimaryNode } from '../../../nodes/index.js'
-import { Signal } from '../../../reactivity/signal.js'
-import type { SignalSetter } from '../../../reactivity/types.js'
+import { createSignalSetter, Signal } from '../../../reactivity/signal.js'
 import { pushEffect } from '../../context.js'
 import { Node2DReference } from './reference.js'
 
@@ -48,11 +47,17 @@ export class RayCastReference extends Node2DReference<PrimaryNode.RayCast> {
   /** Reactive ray direction vector. */
   direction = new Signal<Vector2>(Vector2.ZERO).getter
   /** Sets the ray direction. Accepts any `VectorLike` value. */
-  setDirection: SignalSetter<VectorLike> = (value) => (this.node.direction = vector2(value))
+  setDirection = createSignalSetter(this.direction.signal, {
+    value: () => this.node.direction,
+    onChange: (v) => (this.node.direction = v),
+  })
   /** Reactive collision mask. */
   mask = new Signal<CollisionMaskValue>(CollisionLayer.Default).getter
   /** Sets the collision mask. */
-  setMask: SignalSetter<CollisionMaskValue> = (value) => this.node.setMask(value)
+  setMask = createSignalSetter(this.mask.signal, {
+    value: () => this.node.mask,
+    onChange: (v) => this.node.setMask(v),
+  })
   /** Reactive reference to the currently detected owner, or `null`. */
   target = new Signal<CollisionOwner | null>(null).getter
   /** Reactive `true` when a target is detected. */

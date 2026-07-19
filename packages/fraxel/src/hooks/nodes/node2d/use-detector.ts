@@ -5,8 +5,7 @@ import {
 } from '../../../collision/index.js'
 import { Trigger } from '../../../events/trigger.js'
 import { PrimaryNode, type Detector, type RigidBody } from '../../../nodes/index.js'
-import { Signal } from '../../../reactivity/signal.js'
-import type { SignalSetter } from '../../../reactivity/types.js'
+import { createSignalSetter, Signal } from '../../../reactivity/signal.js'
 import { pushEffect } from '../../context.js'
 import { Node2DReference } from './reference.js'
 
@@ -44,11 +43,17 @@ export class DetectorReference extends Node2DReference<PrimaryNode.Detector> {
   /** Reactive collision layer. */
   layer = new Signal<CollisionLayerValue>(CollisionLayer.Default).getter
   /** Sets the collision layer. */
-  setLayer: SignalSetter<CollisionLayerValue> = (value) => this.node.setLayer(value)
+  setLayer = createSignalSetter(this.layer.signal, {
+    value: () => this.node.layer,
+    onChange: (v) => this.node.setLayer(v),
+  })
   /** Reactive collision mask. */
   mask = new Signal<CollisionMaskValue>(CollisionLayer.Default).getter
   /** Sets the collision mask. */
-  setMask: SignalSetter<CollisionMaskValue> = (value) => this.node.setMask(value)
+  setMask = createSignalSetter(this.mask.signal, {
+    value: () => this.node.mask,
+    onChange: (v) => this.node.setMask(v),
+  })
   /** Reactive `true` when any body or detector is currently overlapping. */
   detecting = new Signal(false).getter
   /** Reactive set of currently overlapping rigid bodies. */

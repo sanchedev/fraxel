@@ -1,8 +1,7 @@
 import { FontWeight, TextAlign } from '../../../core/theme.js'
-import { color, Color, type ColorLike } from '../../../math/color.js'
+import { Color } from '../../../math/color.js'
 import { PrimaryNode } from '../../../nodes/index.js'
-import { Signal } from '../../../reactivity/signal.js'
-import type { SignalSetter } from '../../../reactivity/types.js'
+import { createSignalSetter, Signal } from '../../../reactivity/signal.js'
 import { pushEffect } from '../../context.js'
 import { Node2DReference } from './reference.js'
 
@@ -38,27 +37,45 @@ export class TextReference extends Node2DReference<PrimaryNode.Text> {
   /** Reactive text content. */
   text = new Signal('').getter
   /** Sets the text content. */
-  setText: SignalSetter<string> = (text) => (this.node.text = text)
+  setText = createSignalSetter(this.text.signal, {
+    value: () => this.node.text,
+    onChange: (v) => (this.node.text = v),
+  })
   /** Reactive text fill color. */
   fillColor = new Signal<Color>(Color.BLACK).getter
   /** Sets the text fill color. */
-  setFillColor: SignalSetter<ColorLike> = (value) => (this.node.fillColor = color(value))
+  setFillColor = createSignalSetter<Color>(this.fillColor.signal, {
+    value: () => this.node.fillColor,
+    onChange: (v) => (this.node.fillColor = v),
+  })
   /** Reactive font size in pixels. */
   fontSize = new Signal(16).getter
   /** Sets the font size in pixels. */
-  setFontSize: SignalSetter<number> = (value) => (this.node.fontSize = value)
+  setFontSize = createSignalSetter(this.fontSize.signal, {
+    value: () => this.node.fontSize,
+    onChange: (v) => (this.node.fontSize = v),
+  })
   /** Reactive font family. */
   fontFamily = new Signal('sans-serif').getter
   /** Sets the font family. */
-  setFontFamily: SignalSetter<string> = (value) => (this.node.fontFamily = value)
+  setFontFamily = createSignalSetter(this.fontFamily.signal, {
+    value: () => this.node.fontFamily,
+    onChange: (v) => (this.node.fontFamily = v),
+  })
   /** Reactive font weight. */
   fontWeight = new Signal(FontWeight.Normal).getter
   /** Sets the font weight. */
-  setFontWeight: SignalSetter<FontWeight> = (value) => (this.node.fontWeight = value)
+  setFontWeight = createSignalSetter(this.fontWeight.signal, {
+    value: () => this.node.fontWeight,
+    onChange: (v) => (this.node.fontWeight = v),
+  })
   /** Reactive text alignment. */
   textAlign = new Signal(TextAlign.Start).getter
   /** Sets the text alignment. */
-  setTextAlign: SignalSetter<TextAlign> = (value) => (this.node.textAlign = value)
+  setTextAlign = createSignalSetter(this.textAlign.signal, {
+    value: () => this.node.textAlign,
+    onChange: (v) => (this.node.textAlign = v),
+  })
 
   constructor() {
     super({

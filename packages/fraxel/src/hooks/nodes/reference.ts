@@ -4,12 +4,8 @@ import type { TriggersFrom } from '../../events/types.js'
 import { renderToNodes } from '../../jsx/index.js'
 import type { Fraxel } from '../../jsx/types.js'
 import { GameMode, type NodeInstances, type PrimaryNode } from '../../nodes/index.js'
-import {
-  Signal,
-  type SignalGetter,
-  type SignalSetter,
-  type SignalsFrom,
-} from '../../reactivity/index.js'
+import { Signal, type SignalsFrom } from '../../reactivity/index.js'
+import { createSignalSetter } from '../../reactivity/signal.js'
 import type { FraxelScript } from '../../scripts/script.js'
 import { currentContext, type HookContext } from '../context.js'
 
@@ -85,7 +81,9 @@ export class NodeReference<T extends PrimaryNode = PrimaryNode> {
    * Reactive getter for the node instance. Returns `null` before mount and after destroy.
    * Use inside `useComputed` or `useEffect` to track the node reactively.
    */
-  signal: SignalGetter<NodeInstances[T] | null>
+  get signal() {
+    return this.#node.getter
+  }
 
   /** Fires when the node starts (first frame). */
   onStart = new Trigger<[]>()
@@ -99,25 +97,27 @@ export class NodeReference<T extends PrimaryNode = PrimaryNode> {
   /** Reactive game mode getter. Updates every frame. */
   gameMode = new Signal(GameMode.INHERIT).getter
   /** Sets how this node updates relative to the game's pause state. */
-  setGameMode: SignalSetter<GameMode> = (mode) => (this.node.gameMode = mode)
+  setGameMode = createSignalSetter(this.gameMode.signal, {
+    value: () => this.node.gameMode,
+    onChange: (v) => (this.node.gameMode = v),
+  })
   /** Reactive `true` when this node participates in update, draw, and systems. */
   active = new Signal(true).getter
   /** Sets whether this node participates in update, draw, and systems. */
-  setActive: SignalSetter<boolean> = (value) => {
-    this.node.active = value
-    this.active.signal.setter(value)
-  }
+  setActive = createSignalSetter(this.active.signal, {
+    value: () => this.node.active,
+    onChange: (v) => (this.node.active = v),
+  })
   /** Reactive `true` when this node is drawn. */
   visible = new Signal(true).getter
   /** Sets whether this node is drawn. */
-  setVisible: SignalSetter<boolean> = (value) => {
-    this.node.visible = value
-    this.visible.signal.setter(value)
-  }
+  setVisible = createSignalSetter(this.visible.signal, {
+    value: () => this.node.visible,
+    onChange: (v) => (this.node.visible = v),
+  })
 
   constructor({ type, onEnter, onFrame, onExit, linkEvents, regSignal }: ReferenceOptions<T>) {
     this.#type = type
-    this.signal = this.#node.getter
 
     this.#oldCtx = currentContext.slice()
 

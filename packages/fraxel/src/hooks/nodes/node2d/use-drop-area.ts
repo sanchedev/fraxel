@@ -3,8 +3,7 @@ import { Trigger } from '../../../events/trigger.js'
 import { PrimaryNode } from '../../../nodes/index.js'
 import type { DropAreaEvent } from '../../../nodes/node2d/drop-area.js'
 import type { DropKey } from '../../../nodes/node2d/lib/drop-area-system.js'
-import { Signal } from '../../../reactivity/signal.js'
-import type { SignalSetter } from '../../../reactivity/types.js'
+import { createSignalSetter, Signal } from '../../../reactivity/signal.js'
 import { pushEffect } from '../../context.js'
 import { Node2DReference } from './reference.js'
 
@@ -38,17 +37,26 @@ export class DropAreaReference extends Node2DReference<PrimaryNode.DropArea> {
   /** Reactive drop area shape. */
   shape = new Signal<Shape>(null as unknown as Shape).getter
   /** Sets the drop area shape. */
-  setShape: SignalSetter<Shape> = (value) => (this.node.shape = value)
+  setShape = createSignalSetter(this.shape.signal, {
+    value: () => this.node.shape,
+    onChange: (v) => (this.node.shape = v),
+  })
   /** Reactive key used to match compatible draggable nodes. */
   dropKey = new Signal<DropKey>(null as unknown as DropKey).getter
   /** Sets the key used to match compatible draggable nodes. */
-  setDropKey: SignalSetter<DropKey> = (value) => (this.node.dropKey = value)
+  setDropKey = createSignalSetter(this.dropKey.signal, {
+    value: () => this.node.dropKey,
+    onChange: (v) => (this.node.dropKey = v),
+  })
   /** Reactive `true` while a compatible draggable is over this drop area. */
   dragHovered = new Signal(false).getter
   /** Reactive `true` when drop interactions are disabled. */
   disabled = new Signal(false).getter
   /** Enables or disables drop interactions for this node. */
-  setDisabled: SignalSetter<boolean> = (value) => (this.node.disabled = value)
+  setDisabled = createSignalSetter(this.disabled.signal, {
+    value: () => this.node.disabled,
+    onChange: (v) => (this.node.disabled = v),
+  })
 
   /** Fires when a compatible draggable enters this drop area while dragging. */
   onDragOver = new Trigger<[event: DropAreaEvent]>()
