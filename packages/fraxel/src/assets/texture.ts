@@ -49,9 +49,11 @@ export class Texture {
 
     display.offset.multiply([scaleX, scaleY])
 
-    GameConfig.ctx.save()
-    GameConfig.ctx.scale(scaleX, scaleY)
-    GameConfig.ctx.drawImage(
+    const ctx = options.ctx ?? GameConfig.ctx
+
+    ctx.save()
+    ctx.scale(scaleX, scaleY)
+    ctx.drawImage(
       this.image,
       source.offset.x,
       source.offset.y,
@@ -62,17 +64,18 @@ export class Texture {
       Math.abs(display.size.x),
       Math.abs(display.size.y),
     )
-    GameConfig.ctx.restore()
+    ctx.restore()
   }
 }
 
-interface TextureDrawOptions {
+export interface TextureDrawOptions {
   /** Display texture region (if `display.size.equals(Vector.ZERO)` then the default value is the texture size) */
   display: Region
   /** Source texture region */
   source?: Region
   flipX?: boolean
   flipY?: boolean
+  ctx?: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
 }
 
 export const textures = new Map<symbol, Texture>()
