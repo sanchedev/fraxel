@@ -43,6 +43,10 @@ export function useAnimation() {
   return new AnimationReference()
 }
 
+/**
+ * The **`AnimationReference`** class provides reactive access to an `AnimationPlayer` node's
+ * current animation, frame index, completion state, and control methods, plus animation event triggers.
+ */
 export class AnimationReference extends NodeReference<PrimaryNode.AnimationPlayer> {
   /** Reactive current animation name, or `null` when stopped. */
   animName = new Signal<string | null>(null).getter
@@ -66,66 +70,36 @@ export class AnimationReference extends NodeReference<PrimaryNode.AnimationPlaye
    * @param animName The name of the animation to play
    * @param index Optional frame index to start from
    */
-  play: (animName: string, index?: number) => void = () => {}
+  play = (animName: string, index?: number) => this.node.play(animName, index)
   /** Stops the current animation. */
-  stop: () => void = () => {}
+  stop = () => this.node.stop()
   /**
    * Sets the next animation to play after the current one ends.
    *
    * @param animName The animation name, or `null` to clear the queue
    */
-  setNext: (animName: string | null) => void = () => {}
+  setNext = (animName: string | null) => this.node.setNext(animName)
   /** Adds a single animation definition. */
-  add: (animName: string, animation: Animation) => void = () => {}
+  add = (animName: string, animation: Animation) => this.node.add(animName, animation)
   /** Replaces or adds multiple animation definitions. */
-  define: (animations: Record<string, Animation>) => void = () => {}
+  define = (animations: Record<string, Animation>) => this.node.define(animations)
 
   constructor() {
-    super(
-      PrimaryNode.AnimationPlayer,
-      (node) => {
-        this.onAnimChange.link(node.onAnimChange)
-        this.onAnimStop.link(node.onAnimStop)
-        this.onAnimIndexChange.link(node.onAnimIndexChange)
-        this.onAnimEnd.link(node.onAnimEnd)
-
-        const sets = [
-          () => {
-            this.animName.signal.setter(node.currentAnim)
-            this.frameIndex.signal.setter(node.index)
-          },
-        ]
-        sets.forEach((set) => set())
-
-        node.onAnimChange.connect((name) => {
+    super({
+      type: PrimaryNode.AnimationPlayer,
+      linkEvents: ({ link, on }) => {
+        link(this, 'onAnimChange', 'onAnimEnd', 'onAnimIndexChange', 'onAnimEnd')
+        on('onAnimChange', (name) => {
           this.animName.signal.setter(name)
           this.ended.signal.setter(false)
         })
-        node.onAnimStop.connect(() => {
-          this.animName.signal.setter(null)
-        })
-        node.onAnimIndexChange.connect((index) => {
-          this.frameIndex.signal.setter(index)
-        })
-        node.onAnimEnd.connect(() => {
-          this.ended.signal.setter(true)
-        })
-
-        this.play = (animName, index) => node.play(animName, index)
-        this.stop = () => node.stop()
-        this.setNext = (animName) => node.setNext(animName)
-        this.add = (animName, animation) => {
-          node.add(animName, animation)
-        }
-        this.define = (animations) => {
-          node.define(animations)
-        }
+        on('onAnimStop', () => this.animName.signal.setter(null))
+        on('onAnimIndexChange', (index) => this.frameIndex.signal.setter(index))
+        on('onAnimEnd', () => this.ended.signal.setter(true))
       },
-      () => {
-        this.animName.signal.clearSubs()
-        this.frameIndex.signal.clearSubs()
-        this.ended.signal.clearSubs()
+      regSignal: ({ reg }) => {
+        reg<AnimationReference>(this, 'animName', 'frameIndex', 'ended')
       },
-    )
+    })
   }
 }

@@ -105,43 +105,42 @@ export class RigidBodyReference extends Node2DReference<PrimaryNode.RigidBody> {
   setVelocity = (v: VectorLike) => this.node.setVelocity(vector2(v))
 
   constructor() {
-    super(
-      PrimaryNode.RigidBody,
-      (node) => {
-        this.onBodyEnter.link(node.onBodyEnter)
-        this.onBodyCollide.link(node.onBodyCollide)
-        this.onBodyExit.link(node.onBodyExit)
-        this.onDetectorEnter.link(node.onDetectorEnter)
-        this.onDetectorCollide.link(node.onDetectorCollide)
-        this.onDetectorExit.link(node.onDetectorExit)
-
-        const sets = [
-          () => {
-            this.velocity.signal.setter(node.velocity)
-            this.mass.signal.setter(node.mass)
-            this.friction.signal.setter(node.friction)
-            this.bounce.signal.setter(node.bounce)
-            this.isStatic.signal.setter(node.isStatic)
-            this.useGravity.signal.setter(node.useGravity)
-            this.layer.signal.setter(node.layer)
-            this.mask.signal.setter(node.mask)
-          },
-        ]
-        sets.forEach((set) => set())
-        node.onUpdate.connect(() => {
-          sets.forEach((set) => set())
-        })
+    super({
+      type: PrimaryNode.RigidBody,
+      linkEvents: ({ link }) => {
+        link(
+          this,
+          'onBodyEnter',
+          'onBodyCollide',
+          'onBodyExit',
+          'onDetectorEnter',
+          'onDetectorCollide',
+          'onDetectorExit',
+        )
       },
-      () => {
-        this.velocity.signal.clearSubs()
-        this.mass.signal.clearSubs()
-        this.friction.signal.clearSubs()
-        this.bounce.signal.clearSubs()
-        this.isStatic.signal.clearSubs()
-        this.useGravity.signal.clearSubs()
-        this.layer.signal.clearSubs()
-        this.mask.signal.clearSubs()
+      regSignal: ({ reg }) => {
+        reg<RigidBodyReference>(
+          this,
+          'velocity',
+          'mass',
+          'friction',
+          'bounce',
+          'isStatic',
+          'useGravity',
+          'layer',
+          'mask',
+        )
       },
-    )
+      onFrame: (node) => {
+        this.velocity.signal.setter(node.velocity.clone())
+        this.mass.signal.setter(node.mass)
+        this.friction.signal.setter(node.friction)
+        this.bounce.signal.setter(node.bounce)
+        this.isStatic.signal.setter(node.isStatic)
+        this.useGravity.signal.setter(node.useGravity)
+        this.layer.signal.setter(node.layer)
+        this.mask.signal.setter(node.mask)
+      },
+    })
   }
 }

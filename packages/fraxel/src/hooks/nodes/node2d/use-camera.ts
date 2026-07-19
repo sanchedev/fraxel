@@ -4,7 +4,7 @@ import type { SignalSetter } from '../../../reactivity/types.js'
 import { pushEffect } from '../../context.js'
 import { Node2DReference } from './reference.js'
 import { Vector2, vector2, type VectorLike } from '../../../math/vector2.js'
-import type { Bounds } from '../../../math/bounds.js'
+import { Bounds } from '../../../math/bounds.js'
 
 /**
  * The **`useCamera`** hook creates a reference to a `Camera` node with reactive
@@ -52,7 +52,7 @@ export class CameraReference extends Node2DReference<PrimaryNode.Camera> {
   setLimit: SignalSetter<Bounds | null> = (value) => (this.node.limit = value)
 
   /** Makes this camera the active camera for the scene. */
-  makeCurrent: () => void = () => {}
+  makeCurrent = () => this.node.makeCurrent()
   /**
    * Triggers a camera shake effect.
    *
@@ -60,58 +60,34 @@ export class CameraReference extends Node2DReference<PrimaryNode.Camera> {
    * @param options.duration Duration of the shake in seconds
    * @param options.strength Maximum displacement in pixels
    */
-  shake: (options: { duration: number; strength: number }) => void = () => {}
+  shake = (options: { duration: number; strength: number }) => this.node.shake(options)
   /**
    * Converts screen coordinates to world coordinates.
    *
    * @param screenPos The screen position to convert
    * @returns The corresponding world position
    */
-  screenToWorld: (screenPos: VectorLike) => Vector2 = (pos) => vectorize(pos)
+  screenToWorld = (screenPos: VectorLike) => this.node.screenToWorld(vector2(screenPos))
   /**
    * Converts world coordinates to screen coordinates.
    *
    * @param worldPos The world position to convert
    * @returns The corresponding screen position
    */
-  worldToScreen: (worldPos: VectorLike) => Vector2 = (pos) => vectorize(pos)
+  worldToScreen = (worldPos: VectorLike) => this.node.worldToScreen(vector2(worldPos))
 
   constructor() {
-    super(
-      PrimaryNode.Camera,
-      (node) => {
-        const sets = [
-          () => {
-            this.zoom.signal.setter(node.zoom)
-            this.offset.signal.setter(node.offset)
-            this.smoothing.signal.setter(node.smoothing)
-            this.limit.signal.setter(node.limit)
-          },
-        ]
-        sets.forEach((set) => set())
-        node.onUpdate.connect(() => {
-          sets.forEach((set) => set())
-        })
-
-        this.makeCurrent = () => node.makeCurrent()
-        this.shake = (opts) => node.shake(opts)
-        this.screenToWorld = (pos) => node.screenToWorld(vectorize(pos))
-        this.worldToScreen = (pos) => node.worldToScreen(vectorize(pos))
+    super({
+      type: PrimaryNode.Camera,
+      regSignal: ({ reg }) => {
+        reg<CameraReference>(this, 'zoom', 'offset', 'smoothing', 'limit')
       },
-      () => {
-        this.zoom.signal.clearSubs()
-        this.offset.signal.clearSubs()
-        this.smoothing.signal.clearSubs()
-        this.limit.signal.clearSubs()
+      onFrame: (node) => {
+        this.zoom.signal.setter(new Vector2(node.zoom))
+        this.offset.signal.setter(new Vector2(node.offset))
+        this.smoothing.signal.setter(node.smoothing)
+        this.limit.signal.setter(node.limit?.clone() ?? null)
       },
-    )
+    })
   }
-}
-
-function vectorize(value: VectorLike): Vector2 {
-  if (value instanceof Vector2) return value
-  if (Array.isArray(value)) return new Vector2(value[0], value[1])
-  if (typeof value === 'object' && 'x' in value && 'y' in value)
-    return new Vector2(value.x, value.y)
-  return new Vector2(value, value)
 }

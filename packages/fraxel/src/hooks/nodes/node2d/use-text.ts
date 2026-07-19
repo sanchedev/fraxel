@@ -61,36 +61,27 @@ export class TextReference extends Node2DReference<PrimaryNode.Text> {
   setTextAlign: SignalSetter<TextAlign> = (value) => (this.node.textAlign = value)
 
   constructor() {
-    let unsub: () => void = () => {}
-    super(
-      PrimaryNode.Text,
-      (node) => {
-        const sets = [
-          () => {
-            this.text.signal.setter(node.text)
-            this.fillColor.signal.setter(node.fillColor)
-            this.fontSize.signal.setter(node.fontSize)
-            this.fontFamily.signal.setter(node.fontFamily)
-            this.fontWeight.signal.setter(node.fontWeight)
-            this.textAlign.signal.setter(node.textAlign)
-          },
-        ]
-        sets.forEach((set) => set())
-        const updateText = () => {
-          sets.forEach((set) => set())
-        }
-        node.onUpdate.connect(updateText)
-        unsub = () => node.onUpdate.disconnect(updateText)
+    super({
+      type: PrimaryNode.Text,
+      regSignal: ({ reg }) => {
+        reg<TextReference>(
+          this,
+          'text',
+          'fillColor',
+          'fontSize',
+          'fontFamily',
+          'fontWeight',
+          'textAlign',
+        )
       },
-      () => {
-        this.text.signal.clearSubs()
-        this.fillColor.signal.clearSubs()
-        this.fontSize.signal.clearSubs()
-        this.fontFamily.signal.clearSubs()
-        this.fontWeight.signal.clearSubs()
-        this.textAlign.signal.clearSubs()
-        unsub()
+      onFrame: (node) => {
+        this.text.signal.setter(node.text)
+        this.fillColor.signal.setter(node.fillColor.clone())
+        this.fontSize.signal.setter(node.fontSize)
+        this.fontFamily.signal.setter(node.fontFamily)
+        this.fontWeight.signal.setter(node.fontWeight)
+        this.textAlign.signal.setter(node.textAlign)
       },
-    )
+    })
   }
 }

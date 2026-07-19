@@ -37,6 +37,10 @@ export function useTimer() {
   return new TimerReference()
 }
 
+/**
+ * The **`TimerReference`** class provides reactive access to a `Timer` node's
+ * elapsed time, duration, progress, and control methods, plus timeout and time change triggers.
+ */
 export class TimerReference extends NodeReference<PrimaryNode.Timer> {
   /** Reactive elapsed time in seconds. */
   time = new Signal(0).getter
@@ -57,53 +61,36 @@ export class TimerReference extends NodeReference<PrimaryNode.Timer> {
    *
    * @param from Optional start time in seconds
    */
-  play: (from?: number) => void = () => {}
+  play = (from: number) => this.node.play(from)
   /** Pauses the timer without resetting. */
-  pause: () => void = () => {}
+  pause = () => this.node.pause()
   /** Pauses and resets the timer to 0. */
-  stop: () => void = () => {}
+  stop = () => {
+    this.node.stop()
+    this.time.signal.setter(0)
+    this.progress.signal.setter(0)
+  }
 
   constructor() {
-    super(
-      PrimaryNode.Timer,
-      (node) => {
-        this.onTimeout.link(node.onTimeout)
-        this.onTimeChange.link(node.onTimeChange)
-
-        const sets = [
-          () => {
-            this.time.signal.setter(0)
-            this.duration.signal.setter(node.duration)
-            this.progress.signal.setter(0)
-          },
-        ]
-        sets.forEach((set) => set())
-
-        node.onTimeChange.connect((elapsed) => {
-          this.time.signal.setter(elapsed)
-          this.progress.signal.setter(elapsed / node.duration)
+    super({
+      type: PrimaryNode.Timer,
+      linkEvents: ({ link, on }, node) => {
+        link(this, 'onTimeout', 'onTimeChange')
+        on('onTimeChange', (time) => {
+          this.time.signal.setter(time)
+          this.progress.signal.setter(time / node.duration)
         })
-        node.onTimeout.connect(() => {
+        on('onTimeout', () => {
           this.time.signal.setter(node.duration)
           this.progress.signal.setter(1)
         })
-        node.onUpdate.connect(() => {
-          this.duration.signal.setter(node.duration)
-        })
-
-        this.play = (from) => node.play(from)
-        this.pause = () => node.pause()
-        this.stop = () => {
-          node.stop()
-          this.time.signal.setter(0)
-          this.progress.signal.setter(0)
-        }
       },
-      () => {
-        this.time.signal.clearSubs()
-        this.duration.signal.clearSubs()
-        this.progress.signal.clearSubs()
+      regSignal: ({ reg }) => {
+        reg<TimerReference>(this, 'time', 'duration', 'progress')
       },
-    )
+      onFrame: (node) => {
+        this.duration.signal.setter(node.duration)
+      },
+    })
   }
 }

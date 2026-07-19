@@ -3,7 +3,7 @@ import { Region } from '../../../math/region.js'
 import { Vector2 } from '../../../math/vector2.js'
 import { PrimaryNode } from '../../../nodes/index.js'
 import { Signal } from '../../../reactivity/signal.js'
-import type { SignalGetter, SignalSetter } from '../../../reactivity/types.js'
+import type { SignalSetter } from '../../../reactivity/types.js'
 import { pushEffect } from '../../context.js'
 import { Node2DReference } from './reference.js'
 
@@ -83,44 +83,37 @@ export class SpriteReference extends Node2DReference<PrimaryNode.Sprite> {
   setOpacity: SignalSetter<number> = (value) => (this.node.opacity = value)
 
   constructor() {
-    const set =
-      <T>(g: SignalGetter<T>, v: T) =>
-      () =>
-        g.signal.setter(v)
-    super(
-      PrimaryNode.Sprite,
-      (node) => {
-        const sets = [
-          set(this.source, node.source),
-          set(this.flipX, node.flipX),
-          set(this.flipY, node.flipY),
-          set(this.brightness, node.brightness),
-          set(this.grayscale, node.grayscale),
-          set(this.tint, node.tint),
-          set(this.contrast, node.contrast),
-          set(this.saturate, node.saturate),
-          set(this.hueRotate, node.hueRotate),
-          set(this.invert, node.invert),
-          set(this.opacity, node.opacity),
-        ]
-        sets.forEach((set) => set())
-        node.onUpdate.connect(() => {
-          sets.forEach((set) => set())
-        })
+    super({
+      type: PrimaryNode.Sprite,
+      regSignal: ({ reg }) => {
+        reg<SpriteReference>(
+          this,
+          'source',
+          'flipX',
+          'flipY',
+          'brightness',
+          'grayscale',
+          'tint',
+          'contrast',
+          'saturate',
+          'hueRotate',
+          'invert',
+          'opacity',
+        )
       },
-      () => {
-        this.source.signal.clearSubs()
-        this.flipX.signal.clearSubs()
-        this.flipY.signal.clearSubs()
-        this.brightness.signal.clearSubs()
-        this.grayscale.signal.clearSubs()
-        this.tint.signal.clearSubs()
-        this.contrast.signal.clearSubs()
-        this.saturate.signal.clearSubs()
-        this.hueRotate.signal.clearSubs()
-        this.invert.signal.clearSubs()
-        this.opacity.signal.clearSubs()
+      onFrame: (node) => {
+        this.source.signal.setter(node.source.clone())
+        this.flipX.signal.setter(node.flipX)
+        this.flipY.signal.setter(node.flipY)
+        this.brightness.signal.setter(node.brightness)
+        this.grayscale.signal.setter(node.grayscale)
+        this.tint.signal.setter(node.tint.clone())
+        this.contrast.signal.setter(node.contrast)
+        this.saturate.signal.setter(node.saturate)
+        this.hueRotate.signal.setter(node.hueRotate)
+        this.invert.signal.setter(node.invert)
+        this.opacity.signal.setter(node.opacity)
       },
-    )
+    })
   }
 }

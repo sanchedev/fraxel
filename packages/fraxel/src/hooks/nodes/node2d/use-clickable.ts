@@ -75,49 +75,30 @@ export class ClickableReference extends Node2DReference<PrimaryNode.Clickable> {
   onClick = new Trigger<[position: Vector2]>()
 
   constructor() {
-    super(
-      PrimaryNode.Clickable,
-      (node) => {
-        this.onClick.link(node.onClick)
-        this.onPointerPress.link(node.onPointerPress)
-        this.onPointerUnpress.link(node.onPointerUnpress)
-        this.onPointerMove.link(node.onPointerMove)
-        this.onPointerOver.link(node.onPointerOver)
-        this.onPointerEnter.link(node.onPointerEnter)
-        this.onPointerExit.link(node.onPointerExit)
-
+    super({
+      type: PrimaryNode.Clickable,
+      linkEvents: ({ link, on }) => {
+        link(
+          this,
+          'onClick',
+          'onPointerEnter',
+          'onPointerExit',
+          'onPointerMove',
+          'onPointerOver',
+          'onPointerPress',
+          'onPointerUnpress',
+        )
+        on('onPointerOver', (pos) => this.pointerPosition.signal.setter(pos))
+      },
+      onFrame: (node) => {
+        this.shape.signal.setter({ ...node.shape })
+        this.hovered.signal.setter(node.hovered)
+        this.pressed.signal.setter(node.pressed)
         this.disabled.signal.setter(node.disabled)
-        this.shape.signal.setter(node.shape)
-
-        node.onPointerEnter.connect(() => {
-          this.hovered.signal.setter(true)
-        })
-        node.onPointerExit.connect(() => {
-          this.hovered.signal.setter(false)
-        })
-        node.onPointerPress.connect(() => {
-          this.pressed.signal.setter(true)
-        })
-        node.onPointerUnpress.connect(() => {
-          this.pressed.signal.setter(false)
-        })
-        node.onPointerOver.connect((pos) => {
-          this.pointerPosition.signal.setter(pos)
-        })
-        node.onUpdate.connect(() => {
-          this.hovered.signal.setter(node.hovered)
-          this.pressed.signal.setter(node.pressed)
-          this.disabled.signal.setter(node.disabled)
-          this.shape.signal.setter(node.shape)
-        })
       },
-      () => {
-        this.shape.signal.clearSubs()
-        this.hovered.signal.clearSubs()
-        this.pressed.signal.clearSubs()
-        this.disabled.signal.clearSubs()
-        this.pointerPosition.signal.clearSubs()
+      regSignal: ({ reg }) => {
+        reg<ClickableReference>(this, 'shape', 'hovered', 'pressed', 'disabled', 'pointerPosition')
       },
-    )
+    })
   }
 }

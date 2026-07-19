@@ -58,30 +58,18 @@ export class GeometryReference extends Node2DReference<PrimaryNode.Geometry> {
   size = new Signal<Vector2>({ x: 0, y: 0 } as Vector2).getter
 
   constructor() {
-    super(
-      PrimaryNode.Geometry,
-      (node) => {
-        const sets = [
-          () => {
-            this.shape.signal.setter(node.shape)
-            this.fillColor.signal.setter(node.fillColor)
-            this.strokeColor.signal.setter(node.strokeColor)
-            this.strokeWidth.signal.setter(node.strokeWidth)
-            this.size.signal.setter(node.size)
-          },
-        ]
-        sets.forEach((set) => set())
-        node.onUpdate.connect(() => {
-          sets.forEach((set) => set())
-        })
+    super({
+      type: PrimaryNode.Geometry,
+      onFrame: (node) => {
+        this.shape.signal.setter(node.shape)
+        this.fillColor.signal.setter(node.fillColor.clone())
+        this.strokeColor.signal.setter(node.strokeColor?.clone())
+        this.strokeWidth.signal.setter(node.strokeWidth)
+        this.size.signal.setter(node.size.clone())
       },
-      () => {
-        this.shape.signal.clearSubs()
-        this.fillColor.signal.clearSubs()
-        this.strokeColor.signal.clearSubs()
-        this.strokeWidth.signal.clearSubs()
-        this.size.signal.clearSubs()
+      regSignal: ({ reg }) => {
+        reg<GeometryReference>(this, 'shape', 'fillColor', 'strokeColor', 'strokeWidth', 'size')
       },
-    )
+    })
   }
 }

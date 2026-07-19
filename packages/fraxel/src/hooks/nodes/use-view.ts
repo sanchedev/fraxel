@@ -1,4 +1,4 @@
-import { PrimaryNode } from '../../nodes/lib/enum.js'
+import { PrimaryNode } from '../../nodes/index.js'
 import { pushEffect } from '../context.js'
 import { NodeReference } from './reference.js'
 
@@ -35,14 +35,16 @@ export function useView() {
 
 /**
  * The **`ViewReference`** class provides access to a `View` node's lifecycle
- * events and node instance.
+ * events and node instance. Views render children in screen space coordinates,
+ * making them ideal for HUDs and UI overlays.
  */
 export class ViewReference extends NodeReference<PrimaryNode.View> {
   constructor() {
-    super(
-      PrimaryNode.View,
-      () => {},
-      () => {},
-    )
+    super({
+      type: PrimaryNode.View,
+      regSignal: ({ reg }) => {
+        reg<ViewReference>(this)
+      },
+    })
   }
 }

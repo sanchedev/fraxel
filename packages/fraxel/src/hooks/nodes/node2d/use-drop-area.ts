@@ -58,36 +58,22 @@ export class DropAreaReference extends Node2DReference<PrimaryNode.DropArea> {
   onDrop = new Trigger<[event: DropAreaEvent]>()
 
   constructor() {
-    super(
-      PrimaryNode.DropArea,
-      (node) => {
-        this.onDragOver.link(node.onDragOver)
-        this.onDragLeave.link(node.onDragLeave)
-        this.onDrop.link(node.onDrop)
-
-        this.shape.signal.setter(node.shape)
+    super({
+      type: PrimaryNode.DropArea,
+      linkEvents: ({ link, on }) => {
+        link(this, 'onDragOver', 'onDragLeave', 'onDrop')
+        on('onDragOver', () => this.dragHovered.signal.setter(true))
+        on('onDragLeave', () => this.dragHovered.signal.setter(false))
+      },
+      regSignal: ({ reg }) => {
+        reg<DropAreaReference>(this, 'shape', 'dropKey', 'dragHovered', 'disabled')
+      },
+      onFrame: (node) => {
+        this.shape.signal.setter({ ...node.shape })
         this.dropKey.signal.setter(node.dropKey)
+        this.dragHovered.signal.setter(node.dragHovered)
         this.disabled.signal.setter(node.disabled)
-
-        node.onDragOver.connect(() => {
-          this.dragHovered.signal.setter(true)
-        })
-        node.onDragLeave.connect(() => {
-          this.dragHovered.signal.setter(false)
-        })
-        node.onUpdate.connect(() => {
-          this.shape.signal.setter(node.shape)
-          this.dropKey.signal.setter(node.dropKey)
-          this.dragHovered.signal.setter(node.dragHovered)
-          this.disabled.signal.setter(node.disabled)
-        })
       },
-      () => {
-        this.shape.signal.clearSubs()
-        this.dropKey.signal.clearSubs()
-        this.dragHovered.signal.clearSubs()
-        this.disabled.signal.clearSubs()
-      },
-    )
+    })
   }
 }

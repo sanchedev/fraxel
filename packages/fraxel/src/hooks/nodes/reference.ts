@@ -1,11 +1,39 @@
 import { NodeNotInitializedError, NodeTypeMismatchError } from '../../errors/index.js'
 import { Trigger } from '../../events/trigger.js'
+import type { TriggersFrom } from '../../events/types.js'
 import { renderToNodes } from '../../jsx/index.js'
 import type { Fraxel } from '../../jsx/types.js'
 import { GameMode, type NodeInstances, type PrimaryNode } from '../../nodes/index.js'
-import { Signal, type SignalGetter, type SignalSetter } from '../../reactivity/index.js'
+import {
+  Signal,
+  type SignalGetter,
+  type SignalSetter,
+  type SignalsFrom,
+} from '../../reactivity/index.js'
 import type { FraxelScript } from '../../scripts/script.js'
 import { currentContext, type HookContext } from '../context.js'
+
+type TriggerFn<T> = T extends Trigger ? Parameters<T['connect']>[0] : undefined
+
+interface Linker<N extends PrimaryNode> {
+  link(obj: NodeReference<N>, ...args: (keyof TriggersFrom<NodeInstances[N]>)[]): void
+  on<K extends keyof TriggersFrom<NodeInstances[N]>>(
+    key: K,
+    fn: TriggerFn<TriggersFrom<NodeInstances[N]>[K]>,
+  ): void
+}
+interface SignalReg {
+  reg<T extends Record<keyof any, any>>(obj: T, ...args: (keyof SignalsFrom<T>)[]): void
+}
+
+export interface ReferenceOptions<T extends PrimaryNode> {
+  type: T
+  onEnter?: (node: NodeInstances[T]) => void
+  onFrame?: (node: NodeInstances[T]) => void
+  onExit?: () => void
+  linkEvents?: (linker: Linker<T>, node: NodeInstances[T]) => void
+  regSignal?: (register: SignalReg) => void
+}
 
 /**
  * The **`NodeReference`** class is the base reference for all node hooks.
@@ -87,34 +115,76 @@ export class NodeReference<T extends PrimaryNode = PrimaryNode> {
     this.visible.signal.setter(value)
   }
 
-  constructor(type: T, onStart?: (node: NodeInstances[T]) => void, onEnd?: () => void) {
+  constructor({ type, onEnter, onFrame, onExit, linkEvents, regSignal }: ReferenceOptions<T>) {
     this.#type = type
     this.signal = this.#node.getter
 
+    this.#oldCtx = currentContext.slice()
+
+    const unsubs: (() => void)[] = []
+
+    const frame = (node: NodeInstances[T]) => {
+      this.gameMode.signal.setter(node.gameMode)
+      this.active.signal.setter(node.active)
+      this.visible.signal.setter(node.visible)
+      onFrame?.(node)
+    }
+    const enter = (node: NodeInstances[T]) => {
+      const linker: Linker<T> = {
+        link(options, ...keys) {
+          for (const key of new Set(keys)) {
+            const trigger = options?.[key as keyof typeof options]
+            if (trigger instanceof Trigger) {
+              trigger.link(node[key] as Trigger)
+              unsubs.push(() => trigger.unlink())
+            }
+          }
+        },
+        on(key, fn) {
+          if (fn) {
+            ;(node[key] as Trigger).connect(fn)
+            unsubs.push(() => (node[key] as Trigger).disconnect(fn))
+          }
+        },
+      }
+      linkEvents?.(linker, node)
+      linker.link(this, ...(['onStart', 'onDraw', 'onUpdate', 'onDestroy'] as never[]))
+      onEnter?.(node)
+      onFrame?.(node)
+      const onUpdate = () => frame(node)
+      node.onUpdate.connect(onUpdate)
+      unsubs.push(() => node.onUpdate.disconnect(onUpdate))
+    }
+    const exit = () => {
+      this.gameMode.signal.clearSubs()
+      this.active.signal.clearSubs()
+      this.visible.signal.clearSubs()
+
+      const set = new Set<Signal<any>>()
+      const register: SignalReg = {
+        reg(obj, ...signals) {
+          for (const key of new Set(signals)) {
+            if (obj[key]?.signal instanceof Signal) {
+              set.add(obj[key].signal)
+            }
+          }
+        },
+      }
+      regSignal?.(register)
+      register.reg(this, ...(['gameMode', 'active', 'visible'] as never[]))
+      ;[...set].forEach((s) => s.clearSubs())
+      ;[...unsubs].forEach((u) => u())
+      unsubs.length = 0
+      onExit?.()
+    }
+
     this.signal.signal.sub((node) => {
-      if (node == null) {
-        onEnd?.()
-        this.gameMode.signal.clearSubs()
-        this.active.signal.clearSubs()
-        this.visible.signal.clearSubs()
+      if (node != null) {
+        enter(node)
       } else {
-        this.onStart.link(node.onStart)
-        this.onDraw.link(node.onDraw)
-        this.onUpdate.link(node.onUpdate)
-        this.onDestroy.link(node.onDestroy)
-        this.gameMode.signal.setter(node.gameMode)
-        this.active.signal.setter(node.active)
-        this.visible.signal.setter(node.visible)
-        node.onUpdate.connect(() => {
-          this.gameMode.signal.setter(node.gameMode)
-          this.active.signal.setter(node.active)
-          this.visible.signal.setter(node.visible)
-        })
-        onStart?.(node)
+        exit()
       }
     })
-
-    this.#oldCtx = currentContext.slice()
   }
 
   /**

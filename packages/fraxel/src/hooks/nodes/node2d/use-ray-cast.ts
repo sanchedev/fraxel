@@ -11,12 +11,39 @@ import type { SignalSetter } from '../../../reactivity/types.js'
 import { pushEffect } from '../../context.js'
 import { Node2DReference } from './reference.js'
 
-/** Creates a reference to a RayCast node with reactive target state. */
+/**
+ * The **`useRayCast`** hook creates a reference to a `RayCast` node with reactive
+ * ray direction, collision mask, and target detection state.
+ *
+ * @returns A `RayCastReference` with reactive ray properties and hit detection
+ *
+ * @example
+ * ```tsx
+ * import { useRayCast, useEffect } from 'fraxel'
+ *
+ * function LaserSight() {
+ *   const ray = useRayCast()
+ *
+ *   useEffect(() => {
+ *     ray.setDirection([1, 0]) // Ray pointing right
+ *     if (ray.detected()) {
+ *       console.log('Hit:', ray.target())
+ *     }
+ *   })
+ *
+ *   return <raycast ref={ray} mask="solid" />
+ * }
+ * ```
+ */
 export function useRayCast() {
   pushEffect('useRayCast', () => {})
   return new RayCastReference()
 }
 
+/**
+ * The **`RayCastReference`** class provides reactive access to a `RayCast` node's
+ * direction, collision mask, and detected target.
+ */
 export class RayCastReference extends Node2DReference<PrimaryNode.RayCast> {
   /** Reactive ray direction vector. */
   direction = new Signal<Vector2>(Vector2.ZERO).getter
@@ -37,28 +64,21 @@ export class RayCastReference extends Node2DReference<PrimaryNode.RayCast> {
   onTargetExit = new Trigger<[target: CollisionOwner]>()
 
   constructor() {
-    super(
-      PrimaryNode.RayCast,
-      (node) => {
-        this.onTargetEnter.link(node.onTargetEnter)
-        this.onTargetExit.link(node.onTargetExit)
-
-        const set = () => {
-          this.direction.signal.setter(node.direction)
-          this.mask.signal.setter(node.mask)
-          this.target.signal.setter(node.getTarget())
-          this.detected.signal.setter(node.getTarget() != null)
-        }
-        set()
-        node.onUpdate.connect(set)
+    super({
+      type: PrimaryNode.RayCast,
+      linkEvents: ({ link }) => {
+        link(this, 'onTargetEnter', 'onTargetExit')
       },
-      () => {
-        this.direction.signal.clearSubs()
-        this.mask.signal.clearSubs()
-        this.target.signal.clearSubs()
-        this.detected.signal.clearSubs()
+      regSignal: ({ reg }) => {
+        reg<RayCastReference>(this, 'direction', 'mask', 'target', 'detected')
       },
-    )
+      onFrame: (node) => {
+        this.direction.signal.setter(node.direction.clone())
+        this.mask.signal.setter(node.mask)
+        this.target.signal.setter(node.getTarget())
+        this.detected.signal.setter(node.getTarget() != null)
+      },
+    })
   }
 
   /** Returns the currently detected owner, or `null` if none is detected. */

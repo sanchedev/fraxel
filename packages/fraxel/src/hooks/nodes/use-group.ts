@@ -28,8 +28,17 @@ export function useGroup() {
   return new GroupReference()
 }
 
+/**
+ * The **`GroupReference`** class provides access to a `Group` node's lifecycle
+ * events and node instance, plus the ability to spawn children via `spawn()`.
+ */
 export class GroupReference extends NodeReference<PrimaryNode.Group> {
   constructor() {
-    super(PrimaryNode.Group)
+    super({
+      type: PrimaryNode.Group,
+      regSignal: ({ reg }) => {
+        reg<GroupReference>(this)
+      },
+    })
   }
 }

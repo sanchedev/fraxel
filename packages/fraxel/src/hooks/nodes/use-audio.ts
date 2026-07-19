@@ -18,7 +18,7 @@ import { NodeReference } from './reference.js'
  * function SoundEffect() {
  *   const audio = useAudio()
  *
- *   useTrigger(audio.ended, () => {
+ *   useTrigger(audio.onEnd, () => {
  *     console.log('Sound finished playing')
  *   })
  *
@@ -35,6 +35,10 @@ export function useAudio() {
   return new AudioReference()
 }
 
+/**
+ * The **`AudioReference`** class provides reactive access to an `AudioPlayer` node's
+ * playback state (playing, volume, rate), control methods, and audio event triggers.
+ */
 export class AudioReference extends NodeReference<PrimaryNode.AudioPlayer> {
   /** Reactive `true` when audio is currently playing. */
   playing = new Signal(false).getter
@@ -57,44 +61,28 @@ export class AudioReference extends NodeReference<PrimaryNode.AudioPlayer> {
    *
    * @param offset Optional start position in seconds
    */
-  play: (offset?: number) => void = () => {}
+  play = (offset?: number) => this.node.play(offset)
   /** Pauses playback without resetting position. */
-  pause: () => void = () => {}
+  pause = () => this.node.pause()
   /** Stops playback and resets position to 0. */
-  stop: () => void = () => {}
+  stop = () => this.node.stop()
 
   constructor() {
-    super(
-      PrimaryNode.AudioPlayer,
-      (node) => {
-        this.onEnd.link(node.onEnd)
-        this.onError.link(node.onError)
-
+    super({
+      type: PrimaryNode.AudioPlayer,
+      linkEvents: ({ link, on }) => {
+        link(this, 'onEnd', 'onError')
+        on('onStart', () => this.playing.signal.setter(true))
+        on('onEnd', () => this.playing.signal.setter(false))
+      },
+      regSignal: ({ reg }) => {
+        reg<AudioReference>(this, 'playing', 'volume', 'playbackRate')
+      },
+      onFrame: (node) => {
         this.playing.signal.setter(node.isPlaying)
         this.volume.signal.setter(node.volume)
         this.playbackRate.signal.setter(node.playbackRate)
-
-        node.onStart.connect(() => {
-          this.playing.signal.setter(true)
-        })
-        node.onEnd.connect(() => {
-          this.playing.signal.setter(false)
-        })
-        node.onUpdate.connect(() => {
-          this.playing.signal.setter(node.isPlaying)
-          this.volume.signal.setter(node.volume)
-          this.playbackRate.signal.setter(node.playbackRate)
-        })
-
-        this.play = (offset) => node.play(offset)
-        this.pause = () => node.pause()
-        this.stop = () => node.stop()
       },
-      () => {
-        this.playing.signal.clearSubs()
-        this.volume.signal.clearSubs()
-        this.playbackRate.signal.clearSubs()
-      },
-    )
+    })
   }
 }

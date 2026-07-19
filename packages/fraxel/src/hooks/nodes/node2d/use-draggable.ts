@@ -1,7 +1,7 @@
 import type { Shape } from '../../../collision/narrowphase/shapes.js'
 import { Trigger } from '../../../events/trigger.js'
-import type { BoundsLike } from '../../../math/bounds.js'
-import { Vector2, type VectorLike } from '../../../math/vector2.js'
+import { Bounds, type BoundsLike } from '../../../math/bounds.js'
+import { vector2, Vector2, type VectorLike } from '../../../math/vector2.js'
 import { PrimaryNode } from '../../../nodes/index.js'
 import type { DragAxis, DraggableEvent } from '../../../nodes/node2d/draggable.js'
 import type { DropKey } from '../../../nodes/node2d/lib/drop-area-system.js'
@@ -60,13 +60,15 @@ export class DraggableReference extends Node2DReference<PrimaryNode.Draggable> {
   /** Sets the drag axis constraint. */
   setAxis: SignalSetter<DragAxis> = (value) => (this.node.axis = value)
   /** Reactive bounds used to clamp the draggable global position. */
-  bounds = new Signal<BoundsLike | undefined>(undefined).getter
+  bounds = new Signal<Bounds | undefined>(undefined).getter
   /** Sets the bounds used to clamp the draggable global position. */
-  setBounds: SignalSetter<BoundsLike | undefined> = (value) => (this.node.bounds = value)
+  setBounds: SignalSetter<BoundsLike | undefined> = (value) =>
+    (this.node.bounds = value != null ? new Bounds(value) : undefined)
   /** Reactive snap grid used to round draggable movement. */
   snap = new Signal<VectorLike | undefined>(undefined).getter
   /** Sets the snap grid used to round draggable movement. */
-  setSnap: SignalSetter<VectorLike | undefined> = (value) => (this.node.snap = value)
+  setSnap: SignalSetter<VectorLike | undefined> = (value) =>
+    (this.node.snap = value != null ? vector2(value) : undefined)
   /** Reactive drop key used to match compatible drop areas. */
   dropKey = new Signal<DropKey | undefined>(undefined).getter
   /** Sets the drop key used to match compatible drop areas. */
@@ -86,58 +88,50 @@ export class DraggableReference extends Node2DReference<PrimaryNode.Draggable> {
   onDragEnd = new Trigger<[event: DraggableEvent]>()
 
   constructor() {
-    super(
-      PrimaryNode.Draggable,
-      (node) => {
-        this.onDragStart.link(node.onDragStart)
-        this.onDrag.link(node.onDrag)
-        this.onDragEnd.link(node.onDragEnd)
-
-        this.disabled.signal.setter(node.disabled)
-        this.shape.signal.setter(node.shape)
-        this.axis.signal.setter(node.axis)
-        this.bounds.signal.setter(node.bounds)
-        this.snap.signal.setter(node.snap)
-        this.dropKey.signal.setter(node.dropKey)
-        this.dropData.signal.setter(node.dropData)
-
-        node.onDragStart.connect((event) => {
+    super({
+      type: PrimaryNode.Draggable,
+      linkEvents: ({ link, on }) => {
+        link(this, 'onDragStart', 'onDrag', 'onDragEnd')
+        on('onDragStart', (event) => {
           this.dragging.signal.setter(true)
           this.pointerPosition.signal.setter(event.pointerPosition)
         })
-        node.onDrag.connect((event) => {
+        on('onDrag', (event) => {
           this.pointerPosition.signal.setter(event.pointerPosition)
         })
-        node.onDragEnd.connect((event) => {
+        on('onDragEnd', (event) => {
           this.dragging.signal.setter(false)
           this.pointerPosition.signal.setter(event.pointerPosition)
         })
-        node.onUpdate.connect(() => {
-          this.hovered.signal.setter(node.hovered)
-          this.pressed.signal.setter(node.pressed)
-          this.dragging.signal.setter(node.dragging)
-          this.disabled.signal.setter(node.disabled)
-          this.shape.signal.setter(node.shape)
-          this.axis.signal.setter(node.axis)
-          this.bounds.signal.setter(node.bounds)
-          this.snap.signal.setter(node.snap)
-          this.dropKey.signal.setter(node.dropKey)
-          this.dropData.signal.setter(node.dropData)
-        })
       },
-      () => {
-        this.shape.signal.clearSubs()
-        this.hovered.signal.clearSubs()
-        this.pressed.signal.clearSubs()
-        this.dragging.signal.clearSubs()
-        this.disabled.signal.clearSubs()
-        this.axis.signal.clearSubs()
-        this.bounds.signal.clearSubs()
-        this.snap.signal.clearSubs()
-        this.dropKey.signal.clearSubs()
-        this.dropData.signal.clearSubs()
-        this.pointerPosition.signal.clearSubs()
+      onFrame: (node) => {
+        this.shape.signal.setter({ ...node.shape })
+        this.hovered.signal.setter(node.hovered)
+        this.pressed.signal.setter(node.pressed)
+        this.dragging.signal.setter(node.dragging)
+        this.disabled.signal.setter(node.disabled)
+        this.axis.signal.setter(node.axis)
+        this.bounds.signal.setter(node.bounds?.clone())
+        this.snap.signal.setter(node.snap?.clone())
+        this.dropKey.signal.setter(node.dropKey)
+        this.dropData.signal.setter(node.dropData)
       },
-    )
+      regSignal: ({ reg }) => {
+        reg<DraggableReference>(
+          this,
+          'shape',
+          'hovered',
+          'pressed',
+          'dragging',
+          'disabled',
+          'axis',
+          'bounds',
+          'snap',
+          'dropKey',
+          'dropData',
+          'pointerPosition',
+        )
+      },
+    })
   }
 }

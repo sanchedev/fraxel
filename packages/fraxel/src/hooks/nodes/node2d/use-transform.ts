@@ -34,6 +34,6 @@ export function useTransform() {
 
 export class TransformReference extends Node2DReference<PrimaryNode.Transform> {
   constructor() {
-    super(PrimaryNode.Transform)
+    super({ type: PrimaryNode.Transform })
   }
 }
